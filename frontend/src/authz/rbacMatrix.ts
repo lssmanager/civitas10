@@ -72,7 +72,7 @@ type ScreenPolicy = {
 const OWNER_READ: Rule = { requiredGlobalRoles: [OWNER_GLOBAL_ROLE], requiredOwnerScopes: [OWNER_SCOPES.read], requiresOwnerRead: true };
 const OWNER_WRITE: Rule = { requiredGlobalRoles: [OWNER_GLOBAL_ROLE], requiredOwnerScopes: [OWNER_SCOPES.write], requiresOwnerWrite: true };
 const OWNER_ORGANIZATIONS_READ: Rule = { requiredGlobalRoles: [OWNER_GLOBAL_ROLE], requiredOwnerScopes: [OWNER_SCOPES.organizationsRead, OWNER_SCOPES.read], requiresOwnerRead: true };
-const OWNER_ORGANIZATIONS_CREATE: Rule = { requiredGlobalRoles: [OWNER_GLOBAL_ROLE], requiredOwnerScopes: [OWNER_SCOPES.organizationsCreate, OWNER_SCOPES.write], requiresOwnerWrite: true };
+const OWNER_ORGANIZATIONS_CREATE: Rule = { requiredGlobalRoles: [OWNER_GLOBAL_ROLE], requiresOwnerWrite: true };
 const ANY_AUTHENTICATED: Rule = {};
 
 export const RBACMatrix = {
