@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useResourceApi } from '../api/resource';
 
 interface CreateOrganizationFormProps {
-  onSuccess: (orgId: string) => void;
+  onSuccess: (orgId: string, name?: string, description?: string) => void;
 }
 
 const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
@@ -22,7 +22,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     try {
       const result = await createOrganization(formData);
       setFormData({ name: '', description: '' });
-      onSuccess(result.data.id);
+      onSuccess(result.data.id, formData.name, formData.description);
     } catch (error) {
       setError(`Failed to create organization. Please try again. ${error}`);
     } finally {
@@ -40,7 +40,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-8">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">Create Your First Organization</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-6">Crear primera organización Civitas</h3>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="name" className={labelClassName}>

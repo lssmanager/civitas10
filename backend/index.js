@@ -15,6 +15,9 @@ const {
   ORGANIZATION_ADMIN_ROLE_NAME,
 } = require("./services/logtoManagement");
 
+const { getDatabaseHealth } = require("./lib/databaseHealth");
+const { getRedisHealth } = require("./lib/redisHealth");
+
 const app = express();
 const port = process.env.PORT || 3000;
 const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR || "https://api.documind.com";
@@ -33,8 +36,43 @@ const requireOwner = (req, res, next) => {
   return next();
 };
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "civitas1.1-backend" });
+const summarizeStatus = (statuses) => {
+  if (statuses.includes("unhealthy")) return "unhealthy";
+  if (statuses.includes("degraded")) return "degraded";
+  return "healthy";
+};
+
+const getLogtoConfigHealth = () => {
+  const required = [
+    "LOGTO_ENDPOINT",
+    "LOGTO_ISSUER",
+    "LOGTO_JWKS_URL",
+    "LOGTO_API_RESOURCE_INDICATOR",
+    "LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT",
+    "LOGTO_MANAGEMENT_API_APPLICATION_ID",
+    "LOGTO_MANAGEMENT_API_APPLICATION_SECRET",
+    "LOGTO_MANAGEMENT_API_RESOURCE",
+  ];
+  const missing = required.filter((name) => !process.env[name]);
+  return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
+};
+
+const getWorkerReadiness = () => {
+  const configured = Boolean(process.env.SERVICE_URL_WORKER || process.env.REDIS_URL);
+  return {
+    status: configured ? "healthy" : "degraded",
+    serviceUrl: process.env.SERVICE_URL_WORKER || null,
+    bullmqPrefix: process.env.BULLMQ_PREFIX || "civitas",
+    message: configured ? "Worker bootstrap can use Redis heartbeat and prefixed queues." : "Configure SERVICE_URL_WORKER and REDIS_URL to enable worker runtime health.",
+  };
+};
+
+app.get("/health", async (_req, res) => {
+  const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
+  const logto = getLogtoConfigHealth();
+  const worker = getWorkerReadiness();
+  const status = summarizeStatus(["healthy", logto.status, database.status, redis.status, worker.status]);
+  res.status(status === "unhealthy" ? 503 : 200).json({ status, service: "civitas1.1-backend", api: { status: "healthy" }, logto, database, redis, worker });
 });
 
 app.get("/me", requireAuth(API_RESOURCE), (req, res) => {
@@ -56,7 +94,7 @@ app.get("/me", requireAuth(API_RESOURCE), (req, res) => {
   });
 });
 
-app.post("/owner/organizations", requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
+app.post(["/owner/organizations", "/organizations"], requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
   try {
     const { name, description, customData } = req.body || {};
 
