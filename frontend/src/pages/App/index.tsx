@@ -1,29 +1,26 @@
-import {
-  LogtoProvider,
-  LogtoConfig,
-  useLogto,
-  UserScope,
-  ReservedResource,
-} from "@logto/react";
-import { Routes, Route } from "react-router-dom";
+import { LogtoProvider, LogtoConfig, useLogto, UserScope, ReservedResource } from "@logto/react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./Landing";
-import Dashboard from "./Dashboard";
 import Callback from "../Callback";
 import OrganizationPage from "../OrganizationPage";
 import OwnerOrganizationsPage from "../OwnerOrganizationsPage";
+import OwnerOperationalHomePage from "../OwnerOperationalHomePage";
+import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPage";
+import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
 import { APP_ENV } from "../../env";
+import { appRoutes } from "../../navigation/routes";
 
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
-  scopes: [UserScope.Organizations, "read:documents", "create:documents", "create:organization"],
+  scopes: [UserScope.Organizations, "read:documents", "create:documents", "create:organization", "owner:read", "owner:write"],
   resources: [ReservedResource.Organization, APP_ENV.api.resourceIndicator],
 };
 
 function App() {
   return (
     <LogtoProvider config={config}>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-slate-50 text-slate-950">
         <Routes>
           <Route path="/callback" element={<Callback />} />
           <Route path="/*" element={<AppContent />} />
@@ -35,15 +32,14 @@ function App() {
 
 function AppContent() {
   const { isAuthenticated } = useLogto();
-
-  if (!isAuthenticated) {
-    return <Landing />;
-  }
-
+  if (!isAuthenticated) return <Landing />;
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/owner/organizations" element={<OwnerOrganizationsPage />} />
+      <Route path="/" element={<Navigate to={appRoutes.owner.path} replace />} />
+      <Route path={appRoutes.owner.path} element={<OwnerOperationalHomePage />} />
+      <Route path={appRoutes.ownerOrganizations.path} element={<OwnerOrganizationsPage />} />
+      <Route path={appRoutes.ownerOrganizationState.path} element={<OwnerOrganizationOperationalPage />} />
+      <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerWorkerQueuesPage />} />
       <Route path="/:orgId" element={<OrganizationPage />} />
     </Routes>
   );
