@@ -5,6 +5,7 @@ const {
   buildInvalidation,
   buildOperationalBlock,
 } = require("./operational/contract");
+const { redisCommand } = require("../lib/redis");
 
 const safeMessage = (value, fallback = null) => {
   if (!value) return fallback;
@@ -24,11 +25,92 @@ const isProblemOperationalStatus = (status) => ["failed", "partial_failed", "err
 let workerHealthSnapshotCacheAt = 0;
 let workerHealthSnapshotCache = null;
 
+function getRuntimeQueueConfig() {
+  const prefix = process.env.BULLMQ_PREFIX || "civitas";
+  const queueName = process.env.SYNC_QUEUE_NAME || process.env.BULLMQ_QUEUE_NAME || "default";
+  return {
+    prefix,
+    queueName,
+    queueRedisBase: process.env.SYNC_QUEUE_REDIS_KEY || `${prefix}:${queueName}`,
+    heartbeatKey: process.env.SYNC_WORKER_HEARTBEAT_KEY || `${prefix}:worker:heartbeat`,
+  };
+}
+
+function parseHeartbeatPayload(value) {
+  if (!value) return null;
+  if (typeof value === "object") return value;
+  try {
+    const parsed = JSON.parse(String(value));
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+async function readQueueMetric(command, key) {
+  try {
+    const value = await redisCommand([command, key]);
+    return Number(value || 0);
+  } catch {
+    return 0;
+  }
+}
+
+async function loadRedisWorkerHealthSnapshot() {
+  const config = getRuntimeQueueConfig();
+  const staleMs = Number(process.env.SYNC_WORKER_HEARTBEAT_STALE_MS || 120000);
+  const [pingResponse, heartbeatRaw, waiting, active, delayed, failed] = await Promise.all([
+    redisCommand(["PING"]),
+    redisCommand(["GET", config.heartbeatKey]).catch(() => null),
+    readQueueMetric("LLEN", `${config.queueRedisBase}:wait`),
+    readQueueMetric("LLEN", `${config.queueRedisBase}:active`),
+    readQueueMetric("ZCARD", `${config.queueRedisBase}:delayed`),
+    readQueueMetric("ZCARD", `${config.queueRedisBase}:failed`),
+  ]);
+
+  const heartbeatPayload = parseHeartbeatPayload(heartbeatRaw);
+  const heartbeatAt = heartbeatPayload?.updatedAt || null;
+  const heartbeatStale = heartbeatAt ? Date.now() - new Date(heartbeatAt).getTime() > staleMs : false;
+  const queueName = heartbeatPayload?.queueName || config.queueName;
+  const queueRedisBase = heartbeatPayload?.queueRedisBase || config.queueRedisBase;
+
+  return {
+    readiness: heartbeatAt ? (heartbeatStale ? "degraded" : "ready") : "degraded",
+    worker: {
+      heartbeatAt,
+      heartbeatStale,
+      workerHeartbeatState: !heartbeatAt ? "worker_offline" : heartbeatStale ? "worker_heartbeat_stale" : "alive",
+      state: !heartbeatAt ? "worker_offline" : heartbeatStale ? "worker_heartbeat_stale" : "alive",
+      source: "redis_runtime",
+      service: heartbeatPayload?.service || null,
+      pid: heartbeatPayload?.pid || null,
+      heartbeatKey: config.heartbeatKey,
+    },
+    redis: {
+      status: pingResponse === "PONG" ? "healthy" : "degraded",
+      source: "redis_runtime",
+      urlConfigured: true,
+      heartbeatKey: config.heartbeatKey,
+      queueRedisBase,
+    },
+    queues: [{
+      name: queueName,
+      redisBase: queueRedisBase,
+      waiting,
+      active,
+      delayed,
+      failed,
+      oldestJobAgeSeconds: 0,
+      source: "redis_runtime",
+    }],
+  };
+}
+
 function buildFallbackWorkerHealthSnapshot() {
+  const config = getRuntimeQueueConfig();
   const heartbeatAt = process.env.SYNC_WORKER_HEARTBEAT_AT || null;
   const staleMs = Number(process.env.SYNC_WORKER_HEARTBEAT_STALE_MS || 120000);
   const heartbeatStale = heartbeatAt ? Date.now() - new Date(heartbeatAt).getTime() > staleMs : false;
-  const queueName = process.env.SYNC_QUEUE_NAME || "sync";
   return {
     readiness: heartbeatAt ? (heartbeatStale ? "degraded" : "ready") : "degraded",
     worker: {
@@ -37,19 +119,24 @@ function buildFallbackWorkerHealthSnapshot() {
       workerHeartbeatState: !heartbeatAt ? "worker_offline" : heartbeatStale ? "worker_heartbeat_stale" : "alive",
       state: !heartbeatAt ? "worker_offline" : heartbeatStale ? "worker_heartbeat_stale" : "alive",
       source: "runtime_env",
+      heartbeatKey: config.heartbeatKey,
     },
     redis: {
       status: process.env.REDIS_STATUS || (process.env.REDIS_URL ? "configured" : "unknown"),
       source: "runtime_env",
       urlConfigured: Boolean(process.env.REDIS_URL),
+      heartbeatKey: config.heartbeatKey,
+      queueRedisBase: config.queueRedisBase,
     },
     queues: [{
-      name: queueName,
+      name: config.queueName,
+      redisBase: config.queueRedisBase,
       waiting: Number(process.env.SYNC_QUEUE_WAITING || 0),
       active: Number(process.env.SYNC_QUEUE_ACTIVE || 0),
       delayed: Number(process.env.SYNC_QUEUE_DELAYED || 0),
       failed: Number(process.env.SYNC_QUEUE_FAILED || 0),
       oldestJobAgeSeconds: Number(process.env.SYNC_QUEUE_OLDEST_JOB_AGE_SECONDS || 0),
+      source: "runtime_env",
     }],
   };
 }
@@ -65,10 +152,19 @@ function getWorkerHealthSnapshot() {
 }
 
 async function loadWorkerHealthSnapshot() {
-  const snapshot = buildFallbackWorkerHealthSnapshot();
-  workerHealthSnapshotCache = snapshot;
-  workerHealthSnapshotCacheAt = Date.now();
-  return snapshot;
+  try {
+    if (!process.env.REDIS_URL) throw new Error("REDIS_URL is not configured");
+    const snapshot = await loadRedisWorkerHealthSnapshot();
+    workerHealthSnapshotCache = snapshot;
+    workerHealthSnapshotCacheAt = Date.now();
+    return snapshot;
+  } catch (error) {
+    const snapshot = buildFallbackWorkerHealthSnapshot();
+    snapshot.redis = { ...snapshot.redis, fallbackReason: safeMessage(error, "Redis runtime unavailable") };
+    workerHealthSnapshotCache = snapshot;
+    workerHealthSnapshotCacheAt = Date.now();
+    return snapshot;
+  }
 }
 
 function classifyWorkerHealthState(workerHealth = {}) {
@@ -116,7 +212,13 @@ function buildWorkerHealthBlock(workerHealth = {}, { generatedAt = new Date() } 
     humanMessage: classification === "alive" ? "Worker vivo con heartbeat fresco." : classification === "worker_offline" ? "No hay heartbeat persistido del worker; no se asume salud correcta." : "El heartbeat del worker está vencido.",
     providerCode: workerHealth.redis?.status || null,
     providerStatus: classification,
-    details: { readiness: workerHealth.readiness || "unknown", heartbeatAt: workerHealth.worker?.heartbeatAt || null, redis: workerHealth.redis || null, source: workerHealth.worker?.source || null },
+    details: {
+      readiness: workerHealth.readiness || "unknown",
+      heartbeatAt: workerHealth.worker?.heartbeatAt || null,
+      redis: workerHealth.redis || null,
+      source: workerHealth.worker?.source || null,
+      heartbeatKey: workerHealth.worker?.heartbeatKey || workerHealth.redis?.heartbeatKey || null,
+    },
   });
   return { classification, readiness: workerHealth.readiness || "unknown", heartbeat: { at: workerHealth.worker?.heartbeatAt || null, state: classification }, redis: workerHealth.redis || null, ...block };
 }
@@ -133,7 +235,7 @@ function buildQueuesBlocks(queues = [], { workerState = "alive", generatedAt = n
       failed: Number(queue.failed || 0),
       oldestJobAgeSeconds: Number(queue.oldestJobAgeSeconds || 0),
       classification,
-      ...blockForClassification({ classification, checkedAt: generatedAt, providerCode: queue.name, providerStatus: classification, details: { queueName: queue.name, previousWaiting: previousQueue?.waiting ?? null } }),
+      ...blockForClassification({ classification, checkedAt: generatedAt, providerCode: queue.name, providerStatus: classification, details: { queueName: queue.name, queueRedisBase: queue.redisBase || null, previousWaiting: previousQueue?.waiting ?? null, source: queue.source || null } }),
     };
   });
 }
@@ -215,7 +317,7 @@ function buildTimeline({ operations = [], steps = [], auditLogRows = [], profile
     const error = normalizeOutput(step.lastErrorJson);
     return {
       id: `step-${step.id}`,
-      at: step.updatedAt?.toISOString?.() || step.updatedAt || step.createdAt,
+      at: toIso(step.updatedAt) || toIso(step.createdAt),
       type: /provider_verification/i.test(step.stepName) ? "provider_verification" : /contact/i.test(step.stepName) ? "contacts_blocked" : /company/i.test(step.stepName) && ["failed", "error"].includes(step.status) ? "company_sync_failed" : step.status === "queued" ? "worker_taken" : "operational_step",
       organizationId: op.logtoOrganizationId || null,
       organizationName: profileByOrg.get(op.logtoOrganizationId)?.nameCache || null,
@@ -229,7 +331,7 @@ function buildTimeline({ operations = [], steps = [], auditLogRows = [], profile
   });
   const auditEvents = auditLogRows.map((log) => ({
     id: `audit-${log.id}`,
-    at: log.createdAt?.toISOString?.() || log.createdAt,
+    at: toIso(log.createdAt),
     type: /retry/i.test(log.action) ? "retry_requested" : log.result === "error" ? "manual_action_required" : "audit_event",
     organizationId: log.organizationId || null,
     organizationName: profileByOrg.get(log.organizationId)?.nameCache || null,
