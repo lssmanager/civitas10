@@ -10,6 +10,7 @@ import Landing from "./Landing";
 import Dashboard from "./Dashboard";
 import Callback from "../Callback";
 import OrganizationPage from "../OrganizationPage";
+import OwnerOrganizationsPage from "../OwnerOrganizationsPage";
 import { APP_ENV } from "../../env";
 
 const config: LogtoConfig = {
@@ -42,6 +43,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
+      <Route path="/owner/organizations" element={<OwnerOrganizationsPage />} />
       <Route path="/:orgId" element={<OrganizationPage />} />
     </Routes>
   );
