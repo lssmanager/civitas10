@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+FROM node:22-alpine AS frontend_builder
 
 WORKDIR /app
 
@@ -22,10 +22,10 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-FROM node:22-alpine AS runtime
+FROM node:22-alpine AS frontend_runtime
 
 WORKDIR /app
-COPY --from=build /app/dist ./dist
+COPY --from=frontend_builder /app/dist ./dist
 RUN npm install -g serve
 
 EXPOSE 4173
