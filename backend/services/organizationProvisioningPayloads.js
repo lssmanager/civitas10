@@ -51,43 +51,61 @@ function buildAdministrativeContactsCustomData(contacts = []) {
 function buildOrganizationCustomData({ canonical = {}, settings = {}, business = {}, segmentation = {} } = {}) {
   const administrativeContacts = buildAdministrativeContactsCustomData(canonical.administrativeContacts);
   const primaryContact = administrativeContacts.find((contact) => contact.email || contact.name) || null;
+  const tags = unique(segmentation.tags);
+  const lists = unique(segmentation.lists);
+  const companyName = trim(canonical.name);
 
   return cleanObject({
     provisioning: cleanObject({
+      entryUrl: settings.entryUrl,
       appSubdomain: settings.appSubdomain,
       appBaseDomain: settings.appBaseDomain,
-      entryUrl: settings.entryUrl,
       institutionalDomain: settings.adminDomain,
       jitDefaultRoleNames: unique(canonical.jitProvisioning?.defaultRoleNames),
     }),
     oidcRedirectUri: settings.oidcRedirectUri || null,
     civitasProfile: cleanObject({
-      version: 1,
-      business: cleanObject({
-        website: trim(business.website),
-        type: trim(business.type),
-        industry: trim(business.industry),
-        about: trim(business.about),
-        description: trim(business.description) || canonical.description || null,
-        addressLine1: trim(business.addressLine1),
-        addressLine2: trim(business.addressLine2),
-        city: trim(business.city),
-        state: trim(business.state),
-        postalCode: trim(business.postalCode),
-        country: trim(business.country),
-        numberOfEmployees: trim(business.numberOfEmployees),
-        nit: trim(business.nit),
-        verificationDigit: trim(business.verificationDigit),
-      }),
       contact: cleanObject({
-        owner: trim(primaryContact?.name),
         email: trim(primaryContact?.email),
+        owner: trim(primaryContact?.name),
         phone: trim(primaryContact?.phone),
       }),
+      version: 1,
+      business: cleanObject({
+        nit: trim(business.nit),
+        city: trim(business.city),
+        type: trim(business.type),
+        state: trim(business.state),
+        country: trim(business.country),
+        website: trim(business.website),
+        entryUrl: settings.entryUrl,
+        industry: trim(business.industry),
+        postalCode: trim(business.postalCode),
+        addressLine1: trim(business.addressLine1),
+        addressLine2: trim(business.addressLine2),
+        appSubdomain: settings.appSubdomain,
+        appBaseDomain: settings.appBaseDomain,
+        numberOfEmployees: trim(business.numberOfEmployees),
+        verificationDigit: trim(business.verificationDigit),
+        institutionalDomain: settings.adminDomain,
+        about: trim(business.about),
+        description: trim(business.description) || canonical.description || null,
+      }),
       administrativeContacts,
+      downstream: cleanObject({
+        crm: cleanObject({
+          tags,
+          lists,
+          companyName,
+          segmentation: cleanObject({
+            organizationTags: tags,
+            organizationLists: lists,
+          }),
+        }),
+      }),
       segmentation: cleanObject({
-        tags: unique(segmentation.tags),
-        lists: unique(segmentation.lists),
+        tags,
+        lists,
       }),
     }),
   });
