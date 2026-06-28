@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useApi } from "./base";
+import type { ConsolidatedOperationalResponse, OperationalBlock } from "../contracts/operational";
 
 export type OwnerAuthorization = {
   logtoUserId: string;
@@ -34,6 +35,22 @@ export type OrganizationTemplateResponse = {
   requiredRoleNames: string[];
   missingRoleNames: string[];
   ready: boolean;
+};
+
+export type WorkerHealthAggregate = {
+  contractVersion: string;
+  generatedAt: string;
+  workerHealth: OperationalBlock & {
+    classification: string;
+    readiness: string;
+    heartbeat: { at: string | null; state: string };
+    redis: Record<string, unknown> | null;
+  };
+  queues: Array<{ name: string; classification: string; waiting: number; active: number; delayed: number; failed: number; oldestJobAgeSeconds: number } & OperationalBlock>;
+  activeOperations: Array<Record<string, unknown> & OperationalBlock>;
+  blockedOrganizations: Array<Record<string, unknown> & OperationalBlock>;
+  timeline: Array<Record<string, unknown>>;
+  source: Record<string, unknown>;
 };
 
 export type AdministrativeContactInput = {
@@ -110,13 +127,11 @@ export const useOwnerApi = () => {
   return useMemo(
     () => ({
       getOwnerMe: async (): Promise<OwnerMeResponse> => fetchWithToken("/owner/me"),
-      getOrganizations: async (): Promise<{ organizations: OwnerOrganization[] }> =>
-        fetchWithToken("/owner/organizations"),
-      getOrganizationTemplate: async (): Promise<OrganizationTemplateResponse> =>
-        fetchWithToken("/owner/organization-template"),
-      createOrganization: async (
-        data: CreateOwnerOrganizationInput,
-      ): Promise<CreateOwnerOrganizationResponse> =>
+      getOrganizations: async (): Promise<{ organizations: OwnerOrganization[] }> => fetchWithToken("/owner/organizations"),
+      getOrganizationTemplate: async (): Promise<OrganizationTemplateResponse> => fetchWithToken("/owner/organization-template"),
+      getOrganizationOperationalState: async (organizationId: string): Promise<ConsolidatedOperationalResponse> => fetchWithToken(`/owner/organizations/${encodeURIComponent(organizationId)}/operational-state`),
+      getWorkerQueuesObservability: async (): Promise<WorkerHealthAggregate> => fetchWithToken("/owner/system/worker-queues"),
+      createOrganization: async (data: CreateOwnerOrganizationInput): Promise<CreateOwnerOrganizationResponse> =>
         fetchWithToken("/owner/organizations", {
           method: "POST",
           body: JSON.stringify(data),
