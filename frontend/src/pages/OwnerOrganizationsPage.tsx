@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Topbar from "../components/Topbar";
 import { useOwnerApi, type CreateOwnerOrganizationInput } from "../api/owner";
-import { appRoutes } from "../navigation/routes";
 
 const APP_BASE_DOMAINS = ["didaxus.com", "socialstudies.cloud", "learnsocialstudies.com"] as const;
 
