@@ -12,6 +12,7 @@ const {
   createLogtoOrganization,
   ensureOrganizationTemplate,
   findOrganizationRoleByName,
+  listLogtoOrganizations,
   ORGANIZATION_ADMIN_ROLE_NAME,
 } = require("./services/logtoManagement");
 
@@ -67,6 +68,26 @@ const getWorkerReadiness = () => {
   };
 };
 
+const buildMeResponse = (user) => {
+  const globalRoles = Array.isArray(user?.globalRoles) ? user.globalRoles : [];
+  const organizationRoles = Array.isArray(user?.organizationRoles) ? user.organizationRoles : [];
+
+  return {
+    auth: {
+      sub: user?.sub || user?.id || null,
+      organizationId: user?.organizationId || null,
+      scopes: user?.scopes || [],
+      roles: user?.roles || [],
+      globalRoles,
+      organizationRoles,
+      owner: {
+        canReadOwner: globalRoles.includes("owner_global"),
+        canWriteOwner: globalRoles.includes("owner_global"),
+      },
+    },
+  };
+};
+
 app.get("/health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
   const logto = getLogtoConfigHealth();
@@ -76,22 +97,45 @@ app.get("/health", async (_req, res) => {
 });
 
 app.get("/me", requireAuth(API_RESOURCE), (req, res) => {
-  const globalRoles = Array.isArray(req.user?.globalRoles) ? req.user.globalRoles : [];
-  const organizationRoles = Array.isArray(req.user?.organizationRoles) ? req.user.organizationRoles : [];
+  res.json(buildMeResponse(req.user));
+});
+
+app.get("/owner/me", requireAuth(API_RESOURCE), requireOwner, (req, res) => {
+  const me = buildMeResponse(req.user);
   res.json({
-    auth: {
-      sub: req.user?.sub || req.user?.id || null,
-      organizationId: req.user?.organizationId || null,
-      scopes: req.user?.scopes || [],
-      roles: req.user?.roles || [],
-      globalRoles,
-      organizationRoles,
-      owner: {
-        canReadOwner: globalRoles.includes("owner_global"),
-        canWriteOwner: globalRoles.includes("owner_global"),
-      },
+    owner: {
+      logtoUserId: me.auth.sub,
+      internalUserId: me.auth.sub,
+      authorizedBy: "logto_global_role_and_scope",
+      requiredScope: "owner:read",
+      requiredWriteScope: "owner:write",
+      canReadOwner: me.auth.owner.canReadOwner,
+      canWriteOwner: me.auth.owner.canWriteOwner,
+      globalRoles: me.auth.globalRoles,
+      scopes: me.auth.scopes,
     },
   });
+});
+
+app.get("/owner/organizations", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+  try {
+    const organizations = await listLogtoOrganizations();
+    return res.json({
+      organizations: organizations.map((organization) => ({
+        logtoOrganizationId: organization.id || null,
+        name: organization.name || null,
+        logtoOrganization: organization,
+        profile: null,
+      })),
+    });
+  } catch (error) {
+    return res.status(error?.status || 500).json({
+      error: error?.name || "OwnerOrganizationsListError",
+      message: error?.message || "Failed to list organizations from Logto",
+      code: error?.code || null,
+      details: error?.body || null,
+    });
+  }
 });
 
 app.post(["/owner/organizations", "/organizations"], requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
