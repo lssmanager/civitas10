@@ -8,6 +8,20 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    networks:
+      - default
+      - loginet
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=loginet
+      - traefik.http.routers.civitas-api.rule=Host(`civitas.socialstudies.cloud`) && PathPrefix(`/api`)
+      - traefik.http.routers.civitas-api.entrypoints=http,https
+      - traefik.http.routers.civitas-api.tls=true
+      - traefik.http.routers.civitas-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.civitas-api.middlewares=civitas-api-strip
+      - traefik.http.routers.civitas-api.priority=100
+      - traefik.http.middlewares.civitas-api-strip.stripprefix.prefixes=/api
+      - traefik.http.services.civitas-api.loadbalancer.server.port=3000
 
   worker:
     build:
@@ -19,6 +33,9 @@ services:
     ports:
       - "3002:3002"
     restart: unless-stopped
+    networks:
+      - default
+      - loginet
 
   frontend:
     build:
@@ -36,3 +53,20 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    networks:
+      - default
+      - loginet
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=loginet
+      - traefik.http.routers.civitas-frontend.rule=Host(`civitas.socialstudies.cloud`)
+      - traefik.http.routers.civitas-frontend.entrypoints=http,https
+      - traefik.http.routers.civitas-frontend.tls=true
+      - traefik.http.routers.civitas-frontend.tls.certresolver=letsencrypt
+      - traefik.http.routers.civitas-frontend.priority=1
+      - traefik.http.services.civitas-frontend.loadbalancer.server.port=4173
+
+networks:
+  default:
+  loginet:
+    external: true
