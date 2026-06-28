@@ -75,6 +75,11 @@ export type CreateOwnerOrganizationInput = {
   jitProvisioning: {
     defaultRoleNames: string[];
   };
+  contact?: {
+    email?: string;
+    phone?: string;
+    owner?: string;
+  };
   business?: {
     website?: string;
     addressLine1?: string;
