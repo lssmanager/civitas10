@@ -27,10 +27,30 @@ function buildLogtoUsername({ email }) {
     .replace(/^_+$/, "") || null;
 }
 
+function buildAdministrativeContactsCustomData(contacts = []) {
+  return (Array.isArray(contacts) ? contacts : [])
+    .map((contact) =>
+      cleanObject({
+        key: trim(contact?.key),
+        firstName: trim(contact?.firstName),
+        middleName: trim(contact?.middleName),
+        firstSurname: trim(contact?.firstSurname),
+        secondSurname: trim(contact?.secondSurname),
+        name: trim(contact?.name),
+        email: trim(contact?.email)?.toLowerCase(),
+        phone: trim(contact?.phone),
+        phoneExtension: trim(contact?.phoneExtension),
+        position: trim(contact?.position),
+        organizationRoleName: trim(contact?.organizationRoleName),
+        username: trim(contact?.username) || buildLogtoUsername({ email: contact?.email }),
+      }),
+    )
+    .filter((contact) => Object.keys(contact).length > 0);
+}
+
 function buildOrganizationCustomData({ canonical = {}, settings = {}, business = {}, segmentation = {} } = {}) {
-  const primaryContact = Array.isArray(canonical.administrativeContacts)
-    ? canonical.administrativeContacts.find((contact) => contact?.email || contact?.name) || null
-    : null;
+  const administrativeContacts = buildAdministrativeContactsCustomData(canonical.administrativeContacts);
+  const primaryContact = administrativeContacts.find((contact) => contact.email || contact.name) || null;
 
   return cleanObject({
     provisioning: cleanObject({
@@ -38,6 +58,7 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, business =
       appBaseDomain: settings.appBaseDomain,
       entryUrl: settings.entryUrl,
       institutionalDomain: settings.adminDomain,
+      jitDefaultRoleNames: unique(canonical.jitProvisioning?.defaultRoleNames),
     }),
     oidcRedirectUri: settings.oidcRedirectUri || null,
     civitasProfile: cleanObject({
@@ -63,6 +84,7 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, business =
         email: trim(primaryContact?.email),
         phone: trim(primaryContact?.phone),
       }),
+      administrativeContacts,
       segmentation: cleanObject({
         tags: unique(segmentation.tags),
         lists: unique(segmentation.lists),
@@ -104,6 +126,14 @@ function buildUserCreatePayload(person = {}) {
     customData: cleanObject({
       civitasProfile: cleanObject({
         source: "owner_organization_provisioning",
+        key: trim(person.key),
+        firstName,
+        middleName,
+        firstSurname,
+        secondSurname,
+        fullName: fullName || null,
+        email: trim(person.email)?.toLowerCase(),
+        organizationRoleName: trim(person.organizationRoleName),
         position: trim(person.position),
         phone: trim(person.phone),
         phoneExtension,
@@ -114,6 +144,7 @@ function buildUserCreatePayload(person = {}) {
 
 module.exports = {
   buildLogtoUsername,
+  buildAdministrativeContactsCustomData,
   buildOrganizationCustomData,
   buildOrganizationCreatePayload,
   buildUserCreatePayload,
