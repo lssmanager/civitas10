@@ -1,101 +1,234 @@
-# Multi-tenant SaaS Sample Application
+# Civitas 1.1
 
-This is the companion code for the blog post [Build a multi-tenant SaaS application: A complete guide from design to implementation](https://blog.logto.io/build-multi-tenant-saas-application).
+Civitas 1.1 is the clean reconstruction foundation for the Civitas platform. It keeps the parts that already work well from the previous codebase and removes the contaminated owner UI and legacy operational surfaces that were mixing logs, snapshots, and partial truths.
 
-This demo application showcases how to build a SaaS application with multi-tenant support using [Logto](https://logto.io).
+This repository is no longer treated as the original Logto sample app. It now serves as the clean base for:
 
-The project consists of a frontend application and a backend service that demonstrate organization management, user authentication, document management, and Logto management API integration features.
+- Logto as the canonical identity, organizations, memberships, roles, permissions, tenant context, and token source
+- a standardized operational backbone for Civitas
+- an extensible RBAC contract for `owner_global`, `organization_admin`, and `organization_member`
+- future capability-based modules such as CRM, Marketing, LMS, Community, and Payments
 
-## About This Project
+## Fuente canónica por dominio
 
-This codebase implements the concepts and features discussed in the blog post, including:
-- Multi-tenant organization management
-- User authentication with Logto
-- Document management system
-- Organization level role-based access control
-- Logto management API integration
+- **Logto**: identity, authentication, organizations, memberships, roles, permissions, tenant context, and tokens
+- **FluentCRM / WordPress**: commercial relationship, company, contacts, tags, lists, purchase, renewal, and commercial status
+- **Moodle**: courses, enrollments, progress, and academic history
+- **BuddyBoss**: groups, community, and social memberships
+- **Civitas database**: operational metadata, audit data, synchronization state, mappings between systems, queues, events, reconciliation state, and cross-system operational rules
 
-## Project Structure
+### What must not live canonically in PostgreSQL
 
-- `frontend/`: React-based frontend application
-- `backend/`: Node.js backend service
+- parallel organizations if Logto already defines the real organization
+- parallel RBAC models if Logto already defines the real permissions and roles
+- provider live state presented as if it were local truth without clear source labeling
+- UI-specific summaries as if they were canonical business state
 
-## Quick Start
+## What has already been migrated into this repository
 
-To run the complete application locally, you'll need to:
+### Identity and access foundation
 
-1. Start the backend service first
-2. Start the frontend application
-3. Configure the proper environment variables in both projects
-4. Ensure your Logto application is properly configured with the correct redirect URIs
+- backend Logto authentication middleware
+- backend Logto Management API integration
+- owner-global organization provisioning endpoint
+- organization creation in Logto from Civitas
+- organization admin bootstrap in Logto from Civitas
+- user and organization `customData` handling foundations
+- frontend environment wiring for Logto and API connectivity
 
-### Backend Setup
+### Operational backbone foundation
 
-1. Navigate to the backend directory:
+- standardized operational action catalog
+- standardized operational contract builders
+- consolidated operational response JSON schema
+- frontend operational contract types
+- backend operational contract tests
+- canonical operational JSON examples
+
+### RBAC foundation
+
+- frontend RBAC matrix separated for:
+  - `owner_global`
+  - `organization_admin`
+  - `organization_member`
+
+## What is intentionally not migrated yet
+
+The following parts are intentionally not treated as the current baseline because they need a cleaner rebuild:
+
+- owner dashboard UI
+- organization operational console UI
+- worker and queues UI
+- logs UI as a primary support path
+- any legacy surface that recomposes truth from partial snapshots or pushes users into circular navigation
+
+## Repository structure
+
+- `backend/`: Node.js API and Logto integration foundation
+- `frontend/`: React frontend foundation and RBAC-aware route metadata
+- `contracts/`: operational schemas
+- `examples/`: canonical operational contract examples
+- `docs/architecture/`: architectural backbone documentation
+
+## Local setup
+
+### Prerequisites
+
+- Node.js 22+ recommended
+- a Logto tenant
+- one Logto SPA application for the frontend
+- one Logto M2M application for backend management API access
+
+## Backend setup
+
+1. Go to the backend directory.
+
 ```bash
 cd backend
 ```
 
-2. Copy the environment file and configure Logto settings:
+2. Copy the environment file.
+
 ```bash
 cp .env.example .env
 ```
 
-3. Install dependencies:
+3. Configure the backend environment.
+
+Required variables:
+
+- `LOGTO_ENDPOINT`
+- `LOGTO_ISSUER`
+- `LOGTO_JWKS_URI`
+- `LOGTO_APP_ID`
+- `LOGTO_APP_SECRET`
+- `LOGTO_M2M_APP_ID`
+- `LOGTO_M2M_APP_SECRET`
+- `LOGTO_API_RESOURCE_INDICATOR`
+
+Recommended Civitas-specific variables:
+
+- `CIVITAS_ALLOWED_ORG_USER_GLOBAL_ROLES`
+- `LOGTO_ENABLE_ADMIN_PASSWORD_RESET`
+- `LOGTO_JWKS_TIMEOUT_MS`
+- `LOGTO_JWT_VERIFY_TIMEOUT_MS`
+- `LOGTO_MANAGEMENT_TIMEOUT_MS`
+
+4. Install dependencies.
+
 ```bash
 npm install
 ```
 
-4. Start the development server:
+5. Run the backend.
+
 ```bash
 npm run dev
 ```
 
-The backend server will be running at http://localhost:3000.
+### Backend health checks
 
-### Frontend Setup
+Once running, validate:
 
-1. Navigate to the frontend directory:
+- `GET /health` should return `ok: true`
+- `GET /` should return the backend identity payload
+- `GET /me` should work with a valid bearer token
+
+### Current backend owner flow
+
+The clean migrated owner-global route currently available is:
+
+- `POST /owner/organizations`
+
+This route is designed for a global owner token and should:
+
+- create the Logto organization
+- ensure the organization template exists
+- add the bootstrap admin user to the organization
+- assign the organization admin role when resolved
+
+## Frontend setup
+
+1. Go to the frontend directory.
+
 ```bash
 cd frontend
 ```
 
-2. Configure the environment variables in `src/env.ts`:
-```typescript
-export const APP_ENV = {
-  logto: {
-    endpoint: "<YOUR_LOGTO_ENDPOINT>",
-    appId: "<YOUR_LOGTO_APP_ID>",
-  },
-  api: {
-    baseUrl: "<YOUR_BACKEND_API_BASE_URL>",
-    resourceIndicator: "<YOUR_API_RESOURCE_INDICATOR>",
-  },
-  app: {
-    redirectUri: "<YOUR_REDIRECT_URI>", // Ensure this matches the redirect URI in your Logto app settings in the Console
-    signOutRedirectUri: "<YOUR_SIGN_OUT_REDIRECT_URI>", // Ensure this matches the sign out redirect URI in your Logto app settings in the Console
-  },
-};
+2. Copy the frontend environment file.
+
+```bash
+cp .env.example .env
 ```
 
-3. Install dependencies:
+3. Configure the frontend environment.
+
+Required variables:
+
+- `VITE_LOGTO_ENDPOINT`
+- `VITE_LOGTO_APP_ID`
+- `VITE_API_BASE_URL`
+- `VITE_API_RESOURCE_INDICATOR`
+- `VITE_APP_REDIRECT_URI`
+- `VITE_APP_SIGNOUT_REDIRECT_URI`
+
+4. Install dependencies.
+
 ```bash
 npm install
 ```
 
-4. Start the development server:
+5. Run the frontend.
+
 ```bash
 npm run dev
 ```
 
-The frontend application will be running at http://localhost:5173.
+## How to connect frontend and backend correctly
 
-## Learn More
+- the frontend must request access tokens for the same API resource configured in `VITE_API_RESOURCE_INDICATOR`
+- the backend must validate those tokens against `LOGTO_API_RESOURCE_INDICATOR`
+- owner-global routes must be protected by global roles, not by implicit organization membership
+- organization-scoped routes must remain separate from global-owner routes
 
-For a detailed explanation of the concepts and implementation details, please read the accompanying blog post:
-[Build a multi-tenant SaaS application: A complete guide from design to implementation](https://blog.logto.io/build-multi-tenant-saas-application)
+## Current validation targets
 
-## License
+At this stage, validate these first:
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. frontend login through Logto
+2. backend token verification through Logto JWKS
+3. `GET /me` payload shape
+4. owner-global organization creation through `POST /owner/organizations`
+5. operational contract tests with `npm test` in `backend`
 
+## Architecture notes
+
+This repository is intended to evolve as a capability-based Civitas platform:
+
+- identity
+- CRM
+- Marketing
+- LMS
+- Community
+- Payments
+- worker action engine
+- operational-state
+- worker-queues
+
+Each capability should be introduced through:
+
+- a stable contract
+- adapters per provider
+- operational observability
+- standardized actions
+- explicit canonical source boundaries
+
+## Next migration layer
+
+The next layer to migrate after this clean foundation is:
+
+1. operational state assembler and observability services after cleanup
+2. connector registry
+3. CRM capability contract from the FluentCRM foundations
+4. worker action engine
+5. clean owner-facing UI surfaces rebuilt on top of the backbone
