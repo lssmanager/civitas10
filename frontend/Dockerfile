@@ -17,7 +17,7 @@ ENV VITE_APP_REDIRECT_URI=$VITE_APP_REDIRECT_URI
 ENV VITE_APP_SIGNOUT_REDIRECT_URI=$VITE_APP_SIGNOUT_REDIRECT_URI
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --include=dev
 
 COPY . .
 RUN npm run build
