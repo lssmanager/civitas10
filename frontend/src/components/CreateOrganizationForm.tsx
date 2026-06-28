@@ -20,11 +20,16 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     setIsCreating(true);
     
     try {
-      const result = await createOrganization(formData);
+      const payload = {
+        name: formData.name.trim(),
+        description: formData.description.trim() || undefined,
+      };
+      const result = await createOrganization(payload);
       setFormData({ name: '', description: '' });
-      onSuccess(result.data.id, formData.name, formData.description);
+      onSuccess(result.data.id, result.data.name || payload.name, result.data.description || payload.description);
     } catch (error) {
-      setError(`Failed to create organization. Please try again. ${error}`);
+      const message = error instanceof Error ? error.message : String(error);
+      setError(`No pudimos crear la organización en Logto. ${message}`);
     } finally {
       setIsCreating(false);
     }
@@ -40,7 +45,8 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-8">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">Crear primera organización Civitas</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">Crear primera organización Civitas</h3>
+      <p className="mb-6 text-sm text-gray-500">Alta canónica en Logto desde el espacio owner global.</p>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="name" className={labelClassName}>
@@ -88,4 +94,4 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
   );
 };
 
-export default CreateOrganizationForm; 
+export default CreateOrganizationForm;
