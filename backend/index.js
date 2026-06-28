@@ -2,14 +2,12 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const {
-  requireAuth,
-  requireOrganizationAccess,
-} = require("./middleware/auth");
+const { requireAuth, requireOrganizationAccess } = require("./middleware/auth");
 const {
   listLogtoOrganizations,
   listLogtoOrganizationRoles,
   validateOrganizationTemplate,
+  getLogtoOrganizationById,
 } = require("./services/logtoManagement");
 const {
   normalizeProvisioningInput,
@@ -17,7 +15,8 @@ const {
   ORGANIZATION_ADMIN_ROLE_NAME,
   JIT_DEFAULT_ORGANIZATION_ROLE_NAME,
 } = require("./services/organizationProvisioningCore");
-
+const { buildConsolidatedOperationalResponse } = require("./services/operationalStateAssembler");
+const { getWorkerHealthSnapshot, loadWorkerHealthSnapshot, loadWorkerQueuesObservability } = require("./services/operationalObservability");
 const { getDatabaseHealth } = require("./lib/databaseHealth");
 const { getRedisHealth } = require("./lib/redisHealth");
 
@@ -31,10 +30,7 @@ app.use(express.json());
 const requireOwner = (req, res, next) => {
   const globalRoles = Array.isArray(req.user?.globalRoles) ? req.user.globalRoles : [];
   if (!globalRoles.includes("owner_global")) {
-    return res.status(403).json({
-      error: "Forbidden",
-      message: "This endpoint requires the owner_global role.",
-    });
+    return res.status(403).json({ error: "Forbidden", message: "This endpoint requires the owner_global role." });
   }
   return next();
 };
@@ -61,19 +57,17 @@ const getLogtoConfigHealth = () => {
 };
 
 const getWorkerReadiness = () => {
-  const configured = Boolean(process.env.SERVICE_URL_WORKER || process.env.REDIS_URL);
+  const configured = Boolean(process.env.SERVICE_URL_WORKER || process.env.REDIS_URL || process.env.SYNC_WORKER_HEARTBEAT_AT);
   return {
     status: configured ? "healthy" : "degraded",
     serviceUrl: process.env.SERVICE_URL_WORKER || null,
-    bullmqPrefix: process.env.BULLMQ_PREFIX || "civitas",
-    message: configured ? "Worker bootstrap can use Redis heartbeat and prefixed queues." : "Configure SERVICE_URL_WORKER and REDIS_URL to enable worker runtime health.",
+    message: configured ? "Worker runtime can publish heartbeat and queue state to the owner backbone." : "Configure worker heartbeat or Redis-related environment variables to enrich operational runtime state.",
   };
 };
 
 const buildMeResponse = (user) => {
   const globalRoles = Array.isArray(user?.globalRoles) ? user.globalRoles : [];
   const organizationRoles = Array.isArray(user?.organizationRoles) ? user.organizationRoles : [];
-
   return {
     auth: {
       sub: user?.sub || user?.id || null,
@@ -89,6 +83,48 @@ const buildMeResponse = (user) => {
     },
   };
 };
+
+const getLogtoOrganizationId = (organization = {}) => organization.id || organization.organizationId || organization.logtoOrganizationId || null;
+const getLogtoOrganizationName = (organization = {}) => organization.name || organization.nameCache || null;
+const getLogtoOrganizationCustomData = (organization = {}) => {
+  const customData = organization.customData || organization.custom_data || {};
+  return customData && typeof customData === "object" && !Array.isArray(customData) ? customData : {};
+};
+
+const deriveOperationalProfile = (organization = {}) => {
+  const customData = getLogtoOrganizationCustomData(organization);
+  const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : {};
+  const business = civitasProfile.business && typeof civitasProfile.business === "object" ? civitasProfile.business : {};
+  const downstream = civitasProfile.downstream && typeof civitasProfile.downstream === "object" ? civitasProfile.downstream : {};
+  const crm = downstream.crm && typeof downstream.crm === "object" ? downstream.crm : {};
+  const fluentcrmCompanyId = crm.companyId || crm.company_id || downstream.fluentcrmCompanyId || customData.fluentcrmCompanyId || null;
+  return {
+    id: getLogtoOrganizationId(organization),
+    logtoOrganizationId: getLogtoOrganizationId(organization),
+    nameCache: getLogtoOrganizationName(organization),
+    slug: business.slug || null,
+    updatedAt: civitasProfile.updatedAt || organization.updatedAt || organization.createdAt || new Date().toISOString(),
+    fluentcrmCompanyId,
+    fluentcrmSyncStatus: fluentcrmCompanyId ? "linked" : "not_linked",
+    settings: { civitasProfile },
+  };
+};
+
+const serializeOwnerOrganization = (organization) => ({
+  logtoOrganizationId: getLogtoOrganizationId(organization),
+  name: getLogtoOrganizationName(organization),
+  logtoOrganization: organization,
+  profile: deriveOperationalProfile(organization),
+});
+
+const buildOperationalOrganization = (organization, profile) => ({
+  logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
+  name: profile?.nameCache || getLogtoOrganizationName(organization),
+  profileId: profile?.id || null,
+  sourceAnchors: {
+    logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
+  },
+});
 
 app.get("/health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
@@ -122,64 +158,66 @@ app.get("/owner/me", requireAuth(API_RESOURCE), requireOwner, (req, res) => {
 app.get("/owner/organization-template", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
-    const template = await validateOrganizationTemplate({
-      requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME],
-    });
-
+    const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
     return res.json({
-      roles: roles.map((role) => ({
-        id: role.id || role.organizationRoleId || role.roleId,
-        name: role.name || role.nameCache || role.key,
-      })).filter((role) => role.id && role.name),
+      roles: roles.map((role) => ({ id: role.id || role.organizationRoleId || role.roleId, name: role.name || role.nameCache || role.key })).filter((role) => role.id && role.name),
       requiredRoleNames: template.requiredRoleNames,
       missingRoleNames: template.missingRoleNames,
       ready: template.ok,
     });
   } catch (error) {
-    return res.status(error?.status || 500).json({
-      error: error?.name || "OwnerOrganizationTemplateError",
-      message: error?.message || "Failed to load Logto organization template",
-      code: error?.code || null,
-      details: error?.body || null,
-    });
+    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOrganizationTemplateError", message: error?.message || "Failed to load Logto organization template", code: error?.code || null, details: error?.body || null });
   }
 });
 
 app.get("/owner/organizations", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
-    return res.json({
-      organizations: organizations.map((organization) => ({
-        logtoOrganizationId: organization.id || null,
-        name: organization.name || null,
-        logtoOrganization: organization,
-        profile: null,
-      })),
-    });
+    return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
   } catch (error) {
-    return res.status(error?.status || 500).json({
-      error: error?.name || "OwnerOrganizationsListError",
-      message: error?.message || "Failed to list organizations from Logto",
-      code: error?.code || null,
-      details: error?.body || null,
+    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOrganizationsListError", message: error?.message || "Failed to list organizations from Logto", code: error?.code || null, details: error?.body || null });
+  }
+});
+
+app.get("/owner/organizations/:organizationId/operational-state", requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
+  try {
+    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
+    const profile = deriveOperationalProfile(logtoOrganization);
+    const workerHealth = await loadWorkerHealthSnapshot();
+    const response = buildConsolidatedOperationalResponse({
+      organization: buildOperationalOrganization(logtoOrganization, profile),
+      logtoOrganization,
+      profile,
+      pending: [],
+      events: [],
+      workerHealth,
+      generatedAt: new Date(),
+      compatibility: { repository: "civitas10", mode: "clean_foundation_no_legacy_sync_tables" },
     });
+    return res.json(response);
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOperationalStateError", message: error?.message || "Failed to build operational state", code: error?.code || null, details: error?.body || null });
+  }
+});
+
+app.get("/owner/system/worker-queues", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+  try {
+    const organizations = await listLogtoOrganizations().catch(() => []);
+    const profiles = organizations.map(deriveOperationalProfile);
+    const aggregate = await loadWorkerQueuesObservability({ profiles, operations: [], steps: [], auditLogRows: [] });
+    return res.json(aggregate);
+  } catch (error) {
+    return res.status(error?.status || 500).json({ error: error?.name || "OwnerWorkerQueuesError", message: error?.message || "Failed to load worker and queues observability", code: error?.code || null, details: error?.body || null });
   }
 });
 
 app.post(["/owner/organizations", "/organizations"], requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
   try {
     const normalized = normalizeProvisioningInput(req.body || {});
-
     if (normalized.errors.length > 0) {
-      return res.status(400).json({
-        error: "ValidationError",
-        message: "Organization provisioning input is invalid",
-        details: normalized.errors,
-      });
+      return res.status(400).json({ error: "ValidationError", message: "Organization provisioning input is invalid", details: normalized.errors });
     }
-
     const result = await runCanonicalOrganizationProvisioning({ input: normalized.value });
-
     return res.status(201).json({
       status: result.status,
       data: result.organization,
@@ -191,52 +229,29 @@ app.post(["/owner/organizations", "/organizations"], requireAuth(API_RESOURCE), 
       },
     });
   } catch (error) {
-    return res.status(error?.status || 500).json({
-      error: error?.name || "OrganizationProvisioningError",
-      message: error?.message || "Failed to create organization in Logto",
-      code: error?.code || null,
-      details: error?.body || null,
-    });
+    return res.status(error?.status || 500).json({ error: error?.name || "OrganizationProvisioningError", message: error?.message || "Failed to create organization in Logto", code: error?.code || null, details: error?.body || null });
   }
 });
 
-app.get(
-  "/documents",
-  requireOrganizationAccess({ requiredScopes: ["read:documents"] }),
-  async (_req, res) => {
-    const documents = [
-      {
-        id: "1",
-        title: "Getting Started Guide",
-        updatedAt: "2024-03-15",
-        updatedBy: "John Doe",
-        preview: "Welcome to DocuMind! This guide will help you understand the basic features...",
-      },
-      {
-        id: "2",
-        title: "Product Requirements",
-        updatedAt: "2024-03-14",
-        updatedBy: "Alice Smith",
-        preview: "The new feature should include the following requirements...",
-      },
-    ];
+app.get("/documents", requireOrganizationAccess({ requiredScopes: ["read:documents"] }), async (_req, res) => {
+  res.json([
+    { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
+    { id: "2", title: "Operational Contract Notes", updatedAt: "2024-03-14", updatedBy: "Alice Smith", preview: "The owner backbone now prefers operational-state over legacy logs..." },
+  ]);
+});
 
-    res.json(documents);
-  }
-);
-
-app.post(
-  "/documents",
-  requireOrganizationAccess({ requiredScopes: ["create:documents"] }),
-  async (_req, res) => {
-    res.json({ data: "Document created" });
-  }
-);
+app.post("/documents", requireOrganizationAccess({ requiredScopes: ["create:documents"] }), async (_req, res) => {
+  res.json({ data: "Document created" });
+});
 
 app.get("/", (_req, res) => {
   res.json({ message: "Welcome to the Civitas 10 API" });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+module.exports = { app, getWorkerHealthSnapshot, deriveOperationalProfile };
