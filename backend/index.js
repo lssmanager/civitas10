@@ -22,7 +22,7 @@ const { getRedisHealth } = require("./lib/redisHealth");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR || "https://api.documind.com";
+const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR || "https://api.civitas.example";
 
 app.use(cors());
 app.use(express.json());
