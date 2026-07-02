@@ -136,7 +136,18 @@ secureRoute.get("/health", "health", async (_req, res) => {
   const logto = getLogtoConfigHealth();
   const worker = getWorkerReadiness();
   const status = summarizeStatus(["healthy", logto.status, database.status, redis.status, worker.status]);
-  res.status(status === "unhealthy" ? 503 : 200).json({ status, service: "civitas10-backend", api: { status: "healthy" }, logto, database, redis, worker });
+  res.status(status === "unhealthy" ? 503 : 200).json({
+    status,
+    service: "civitas10-backend",
+    api: { status: "healthy" },
+    db: database.status === "healthy" ? "connected" : "disconnected",
+    redis: redis.status === "healthy" ? "connected" : "disconnected",
+    infrastructure: { db: database.status === "healthy" ? "connected" : "disconnected", redis: redis.status === "healthy" ? "connected" : "disconnected" },
+    redisDetails: redis,
+    logto,
+    database,
+    worker,
+  });
 });
 
 secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res) => {

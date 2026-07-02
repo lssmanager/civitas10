@@ -43,8 +43,10 @@ async function getConnector(orgId, capability, options = {}) {
   return resolve({ capability, provider: row.provider || row.adapter || row.connector, orgId, config: decrypt(row.config), context: { row } });
 }
 class MockBaseAdapter {
-  constructor(config = {}, metadata = {}) { this.config = config; this.metadata = metadata; this.capability = metadata.capability || config.capability || "support"; this.provider = metadata.provider || metadata.adapter || config.provider || "mock"; this.actions = config.actions || ["system.echo"]; }
-  async healthcheck() { return createAdapterHealth({ status: this.config.status || ADAPTER_HEALTH_STATUSES.HEALTHY, latencyMs: Number(this.config.latencyMs || 0), lastSuccessfulPing: this.config.lastSuccessfulPing || new Date().toISOString() }); }
+  constructor(config = {}, metadata = {}) { this.config = config; this.metadata = metadata; this.name = metadata.provider || metadata.adapter || config.provider || "mock"; this.capability = metadata.capability || config.capability || "support"; this.provider = this.name; this.version = "1.0.0"; this.actions = config.actions || ["system.echo"]; }
+  validate() { return true; }
+  async healthCheck() { return createAdapterHealth({ status: this.config.status || ADAPTER_HEALTH_STATUSES.HEALTHY, latencyMs: Number(this.config.latencyMs || 0), lastSuccessfulPing: this.config.lastSuccessfulPing || new Date().toISOString() }); }
+  async healthcheck() { const health = await this.healthCheck(); return { ...health, status: ADAPTER_HEALTH_STATUSES[health.status.toUpperCase()], latency_ms: health.latencyMs }; }
   async execute(action, input) { if (!this.actions.includes(action)) throw connectorError(codes.ACTION_UNSUPPORTED, `Unsupported mock action ${action}`, { action }); return { action, input, adapter: this.provider, capability: this.capability }; }
   async ping() { return this.healthcheck(); }
   async getOperationalState() { return { adapter: this.provider, capability: this.capability }; }
