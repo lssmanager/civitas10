@@ -133,15 +133,17 @@ LOGTO_CLIENT_SECRET=
 DATABASE_URL=
 REDIS_URL=
 
-BULLMQ_PREFIX=civitas
-WORKER_CONCURRENCY=1
-ENABLE_QUEUE_RECONCILER=true
-ENABLE_DB_POLL_EXECUTION=false
+# Optional: queue/worker tuning
+# BULLMQ_PREFIX=civitas
+# WORKER_CONCURRENCY=1
+# ENABLE_QUEUE_RECONCILER=true
+# ENABLE_DB_POLL_EXECUTION=false
 
-RUN_MIGRATIONS_ON_STARTUP=false
-DATABASE_WAIT_TIMEOUT_MS=30000
-DATABASE_WAIT_INTERVAL_MS=1000
-DATABASE_CONNECT_TIMEOUT_MS=5000
+# Optional: legacy connector-specific Logto Management API override
+# LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
+# LOGTO_MANAGEMENT_API_APPLICATION_ID=
+# LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
+# LOGTO_MANAGEMENT_API_RESOURCE=
 ```
 
 ### Service ownership
@@ -149,7 +151,9 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `VITE_*` variables belong only to the frontend build.
 - `API_URL`, `LOGTO_*`, `DATABASE_URL`, and `REDIS_URL` belong to backend and worker runtime.
 - `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be the backend M2M credentials used for Logto Management API access.
-- `LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives `/oidc`, `/oidc/jwks`, and `/oidc/token` from that base internally.
+- `LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives `/oidc`, `/oidc/jwks`, `/oidc/token`, and the default Management API resource from that base internally.
+- `BULLMQ_PREFIX`, `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, and `ENABLE_DB_POLL_EXECUTION` are optional worker/queue tuning values with code defaults.
+- `LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`, and `LOGTO_MANAGEMENT_API_RESOURCE` are optional legacy connector overrides only; the main Logto Management integration derives its token endpoint/resource from `LOGTO_ENDPOINT` and uses `LOGTO_CLIENT_ID`/`LOGTO_CLIENT_SECRET`.
 
 ### Removed variables
 
@@ -168,6 +172,10 @@ The application no longer uses these variables as sources of truth:
 - `POSTGRES_DB`
 - `POSTGRES_PASSWORD`
 - `POSTGRES_USER`
+- `REDIS_HOST`
+- `REDIS_PORT`
+- `RUN_MIGRATIONS_ON_STARTUP`
+- `DATABASE_CONNECT_TIMEOUT_MS`
 
 If your deployment platform injects its own helper variables, treat them as platform metadata only. Do not wire application logic to them.
 
