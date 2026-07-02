@@ -16,7 +16,7 @@ export type MeResponse = {
 };
 
 export async function getMe(accessToken: string): Promise<MeResponse> {
-  const response = await fetch(`${APP_ENV.api.baseUrl}/me`, {
+  const response = await fetch(`${APP_ENV.api.url}/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

@@ -14,8 +14,7 @@ export const APP_ENV = {
     appId: "<YOUR_LOGTO_APP_ID>",
   },
   api: {
-    baseUrl: "<YOUR_BACKEND_API_BASE_URL>",
-    resourceIndicator: "<YOUR_API_RESOURCE_INDICATOR>",
+    url: "<YOUR_BACKEND_API_URL>",
   },
   app: {
     redirectUri: "<YOUR_REDIRECT_URI>", // Ensure this matches the redirect URI in your Logto app settings in the Console

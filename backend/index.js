@@ -27,7 +27,7 @@ const { listRegistry } = require("./services/registryStore");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR || "https://api.civitas.example";
+const API_RESOURCE = process.env.API_URL || "https://civitas.socialstudies.cloud/api";
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
@@ -51,7 +51,6 @@ const getLogtoConfigHealth = () => {
     "LOGTO_ENDPOINT",
     "LOGTO_ISSUER",
     "LOGTO_JWKS_URL",
-    "LOGTO_API_RESOURCE_INDICATOR",
     "LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT",
     "LOGTO_MANAGEMENT_API_APPLICATION_ID",
     "LOGTO_MANAGEMENT_API_APPLICATION_SECRET",
@@ -62,11 +61,11 @@ const getLogtoConfigHealth = () => {
 };
 
 const getWorkerReadiness = () => {
-  const configured = Boolean(process.env.SERVICE_URL_WORKER || process.env.REDIS_URL || process.env.SYNC_WORKER_HEARTBEAT_AT);
+  const configured = Boolean(process.env.REDIS_URL || process.env.SYNC_WORKER_HEARTBEAT_AT);
   return {
     status: configured ? "healthy" : "degraded",
-    serviceUrl: process.env.SERVICE_URL_WORKER || null,
-    message: configured ? "Worker runtime can publish heartbeat and queue state to the owner backbone." : "Configure worker heartbeat or Redis-related environment variables to enrich operational runtime state.",
+    queueConfigured: Boolean(process.env.REDIS_URL),
+    message: configured ? "Worker runtime can publish heartbeat and queue state to the owner backbone." : "Configure REDIS_URL or worker heartbeat environment variables to enrich operational runtime state.",
   };
 };
 

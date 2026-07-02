@@ -179,7 +179,7 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireAuth = (resource = process.env.LOGTO_API_RESOURCE_INDICATOR) => {
+const requireAuth = (resource = process.env.API_URL) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }

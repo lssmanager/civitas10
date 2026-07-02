@@ -14,7 +14,7 @@ const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
   scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, "read:documents", "create:documents", "create:organization", "owner:read", "owner:write"],
-  resources: [ReservedResource.Organization, APP_ENV.api.resourceIndicator],
+  resources: [ReservedResource.Organization, APP_ENV.api.url],
 };
 
 function App() {
