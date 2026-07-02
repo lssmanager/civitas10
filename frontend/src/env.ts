@@ -6,8 +6,7 @@ export const APP_ENV = {
     appId: required(import.meta.env.VITE_LOGTO_APP_ID, "<YOUR_LOGTO_APP_ID>"),
   },
   api: {
-    baseUrl: required(import.meta.env.VITE_API_BASE_URL, "http://localhost:3000"),
-    resourceIndicator: required(import.meta.env.VITE_API_RESOURCE_INDICATOR, "https://api.civitas.example"),
+    url: required(import.meta.env.VITE_API_URL, "http://localhost:3000"),
   },
   app: {
     redirectUri: required(import.meta.env.VITE_APP_REDIRECT_URI, "http://localhost:5173/callback"),

@@ -2,8 +2,7 @@ import { useLogto } from "@logto/react";
 import { useMemo } from "react";
 import { APP_ENV } from "../env";
 
-const API_BASE_URL = APP_ENV.api.baseUrl;
-const API_RESOURCE_INDICATOR = APP_ENV.api.resourceIndicator;
+const API_URL = APP_ENV.api.url;
 
 export type ApiError = {
   message: string;
@@ -41,7 +40,7 @@ const buildApiErrorMessage = async (response: Response) => {
   return fallbackMessage;
 };
 
-const joinApiUrl = (endpoint: string) => `${API_BASE_URL.replace(/\/$/, "")}/${endpoint.replace(/^\//, "")}`;
+const joinApiUrl = (endpoint: string) => `${API_URL.replace(/\/$/, "")}/${endpoint.replace(/^\//, "")}`;
 
 export const useApi = () => {
   const { getAccessToken, getOrganizationToken } = useLogto();
@@ -54,7 +53,7 @@ export const useApi = () => {
         if (organizationId) {
           token = await getOrganizationToken(organizationId);
         } else {
-          token = await getAccessToken(API_RESOURCE_INDICATOR);
+          token = await getAccessToken(API_URL);
         }
 
         if (!token) {
@@ -90,7 +89,7 @@ export const useApi = () => {
   const ownerApiFetch = useMemo(
     () => async (endpoint: string, options: RequestInit = {}) => {
       try {
-        const token = await getAccessToken(API_RESOURCE_INDICATOR);
+        const token = await getAccessToken(API_URL);
         if (!token) throw new ApiRequestError("Failed to get access token for owner API resource");
 
         const response = await fetch(joinApiUrl(endpoint), {

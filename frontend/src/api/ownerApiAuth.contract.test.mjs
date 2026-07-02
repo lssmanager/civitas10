@@ -9,7 +9,7 @@ const envExample = readFileSync(new URL("../../.env.example", import.meta.url), 
 
 test("owner API fetch obtains a Logto access token for the configured API resource", () => {
   assert.match(baseSource, /ownerApiFetch/);
-  assert.match(baseSource, /getAccessToken\(API_RESOURCE_INDICATOR\)/);
+  assert.match(baseSource, /getAccessToken\(API_URL\)/);
   assert.doesNotMatch(ownerSource, /fetchWithToken\("\/owner/);
   assert.match(ownerSource, /ownerApiFetch\("\/owner\/organizations"\)/);
   assert.match(ownerSource, /ownerApiFetch\("\/owner\/system\/worker-queues"\)/);
@@ -21,12 +21,11 @@ test("owner API errors distinguish rejected token from missing owner role", () =
 });
 
 test("Logto config asks for API audience and role claims", () => {
-  assert.match(appSource, /resources: \[ReservedResource\.Organization, APP_ENV\.api\.resourceIndicator\]/);
+  assert.match(appSource, /resources: \[ReservedResource\.Organization, APP_ENV\.api\.url\]/);
   assert.match(appSource, /UserScope\.Roles/);
   assert.match(appSource, /UserScope\.OrganizationRoles/);
 });
 
-test("frontend env documents API resource parity with backend", () => {
-  assert.match(envExample, /Must exactly match backend LOGTO_API_RESOURCE_INDICATOR/);
-  assert.match(envExample, /VITE_API_RESOURCE_INDICATOR=https:\/\/api\.civitas\.example/);
+test("frontend env documents the canonical API URL", () => {
+  assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.socialstudies\.cloud\/api/);
 });

@@ -109,6 +109,69 @@ Services exposed by default:
 - one Logto SPA application for the frontend
 - one Logto M2M application for backend management API access
 
+## Environment convention
+
+Civitas10 now uses one canonical environment variable per service concept. Frontend values are build-time Vite variables and must use the `VITE_*` prefix. Backend and worker values must not depend on `VITE_*` variables. PostgreSQL and Redis are configured only through connection URLs.
+
+### Frontend (Vite)
+
+```env
+VITE_API_URL=https://civitas.socialstudies.cloud/api
+VITE_LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
+VITE_LOGTO_APP_ID=avc4zf5kjm5rgc5xgsegh
+VITE_APP_REDIRECT_URI=https://civitas.socialstudies.cloud/callback
+VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.socialstudies.cloud
+```
+
+### Backend/API
+
+```env
+NODE_ENV=production
+API_URL=https://civitas.socialstudies.cloud/api
+LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
+LOGTO_CLIENT_ID=
+LOGTO_CLIENT_SECRET=
+DATABASE_URL=
+REDIS_URL=
+BULLMQ_PREFIX=civitas
+WORKER_CONCURRENCY=1
+ENABLE_QUEUE_RECONCILER=true
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=30000
+DATABASE_WAIT_INTERVAL_MS=1000
+DATABASE_CONNECT_TIMEOUT_MS=5000
+ENABLE_DB_POLL_EXECUTION=false
+```
+
+### Worker
+
+The worker reuses the backend variables that apply to queue and database execution:
+
+```env
+NODE_ENV=production
+API_URL=https://civitas.socialstudies.cloud/api
+LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
+LOGTO_CLIENT_ID=
+LOGTO_CLIENT_SECRET=
+DATABASE_URL=
+REDIS_URL=
+BULLMQ_PREFIX=civitas
+WORKER_CONCURRENCY=1
+ENABLE_QUEUE_RECONCILER=true
+ENABLE_DB_POLL_EXECUTION=false
+```
+
+### Additional backend-only Logto Management API variables
+
+These variables are still required for owner organization provisioning and Logto Management API calls. They are backend-only and are not exposed to the frontend.
+
+```env
+LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
+LOGTO_MANAGEMENT_API_APPLICATION_ID=
+LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
+LOGTO_MANAGEMENT_API_RESOURCE=
+```
+
 ## Backend setup
 
 1. Go to the backend directory.
@@ -123,26 +186,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure the backend environment.
-
-Required variables:
-
-- `LOGTO_ENDPOINT`
-- `LOGTO_ISSUER`
-- `LOGTO_JWKS_URI`
-- `LOGTO_APP_ID`
-- `LOGTO_APP_SECRET`
-- `LOGTO_M2M_APP_ID`
-- `LOGTO_M2M_APP_SECRET`
-- `LOGTO_API_RESOURCE_INDICATOR`
-
-Recommended Civitas-specific variables:
-
-- `CIVITAS_ALLOWED_ORG_USER_GLOBAL_ROLES`
-- `LOGTO_ENABLE_ADMIN_PASSWORD_RESET`
-- `LOGTO_JWKS_TIMEOUT_MS`
-- `LOGTO_JWT_VERIFY_TIMEOUT_MS`
-- `LOGTO_MANAGEMENT_TIMEOUT_MS`
+3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, and the backend-only Logto values in `backend/.env`. Do not configure PostgreSQL from fragmented user/password/database variables. Do not configure Redis from anything except `REDIS_URL`.
 
 4. Install dependencies.
 
@@ -191,16 +235,7 @@ cd frontend
 cp .env.example .env
 ```
 
-3. Configure the frontend environment.
-
-Required variables:
-
-- `VITE_LOGTO_ENDPOINT`
-- `VITE_LOGTO_APP_ID`
-- `VITE_API_BASE_URL`
-- `VITE_API_RESOURCE_INDICATOR`
-- `VITE_APP_REDIRECT_URI`
-- `VITE_APP_SIGNOUT_REDIRECT_URI`
+3. Configure only Vite-prefixed frontend variables: `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, `VITE_LOGTO_APP_ID`, `VITE_APP_REDIRECT_URI`, and `VITE_APP_SIGNOUT_REDIRECT_URI`.
 
 4. Install dependencies.
 
@@ -216,10 +251,10 @@ npm run dev
 
 ## How to connect frontend and backend correctly
 
-- the frontend must request access tokens for the same API resource configured in `VITE_API_RESOURCE_INDICATOR`
-- the backend must validate those tokens against `LOGTO_API_RESOURCE_INDICATOR`
-- owner-global routes must be protected by global roles, not by implicit organization membership
-- organization-scoped routes must remain separate from global-owner routes
+- `VITE_API_URL` is the frontend API base URL and the Logto API resource/audience requested by the SPA.
+- `API_URL` is the backend API URL and the Logto API resource/audience validated by API middleware.
+- owner-global routes must be protected by global roles, not by implicit organization membership.
+- organization-scoped routes must remain separate from global-owner routes.
 
 ## Current validation targets
 
