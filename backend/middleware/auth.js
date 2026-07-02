@@ -1,9 +1,9 @@
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require("jose");
-const { getTimeoutMs, withTimeout } = require("../services/timeouts");
+const { withTimeout } = require("../services/timeouts");
 
 const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
-const LOGTO_JWKS_TIMEOUT_MS = getTimeoutMs("LOGTO_JWKS_TIMEOUT_MS", 5000);
-const LOGTO_JWT_VERIFY_TIMEOUT_MS = getTimeoutMs("LOGTO_JWT_VERIFY_TIMEOUT_MS", Math.max(LOGTO_JWKS_TIMEOUT_MS + 1000, 6000));
+const LOGTO_JWKS_TIMEOUT_MS = 5000;
+const LOGTO_JWT_VERIFY_TIMEOUT_MS = 6000;
 let jwks;
 
 const getRequiredEnv = (name) => {
