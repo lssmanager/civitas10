@@ -6,16 +6,22 @@ const actions = ["crm.company.find", "crm.company.upsert", "crm.company.verify",
 function validateConfig(config = {}) { return Boolean(normalizeBaseUrl(config.baseUrl) && buildAuthHeader(config)); }
 function createFluentCrmAdapter(config = {}) {
   if (!validateConfig(config)) throw connectorError(codes.CONFIG_INVALID, "FluentCRM config requires baseUrl and apiKey or username/password");
-  return {
+  const adapter = {
+    name: "fluentcrm",
     capability: "crm",
     provider: "fluentcrm",
+    version: "1.0.0",
     actions,
-    async healthcheck() { const diag = await getFluentCrmDiagnostic(config); return createAdapterHealth({ status: diag.configured ? "HEALTHY" : "UNHEALTHY", last_successful_ping: diag.configured ? new Date().toISOString() : null, error: diag.configured ? undefined : "FluentCRM config invalid" }); },
+    validate() { return validateConfig(config); },
+    async healthCheck() { const diag = await getFluentCrmDiagnostic(config); return createAdapterHealth({ status: diag.configured ? "HEALTHY" : "UNHEALTHY", last_successful_ping: diag.configured ? new Date().toISOString() : null, error: diag.configured ? undefined : "FluentCRM config invalid" }); },
     async execute(action, input = {}, context = {}) {
       if (!actions.includes(action)) throw connectorError(codes.ACTION_UNSUPPORTED, `Unsupported FluentCRM action ${action}`, { action });
       if (action === "crm.company.upsert") return { deferred: true, provider: "fluentcrm", action, payload: buildFluentCrmCompanyPayload(input), context: { orgId: context.orgId || null } };
       return { deferred: true, provider: "fluentcrm", action, input };
     },
   };
+  adapter.healthcheck = adapter.healthCheck;
+  adapter.ping = async () => { const health = await adapter.healthCheck(); return { status: health.status.toUpperCase(), latency_ms: health.latencyMs ?? null, message: health.error || null, checked_at: new Date(health.timestamp || Date.now()).toISOString() }; };
+  return adapter;
 }
 module.exports = { createFluentCrmAdapter, validateConfig };

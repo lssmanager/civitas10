@@ -1,17 +1,7 @@
-const CAPABILITIES = Object.freeze([
-  "identity",
-  "authorization",
-  "role_mapping",
-  "crm",
-  "lms",
-  "community",
-  "payments",
-  "email",
-  "notifications",
-  "support",
-  "scheduling",
-  "storage",
-  "analytics",
-]);
+"use strict";
+
+const { VALID_CAPABILITIES } = require("./adapters/contracts");
+
+const CAPABILITIES = VALID_CAPABILITIES;
 function isSupportedCapability(capability) { return CAPABILITIES.includes(capability); }
-module.exports = { CAPABILITIES, isSupportedCapability };
+module.exports = { CAPABILITIES, VALID_CAPABILITIES, isSupportedCapability };

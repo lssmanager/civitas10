@@ -1,13 +1,17 @@
 services:
-  backend:
+  api:
     build:
       context: ./backend
       dockerfile: Dockerfile
     env_file:
       - ./backend/.env
     environment:
+      NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:?LOGTO_ENDPOINT is required}
+      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:?LOGTO_CLIENT_ID is required}
+      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:?LOGTO_CLIENT_SECRET is required}
       RUN_MIGRATIONS_ON_STARTUP: ${RUN_MIGRATIONS_ON_STARTUP:-false}
       DATABASE_WAIT_TIMEOUT_MS: ${DATABASE_WAIT_TIMEOUT_MS:-30000}
       DATABASE_WAIT_INTERVAL_MS: ${DATABASE_WAIT_INTERVAL_MS:-1000}
@@ -38,8 +42,12 @@ services:
     env_file:
       - ./backend/.env
     environment:
+      NODE_ENV: ${NODE_ENV:?NODE_ENV is required}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:?LOGTO_ENDPOINT is required}
+      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:?LOGTO_CLIENT_ID is required}
+      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:?LOGTO_CLIENT_SECRET is required}
       BULLMQ_PREFIX: ${BULLMQ_PREFIX:-civitas}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-1}
       ENABLE_QUEUE_RECONCILER: ${ENABLE_QUEUE_RECONCILER:-true}
@@ -56,16 +64,16 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT}
-        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID}
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-        VITE_API_RESOURCE_INDICATOR: ${VITE_API_RESOURCE_INDICATOR}
-        VITE_APP_REDIRECT_URI: ${VITE_APP_REDIRECT_URI}
-        VITE_APP_SIGNOUT_REDIRECT_URI: ${VITE_APP_SIGNOUT_REDIRECT_URI}
+        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:?VITE_LOGTO_ENDPOINT is required}
+        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID:?VITE_LOGTO_APP_ID is required}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:?VITE_API_BASE_URL is required}
+        VITE_API_RESOURCE_INDICATOR: ${VITE_API_RESOURCE_INDICATOR:?VITE_API_RESOURCE_INDICATOR is required}
+        VITE_APP_REDIRECT_URI: ${VITE_APP_REDIRECT_URI:?VITE_APP_REDIRECT_URI is required}
+        VITE_APP_SIGNOUT_REDIRECT_URI: ${VITE_APP_SIGNOUT_REDIRECT_URI:?VITE_APP_SIGNOUT_REDIRECT_URI is required}
     ports:
       - "4173:4173"
     depends_on:
-      - backend
+      - api
     restart: unless-stopped
     networks:
       - default
@@ -79,47 +87,6 @@ services:
       - traefik.http.routers.civitas-frontend.tls.certresolver=letsencrypt
       - traefik.http.routers.civitas-frontend.priority=1
       - traefik.http.services.civitas-frontend.loadbalancer.server.port=4173
-
-  postgres:
-    image: postgres:16-alpine
-    profiles:
-      - local
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-civitas}
-      POSTGRES_USER: ${POSTGRES_USER:-civitas}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-civitas}
-    ports:
-      - "5432:5432"
-    volumes:
-      - civitas_postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-civitas} -d $${POSTGRES_DB:-civitas}"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-    networks:
-      - default
-
-  redis:
-    image: redis:7-alpine
-    profiles:
-      - local
-    command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
-    volumes:
-      - civitas_redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-    networks:
-      - default
-
-volumes:
-  civitas_postgres_data:
-  civitas_redis_data:
 
 networks:
   default:
