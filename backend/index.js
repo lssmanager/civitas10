@@ -135,18 +135,22 @@ secureRoute.get("/health", "health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
   const logto = getLogtoConfigHealth();
   const worker = getWorkerReadiness();
-  const status = summarizeStatus(["healthy", logto.status, database.status, redis.status, worker.status]);
+  const databaseOk = database.status === "healthy";
+  const redisOk = redis.status === "healthy";
+  const status = databaseOk && redisOk && logto.status === "healthy" && worker.status === "healthy" ? "ok" : databaseOk && redisOk ? "degraded" : "unhealthy";
   res.status(status === "unhealthy" ? 503 : 200).json({
     status,
     service: "civitas10-backend",
-    api: { status: "healthy" },
-    db: database.status === "healthy" ? "connected" : "disconnected",
-    redis: redis.status === "healthy" ? "connected" : "disconnected",
-    infrastructure: { db: database.status === "healthy" ? "connected" : "disconnected", redis: redis.status === "healthy" ? "connected" : "disconnected" },
-    redisDetails: redis,
-    logto,
-    database,
-    worker,
+    services: {
+      api: "ok",
+      database: databaseOk ? "ok" : "unhealthy",
+      redis: redisOk ? "ok" : "unhealthy",
+      logto: logto.status === "healthy" ? "ok" : logto.status,
+      worker: worker.status === "healthy" ? "ok" : worker.status,
+    },
+    details: { database, redis, logto, worker },
+    db: databaseOk ? "connected" : "disconnected",
+    redis: redisOk ? "connected" : "disconnected",
   });
 });
 

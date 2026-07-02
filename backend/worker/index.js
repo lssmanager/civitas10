@@ -40,15 +40,16 @@ app.get("/health", async (_req, res) => {
   let heartbeat;
   try { heartbeat = await publishWorkerHeartbeat(); } catch (error) { heartbeat = { status: "unhealthy", message: error.message }; }
   const statuses = [database.status, redis.status, heartbeat.status];
-  const status = statuses.includes("unhealthy") ? "unhealthy" : statuses.includes("degraded") ? "degraded" : "healthy";
-  res.status(status === "unhealthy" ? 503 : 200).json({ status, service: "civitas-worker", database, redis, heartbeat, bullmq: { prefix: runtimeQueueConfig.prefix, queueNames: runtimeQueueConfig.queueNames, queueRedisBase: runtimeQueueConfig.queueRedisBase, workers: bullWorkers.length, concurrency: Number(process.env.WORKER_CONCURRENCY || 1), transport: "bullmq" } });
+  const healthStatus = statuses.includes("unhealthy") ? "unhealthy" : statuses.includes("degraded") ? "degraded" : "healthy";
+  const status = healthStatus === "healthy" ? "ok" : healthStatus;
+  res.status(healthStatus === "unhealthy" ? 503 : 200).json({ status, service: "civitas-worker", database, redis, heartbeat, bullmq: { prefix: runtimeQueueConfig.prefix, queueNames: runtimeQueueConfig.queueNames, queueRedisBase: runtimeQueueConfig.queueRedisBase, workers: bullWorkers.length, concurrency: Number(process.env.WORKER_CONCURRENCY || 1), transport: "bullmq" } });
 });
 
 if (require.main === module) {
   Promise.resolve()
     .then(() => validateRuntimeEnv({ requireRedis: true }))
     .then(() => waitForDatabase({ ping: pingDatabase }))
-    .then(() => { bullWorkers = createWorkers(); startReconciler(); setInterval(() => publishWorkerHeartbeat().catch((error) => console.error("Worker heartbeat failed", error.message)), 30000).unref(); return publishWorkerHeartbeat(); })
+    .then(() => { bullWorkers = createWorkers(); for (const queueName of runtimeQueueConfig.queueNames) console.log(`Worker listening on ${queueName}`); startReconciler(); setInterval(() => publishWorkerHeartbeat().catch((error) => console.error("Worker heartbeat failed", error.message)), 30000).unref(); return publishWorkerHeartbeat(); })
     .then(() => app.listen(port, () => console.log(`Civitas worker health service running on port ${port} with BullMQ queues ${runtimeQueueConfig.queueNames.join(",")}`)))
     .catch((error) => { console.error(`Worker startup failed: ${error.message}`); process.exit(1); });
   process.on("SIGTERM", () => shutdown("SIGTERM"));

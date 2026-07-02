@@ -21,6 +21,7 @@ function createFluentCrmAdapter(config = {}) {
     },
   };
   adapter.healthcheck = adapter.healthCheck;
+  adapter.ping = async () => { const health = await adapter.healthCheck(); return { status: health.status.toUpperCase(), latency_ms: health.latencyMs ?? null, message: health.error || null, checked_at: new Date(health.timestamp || Date.now()).toISOString() }; };
   return adapter;
 }
 module.exports = { createFluentCrmAdapter, validateConfig };

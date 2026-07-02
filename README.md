@@ -263,3 +263,42 @@ The next layer to migrate after this clean foundation is:
 3. CRM capability contract from the FluentCRM foundations
 4. worker action engine
 5. clean owner-facing UI surfaces rebuilt on top of the backbone
+
+## Infraestructura requerida
+
+Civitas requiere servicios externos:
+
+- PostgreSQL 16+
+- Redis 7+
+- Logto tenant
+- Logto SPA application
+- Logto M2M application
+- Coolify environment variables
+
+En staging/producción, PostgreSQL y Redis se configuran por URL.
+No se ejecutan como servicios internos del compose principal.
+Para desarrollo local puede usarse:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+```
+
+Variables obligatorias de runtime:
+
+- `DATABASE_URL`
+- `REDIS_URL`
+- `CONNECTOR_ENCRYPT_KEY`
+
+Generar `CONNECTOR_ENCRYPT_KEY` con:
+
+```bash
+openssl rand -hex 32
+```
+
+Canonical middleware order:
+
+```txt
+requireAuth → requireOrg → requirePermission(permission) → requireSeats → handler
+```
+
+Logto incompleto en `/health` se reporta como `degraded` o `unhealthy` en `services.logto`; PostgreSQL o Redis unhealthy retornan HTTP 503.
