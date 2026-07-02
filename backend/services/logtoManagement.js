@@ -97,21 +97,25 @@ const getRequiredEnv = (name) => {
       body: { reason: "missing_logto_management_configuration", env: name },
     });
     error.code = "LOGTO_MANAGEMENT_CONFIG_MISSING";
-    error.internalDiagnostic = `Missing environment variable ${name}; configure Logto Management API credentials before calling Civitas owner organization endpoints.`;
+    error.internalDiagnostic = `Missing environment variable ${name}; configure Logto M2M credentials before calling Civitas owner organization endpoints.`;
     throw error;
   }
   return value;
 };
 
-const normalizeEndpoint = (endpoint) => endpoint.replace(/\/$/, "");
+const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
-const getLogtoManagementConfig = () => ({
-  endpoint: normalizeEndpoint(getRequiredEnv("LOGTO_ENDPOINT")),
-  tokenEndpoint: getRequiredEnv("LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT"),
-  clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
-  clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
-  resource: getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"),
-});
+const getLogtoManagementConfig = () => {
+  const endpoint = normalizeEndpoint(getRequiredEnv("LOGTO_ENDPOINT"));
+
+  return {
+    endpoint,
+    tokenEndpoint: `${endpoint}/oidc/token`,
+    clientId: getRequiredEnv("LOGTO_CLIENT_ID"),
+    clientSecret: getRequiredEnv("LOGTO_CLIENT_SECRET"),
+    resource: `${endpoint}/api`,
+  };
+};
 
 async function fetchLogtoManagementApiAccessToken() {
   if (tokenCache?.expiresAt && Date.now() < tokenCache.expiresAt - 5 * 60 * 1000) {
@@ -122,18 +126,18 @@ async function fetchLogtoManagementApiAccessToken() {
   let response;
   try {
     response = await withTimeout((signal) => fetch(config.tokenEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64")}`,
-    },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      resource: config.resource,
-      scope: MANAGEMENT_TOKEN_SCOPE,
-    }).toString(),
-    signal,
-  }), { timeoutMs: getLogtoTimeoutMs(), label: "Logto Management API token request" });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64")}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        resource: config.resource,
+        scope: MANAGEMENT_TOKEN_SCOPE,
+      }).toString(),
+      signal,
+    }), { timeoutMs: getLogtoTimeoutMs(), label: "Logto Management API token request" });
   } catch (error) {
     if (error.code === "INTEGRATION_TIMEOUT") {
       const timeoutError = new LogtoManagementApiError("Logto Management API token request timed out", { status: 504, body: { reason: "logto_management_token_timeout", timeoutMs: error.timeoutMs } });
@@ -212,14 +216,14 @@ async function callLogtoManagementApi(path, options = {}) {
   let response;
   try {
     response = await withTimeout((signal) => fetch(`${endpoint}/api${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-      ...options.headers,
-    },
-    signal,
-  }), { timeoutMs: getLogtoTimeoutMs(), label: `Logto Management API ${request.method} ${path}` });
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        ...options.headers,
+      },
+      signal,
+    }), { timeoutMs: getLogtoTimeoutMs(), label: `Logto Management API ${request.method} ${path}` });
   } catch (error) {
     if (error.code === "INTEGRATION_TIMEOUT") {
       const timeoutError = new LogtoManagementApiError("Logto Management API request timed out", { status: 504, body: { reason: "logto_management_request_timeout", timeoutMs: error.timeoutMs }, request });
