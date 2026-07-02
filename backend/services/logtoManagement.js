@@ -1,5 +1,3 @@
-const crypto = require("crypto");
-
 const MANAGEMENT_TOKEN_SCOPE = "all";
 const ORGANIZATION_ADMIN_ROLE_NAME = "Admin-org";
 const JIT_DEFAULT_ORGANIZATION_ROLE_NAME = "Student-org";
@@ -391,31 +389,16 @@ async function updateLogtoUser({ userId, email, primaryEmail, name, phone, prima
   });
 }
 
-async function createLogtoUserPasswordResetRequest({ userId }) {
-  if (process.env.LOGTO_ENABLE_ADMIN_PASSWORD_RESET !== "true") {
-    const error = new LogtoManagementApiError("Logto admin password reset is disabled for Civitas", {
-      status: 501,
-      body: {
-        reason: "unsupported_safe_reset",
-        logtoVersion: process.env.LOGTO_VERSION || "1.40.1",
-        policy: "No local password reset is created. Use Logto hosted reset-password flow or explicitly enable admin password regeneration.",
-      },
-    });
-    error.code = "LOGTO_UNSUPPORTED_CAPABILITY";
-    throw error;
-  }
-
-  const generatedPassword = process.env.LOGTO_ADMIN_RESET_PASSWORD_VALUE || `Civitas-${crypto.randomUUID()}!`;
-  const response = await callLogtoManagementApi(`/users/${encodeURIComponent(userId)}/password`, {
-    method: "PATCH",
-    body: JSON.stringify({ password: generatedPassword }),
+async function createLogtoUserPasswordResetRequest() {
+  const error = new LogtoManagementApiError("Logto admin password reset is disabled for Civitas", {
+    status: 501,
+    body: {
+      reason: "unsupported_safe_reset",
+      policy: "No local password reset is created. Use Logto hosted reset-password flow instead.",
+    },
   });
-  return {
-    status: "password_regenerated",
-    delivery: "manual_secure_channel_required",
-    passwordReturnedOnce: Boolean(process.env.LOGTO_ADMIN_RESET_PASSWORD_VALUE),
-    response,
-  };
+  error.code = "LOGTO_UNSUPPORTED_CAPABILITY";
+  throw error;
 }
 
 async function listLogtoUsers({ search } = {}) {
