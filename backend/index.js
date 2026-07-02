@@ -26,8 +26,12 @@ const { createOperation, listOperationalState } = require("./services/operationa
 const { listRegistry } = require("./services/registryStore");
 
 const app = express();
-const port = process.env.PORT || 3000;
-const API_RESOURCE = process.env.API_URL || "https://civitas.socialstudies.cloud/api";
+const port = 3000;
+const API_RESOURCE = process.env.API_URL;
+
+if (!API_RESOURCE) {
+  throw new Error("API_URL is required for backend startup");
+}
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
@@ -47,27 +51,18 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = [
-    "LOGTO_ENDPOINT",
-    "LOGTO_ISSUER",
-    "LOGTO_JWKS_URL",
-    "LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT",
-    "LOGTO_MANAGEMENT_API_APPLICATION_ID",
-    "LOGTO_MANAGEMENT_API_APPLICATION_SECRET",
-    "LOGTO_MANAGEMENT_API_RESOURCE",
-  ];
+  const required = ["LOGTO_ENDPOINT", "LOGTO_CLIENT_ID", "LOGTO_CLIENT_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };
 
-const getWorkerReadiness = () => {
-  const configured = Boolean(process.env.REDIS_URL || process.env.SYNC_WORKER_HEARTBEAT_AT);
-  return {
-    status: configured ? "healthy" : "degraded",
-    queueConfigured: Boolean(process.env.REDIS_URL),
-    message: configured ? "Worker runtime can publish heartbeat and queue state to the owner backbone." : "Configure REDIS_URL or worker heartbeat environment variables to enrich operational runtime state.",
-  };
-};
+const getWorkerReadiness = () => ({
+  status: process.env.REDIS_URL ? "healthy" : "degraded",
+  queueConfigured: Boolean(process.env.REDIS_URL),
+  message: process.env.REDIS_URL
+    ? "Worker runtime can publish heartbeat and queue state to the owner backbone."
+    : "Configure REDIS_URL to enable worker queue execution and heartbeat publishing.",
+});
 
 const buildMeResponse = (user) => {
   const globalRoles = Array.isArray(user?.globalRoles) ? user.globalRoles : [];
@@ -99,7 +94,7 @@ const deriveOperationalProfile = (organization = {}) => {
   const customData = getLogtoOrganizationCustomData(organization);
   const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : {};
   const business = civitasProfile.business && typeof civitasProfile.business === "object" ? civitasProfile.business : {};
-  const downstream = civitasProfile.downstream && typeof civitasProfile.downstream === "object" ? civitasProfile.downstream : {};
+  const downstream = civitasProfile.downstream && typeof downstream === "object" ? civitasProfile.downstream : {};
   const crm = downstream.crm && typeof downstream.crm === "object" ? downstream.crm : {};
   const fluentcrmCompanyId = crm.companyId || crm.company_id || downstream.fluentcrmCompanyId || customData.fluentcrmCompanyId || null;
   return {
@@ -134,22 +129,21 @@ secureRoute.get("/health", "health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
   const logto = getLogtoConfigHealth();
   const worker = getWorkerReadiness();
-  const databaseOk = database.status === "healthy";
-  const redisOk = redis.status === "healthy";
-  const status = databaseOk && redisOk && logto.status === "healthy" && worker.status === "healthy" ? "ok" : databaseOk && redisOk ? "degraded" : "unhealthy";
+  const statuses = [database.status, redis.status, logto.status, worker.status];
+  const status = summarizeStatus(statuses);
   res.status(status === "unhealthy" ? 503 : 200).json({
-    status,
+    status: status === "healthy" ? "ok" : status,
     service: "civitas10-backend",
     services: {
       api: "ok",
-      database: databaseOk ? "ok" : "unhealthy",
-      redis: redisOk ? "ok" : "unhealthy",
+      database: database.status === "healthy" ? "ok" : "unhealthy",
+      redis: redis.status === "healthy" ? "ok" : "unhealthy",
       logto: logto.status === "healthy" ? "ok" : logto.status,
       worker: worker.status === "healthy" ? "ok" : worker.status,
     },
     details: { database, redis, logto, worker },
-    db: databaseOk ? "connected" : "disconnected",
-    redis: redisOk ? "connected" : "disconnected",
+    db: database.status === "healthy" ? "connected" : "disconnected",
+    redis: redis.status === "healthy" ? "connected" : "disconnected",
   });
 });
 
@@ -231,7 +225,6 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireAuth(API_RESO
     return res.status(error?.status || 500).json({ error: error?.name || "OwnerWorkerQueuesError", message: error?.message || "Failed to load worker and queues observability", code: error?.code || null, details: error?.body || null });
   }
 });
-
 
 secureRoute.get("/owner/system/registry", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
   try {
