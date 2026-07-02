@@ -69,11 +69,10 @@ The following parts are intentionally not treated as the current baseline becaus
 - `contracts/`: operational schemas
 - `examples/`: canonical operational contract examples
 - `docs/architecture/`: architectural backbone documentation
-- `docker-compose.yml`: minimal two-service startup for backend and frontend
+- `docker-compose.yml`: frontend + API + worker startup for containerized deployment
+- `docker-compose.local.yml`: optional local PostgreSQL and Redis services for development only
 
 ## Quick container start
-
-If your deployment platform expects Docker Compose, this repository now exposes a root `docker-compose.yml`.
 
 1. Copy the root environment file.
 
@@ -87,7 +86,7 @@ cp .env.example .env
 cp backend/.env.example backend/.env
 ```
 
-3. Fill both files with your real Logto values.
+3. Fill both files with real values.
 
 4. Start the stack.
 
@@ -99,6 +98,7 @@ Services exposed by default:
 
 - frontend: `http://localhost:4173`
 - backend: `http://localhost:3000`
+- worker health: `http://localhost:3002/health`
 
 ## Local setup
 
@@ -111,66 +111,65 @@ Services exposed by default:
 
 ## Environment convention
 
-Civitas10 now uses one canonical environment variable per service concept. Frontend values are build-time Vite variables and must use the `VITE_*` prefix. Backend and worker values must not depend on `VITE_*` variables. PostgreSQL and Redis are configured only through connection URLs.
+Civitas10 uses one canonical environment variable per service concept. Frontend values are build-time Vite variables and must use the `VITE_*` prefix. Backend and worker values must not depend on `VITE_*`. PostgreSQL and Redis are configured only through connection URLs.
 
-### Frontend (Vite)
-
-```env
-VITE_API_URL=https://civitas.socialstudies.cloud/api
-VITE_LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
-VITE_LOGTO_APP_ID=avc4zf5kjm5rgc5xgsegh
-VITE_APP_REDIRECT_URI=https://civitas.socialstudies.cloud/callback
-VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.socialstudies.cloud
-```
-
-### Backend/API
+### Canonical deployment contract
 
 ```env
 NODE_ENV=production
-API_URL=https://civitas.socialstudies.cloud/api
-LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
-LOGTO_CLIENT_ID=
+
+API_URL=https://civitas.didaxus.com/api
+
+VITE_API_URL=https://civitas.didaxus.com/api
+VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
+VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
+VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
+VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
+
+LOGTO_ENDPOINT=https://auth.didaxus.com
+LOGTO_CLIENT_ID=h4xwfa8s6cuj5blhzplga
 LOGTO_CLIENT_SECRET=
+
 DATABASE_URL=
 REDIS_URL=
+
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
 ENABLE_QUEUE_RECONCILER=true
+ENABLE_DB_POLL_EXECUTION=false
+
 RUN_MIGRATIONS_ON_STARTUP=false
 DATABASE_WAIT_TIMEOUT_MS=30000
 DATABASE_WAIT_INTERVAL_MS=1000
 DATABASE_CONNECT_TIMEOUT_MS=5000
-ENABLE_DB_POLL_EXECUTION=false
 ```
 
-### Worker
+### Service ownership
 
-The worker reuses the backend variables that apply to queue and database execution:
+- `VITE_*` variables belong only to the frontend build.
+- `API_URL`, `LOGTO_*`, `DATABASE_URL`, and `REDIS_URL` belong to backend and worker runtime.
+- `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be the backend M2M credentials used for Logto Management API access.
+- `LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives `/oidc`, `/oidc/jwks`, and `/oidc/token` from that base internally.
 
-```env
-NODE_ENV=production
-API_URL=https://civitas.socialstudies.cloud/api
-LOGTO_ENDPOINT=https://auth.learnsocialstudies.com
-LOGTO_CLIENT_ID=
-LOGTO_CLIENT_SECRET=
-DATABASE_URL=
-REDIS_URL=
-BULLMQ_PREFIX=civitas
-WORKER_CONCURRENCY=1
-ENABLE_QUEUE_RECONCILER=true
-ENABLE_DB_POLL_EXECUTION=false
-```
+### Removed variables
 
-### Additional backend-only Logto Management API variables
+The application no longer uses these variables as sources of truth:
 
-These variables are still required for owner organization provisioning and Logto Management API calls. They are backend-only and are not exposed to the frontend.
+- `SERVICE_FQDN_API`
+- `SERVICE_FQDN_BACKEND`
+- `SERVICE_FQDN_FRONTEND`
+- `SERVICE_FQDN_WORKER`
+- `SERVICE_URL_API`
+- `SERVICE_URL_BACKEND`
+- `SERVICE_URL_FRONTEND`
+- `SERVICE_URL_WORKER`
+- `VITE_API_BASE_URL`
+- `VITE_API_RESOURCE_INDICATOR`
+- `POSTGRES_DB`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_USER`
 
-```env
-LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
-LOGTO_MANAGEMENT_API_APPLICATION_ID=
-LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
-LOGTO_MANAGEMENT_API_RESOURCE=
-```
+If your deployment platform injects its own helper variables, treat them as platform metadata only. Do not wire application logic to them.
 
 ## Backend setup
 
@@ -186,7 +185,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, and the backend-only Logto values in `backend/.env`. Do not configure PostgreSQL from fragmented user/password/database variables. Do not configure Redis from anything except `REDIS_URL`.
+3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_ENDPOINT`, `LOGTO_CLIENT_ID`, and `LOGTO_CLIENT_SECRET` in `backend/.env`.
 
 4. Install dependencies.
 
@@ -204,7 +203,7 @@ npm run dev
 
 Once running, validate:
 
-- `GET /health` should return `ok: true`
+- `GET /health` should return `ok`, `degraded`, or `unhealthy`
 - `GET /` should return the backend identity payload
 - `GET /me` should work with a valid bearer token
 
@@ -235,7 +234,7 @@ cd frontend
 cp .env.example .env
 ```
 
-3. Configure only Vite-prefixed frontend variables: `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, `VITE_LOGTO_APP_ID`, `VITE_APP_REDIRECT_URI`, and `VITE_APP_SIGNOUT_REDIRECT_URI`.
+3. Configure only `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, `VITE_LOGTO_APP_ID`, `VITE_APP_REDIRECT_URI`, and `VITE_APP_SIGNOUT_REDIRECT_URI`.
 
 4. Install dependencies.
 
@@ -251,10 +250,19 @@ npm run dev
 
 ## How to connect frontend and backend correctly
 
-- `VITE_API_URL` is the frontend API base URL and the Logto API resource/audience requested by the SPA.
-- `API_URL` is the backend API URL and the Logto API resource/audience validated by API middleware.
+- `VITE_API_URL` is the frontend API base URL requested by the SPA.
+- `API_URL` is the backend API resource/audience validated by API middleware.
 - owner-global routes must be protected by global roles, not by implicit organization membership.
 - organization-scoped routes must remain separate from global-owner routes.
+
+## Worker setup
+
+The worker reuses backend runtime variables and does not define its own API or database env aliases.
+
+```bash
+cd backend
+npm run worker
+```
 
 ## Current validation targets
 
@@ -318,17 +326,14 @@ Para desarrollo local puede usarse:
 docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 ```
 
-Variables obligatorias de runtime:
+Variables obligatorias de runtime para la app:
 
+- `API_URL`
+- `LOGTO_ENDPOINT`
+- `LOGTO_CLIENT_ID`
+- `LOGTO_CLIENT_SECRET`
 - `DATABASE_URL`
 - `REDIS_URL`
-- `CONNECTOR_ENCRYPT_KEY`
-
-Generar `CONNECTOR_ENCRYPT_KEY` con:
-
-```bash
-openssl rand -hex 32
-```
 
 Canonical middleware order:
 
