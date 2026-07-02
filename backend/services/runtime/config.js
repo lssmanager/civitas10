@@ -11,20 +11,19 @@ function normalizeQueueNames(value) {
 
 function getRuntimeQueueConfig() {
   const prefix = process.env.BULLMQ_PREFIX || "civitas";
-  const legacyQueueName = process.env.SYNC_QUEUE_NAME || process.env.BULLMQ_QUEUE_NAME || null;
-  const queueNames = legacyQueueName ? normalizeQueueNames(legacyQueueName) : normalizeQueueNames(process.env.BULLMQ_QUEUE_NAMES || process.env.SYNC_QUEUE_NAMES);
+  const queueNames = normalizeQueueNames(DEFAULT_QUEUE_NAMES.join(","));
   const queues = queueNames.map((name) => ({
     name,
-    redisBase: process.env[`BULLMQ_${name.toUpperCase()}_REDIS_KEY`] || `${prefix}:${name}`,
+    redisBase: `${prefix}:${name}`,
   }));
 
   return {
     prefix,
-    queueName: legacyQueueName || queueNames[0],
+    queueName: queueNames[0],
     queueNames,
     queues,
-    queueRedisBase: process.env.SYNC_QUEUE_REDIS_KEY || `${prefix}:${legacyQueueName || queueNames[0]}`,
-    heartbeatKey: process.env.SYNC_WORKER_HEARTBEAT_KEY || `${prefix}:worker:heartbeat`,
+    queueRedisBase: `${prefix}:${queueNames[0]}`,
+    heartbeatKey: `${prefix}:worker:heartbeat`,
   };
 }
 
