@@ -9,10 +9,10 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
-      API_URL: ${API_URL:-https://civitas.socialstudies.cloud/api}
-      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:-https://auth.learnsocialstudies.com}
-      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:-}
-      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:-}
+      API_URL: ${API_URL:?API_URL is required}
+      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:?LOGTO_ENDPOINT is required}
+      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:?LOGTO_CLIENT_ID is required}
+      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:?LOGTO_CLIENT_SECRET is required}
       RUN_MIGRATIONS_ON_STARTUP: ${RUN_MIGRATIONS_ON_STARTUP:-false}
       DATABASE_WAIT_TIMEOUT_MS: ${DATABASE_WAIT_TIMEOUT_MS:-30000}
       DATABASE_WAIT_INTERVAL_MS: ${DATABASE_WAIT_INTERVAL_MS:-1000}
@@ -26,7 +26,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=loginet
-      - traefik.http.routers.civitas-api.rule=Host(`civitas.socialstudies.cloud`) && PathPrefix(`/api`)
+      - traefik.http.routers.civitas-api.rule=Host(`civitas.didaxus.com`) && PathPrefix(`/api`)
       - traefik.http.routers.civitas-api.entrypoints=http,https
       - traefik.http.routers.civitas-api.tls=true
       - traefik.http.routers.civitas-api.tls.certresolver=letsencrypt
@@ -46,10 +46,10 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
-      API_URL: ${API_URL:-https://civitas.socialstudies.cloud/api}
-      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:-https://auth.learnsocialstudies.com}
-      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:-}
-      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:-}
+      API_URL: ${API_URL:?API_URL is required}
+      LOGTO_ENDPOINT: ${LOGTO_ENDPOINT:?LOGTO_ENDPOINT is required}
+      LOGTO_CLIENT_ID: ${LOGTO_CLIENT_ID:?LOGTO_CLIENT_ID is required}
+      LOGTO_CLIENT_SECRET: ${LOGTO_CLIENT_SECRET:?LOGTO_CLIENT_SECRET is required}
       BULLMQ_PREFIX: ${BULLMQ_PREFIX:-civitas}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-1}
       ENABLE_QUEUE_RECONCILER: ${ENABLE_QUEUE_RECONCILER:-true}
@@ -66,11 +66,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:-https://auth.learnsocialstudies.com}
-        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID:-avc4zf5kjm5rgc5xgsegh}
-        VITE_API_URL: ${VITE_API_URL:-https://civitas.socialstudies.cloud/api}
-        VITE_APP_REDIRECT_URI: ${VITE_APP_REDIRECT_URI:-https://civitas.socialstudies.cloud/callback}
-        VITE_APP_SIGNOUT_REDIRECT_URI: ${VITE_APP_SIGNOUT_REDIRECT_URI:-https://civitas.socialstudies.cloud}
+        VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:?VITE_LOGTO_ENDPOINT is required}
+        VITE_LOGTO_APP_ID: ${VITE_LOGTO_APP_ID:?VITE_LOGTO_APP_ID is required}
+        VITE_API_URL: ${VITE_API_URL:?VITE_API_URL is required}
+        VITE_APP_REDIRECT_URI: ${VITE_APP_REDIRECT_URI:?VITE_APP_REDIRECT_URI is required}
+        VITE_APP_SIGNOUT_REDIRECT_URI: ${VITE_APP_SIGNOUT_REDIRECT_URI:?VITE_APP_SIGNOUT_REDIRECT_URI is required}
     ports:
       - "4173:4173"
     depends_on:
@@ -82,7 +82,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=loginet
-      - traefik.http.routers.civitas-frontend.rule=Host(`civitas.socialstudies.cloud`)
+      - traefik.http.routers.civitas-frontend.rule=Host(`civitas.didaxus.com`)
       - traefik.http.routers.civitas-frontend.entrypoints=http,https
       - traefik.http.routers.civitas-frontend.tls=true
       - traefik.http.routers.civitas-frontend.tls.certresolver=letsencrypt
