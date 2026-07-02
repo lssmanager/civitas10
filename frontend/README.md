@@ -1,36 +1,40 @@
-# Multi-tenant SaaS Sample - Frontend Application
+# Civitas Frontend
 
-This is the frontend application code that accompanies the article on the [multi-tenant SaaS demo](https://blog.logto.io/build-multi-tenant-saas-application).
+React + Vite frontend for Civitas authentication, routing, and owner or organization UI foundations.
 
-## Quick Start
+## Quick start
 
-This is a demo project with pre-configured settings. To run it locally:
+1. Copy the environment file.
 
-1. Configure the environment variables in `src/env.ts`:
-```typescript
-export const APP_ENV = {
-  logto: {
-    endpoint: "<YOUR_LOGTO_ENDPOINT>",
-    appId: "<YOUR_LOGTO_APP_ID>",
-  },
-  api: {
-    url: "<YOUR_BACKEND_API_URL>",
-  },
-  app: {
-    redirectUri: "<YOUR_REDIRECT_URI>", // Ensure this matches the redirect URI in your Logto app settings in the Console
-    signOutRedirectUri: "<YOUR_SIGN_OUT_REDIRECT_URI>", // Ensure this matches the sign out redirect URI in your Logto app settings in the Console
-  },
-};
+```bash
+cp .env.example .env
 ```
 
-2. Install dependencies:
+2. Fill the canonical frontend variables.
+
+```env
+VITE_API_URL=https://civitas.didaxus.com/api
+VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
+VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
+VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
+VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
+```
+
+3. Install dependencies.
+
 ```bash
 npm install
 ```
 
-3. Start the development server:
+4. Start the dev server.
+
 ```bash
 npm run dev
 ```
 
-The application will be running at http://localhost:5173.
+## Notes
+
+- Frontend consumes only `VITE_*` variables.
+- `VITE_API_URL` is the single API base URL exposed to the SPA.
+- `VITE_LOGTO_ENDPOINT` must be the base Logto tenant domain, not the `/oidc` path.
+- Missing frontend environment variables now fail fast instead of silently falling back to placeholder or localhost values.
