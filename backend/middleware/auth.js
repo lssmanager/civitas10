@@ -14,9 +14,13 @@ const getRequiredEnv = (name) => {
   return value;
 };
 
+const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_ENDPOINT"))}/oidc`;
+const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
+
 const getJwks = () => {
   if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(getRequiredEnv("LOGTO_JWKS_URL")), {
+    jwks = createRemoteJWKSet(new URL(getLogtoJwksUrl()), {
       timeoutDuration: LOGTO_JWKS_TIMEOUT_MS,
     });
   }
@@ -137,7 +141,7 @@ const verifyJwt = async (token, audience) => {
   return withTimeout(
     async () => {
       const { payload } = await jwtVerify(token, getJwks(), {
-        issuer: getRequiredEnv("LOGTO_ISSUER"),
+        issuer: getLogtoIssuer(),
         audience,
       });
 
@@ -248,7 +252,7 @@ const requireOrganizationAccess = ({ requiredScopes = [], requiredRoleName = nul
     try {
       const token = getTokenFromHeader(req.headers);
       const decodedPayload = decodeJwtPayload(token);
-      const audience = decodedPayload.aud;
+      const audience = normalizeAudience(decodedPayload.aud);
       const organizationId = extractOrganizationId(decodedPayload);
 
       if (!audience || !organizationId) {
