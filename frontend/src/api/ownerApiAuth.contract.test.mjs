@@ -27,5 +27,5 @@ test("Logto config asks for API audience and role claims", () => {
 });
 
 test("frontend env documents the canonical API URL", () => {
-  assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.socialstudies\.cloud\/api/);
+  assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api/);
 });

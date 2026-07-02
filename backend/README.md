@@ -20,14 +20,17 @@ LOGTO_CLIENT_ID=h4xwfa8s6cuj5blhzplga
 LOGTO_CLIENT_SECRET=
 DATABASE_URL=
 REDIS_URL=
-BULLMQ_PREFIX=civitas
-WORKER_CONCURRENCY=1
-ENABLE_QUEUE_RECONCILER=true
-ENABLE_DB_POLL_EXECUTION=false
-RUN_MIGRATIONS_ON_STARTUP=false
-DATABASE_WAIT_TIMEOUT_MS=30000
-DATABASE_WAIT_INTERVAL_MS=1000
-DATABASE_CONNECT_TIMEOUT_MS=5000
+# Optional: queue/worker tuning
+# BULLMQ_PREFIX=civitas
+# WORKER_CONCURRENCY=1
+# ENABLE_QUEUE_RECONCILER=true
+# ENABLE_DB_POLL_EXECUTION=false
+
+# Optional: legacy connector-specific Logto Management API override
+# LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
+# LOGTO_MANAGEMENT_API_APPLICATION_ID=
+# LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
+# LOGTO_MANAGEMENT_API_RESOURCE=
 ```
 
 3. Install dependencies.
@@ -55,3 +58,5 @@ npm run worker
 - `LOGTO_ENDPOINT` must be the base tenant domain. Civitas derives `/oidc`, `/oidc/jwks`, `/oidc/token`, and the Management API resource from that base.
 - `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be the backend M2M credentials used for owner provisioning and other Logto Management API calls.
 - Backend and worker do not consume `VITE_*` variables.
+- Queue tuning variables are optional; code defaults are used when they are omitted.
+- Legacy connector-specific `LOGTO_MANAGEMENT_API_*` variables are optional overrides. The main owner provisioning flow derives Management API token details from `LOGTO_ENDPOINT` and uses `LOGTO_CLIENT_ID`/`LOGTO_CLIENT_SECRET`.
