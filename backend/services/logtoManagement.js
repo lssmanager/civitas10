@@ -7,11 +7,11 @@ const REQUIRED_ORGANIZATION_ROLE_NAMES = [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFA
 const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = ["owner_global"];
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key)/i;
 
-const { getTimeoutMs, withTimeout } = require("./timeouts");
+const { withTimeout } = require("./timeouts");
 
 let tokenCache = null;
 
-const getLogtoTimeoutMs = () => getTimeoutMs("LOGTO_MANAGEMENT_TIMEOUT_MS", 8000);
+const LOGTO_MANAGEMENT_TIMEOUT_MS = 8000;
 
 function sanitizeForDiagnostics(value, depth = 0) {
   if (value == null) return value;
@@ -137,7 +137,7 @@ async function fetchLogtoManagementApiAccessToken() {
         scope: MANAGEMENT_TOKEN_SCOPE,
       }).toString(),
       signal,
-    }), { timeoutMs: getLogtoTimeoutMs(), label: "Logto Management API token request" });
+    }), { timeoutMs: LOGTO_MANAGEMENT_TIMEOUT_MS, label: "Logto Management API token request" });
   } catch (error) {
     if (error.code === "INTEGRATION_TIMEOUT") {
       const timeoutError = new LogtoManagementApiError("Logto Management API token request timed out", { status: 504, body: { reason: "logto_management_token_timeout", timeoutMs: error.timeoutMs } });
@@ -223,7 +223,7 @@ async function callLogtoManagementApi(path, options = {}) {
         ...options.headers,
       },
       signal,
-    }), { timeoutMs: getLogtoTimeoutMs(), label: `Logto Management API ${request.method} ${path}` });
+    }), { timeoutMs: LOGTO_MANAGEMENT_TIMEOUT_MS, label: `Logto Management API ${request.method} ${path}` });
   } catch (error) {
     if (error.code === "INTEGRATION_TIMEOUT") {
       const timeoutError = new LogtoManagementApiError("Logto Management API request timed out", { status: 504, body: { reason: "logto_management_request_timeout", timeoutMs: error.timeoutMs }, request });
@@ -300,13 +300,8 @@ const getOrganizationRoleId = (role = {}) => role.id || role.organizationRoleId 
 const getGlobalRoleName = (role = {}) => role.name || role.nameCache || role.key || null;
 const getGlobalRoleId = (role = {}) => role.id || role.roleId || null;
 
-const parseCommaSeparatedEnv = (name) => (process.env[name] || "")
-  .split(",")
-  .map((value) => value.trim())
-  .filter(Boolean);
-
 function getAllowedOrganizationUserGlobalRoleNames() {
-  return parseCommaSeparatedEnv("CIVITAS_ALLOWED_ORG_USER_GLOBAL_ROLES");
+  return [];
 }
 
 const normalizeRoleListResponse = (response) => (Array.isArray(response) ? response : response?.data || response?.items || []);
