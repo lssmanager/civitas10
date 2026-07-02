@@ -1,5 +1,4 @@
 const express = require("express");
-require("dotenv").config({ path: process.env.WORKER_ENV_FILE || "./.env" });
 require("dotenv").config();
 
 const { getDatabaseHealth } = require("../lib/databaseHealth");
@@ -12,7 +11,7 @@ const { loadRuntimeQueueTelemetry } = require("../services/runtime/queues");
 const { createWorkers } = require("./createWorkers");
 const { reconcileQueuedOperations } = require("./reconcileQueuedOperations");
 
-const port = Number(process.env.WORKER_PORT || 3002);
+const port = 3002;
 const runtimeQueueConfig = getRuntimeQueueConfig();
 let bullWorkers = [];
 let reconcilerTimer = null;
@@ -21,12 +20,13 @@ async function publishWorkerHeartbeat() {
   const queueTelemetry = await loadRuntimeQueueTelemetry();
   return writeWorkerHeartbeat({ queueTelemetry });
 }
+
 function startReconciler() {
   if (process.env.ENABLE_QUEUE_RECONCILER === "false") return;
-  const interval = Number(process.env.QUEUE_RECONCILER_INTERVAL_MS || 30000);
-  reconcilerTimer = setInterval(() => reconcileQueuedOperations().catch((error) => console.error(JSON.stringify({ component: "queue-reconciler", status: "failed", error: error.message }))), interval);
+  reconcilerTimer = setInterval(() => reconcileQueuedOperations().catch((error) => console.error(JSON.stringify({ component: "queue-reconciler", status: "failed", error: error.message }))), 30000);
   reconcilerTimer.unref();
 }
+
 async function shutdown(signal) {
   console.log(JSON.stringify({ component: "civitas-worker", status: "shutdown", signal }));
   if (reconcilerTimer) clearInterval(reconcilerTimer);
@@ -55,4 +55,5 @@ if (require.main === module) {
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
 }
+
 module.exports = { app, publishWorkerHeartbeat };
