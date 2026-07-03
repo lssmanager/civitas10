@@ -1,4 +1,4 @@
-const APP_BASE_DOMAINS = Object.freeze(["didaxus.com", "socialstudies.cloud", "learnsocialstudies.com"]);
+const APP_BASE_DOMAINS = Object.freeze(["didaxus.com"]);
 const APP_SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 const DOMAIN_PATTERN = /^(?=.{1,253}$)(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,63}$/;
 

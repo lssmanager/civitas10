@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ErrorState, OwnerShell, PageHeader, SectionCard, StatusBanner, fieldClassName, labelClassName, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
 import { useOwnerApi, type CreateOwnerOrganizationInput } from "../api/owner";
 
-const APP_BASE_DOMAINS = ["didaxus.com", "socialstudies.cloud", "learnsocialstudies.com"] as const;
+const APP_BASE_DOMAINS = ["didaxus.com"] as const;
 
 type GeographyRegion = {
   code: string;

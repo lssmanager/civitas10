@@ -7,59 +7,37 @@ The project uses a single source of truth for each service configuration value. 
 ```env
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
-VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
+VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 ```
 
-## Backend/API
+## Backend/API and worker
 
 ```env
 NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
 LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=h4xwfa8s6cuj5blhzplga
-LOGTO_CLIENT_SECRET=
-DATABASE_URL=
-REDIS_URL=
-```
-
-Optional queue/worker tuning, only when defaults need to be overridden:
-
-```env
+LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
+LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
+DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
+REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
 ENABLE_QUEUE_RECONCILER=true
 ENABLE_DB_POLL_EXECUTION=false
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=60000
+DATABASE_WAIT_INTERVAL_MS=2000
+DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-## Worker
+## Logto separation
 
-The worker reuses the backend project and the same runtime contract:
+`VITE_LOGTO_APP_ID` is the public SPA app ID used by the browser. `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` are backend-only M2M credentials used for owner provisioning and Logto Management API calls. Do not reuse the SPA app ID as the backend M2M client.
 
-```env
-NODE_ENV=production
-API_URL=https://civitas.didaxus.com/api
-LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=h4xwfa8s6cuj5blhzplga
-LOGTO_CLIENT_SECRET=
-DATABASE_URL=
-REDIS_URL=
-```
+`LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` are always the base tenant URL (`https://auth.didaxus.com`). Civitas derives OIDC, JWKS, token, and Management API resource URLs internally.
 
-Optional worker values are the same queue/worker tuning variables listed above.
+## Deployment cleanup
 
-## Optional legacy connector-specific Logto overrides
-
-The main Logto Management API integration derives its token endpoint and resource from `LOGTO_ENDPOINT` and uses `LOGTO_CLIENT_ID`/`LOGTO_CLIENT_SECRET`. These values are only for connector-specific overrides that still read them directly:
-
-```env
-LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
-LOGTO_MANAGEMENT_API_APPLICATION_ID=
-LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
-LOGTO_MANAGEMENT_API_RESOURCE=
-```
-
-## Removed names
-
-Do not use legacy service URL/FQDN aliases, legacy Vite API aliases, legacy Logto audience aliases, fragmented PostgreSQL variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`), or fragmented Redis variables (`REDIS_HOST`, `REDIS_PORT`). PostgreSQL must be represented by `DATABASE_URL`; Redis must be represented by `REDIS_URL`.
+Remove older platform-discovered helper names from Coolify. They are not application configuration for Civitas, and this repository intentionally does not expose them through compose, Dockerfiles, examples, or runtime loaders. If Coolify still displays them after this change, recreate or force-resync the service so cached metadata is discarded.

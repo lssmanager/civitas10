@@ -110,8 +110,8 @@ const GLOBAL_ROLE_CLAIMS = [
   ["role_names"],
   ["roles"],
   ["globalRoles"],
-  ["https://civitas.socialstudies.cloud/claims/global_roles", "https://civitas.socialstudies.cloud/global_roles"],
-  ["https://civitas.socialstudies.cloud/claims/role_names", "https://civitas.socialstudies.cloud/role_names"],
+  ["https://civitas.didaxus.com/claims/global_roles", "https://civitas.didaxus.com/global_roles"],
+  ["https://civitas.didaxus.com/claims/role_names", "https://civitas.didaxus.com/role_names"],
 ];
 
 const extractGlobalRoleNames = (payload = {}) => {

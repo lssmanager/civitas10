@@ -1,11 +1,15 @@
+const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
+
 function resolveLogtoConfig(config = {}) {
+  const endpoint = normalizeLogtoEndpoint(config.endpoint || process.env.LOGTO_ENDPOINT || "");
+
   return {
-    endpoint: config.endpoint || process.env.LOGTO_ENDPOINT || null,
-    managementTokenEndpoint: config.managementTokenEndpoint || process.env.LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT || null,
-    applicationId: config.applicationId || process.env.LOGTO_MANAGEMENT_API_APPLICATION_ID || null,
-    applicationSecret: config.applicationSecret || process.env.LOGTO_MANAGEMENT_API_APPLICATION_SECRET || null,
-    resource: config.resource || process.env.LOGTO_MANAGEMENT_API_RESOURCE || null,
-    timeoutMs: Number(config.timeoutMs || process.env.LOGTO_MANAGEMENT_TIMEOUT_MS || 8000),
+    endpoint: endpoint || null,
+    managementTokenEndpoint: endpoint ? `${endpoint}/oidc/token` : null,
+    applicationId: config.applicationId || process.env.LOGTO_CLIENT_ID || null,
+    applicationSecret: config.applicationSecret || process.env.LOGTO_CLIENT_SECRET || null,
+    resource: endpoint ? `${endpoint}/api` : null,
+    timeoutMs: Number(config.timeoutMs || 8000),
   };
 }
 function validateLogtoConfig(config = {}) { const c = resolveLogtoConfig(config); return Boolean(c.endpoint); }
