@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { useLogto } from "@logto/react";
 import { useOrganizationApi } from "../../api/organization";
-import Topbar from "../../components/Topbar";
+import { OrganizationLayout } from "../../components/layout/AppShell";
 import { type Document } from './types';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorMessage } from './components/ErrorMessage';
@@ -52,17 +52,12 @@ const OrganizationPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Topbar organizationId={organizationId} showBackButton />
-
-      {/* Main Content */}
-      <div className="flex-1 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ActionBar canCreateDocuments={userScopes.includes("create:documents")} />
-          <DocumentList documents={documents} />
-        </div>
-      </div>
-    </div>
+    <OrganizationLayout organizationId={organizationId} isAdmin={userScopes.includes("create:documents")}>
+      <section className="space-y-6" data-organization-workspace="true">
+        <ActionBar canCreateDocuments={userScopes.includes("create:documents")} />
+        <DocumentList documents={documents} />
+      </section>
+    </OrganizationLayout>
   );
 };
 

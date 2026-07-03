@@ -27,5 +27,5 @@ test("critical owner styles live in component CSS and are validated after build"
   for (const selector of [".owner-shell", ".owner-topbar", ".owner-primary-nav", ".owner-card", ".owner-field"]) {
     assert.match(css, new RegExp(selector.replace(".", "\\.")));
   }
-  assert.match(packageJson, /validate-owner-visual\.mjs/);
+  assert.match(packageJson, /validate-civitas-visual\.mjs/);
 });
