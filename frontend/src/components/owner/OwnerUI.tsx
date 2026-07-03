@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useLogto } from "@logto/react";
-import { APP_ENV } from "../../env";
-import { appRoutes } from "../../navigation/routes";
+import { OwnerLayout } from "../layout/AppShell";
 
 type Tone = "info" | "success" | "warning" | "critical" | "neutral";
 
@@ -22,12 +19,6 @@ const badgeToneClasses: Record<Tone, string> = {
   neutral: "bg-slate-100 text-slate-700",
 };
 
-const ownerNavItems = [
-  { label: "Overview", path: appRoutes.owner.path, match: (pathname: string) => pathname === appRoutes.owner.path },
-  { label: "Create", path: appRoutes.ownerOrganizations.path, match: (pathname: string) => pathname.startsWith(appRoutes.ownerOrganizations.path) },
-  { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, match: (pathname: string) => pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
-];
-
 export const ownerToneFromSeverity = (severity?: string): Tone => {
   if (severity === "critical" || severity === "error") return "critical";
   if (severity === "warning") return "warning";
@@ -40,31 +31,9 @@ export const OwnerBadge = ({ children, tone = "neutral" }: { children: ReactNode
   <span className={`owner-badge ${badgeToneClasses[tone]}`}>{children}</span>
 );
 
-export const OwnerShell = ({ children, organizationId }: { children: ReactNode; organizationId?: string }) => {
-  const { signOut } = useLogto();
-  const location = useLocation();
-
-  return (
-    <div className="owner-shell" data-owner-shell="true">
-      <header className="owner-topbar">
-        <div className="owner-topbar-inner">
-          <div className="flex min-w-0 items-center gap-6">
-            <Link to={appRoutes.owner.path} className="shrink-0 text-xl font-semibold text-slate-950">Civitas 1.1</Link>
-            <nav className="owner-primary-nav" aria-label="Owner primary navigation" data-owner-nav="true">
-              {ownerNavItems.map((item) => {
-                const active = item.match(location.pathname);
-                return <Link key={item.path} to={item.path} className={`owner-nav-link ${active ? "owner-nav-link-active" : ""}`}>{item.label}</Link>;
-              })}
-            </nav>
-            {organizationId ? <OwnerBadge>{organizationId}</OwnerBadge> : null}
-          </div>
-          <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="owner-secondary-button">Sign out</button>
-        </div>
-      </header>
-      <main className="owner-main">{children}</main>
-    </div>
-  );
-};
+export const OwnerShell = ({ children, organizationId }: { children: ReactNode; organizationId?: string }) => (
+  <OwnerLayout organizationId={organizationId}>{children}</OwnerLayout>
+);
 
 export const PageHeader = ({ eyebrow, title, description, actions }: { eyebrow: string; title: ReactNode; description?: ReactNode; actions?: ReactNode }) => (
   <SectionCard className="owner-page-header">
