@@ -118,66 +118,38 @@ Civitas10 uses one canonical environment variable per service concept. Frontend 
 ```env
 NODE_ENV=production
 
-API_URL=https://civitas.didaxus.com/api
-
+# Frontend (Vite build-time; Logto SPA client)
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
-VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
+VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 
+# Backend/API and worker (server-side; Logto M2M client)
+API_URL=https://civitas.didaxus.com/api
 LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=h4xwfa8s6cuj5blhzplga
-LOGTO_CLIENT_SECRET=
-
-DATABASE_URL=
-REDIS_URL=
-
-# Optional: queue/worker tuning
-# BULLMQ_PREFIX=civitas
-# WORKER_CONCURRENCY=1
-# ENABLE_QUEUE_RECONCILER=true
-# ENABLE_DB_POLL_EXECUTION=false
-
-# Optional: legacy connector-specific Logto Management API override
-# LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT=
-# LOGTO_MANAGEMENT_API_APPLICATION_ID=
-# LOGTO_MANAGEMENT_API_APPLICATION_SECRET=
-# LOGTO_MANAGEMENT_API_RESOURCE=
+LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
+LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
+DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
+REDIS_URL=redis://redis:6379/0
+BULLMQ_PREFIX=civitas
+WORKER_CONCURRENCY=1
+ENABLE_QUEUE_RECONCILER=true
+ENABLE_DB_POLL_EXECUTION=false
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=60000
+DATABASE_WAIT_INTERVAL_MS=2000
+DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
 ### Service ownership
 
 - `VITE_*` variables belong only to the frontend build.
-- `API_URL`, `LOGTO_*`, `DATABASE_URL`, and `REDIS_URL` belong to backend and worker runtime.
-- `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be the backend M2M credentials used for Logto Management API access.
-- `LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives `/oidc`, `/oidc/jwks`, `/oidc/token`, and the default Management API resource from that base internally.
-- `BULLMQ_PREFIX`, `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, and `ENABLE_DB_POLL_EXECUTION` are optional worker/queue tuning values with code defaults.
-- `LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`, and `LOGTO_MANAGEMENT_API_RESOURCE` are optional legacy connector overrides only; the main Logto Management integration derives its token endpoint/resource from `LOGTO_ENDPOINT` and uses `LOGTO_CLIENT_ID`/`LOGTO_CLIENT_SECRET`.
-
-### Removed variables
-
-The application no longer uses these variables as sources of truth:
-
-- `SERVICE_FQDN_API`
-- `SERVICE_FQDN_BACKEND`
-- `SERVICE_FQDN_FRONTEND`
-- `SERVICE_FQDN_WORKER`
-- `SERVICE_URL_API`
-- `SERVICE_URL_BACKEND`
-- `SERVICE_URL_FRONTEND`
-- `SERVICE_URL_WORKER`
-- `VITE_API_BASE_URL`
-- `VITE_API_RESOURCE_INDICATOR`
-- `POSTGRES_DB`
-- `POSTGRES_PASSWORD`
-- `POSTGRES_USER`
-- `REDIS_HOST`
-- `REDIS_PORT`
-- `RUN_MIGRATIONS_ON_STARTUP`
-- `DATABASE_CONNECT_TIMEOUT_MS`
-
-If your deployment platform injects its own helper variables, treat them as platform metadata only. Do not wire application logic to them.
+- `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
+- `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access; they are intentionally separate from the SPA application ID.
+- `LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives OIDC, JWKS, token, and Management API resource URLs internally.
+- `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
+- Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
 
 ## Backend setup
 

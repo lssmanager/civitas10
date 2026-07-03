@@ -1,15 +1,16 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: bitnami/postgresql:16
     environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRESQL_USERNAME: civitas
+      POSTGRESQL_PASSWORD: civitas-local
+      POSTGRESQL_DATABASE: civitas
     ports:
       - "5432:5432"
     volumes:
-      - civitas_postgres_data:/var/lib/postgresql/data
+      - civitas_postgres_data:/bitnami/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U civitas -d civitas"]
       interval: 10s
       timeout: 5s
       retries: 6

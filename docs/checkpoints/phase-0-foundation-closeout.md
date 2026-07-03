@@ -17,7 +17,7 @@
 Command:
 
 ```bash
-curl https://civitas.socialstudies.cloud/health
+curl https://civitas.didaxus.com/health
 ```
 
 Expected:
