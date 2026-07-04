@@ -13,7 +13,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "smoke:bullmq": "node scripts/smoke-bullmq-real.js"
+    "smoke:bullmq": "node scripts/smoke-bullmq-real.js",
+    "db:migrate:sql": "node scripts/run-sql-migrations.js"
   },
   "keywords": [],
   "author": "",

@@ -11,7 +11,7 @@ function createLogtoAdapter(config = {}) {
     version: "1.0.0",
     actions,
     validate() { return validateLogtoConfig(config); },
-    async healthCheck() { return createAdapterHealth({ status: validateLogtoConfig(config) ? "HEALTHY" : "DEGRADED", last_successful_ping: validateLogtoConfig(config) ? new Date().toISOString() : null, error: validateLogtoConfig(config) ? undefined : "Logto endpoint not configured" }); },
+    async healthCheck() { return createAdapterHealth({ status: validateLogtoConfig(config) ? "HEALTHY" : "DEGRADED", last_successful_ping: validateLogtoConfig(config) ? new Date().toISOString() : null, error: validateLogtoConfig(config) ? undefined : "Logto endpoint or Management API resource not configured" }); },
     async execute(action, input = {}, context = {}) {
       if (!actions.includes(action)) throw connectorError(codes.ACTION_UNSUPPORTED, `Unsupported Logto action ${action}`, { action });
       if (action === "identity.organization.get") return client.getLogtoOrganizationById(input.organizationId || input.logtoOrganizationId);

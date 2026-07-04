@@ -16,7 +16,7 @@ const seedMappings = [
 ];
 
 test("connector registry resolves base identity/logto adapter", () => {
-  const adapter = connectorRegistry.resolve({ capability: "identity", provider: "logto", config: { endpoint: "https://logto.example" } });
+  const adapter = connectorRegistry.resolve({ capability: "identity", provider: "logto", config: { endpoint: "https://logto.example", managementApiResource: "https://logto.example/api" } });
   assert.equal(adapter.capability, "identity");
   assert.equal(adapter.provider, "logto");
   assert.ok(Array.isArray(adapter.actions));

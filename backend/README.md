@@ -18,6 +18,7 @@ API_URL=https://civitas.didaxus.com/api
 LOGTO_ENDPOINT=https://auth.didaxus.com
 LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
 LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
+LOGTO_MANAGEMENT_API_RESOURCE=replace-with-exact-logto-management-api-resource-indicator
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
@@ -52,6 +53,20 @@ npm run worker
 
 - `DATABASE_URL` is the only allowed PostgreSQL connection variable.
 - `REDIS_URL` is the only allowed Redis connection variable.
-- `LOGTO_ENDPOINT` must be the base tenant domain. Civitas derives OIDC, JWKS, token, and Management API resource URLs from that base.
+- `LOGTO_ENDPOINT` must be the base tenant domain. Civitas derives OIDC, JWKS, and token endpoint URLs from that base only.
 - `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
+- `LOGTO_MANAGEMENT_API_RESOURCE` must be copied exactly from the built-in “Logto Management API” resource indicator in the Logto Console. Do not assume it is `LOGTO_ENDPOINT` plus `/api`; if it does not match the tenant resource indicator, Logto returns `oidc.invalid_target`.
 - Backend and worker do not consume `VITE_*` variables.
+
+
+## Database migrations
+
+`DATABASE_URL` is the only PostgreSQL connection source used by the API and worker. The operational orchestration table `operational_operations` is defined in `db/schema/index.js` and created by `db/migrations/0000_foundation.sql`. It stores local Civitas operational state, queue coordination, retries and audit linkage; it is not a copy of Logto organizations or memberships.
+
+Apply migrations before starting production services:
+
+```bash
+npm run db:migrate:sql
+```
+
+If a deployment needs the service to apply idempotent SQL migrations during startup, set `RUN_MIGRATIONS_ON_STARTUP=true` for a controlled single-instance bootstrap or maintenance rollout. API and worker will then run the SQL files in `db/migrations` and fail startup if `operational_operations`, `operational_operation_steps` or `audit_logs` are missing required columns. Keep this flag `false` during normal multi-replica runtime after migrations have been applied.

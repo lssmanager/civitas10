@@ -5,6 +5,7 @@ const { getDatabaseHealth } = require("../lib/databaseHealth");
 const { pingDatabase } = require("../lib/db");
 const { getRedisHealth } = require("../lib/redisHealth");
 const { validateRuntimeEnv, waitForDatabase } = require("../runtime/env");
+const { prepareOperationalDatabase } = require("../runtime/migrations");
 const { getRuntimeQueueConfig } = require("../services/runtime/config");
 const { writeWorkerHeartbeat } = require("../services/runtime/heartbeat");
 const { loadRuntimeQueueTelemetry } = require("../services/runtime/queues");
@@ -49,6 +50,7 @@ if (require.main === module) {
   Promise.resolve()
     .then(() => validateRuntimeEnv({ requireRedis: true }))
     .then(() => waitForDatabase({ ping: pingDatabase }))
+    .then(() => prepareOperationalDatabase())
     .then(() => { bullWorkers = createWorkers(); for (const queueName of runtimeQueueConfig.queueNames) console.log(`Worker listening on ${queueName}`); startReconciler(); setInterval(() => publishWorkerHeartbeat().catch((error) => console.error("Worker heartbeat failed", error.message)), 30000).unref(); return publishWorkerHeartbeat(); })
     .then(() => app.listen(port, () => console.log(`Civitas worker health service running on port ${port} with BullMQ queues ${runtimeQueueConfig.queueNames.join(",")}`)))
     .catch((error) => { console.error(`Worker startup failed: ${error.message}`); process.exit(1); });

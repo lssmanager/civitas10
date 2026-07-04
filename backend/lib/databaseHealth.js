@@ -1,4 +1,4 @@
-const { pingDatabase } = require("./db");
+const { classifyDatabaseError, pingDatabase, sanitizeDatabaseError } = require("./db");
 
 async function getDatabaseHealth() {
   if (!process.env.DATABASE_URL) return { status: "unhealthy", configured: false, driver: "drizzle", message: "DATABASE_URL is not configured" };
@@ -6,7 +6,7 @@ async function getDatabaseHealth() {
     const result = await pingDatabase();
     return { status: "healthy", configured: true, driver: "drizzle", latencyMs: result.latencyMs };
   } catch (error) {
-    return { status: "unhealthy", configured: true, driver: "drizzle", message: error.message };
+    return { status: "unhealthy", configured: true, driver: "drizzle", message: error.message, reason: classifyDatabaseError(error), details: sanitizeDatabaseError(error) };
   }
 }
 module.exports = { getDatabaseHealth };

@@ -53,3 +53,8 @@ The foundation tests correspond to the document's required checks:
 2. Registry raises a typed error when a capability is not configured.
 3. Engine executes an action, records success and saves idempotency.
 4. Second execution with the same idempotency key returns the cached result and does not create a second operation.
+
+
+## Operational schema deployment
+
+`operational_operations` is the local Civitas operation queue/orchestration table. It is defined by `backend/db/schema/index.js` and created by `backend/db/migrations/0000_foundation.sql`. Production deploys must run `npm run db:migrate:sql` from `backend` (or use `RUN_MIGRATIONS_ON_STARTUP=true` only for controlled bootstrap) before API/worker startup checks can pass.

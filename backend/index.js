@@ -21,6 +21,7 @@ const { getWorkerHealthSnapshot, loadWorkerHealthSnapshot, loadWorkerQueuesObser
 const { getDatabaseHealth } = require("./lib/databaseHealth");
 const { getRedisHealth } = require("./lib/redisHealth");
 const { validateRuntimeEnv, waitForDatabase } = require("./runtime/env");
+const { prepareOperationalDatabase } = require("./runtime/migrations");
 const { pingDatabase } = require("./lib/db");
 const { createOperation, listOperationalState } = require("./services/operationalOperations");
 const { listRegistry } = require("./services/registryStore");
@@ -51,7 +52,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_ENDPOINT", "LOGTO_CLIENT_ID", "LOGTO_CLIENT_SECRET"];
+  const required = ["LOGTO_ENDPOINT", "LOGTO_CLIENT_ID", "LOGTO_CLIENT_SECRET", "LOGTO_MANAGEMENT_API_RESOURCE"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };
@@ -286,6 +287,7 @@ if (require.main === module) {
   Promise.resolve()
     .then(() => validateRuntimeEnv({ requireRedis: true }))
     .then(() => waitForDatabase({ ping: pingDatabase }))
+    .then(() => prepareOperationalDatabase())
     .then(() => app.listen(port, () => { console.log(`Server is running on port ${port}`); }))
     .catch((error) => { console.error(`Backend startup failed: ${error.message}`); process.exit(1); });
 }

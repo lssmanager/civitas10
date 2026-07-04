@@ -2,6 +2,7 @@
 let tokenCache = null;
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
+const MANAGEMENT_RESOURCE_ENV = "LOGTO_MANAGEMENT_API_RESOURCE";
 
 const getRequiredEnv = (name) => {
   const value = process.env[name];
@@ -17,7 +18,7 @@ function getLogtoManagementConfig() {
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_CLIENT_ID"),
     clientSecret: getRequiredEnv("LOGTO_CLIENT_SECRET"),
-    resource: `${endpoint}/api`,
+    resource: getRequiredEnv(MANAGEMENT_RESOURCE_ENV),
   };
 }
 

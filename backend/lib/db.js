@@ -32,6 +32,33 @@ function getDb() {
   return db;
 }
 
+
+function sanitizeDatabaseError(error) {
+  if (!error || typeof error !== "object") return { message: String(error || "unknown database error") };
+  const details = {
+    message: error.message,
+    code: error.code || null,
+    severity: error.severity || null,
+    routine: error.routine || null,
+    schema: error.schema || null,
+    table: error.table || null,
+    column: error.column || null,
+    constraint: error.constraint || null,
+  };
+  return Object.fromEntries(Object.entries(details).filter(([, value]) => value != null && value !== ""));
+}
+
+function classifyDatabaseError(error) {
+  const code = error?.code;
+  if (code === "42P01") return "relation_does_not_exist";
+  if (code === "42703") return "column_does_not_exist";
+  if (code === "42501") return "permission_denied";
+  if (code === "28P01") return "invalid_password";
+  if (code === "3D000") return "database_does_not_exist";
+  if (code === "ECONNREFUSED" || code === "ETIMEDOUT") return "connection_failed";
+  return code ? "postgres_error" : "database_error";
+}
+
 async function queryPostgres(query = "select 1", params = []) {
   if (typeof query === "string") return getPool().query(query, params);
   return getDb().execute(query);
@@ -50,4 +77,4 @@ async function closeDatabase() {
   db = null;
 }
 
-module.exports = { closeDatabase, getDatabaseUrl, getDb, getPool, pingDatabase, queryPostgres, schema };
+module.exports = { classifyDatabaseError, closeDatabase, getDatabaseUrl, getDb, getPool, pingDatabase, queryPostgres, sanitizeDatabaseError, schema };

@@ -130,6 +130,7 @@ API_URL=https://civitas.didaxus.com/api
 LOGTO_ENDPOINT=https://auth.didaxus.com
 LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
 LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
+LOGTO_MANAGEMENT_API_RESOURCE=replace-with-exact-logto-management-api-resource-indicator
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
@@ -147,9 +148,25 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `VITE_*` variables belong only to the frontend build.
 - `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
 - `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access; they are intentionally separate from the SPA application ID.
-- `LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives OIDC, JWKS, token, and Management API resource URLs internally.
+- `LOGTO_MANAGEMENT_API_RESOURCE` is the exact resource indicator of the built-in “Logto Management API” resource in the Logto Console. Copy it exactly; do not infer it from `LOGTO_ENDPOINT`. A mismatch causes Logto to reject the M2M token request with `oidc.invalid_target` / `Invalid resource indicator`.
+- `LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives OIDC/JWKS/token endpoint URLs from that base, but does not derive the Management API token resource.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
+
+### Database migrations and operational schema
+
+The Civitas database is the source of truth for local operational state, audit, queues, reconciliation and cross-system orchestration. It does **not** duplicate Logto canonical identity entities. The `operational_operations` table is part of that local operational backbone and is defined in `backend/db/schema/index.js`; it is created by `backend/db/migrations/0000_foundation.sql`.
+
+Backend and worker both use the same `DATABASE_URL` contract and both run the same startup schema guard. Startup now fails fast if the operational tables or required columns are missing, so owner operational endpoints do not appear healthy while the schema is absent.
+
+Run migrations explicitly before deploy with:
+
+```bash
+cd backend
+npm run db:migrate:sql
+```
+
+For single-instance bootstrap or controlled maintenance deploys, set `RUN_MIGRATIONS_ON_STARTUP=true` so the API/worker apply the idempotent SQL migrations before validating the operational schema. Keep it `false` for normal multi-replica runtime after the schema is already migrated.
 
 ## Backend setup
 
@@ -165,7 +182,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_ENDPOINT`, `LOGTO_CLIENT_ID`, and `LOGTO_CLIENT_SECRET` in `backend/.env`.
+3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_ENDPOINT`, `LOGTO_CLIENT_ID`, `LOGTO_CLIENT_SECRET`, and `LOGTO_MANAGEMENT_API_RESOURCE` in `backend/.env`.
 
 4. Install dependencies.
 
@@ -312,6 +329,7 @@ Variables obligatorias de runtime para la app:
 - `LOGTO_ENDPOINT`
 - `LOGTO_CLIENT_ID`
 - `LOGTO_CLIENT_SECRET`
+- `LOGTO_MANAGEMENT_API_RESOURCE`
 - `DATABASE_URL`
 - `REDIS_URL`
 

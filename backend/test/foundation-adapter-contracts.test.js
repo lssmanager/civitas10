@@ -24,7 +24,7 @@ test("mock adapter passes foundation contract and health validation", async () =
 });
 
 test("identity logto adapter passes foundation contract and health validation", async () => {
-  const adapter = createLogtoAdapter({ endpoint: "https://logto.example" });
+  const adapter = createLogtoAdapter({ endpoint: "https://logto.example", managementApiResource: "https://logto.example/api" });
   validateAdapterContract(adapter, { capability: "identity" });
   validateAdapterHealth(await adapter.ping());
 });
