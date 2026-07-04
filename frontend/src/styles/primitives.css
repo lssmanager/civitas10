@@ -385,6 +385,15 @@ textarea.owner-field {
   list-style: none;
 }
 
+.civitas-stepper-current {
+  display: none;
+  margin: 0 0 var(--civitas-space-3);
+  color: var(--civitas-muted-strong);
+  font-size: var(--civitas-font-sm);
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
 .civitas-stepper-item {
   position: relative;
   display: flex;
@@ -406,8 +415,7 @@ textarea.owner-field {
   transform: translateX(50%);
 }
 
-.civitas-stepper-item[data-state="complete"]:not(:last-child)::after,
-.civitas-stepper-item[data-state="active"]:not(:last-child)::after {
+.civitas-stepper-item[data-state="complete"]:not(:last-child)::after {
   background: var(--civitas-primary);
 }
 
@@ -422,9 +430,9 @@ textarea.owner-field {
   border: var(--civitas-border-width) solid var(--civitas-border-strong);
   border-radius: var(--civitas-radius-pill);
   background: var(--civitas-surface);
-  color: var(--civitas-muted-strong);
+  color: var(--civitas-muted);
   font-size: var(--civitas-font-xs);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -437,15 +445,20 @@ textarea.owner-field {
 
 .civitas-stepper-label {
   max-width: 10rem;
-  color: currentColor;
+  color: var(--civitas-muted);
   font-size: var(--civitas-font-xs);
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1rem;
 }
 
-.civitas-stepper-item[data-state="active"] .civitas-stepper-label,
 .civitas-stepper-item[data-state="complete"] .civitas-stepper-label {
   color: var(--civitas-text);
+  font-weight: 500;
+}
+
+.civitas-stepper-item[data-state="active"] .civitas-stepper-label {
+  color: var(--civitas-text);
+  font-weight: 600;
 }
 
 @media (min-width: 48rem) {
@@ -543,4 +556,31 @@ textarea.owner-field {
 
 .civitas-metric-card {
   min-height: 100%;
+}
+
+@media (max-width: 39.999rem) {
+  .civitas-stepper {
+    overflow: hidden;
+  }
+
+  .civitas-stepper-current {
+    display: block;
+  }
+
+  .civitas-stepper-list {
+    grid-template-columns: repeat(var(--civitas-stepper-count, 5), minmax(var(--civitas-control-height-sm), 1fr));
+  }
+
+  .civitas-stepper-item {
+    min-width: 0;
+  }
+
+  .civitas-stepper-label {
+    position: absolute;
+    inline-size: var(--civitas-space-1);
+    block-size: var(--civitas-space-1);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }

@@ -36,14 +36,21 @@
   display: none;
   align-items: center;
   gap: var(--civitas-space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.civitas-primary-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .civitas-nav-link {
+  flex: 0 0 auto;
   border-radius: var(--civitas-radius-sm);
   padding: var(--civitas-space-2) var(--civitas-space-3);
   color: var(--civitas-muted);
   font-size: var(--civitas-font-sm);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25rem;
   transition: color 150ms ease, background-color 150ms ease;
 }
@@ -56,6 +63,7 @@
 .civitas-nav-link-active {
   background: var(--civitas-primary-soft);
   color: var(--civitas-primary-strong);
+  font-weight: 600;
 }
 
 .civitas-main {
@@ -138,5 +146,28 @@
 
   .civitas-grid-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .civitas-topbar-inner {
+    align-items: flex-start;
+  }
+
+  .civitas-cluster {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .civitas-primary-nav {
+    order: 3;
+    display: flex;
+    width: 100%;
+  }
+
+  .civitas-role-badge,
+  .civitas-context-badge {
+    font-weight: 600;
+    letter-spacing: 0.04em;
   }
 }
