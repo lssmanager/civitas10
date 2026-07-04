@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogto } from "@logto/react";
 import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
-import { StatusPill } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
@@ -67,8 +66,8 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
                 return <Link key={`${item.label}-${item.path}`} to={item.path} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`}>{item.label}</Link>;
               })}
             </nav>
-            <StatusPill status="neutral" noDot>{areaLabel[area]}</StatusPill>
-            {organizationId ? <StatusPill status="live" noDot>{organizationId}</StatusPill> : null}
+            <span className="civitas-role-badge">{areaLabel[area]}</span>
+            {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
           </div>
           {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button">Sign out</button>)}
         </div>

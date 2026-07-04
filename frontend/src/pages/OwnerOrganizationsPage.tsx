@@ -560,7 +560,7 @@ const OwnerOrganizationsPage = () => {
       ) : null}
 
       <form onSubmit={handleSubmit} className="civitas-stack" data-civitas-create-organization-wizard="true">
-        <SectionCard>
+        <SectionCard className="civitas-wizard-progress-card">
           <Stepper steps={wizardSteps.map((step) => ({ id: step.id, label: step.label }))} activeStep={activeStep} />
         </SectionCard>
 
@@ -608,7 +608,7 @@ const OwnerOrganizationsPage = () => {
         ) : null}
 
         <ActionBar sticky>
-          <StatusPill status={templateStatus}>Template status: {templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</StatusPill>
+          <StatusPill status={templateStatus} noDot>Template: {templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</StatusPill>
           <div className="civitas-action-bar">
             <button type="button" className={secondaryButtonClassName} onClick={goBack} disabled={activeStep === 0}>Back</button>
             {!isLastStep ? <button type="button" className={primaryButtonClassName} onClick={goNext}>Next</button> : null}
@@ -625,7 +625,7 @@ type UpdateField = <K extends keyof FormState>(field: K, value: FormState[K]) =>
 type UpdateBusinessField = <K extends keyof FormState["business"]>(field: K, value: string) => void;
 
 const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, updateField, inputClassName }: { form: FormState; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateField: UpdateField; inputClassName: string }) => (
-  <SectionCard title="Canonical organization" description="The organization is created canonically in Logto. These fields define the entry URL and provisioning domain.">
+  <SectionCard title="Identity & routing" description="Created canonically in Logto; configure display name, entry URL, provisioning domain and default role.">
     <div className="civitas-form-grid">
       <FormField id="organization-name" label="Organization name" required><input id="organization-name" className={inputClassName} value={form.name} onChange={(event) => updateField("name", event.target.value)} /></FormField>
       <FormField id="organization-description" label="Description"><input id="organization-description" className={inputClassName} value={form.description} onChange={(event) => updateField("description", event.target.value)} /></FormField>
@@ -639,7 +639,7 @@ const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, up
 );
 
 const StepBusinessProfile = ({ form, selectedCountry, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, inputClassName }: { form: FormState; selectedCountry: GeographyCountry | null; regionOptions: readonly GeographyRegion[]; cityOptions: readonly string[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryCode: string) => void; updateStateField: (stateCode: string) => void; inputClassName: string }) => (
-  <SectionCard title="Business profile & custom data" description="These fields populate custom data attached to the canonical organization record.">
+  <SectionCard title="Profile fields" description="Populate custom data attached to the canonical organization record.">
     <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists.</AlertStrip>
     <div className="civitas-form-grid">
       <FormField id="business-website" label="Website"><input id="business-website" className={inputClassName} value={form.business.website} onChange={(event) => updateBusinessField("website", event.target.value)} /></FormField>
@@ -660,7 +660,7 @@ const StepBusinessProfile = ({ form, selectedCountry, regionOptions, cityOptions
 );
 
 const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateContact, addContact, removeContact, inputClassName }: { contacts: AdministrativeContact[]; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateContact: (id: string, field: keyof AdministrativeContact, value: string) => void; addContact: () => void; removeContact: (id: string) => void; inputClassName: string }) => (
-  <SectionCard title="Administrative users" description="These users are provisioned or resolved in Logto, added to the new organization, and assigned their organization role.">
+  <SectionCard title="User bootstrap" description="Provision or resolve Logto users, add them to the organization and assign roles.">
     <div className="civitas-stack">
       {contacts.map((contact, index) => (
         <SectionCard key={contact.id} title={`Administrative contact ${index + 1}`} description="Users created here keep the custom data flow intact when sent to Logto." actions={contacts.length > 1 ? <button type="button" onClick={() => removeContact(contact.id)} className="civitas-secondary-button">Remove</button> : null}>
@@ -683,7 +683,7 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
 );
 
 const StepSegmentation = ({ form, setForm, inputClassName }: { form: FormState; setForm: Dispatch<SetStateAction<FormState>>; inputClassName: string }) => (
-  <SectionCard title="Segmentation metadata" description="These values are stored as clean segmentation metadata inside organization custom data for later connector orchestration.">
+  <SectionCard title="Tags and lists" description="Store clean segmentation metadata for later connector orchestration.">
     <div className="civitas-form-grid">
       <FormField id="segmentation-tags" label="Tags"><input id="segmentation-tags" className={inputClassName} value={form.segmentation.tags.join(", ")} onChange={(event) => setForm((current) => ({ ...current, segmentation: { ...current.segmentation, tags: parseDelimitedValues(event.target.value) } }))} placeholder="school, k12, premium" /></FormField>
       <FormField id="segmentation-lists" label="Lists"><input id="segmentation-lists" className={inputClassName} value={form.segmentation.lists.join(", ")} onChange={(event) => setForm((current) => ({ ...current, segmentation: { ...current.segmentation, lists: parseDelimitedValues(event.target.value) } }))} placeholder="north-region, onboarding" /></FormField>
@@ -692,7 +692,7 @@ const StepSegmentation = ({ form, setForm, inputClassName }: { form: FormState; 
 );
 
 const StepReview = ({ form, template, templateLoading, submitError }: { form: FormState; template: OrganizationTemplateResponse | null; templateLoading: boolean; submitError: string | null }) => (
-  <SectionCard title="Review & submit" description="Review the canonical organization, administrative contacts, segmentation metadata and template readiness before final provisioning.">
+  <SectionCard title="Final confirmation" description="Review canonical organization, users, segmentation and template readiness before provisioning.">
     <div className="civitas-grid-2">
       <div><strong>Organization</strong><p>{form.name || "Unnamed organization"}</p><p>{form.appSubdomain && form.appBaseDomain ? `${form.appSubdomain}.${form.appBaseDomain}` : "Entry URL pending"}</p></div>
       <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && template.missingRoleNames.length > 0 ? <p>Missing roles: {template.missingRoleNames.join(", ")}</p> : null}</div>

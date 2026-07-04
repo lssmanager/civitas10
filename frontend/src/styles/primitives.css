@@ -485,3 +485,62 @@ textarea.owner-field {
   justify-content: flex-start;
   margin-top: var(--civitas-space-6);
 }
+.civitas-role-badge,
+.civitas-context-badge {
+  display: inline-flex;
+  min-height: var(--civitas-control-height-sm);
+  align-items: center;
+  border-left: var(--civitas-border-width) solid var(--civitas-border);
+  padding-left: var(--civitas-space-3);
+  color: var(--civitas-muted-strong);
+  font-size: var(--civitas-font-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.civitas-context-badge {
+  color: var(--civitas-primary-strong);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.civitas-alert {
+  display: grid;
+  gap: var(--civitas-space-1);
+  padding-block: var(--civitas-space-3);
+}
+
+.civitas-alert-title {
+  margin-bottom: 0;
+}
+
+.civitas-wizard-progress-card {
+  padding-block: var(--civitas-space-4);
+}
+
+.civitas-wizard-progress-card + .civitas-card {
+  margin-top: calc(var(--civitas-space-2) * -1);
+}
+
+.civitas-stepper-list {
+  align-items: start;
+}
+
+.civitas-stepper-marker {
+  width: 1.625rem;
+  height: 1.625rem;
+}
+
+.civitas-stepper-item:not(:last-child)::after {
+  top: 0.8125rem;
+}
+
+.civitas-bottom-action-bar .civitas-pill {
+  opacity: 0.86;
+}
+
+.civitas-metric-card {
+  min-height: 100%;
+}

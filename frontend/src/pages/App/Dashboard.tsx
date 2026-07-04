@@ -48,7 +48,7 @@ const Dashboard = () => {
     setError(null);
 
     try {
-      const accessToken = await getAccessToken(APP_ENV.api.url);
+      const accessToken = await getAccessToken(APP_ENV.api.resource);
       if (!accessToken) throw new Error("No API access token returned by Logto");
 
       const meResponse = await getMe(accessToken);

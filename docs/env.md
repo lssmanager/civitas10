@@ -6,6 +6,7 @@ The project uses a single source of truth for each service configuration value. 
 
 ```env
 VITE_API_URL=https://civitas.didaxus.com/api
+VITE_API_RESOURCE=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback

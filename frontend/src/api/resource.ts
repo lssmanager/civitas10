@@ -15,14 +15,14 @@ export type CreateOrganizationData = {
 };
 
 export const useResourceApi = () => {
-  const { fetchWithToken } = useApi();
+  const { ownerApiFetch } = useApi();
 
   return useMemo(() => ({
     createOrganization: async (data: CreateOrganizationData): Promise<{ data: { id: string; name?: string; description?: string | null } }> => {
-      return await fetchWithToken('/owner/organizations', {
+      return await ownerApiFetch('/owner/organizations', {
         method: 'POST',
         body: JSON.stringify(data),
       });
     },
-  }), [fetchWithToken]);
-}; 
+  }), [ownerApiFetch]);
+};

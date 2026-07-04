@@ -25,6 +25,7 @@ const requiredFiles = [
   "docs/CIVITAS_VISUAL_SYSTEM.md",
   "docs/CIVITAS_COMPONENT_RULES.md",
   "docs/CIVITAS_WIZARD_PATTERN.md",
+  "docs/CIVITAS_OWNER_AUTH.md",
 ];
 
 const fail = (message) => {
@@ -48,6 +49,9 @@ for (const importPath of ["./index.css", "./styles/index.css", "./styles/dashboa
 
 const theme = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
 if (!theme.includes('[data-theme="light"]') || !theme.includes('[data-theme="dark"]')) fail("theme.css must define light and dark data-theme blocks");
+
+const auth = readFileSync(new URL("../docs/CIVITAS_OWNER_AUTH.md", import.meta.url), "utf8");
+if (!auth.includes("VITE_API_RESOURCE") || !auth.includes("sub === client_id") || !auth.includes("ownerApiFetch")) fail("owner auth documentation must explain API resource and user-token guard");
 
 const wizard = readFileSync(new URL("../src/pages/OwnerOrganizationsPage.tsx", import.meta.url), "utf8");
 for (const marker of ["data-civitas-create-organization-wizard", "Stepper", "FormField", "ActionBar", "StatusPill", "StepCanonicalOrganization", "StepBusinessProfile", "StepAdminUsers", "StepSegmentation", "StepReview"]) {
