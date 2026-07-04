@@ -1,0 +1,14 @@
+/* Dashboard layer intentionally remains thin. Backbone primitives live in primitives.css. */
+.owner-shell { min-height: 100vh; background: var(--civitas-bg); color: var(--civitas-text); }
+.owner-card { border: var(--civitas-border-width) solid var(--civitas-border); border-radius: var(--civitas-radius-lg); background: var(--civitas-surface); padding: var(--civitas-space-6); box-shadow: var(--civitas-shadow); }
+.owner-page-header { background: var(--civitas-surface); }
+.owner-eyebrow { margin: 0 0 var(--civitas-space-2); color: var(--civitas-primary); font-size: var(--civitas-font-sm); font-weight: 700; letter-spacing: 0.2em; line-height: 1.25rem; text-transform: uppercase; }
+.owner-page-title { margin: 0; color: var(--civitas-text); font-size: var(--civitas-font-3xl); font-weight: 800; letter-spacing: -0.025em; line-height: 2.25rem; }
+.owner-page-description { max-width: var(--civitas-readable-max); margin: var(--civitas-space-2) 0 0; color: var(--civitas-muted); font-size: var(--civitas-font-sm); line-height: 1.5rem; }
+.owner-muted { color: var(--civitas-muted); font-size: var(--civitas-font-sm); line-height: 1.25rem; }
+.owner-action-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--civitas-space-3); }
+.owner-primary-button { border: var(--civitas-border-width) solid var(--civitas-primary); border-radius: var(--civitas-radius-md); background: var(--civitas-primary); padding: var(--civitas-space-3) var(--civitas-space-5); color: var(--civitas-primary-contrast); font-size: var(--civitas-font-sm); font-weight: 700; line-height: 1.25rem; box-shadow: var(--civitas-shadow); cursor: pointer; }
+.owner-primary-button:hover { background: var(--civitas-primary-strong); border-color: var(--civitas-primary-strong); }
+.owner-primary-button:disabled { cursor: not-allowed; opacity: 0.62; }
+.owner-secondary-button { display: inline-flex; align-items: center; border: var(--civitas-border-width) solid var(--civitas-border); border-radius: var(--civitas-radius-sm); background: var(--civitas-surface); padding: var(--civitas-space-2) var(--civitas-space-3); color: var(--civitas-muted-strong); font-size: var(--civitas-font-sm); font-weight: 600; line-height: 1.25rem; cursor: pointer; }
+.owner-secondary-button:hover { background: var(--civitas-surface-subtle); color: var(--civitas-body); }

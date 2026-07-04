@@ -13,6 +13,7 @@ export const APP_ENV = {
   },
   api: {
     url: required("VITE_API_URL", import.meta.env.VITE_API_URL),
+    resource: import.meta.env.VITE_API_RESOURCE?.trim() || required("VITE_API_URL", import.meta.env.VITE_API_URL),
   },
   app: {
     redirectUri: required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI),

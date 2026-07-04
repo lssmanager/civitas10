@@ -1,0 +1,23 @@
+@import "./tokens.css";
+@import "./theme.css";
+@import "./layout.css";
+@import "./primitives.css";
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--civitas-bg);
+  color: var(--civitas-body);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
