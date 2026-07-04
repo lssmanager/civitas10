@@ -206,6 +206,7 @@ textarea.owner-field {
 
 .civitas-alert,
 .owner-banner {
+  max-width: 100%;
   border: var(--civitas-border-width) solid var(--civitas-alert-border, var(--civitas-border));
   border-radius: var(--civitas-radius-lg);
   background: var(--civitas-alert-bg, var(--civitas-surface));
@@ -263,6 +264,7 @@ textarea.owner-field {
 
 .civitas-pill,
 .owner-badge {
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: var(--civitas-space-2);
@@ -330,6 +332,7 @@ textarea.owner-field {
 
 .civitas-state,
 .owner-state {
+  max-width: 100%;
   border: var(--civitas-border-width) dashed var(--civitas-border-strong);
   border-radius: var(--civitas-radius-md);
   background: var(--civitas-surface-subtle);
@@ -340,16 +343,35 @@ textarea.owner-field {
   text-align: center;
 }
 
+
+.civitas-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.civitas-nowrap-children > * {
+  flex: 0 0 auto;
+}
+
+.civitas-visually-hidden {
+  position: absolute;
+  inline-size: var(--civitas-space-1);
+  block-size: var(--civitas-space-1);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .civitas-kpi-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   gap: var(--civitas-space-4);
 }
 
-.civitas-kpi-grid[data-cols="2"],
-.civitas-kpi-grid[data-cols="3"],
-.civitas-kpi-grid[data-cols="4"] {
-  grid-template-columns: 1fr;
-}
+.civitas-kpi-grid[data-cols="2"] { --civitas-kpi-max-cols: 2; }
+.civitas-kpi-grid[data-cols="3"] { --civitas-kpi-max-cols: 3; }
+.civitas-kpi-grid[data-cols="4"] { --civitas-kpi-max-cols: 4; }
 
 .civitas-table-wrap {
   overflow-x: auto;
@@ -386,7 +408,7 @@ textarea.owner-field {
 }
 
 .civitas-stepper-current {
-  display: none;
+  display: block;
   margin: 0 0 var(--civitas-space-3);
   color: var(--civitas-muted-strong);
   font-size: var(--civitas-font-sm);
@@ -417,6 +439,14 @@ textarea.owner-field {
 
 .civitas-stepper-item[data-state="complete"]:not(:last-child)::after {
   background: var(--civitas-primary);
+}
+
+.civitas-stepper-list.civitas-scroll-x {
+  display: flex;
+}
+
+.civitas-stepper-list.civitas-scroll-x .civitas-stepper-item {
+  min-width: var(--civitas-control-height-lg);
 }
 
 .civitas-stepper-marker {
@@ -461,10 +491,10 @@ textarea.owner-field {
   font-weight: 600;
 }
 
-@media (min-width: 48rem) {
-  .civitas-kpi-grid[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .civitas-kpi-grid[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .civitas-kpi-grid[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 1280px) {
+  .civitas-kpi-grid[data-cols="2"] { grid-template-columns: repeat(2, minmax(min(100%, 10rem), 1fr)); }
+  .civitas-kpi-grid[data-cols="3"] { grid-template-columns: repeat(3, minmax(min(100%, 10rem), 1fr)); }
+  .civitas-kpi-grid[data-cols="4"] { grid-template-columns: repeat(4, minmax(min(100%, 10rem), 1fr)); }
 }
 .civitas-page-header-inner {
   display: flex;
@@ -478,7 +508,7 @@ textarea.owner-field {
   margin-top: var(--civitas-space-3);
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 768px) {
   .civitas-page-header-inner {
     flex-direction: row;
     align-items: flex-end;
@@ -555,32 +585,29 @@ textarea.owner-field {
 }
 
 .civitas-metric-card {
+  max-width: 100%;
   min-height: 100%;
 }
 
-@media (max-width: 39.999rem) {
-  .civitas-stepper {
-    overflow: hidden;
+@media (max-width: 768px) {
+  .civitas-stack-md {
+    grid-template-columns: 1fr !important;
   }
 
-  .civitas-stepper-current {
-    display: block;
+  .civitas-pad-tight-md {
+    padding: var(--civitas-space-4) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .civitas-action-bar,
+  .civitas-bottom-action-bar {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  .civitas-stepper-list {
-    grid-template-columns: repeat(var(--civitas-stepper-count, 5), minmax(var(--civitas-control-height-sm), 1fr));
-  }
-
-  .civitas-stepper-item {
-    min-width: 0;
-  }
-
-  .civitas-stepper-label {
-    position: absolute;
-    inline-size: var(--civitas-space-1);
-    block-size: var(--civitas-space-1);
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  .civitas-action-bar > *,
+  .civitas-bottom-action-bar > * {
+    width: 100%;
   }
 }

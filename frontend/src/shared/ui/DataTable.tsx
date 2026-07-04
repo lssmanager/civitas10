@@ -9,7 +9,7 @@ export type DataTableColumn<T> = {
 export const DataTable = <T,>({ columns, data, getKey, emptyState }: { columns: DataTableColumn<T>[]; data: T[]; getKey: (item: T, index: number) => string; emptyState?: ReactNode }) => {
   if (data.length === 0 && emptyState) return <>{emptyState}</>;
   return (
-    <div className="civitas-table-wrap">
+    <div className="civitas-table-wrap civitas-scroll-x">
       <table className="civitas-table">
         <thead>
           <tr>{columns.map((column) => <th key={column.key}>{column.header}</th>)}</tr>

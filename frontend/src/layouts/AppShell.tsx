@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLogto } from "@logto/react";
 import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
+import { NavCollapse } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
@@ -48,7 +49,6 @@ const resolveNavItems = (area: ShellArea, organizationId?: string, navItems?: Na
 };
 
 export const AppShell = ({ area, children, navItems, organizationId, showBackButton = false, actions }: AppShellProps) => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useLogto();
   const resolvedNavItems = resolveNavItems(area, organizationId, navItems);
@@ -60,14 +60,16 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
           <div className="civitas-cluster">
             {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button">Back</button> : null}
             <Link to={area === "public" ? "/" : appRoutes.owner.path} className="civitas-brand">Civitas 1.1</Link>
-            <nav className="civitas-primary-nav" aria-label={`${areaLabel[area]} navigation`} data-civitas-nav="true">
-              {resolvedNavItems.map((item) => {
-                const active = item.match ? item.match(location.pathname) : location.pathname === item.path;
-                return <Link key={`${item.label}-${item.path}`} to={item.path} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`}>{item.label}</Link>;
-              })}
-            </nav>
-            <span className="civitas-role-badge">{areaLabel[area]}</span>
-            {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
+            <NavCollapse
+              items={resolvedNavItems}
+              label={areaLabel[area]}
+              context={(
+                <>
+                  <span className="civitas-role-badge">{areaLabel[area]}</span>
+                  {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
+                </>
+              )}
+            />
           </div>
           {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button">Sign out</button>)}
         </div>

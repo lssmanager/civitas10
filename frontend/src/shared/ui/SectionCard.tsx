@@ -12,7 +12,7 @@ type SectionCardProps = {
 };
 
 export const SectionCard = ({ children, title, description, icon, actions, body = "default", className = "", "data-variant": dataVariant }: SectionCardProps) => (
-  <section className={`civitas-card ${body === "flush" ? "civitas-card-flush" : ""} ${className}`} data-civitas-section-card="true" data-variant={dataVariant}>
+  <section className={`civitas-card civitas-pad-tight-md ${body === "flush" ? "civitas-card-flush" : ""} ${className}`} data-civitas-section-card="true" data-variant={dataVariant}>
     {title || description || actions ? (
       <header className="civitas-card-header">
         <div className="civitas-cluster">

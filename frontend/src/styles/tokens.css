@@ -38,10 +38,11 @@
   --civitas-control-height-lg: 3.25rem;
   --civitas-container-max: 80rem;
   --civitas-readable-max: 48rem;
-  --civitas-breakpoint-sm: 40rem;
-  --civitas-breakpoint-md: 48rem;
-  --civitas-breakpoint-lg: 64rem;
-  --civitas-breakpoint-xl: 80rem;
+  /* Canonical responsive breakpoints: sm 480px, md 768px, lg 1024px, xl 1280px. */
+  --civitas-breakpoint-sm: 480px;
+  --civitas-breakpoint-md: 768px;
+  --civitas-breakpoint-lg: 1024px;
+  --civitas-breakpoint-xl: 1280px;
 
   --civitas-z-topbar: 20;
   --civitas-z-sticky-action: 30;

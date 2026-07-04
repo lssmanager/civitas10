@@ -24,10 +24,11 @@ test("Stepper connectors only turn primary after the source step is complete", (
   assert.doesNotMatch(primitivesCss, /\.civitas-stepper-item\[data-state="active"\]:not\(:last-child\)::after\s*{\s*background: var\(--civitas-primary\);\s*}/s);
 });
 
-test("Stepper and topbar avoid mobile text overlap", () => {
-  assert.match(stepperSource, /civitas-stepper-current/);
-  assert.match(primitivesCss, /@media \(max-width: 39\.999rem\)/);
-  assert.match(primitivesCss, /\.civitas-stepper-label\s*{[^}]*clip-path: inset\(50%\)/s);
+test("Stepper consumes the canonical breakpoint hook and responsive utility classes", () => {
+  assert.match(stepperSource, /useBreakpoint\("md"\)/);
+  assert.match(stepperSource, /civitas-scroll-x civitas-nowrap-children/);
+  assert.match(stepperSource, /civitas-visually-hidden/);
+  assert.match(primitivesCss, /\.civitas-stepper-list\.civitas-scroll-x\s*{\s*display: flex;/s);
   assert.match(layoutCss, /\.civitas-primary-nav\s*{[^}]*overflow-x: auto/s);
   assert.match(layoutCss, /\.civitas-nav-link\s*{[^}]*flex: 0 0 auto/s);
 });

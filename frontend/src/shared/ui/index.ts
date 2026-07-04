@@ -9,3 +9,5 @@ export { PageHeader } from "./PageHeader";
 export { SectionCard } from "./SectionCard";
 export { StatusPill, type StatusPillStatus } from "./StatusPill";
 export { Stepper } from "./Stepper";
+export { FormGrid } from "./FormGrid";
+export { NavCollapse, type NavCollapseItem } from "./NavCollapse";
