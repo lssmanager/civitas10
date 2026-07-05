@@ -1,1 +1,3 @@
-export type LogtoResource = "urn:civitas:api";
+import { CivitasAuthContract } from "./civitas-auth.contract";
+
+export type LogtoResource = typeof CivitasAuthContract.logto.apiResource;

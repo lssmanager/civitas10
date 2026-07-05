@@ -1,13 +1,13 @@
+const { withTimeout } = require("./timeouts");
+const { loadCivitasSharedContract } = require("../../core/shared/contract-loader.cjs");
+const sharedContract = loadCivitasSharedContract();
+
 const MANAGEMENT_TOKEN_SCOPE = "all";
 const ORGANIZATION_ADMIN_ROLE_NAME = "Admin-org";
 const JIT_DEFAULT_ORGANIZATION_ROLE_NAME = "Student-org";
 const REQUIRED_ORGANIZATION_ROLE_NAMES = [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME];
-const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = ["owner_global"];
+const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = [sharedContract.auth.global.ownerRole];
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key)/i;
-
-const { withTimeout } = require("./timeouts");
-const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
-const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 let tokenCache = null;
 
@@ -496,7 +496,7 @@ function buildProhibitedGlobalRolesError({ userId, prohibitedRoles, removedRoles
   error.retainedRoles = retainedRoles;
   error.internalDiagnostic = existingUser
     ? "An existing Logto user has global roles incompatible with being an organization base admin. Civitas did not mutate the existing user; choose a different base admin or remove the incompatible global roles manually after verifying ownership."
-    : "Logto assigned a global role to a newly created organization user. Civitas attempted to remove unsafe default global roles; remove default global roles for regular users because owner_global must be reserved for Civitas platform owners.";
+    : "Logto assigned a global role to a newly created organization user. Civitas attempted to remove unsafe default global roles; remove default global roles for regular users because the shared owner role must be reserved for Civitas platform owners.";
   error.diagnostic = error.internalDiagnostic;
   return error;
 }

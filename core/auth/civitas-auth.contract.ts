@@ -1,10 +1,3 @@
-export const CivitasAuthContract = {
-  logto: {
-    issuer: "https://auth.didaxus.com",
-    apiResource: "urn:civitas:api",
-    managementApi: "https://auth.didaxus.com",
-  },
-  api: {
-    publicUrl: "https://civitas.didaxus.com/api",
-  },
-} as const;
+import { loadCivitasAuthContract } from "../shared/contract-loader.cjs";
+
+export const CivitasAuthContract = loadCivitasAuthContract();
