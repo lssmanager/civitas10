@@ -111,25 +111,41 @@ Services exposed by default:
 
 ## Environment convention
 
+### Final service environment matrix
+
 Civitas auth identity is declared in `core/auth/civitas-auth.contract.ts`, compiled to `dist/auth.contract.json` with `node scripts/build-auth-contract.mjs`, and mirrored only by the canonical per-service env names below. Runtime validation fails if env values drift from the compiled contract.
 
-### Canonical deployment metadata
+#### Frontend
 
 ```env
-NODE_ENV=production
-
-# Frontend build/runtime metadata
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
+```
 
-# Backend/API infrastructure/secrets
+#### API/backend
+
+```env
+NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 LOGTO_API_RESOURCE=urn:civitas:api
 LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-application-id
 LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-application-secret
+BULLMQ_PREFIX=civitas
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=60000
+DATABASE_WAIT_INTERVAL_MS=2000
+DATABASE_CONNECT_TIMEOUT_MS=5000
+```
+
+#### Worker
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
+REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
 ENABLE_QUEUE_RECONCILER=true
@@ -144,12 +160,13 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 
 - `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
 - The frontend derives redirect and signout return URLs at runtime from the current `window.location.origin`; no redirect URI env vars are required.
-- `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access.
+- `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` are API/backend-only Logto M2M credentials for Management API access.
+- `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, and `ENABLE_DB_POLL_EXECUTION` are worker-only controls.
 - Logto issuer, Logto API resource, Logto Management API resource, and public API URL come only from the compiled auth contract.
 - `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other.
-- Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names.
+- Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names and on variables from another Civitas service.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
-- Zero-drift mode keeps Civitas strict without being fragile: Coolify may inject `SERVICE_*` or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure.
+- Coolify may inject `SERVICE_*` or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure and reports it as ignored platform metadata.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. Removed Civitas aliases such as old Logto env names, old frontend redirect env names, URL-shaped audience env names, or removed domains still fail hard.
 
 ### Database migrations and operational schema

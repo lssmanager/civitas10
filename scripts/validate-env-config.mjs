@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { validateDeploymentConfig, classifyDeploymentVariable } = require("../core/deployment/deployment-kernel.cjs");
+const { validateDeploymentConfig, classifyDeploymentVariable, serviceAllowedVariables } = require("../core/deployment/deployment-kernel.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
 const files = [
@@ -116,7 +116,23 @@ try {
   if (error.code !== "CONFIG_FORBIDDEN_DRIFT") fail(`LOGTO_CLIENT_ID should fail as forbidden Civitas drift, got ${error.code || error.message}`);
 }
 
+
+const backendOnlyVariables = [...serviceAllowedVariables.backend].filter((key) => !serviceAllowedVariables.worker.has(key));
+const workerOnlyVariables = [...serviceAllowedVariables.worker].filter((key) => !serviceAllowedVariables.backend.has(key));
+for (const key of workerOnlyVariables) {
+  if (classifyDeploymentVariable(key, "backend") !== "cross_service_pollution") fail(`worker variable ${key} must be cross-service pollution in backend`);
+}
+for (const key of backendOnlyVariables) {
+  if (classifyDeploymentVariable(key, "worker") !== "cross_service_pollution") fail(`backend variable ${key} must be cross-service pollution in worker`);
+}
+if (classifyDeploymentVariable("SERVICE_FQDN_API", "backend") !== "platform_metadata") fail("SERVICE_* must classify as platform metadata");
+if (classifyDeploymentVariable("COOLIFY_RESOURCE_UUID", "worker") !== "platform_metadata") fail("COOLIFY_* must classify as platform metadata");
+
 const compose = read("docker-compose.yml");
+const backendBlock = compose.split(/\n\s*worker:/)[0].split(/\n\s*backend:/)[1] || "";
+for (const forbidden of ["WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION"]) {
+  if (backendBlock.includes(forbidden)) fail(`backend compose block must not contain worker variable ${forbidden}`);
+}
 const workerBlock = compose.split(/\n\s*frontend:/)[0].split(/\n\s*worker:/)[1] || "";
 for (const forbidden of ["VITE_", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "LOGTO_API_RESOURCE", "API_URL"]) {
   if (workerBlock.includes(forbidden)) fail(`worker compose block must not contain ${forbidden}`);

@@ -67,6 +67,23 @@ const serviceAllowedVariables = Object.freeze({
   worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
 });
 
+
+const serviceContractOwners = (() => {
+  const owners = new Map();
+  for (const [service, variables] of Object.entries(serviceAllowedVariables)) {
+    for (const variable of variables) {
+      if (!owners.has(variable)) owners.set(variable, new Set());
+      owners.get(variable).add(service);
+    }
+  }
+  return owners;
+})();
+
+const isCrossServiceVariable = (key, service) => {
+  const owners = serviceContractOwners.get(key);
+  return Boolean(owners && !owners.has(service));
+};
+
 const platformMetadataVariablePatterns = Object.freeze([
   /^SERVICE_[A-Z0-9_]+$/,
   /^COOLIFY_[A-Z0-9_]+$/,
@@ -101,6 +118,7 @@ function classifyDeploymentVariable(key, service) {
   if (serviceAllowedVariables[service]?.has(key)) return "contract";
   if (isPlatformMetadataVariable(key)) return "platform_metadata";
   if (forbiddenCivitasVariables.has(key)) return "forbidden_civitas_drift";
+  if (isCrossServiceVariable(key, service)) return "cross_service_pollution";
   if (isCivitasVariable(key)) return "civitas_outside_service_contract";
   return "external_runtime";
 }
@@ -119,6 +137,9 @@ function assertStrictServiceContract(env, service) {
     }
     if (classification === "forbidden_civitas_drift") {
       throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_DRIFT", service, variable: key, cause: "forbidden_civitas_drift_variable", message: `${key} is forbidden Civitas configuration drift`, hint: `Remove ${key}; it belongs to a removed Civitas configuration model.` });
+    }
+    if (classification === "cross_service_pollution") {
+      throw new DeploymentConfigError({ code: "CONFIG_CROSS_SERVICE_POLLUTION", service, variable: key, cause: "cross_service_pollution", message: `${key} belongs to another Civitas service contract and is forbidden in ${service}`, hint: `Remove ${key} from the ${service} environment in Coolify.` });
     }
     if (classification === "civitas_outside_service_contract") {
       throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "variable_outside_service_contract", message: `${key} is outside the ${service} configuration contract`, hint: `Remove ${key} from the ${service} environment.` });
@@ -205,6 +226,7 @@ module.exports = {
   classifyDeploymentVariable,
   forbiddenCivitasVariables,
   platformMetadataVariablePatterns,
+  serviceContractOwners,
   serviceAllowedVariables,
   validateDeploymentConfig,
 };

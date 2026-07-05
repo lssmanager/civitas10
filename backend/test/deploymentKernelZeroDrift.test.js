@@ -64,9 +64,29 @@ test("deployment kernel still rejects removed Civitas aliases", () => {
   );
 });
 
-test("deployment kernel still rejects Civitas variables outside the service contract", () => {
+test("deployment kernel rejects worker variables injected into backend", () => {
+  assert.equal(classifyDeploymentVariable("ENABLE_QUEUE_RECONCILER", "backend"), "cross_service_pollution");
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, ENABLE_QUEUE_RECONCILER: "true" } }),
+    (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "ENABLE_QUEUE_RECONCILER",
+  );
+});
+
+test("deployment kernel rejects backend variables injected into worker", () => {
+  assert.equal(classifyDeploymentVariable("LOGTO_API_RESOURCE", "worker"), "cross_service_pollution");
   assert.throws(
     () => validateDeploymentConfig({ service: "worker", contract, env: { ...backendEnv, WORKER_CONCURRENCY: "1" } }),
-    (error) => error.code === "CONFIG_OUTSIDE_CONTRACT" && error.variable === "API_URL",
+    (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "API_URL",
+  );
+  assert.throws(
+    () => validateDeploymentConfig({ service: "worker", contract, env: { DATABASE_URL: backendEnv.DATABASE_URL, REDIS_URL: backendEnv.REDIS_URL, LOGTO_API_RESOURCE: backendEnv.LOGTO_API_RESOURCE } }),
+    (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "LOGTO_API_RESOURCE",
+  );
+});
+
+test("deployment kernel still rejects unknown Civitas variables outside every service contract", () => {
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, API_BASE_URL: "https://civitas.didaxus.com/api" } }),
+    (error) => error.code === "CONFIG_OUTSIDE_CONTRACT" && error.variable === "API_BASE_URL",
   );
 });
