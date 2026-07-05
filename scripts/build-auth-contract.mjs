@@ -1,33 +1,18 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { loadCivitasSharedContract } = require("../core/shared/contract-loader.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
-const sourcePath = join(root, "core/auth/civitas-auth.contract.ts");
-const outputPath = join(root, "dist/auth.contract.json");
-const source = readFileSync(sourcePath, "utf8");
+const sharedOutputPath = join(root, "dist/shared.contract.json");
+const authOutputPath = join(root, "dist/auth.contract.json");
+const sharedContract = loadCivitasSharedContract();
+const authCompatibilityContract = { logto: sharedContract.logto, api: sharedContract.api, auth: sharedContract.auth };
 
-const readString = (path) => {
-  const pattern = path.split(".").join("\\s*:\\s*\\{[\\s\\S]*?") + "\\s*:\\s*\"([^\"]+)\"";
-  const match = source.match(new RegExp(pattern));
-  if (!match) throw new Error(`Unable to compile auth contract value: ${path}`);
-  return match[1];
-};
-
-const contract = {
-  logto: {
-    issuer: readString("logto.issuer"),
-    apiResource: readString("logto.apiResource"),
-    managementApi: readString("logto.managementApi"),
-  },
-  api: {
-    publicUrl: readString("api.publicUrl"),
-  },
-};
-
-if (/^https?:\/\//i.test(contract.logto.apiResource)) {
-  throw new Error("CivitasAuthContract.logto.apiResource must be a logical resource, not an HTTP URL");
-}
-
-mkdirSync(dirname(outputPath), { recursive: true });
-writeFileSync(outputPath, `${JSON.stringify(contract, null, 2)}\n`);
-console.log(`Wrote ${outputPath}`);
+mkdirSync(dirname(sharedOutputPath), { recursive: true });
+writeFileSync(sharedOutputPath, `${JSON.stringify(sharedContract, null, 2)}\n`);
+writeFileSync(authOutputPath, `${JSON.stringify(authCompatibilityContract, null, 2)}\n`);
+console.log(`Wrote ${sharedOutputPath}`);
+console.log(`Wrote ${authOutputPath}`);

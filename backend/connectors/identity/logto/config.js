@@ -1,17 +1,17 @@
-const { validateDeploymentConfig } = require("../../../../core/deployment/deployment-kernel.cjs");
-const deploymentConfig = validateDeploymentConfig({ service: "backend" });
+const { loadCivitasSharedContract } = require("../../../../core/shared/contract-loader.cjs");
+const sharedContract = loadCivitasSharedContract();
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 function resolveLogtoConfig(config = {}) {
-  const endpoint = normalizeLogtoEndpoint(config.endpoint || deploymentConfig.logtoManagementApi || "");
+  const endpoint = normalizeLogtoEndpoint(config.endpoint || sharedContract.logto.managementApi || "");
 
   return {
     endpoint: endpoint || null,
     managementTokenEndpoint: endpoint ? `${endpoint}/oidc/token` : null,
     applicationId: config.applicationId || process.env.LOGTO_M2M_CLIENT_ID || null,
     applicationSecret: config.applicationSecret || process.env.LOGTO_M2M_CLIENT_SECRET || null,
-    resource: config.managementApiResource || deploymentConfig.logtoManagementApi || null,
+    resource: config.managementApiResource || sharedContract.logto.managementApi || null,
     timeoutMs: Number(config.timeoutMs || 8000),
   };
 }

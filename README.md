@@ -333,3 +333,8 @@ requireAuth → requireOrg → requirePermission(permission) → requireSeats �
 ```
 
 Logto incompleto en `/health` se reporta como `degraded` o `unhealthy` en `services.logto`; PostgreSQL o Redis unhealthy retornan HTTP 503.
+
+
+## Shared contract isolation
+
+Civitas shared auth/platform semantics now live in one source: `core/shared/civitas-shared.contract.cjs`. Runtime services and scripts must consume it through `core/shared/contract-loader.cjs` or through `core/deployment/deployment-kernel.cjs`; they must not redefine the logical API resource, Logto issuer, owner role, global scopes, organization audience prefix, or shared invariants locally. See `docs/shared-contract.md` for the layer boundary between shared contract, deployment contract, service-local runtime, and docs/examples.

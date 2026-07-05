@@ -8,12 +8,13 @@ import OwnerOperationalHomePage from "../OwnerOperationalHomePage";
 import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPage";
 import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
 import { APP_ENV } from "../../env";
+import { civitasConfig } from "../../../../config/civitas.config";
 import { appRoutes } from "../../navigation/routes";
 
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
-  scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, "read:documents", "create:documents", "owner:read", "owner:write", "runtime:read", "runtime:write", "worker-queues:read", "worker-queues:write", "organization:create", "organization:read", "organization:write", "impersonation:write"],
+  scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, ...Object.values(civitasConfig.auth.organization.documentScopes), ...Object.values(civitasConfig.auth.global.scopes)],
   resources: [ReservedResource.Organization, APP_ENV.api.resource],
 };
 

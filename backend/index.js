@@ -30,15 +30,18 @@ const { listRegistry } = require("./services/registryStore");
 const app = express();
 const port = 3000;
 const deploymentConfig = validateDeploymentConfig({ service: "backend" });
+const SHARED_AUTH = deploymentConfig.contract.auth;
 const API_RESOURCE = deploymentConfig.logtoResource;
+const OWNER_GLOBAL_ROLE = SHARED_AUTH.global.ownerRole;
+const OWNER_SCOPES = SHARED_AUTH.global.scopes;
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
 
 const requireOwner = (req, res, next) => {
   const globalRoles = Array.isArray(req.user?.globalRoles) ? req.user.globalRoles : [];
-  if (!globalRoles.includes("owner_global")) {
-    return res.status(403).json({ error: "Forbidden", message: "This endpoint requires the owner_global role." });
+  if (!globalRoles.includes(OWNER_GLOBAL_ROLE)) {
+    return res.status(403).json({ error: "Forbidden", message: "This endpoint requires the shared owner role." });
   }
   return next();
 };
@@ -75,8 +78,8 @@ const buildMeResponse = (user) => {
       globalRoles,
       organizationRoles,
       owner: {
-        canReadOwner: globalRoles.includes("owner_global"),
-        canWriteOwner: globalRoles.includes("owner_global"),
+        canReadOwner: globalRoles.includes(OWNER_GLOBAL_ROLE),
+        canWriteOwner: globalRoles.includes(OWNER_GLOBAL_ROLE),
       },
     },
   };
@@ -150,15 +153,15 @@ secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res
   res.json(buildMeResponse(req.user));
 });
 
-secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["owner:read"] }), requireOwner, (req, res) => {
+secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead] }), requireOwner, (req, res) => {
   const me = buildMeResponse(req.user);
   res.json({
     owner: {
       logtoUserId: me.auth.sub,
       internalUserId: me.auth.sub,
-      authorizedBy: "logto_global_role_and_scope",
-      requiredScope: "owner:read",
-      requiredWriteScope: "owner:write",
+      authorizedBy: "shared_contract_logto_global_role_and_scope",
+      requiredScope: OWNER_SCOPES.ownerRead,
+      requiredWriteScope: OWNER_SCOPES.ownerWrite,
       canReadOwner: me.auth.owner.canReadOwner,
       canWriteOwner: me.auth.owner.canWriteOwner,
       globalRoles: me.auth.globalRoles,
@@ -167,7 +170,7 @@ secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RE
   });
 });
 
-secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:read"] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
     const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
@@ -182,7 +185,7 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess
   }
 });
 
-secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:read"] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
     return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
@@ -191,7 +194,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
   }
 });
 
-secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["owner:read", "runtime:read"] }), requireOwner, async (req, res) => {
+secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireOwner, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
     const profile = deriveOperationalProfile(logtoOrganization);
@@ -213,7 +216,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
   }
 });
 
-secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["worker-queues:read"] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.workerQueuesRead] }), requireOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
     const profiles = organizations.map(deriveOperationalProfile);
@@ -225,7 +228,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess(
   }
 });
 
-secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["runtime:read"] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeRead] }), requireOwner, async (_req, res) => {
   try {
     return res.json({ registry: await listRegistry() });
   } catch (error) {
@@ -233,7 +236,7 @@ secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ res
   }
 });
 
-secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["runtime:write"] }), requireOwner, async (req, res) => {
+secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeWrite] }), requireOwner, async (req, res) => {
   try {
     const operation = await createOperation(req.body || {});
     return res.status(202).json({ operation });
@@ -242,7 +245,7 @@ secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobal
   }
 });
 
-secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:create"] }), requireOwner, async (req, res) => {
+secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireOwner, async (req, res) => {
   try {
     const normalized = normalizeProvisioningInput(req.body || {});
     if (normalized.errors.length > 0) {
