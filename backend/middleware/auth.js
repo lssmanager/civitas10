@@ -15,6 +15,12 @@ const getRequiredEnv = (name) => {
 };
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
+const assertLogicalResource = (resource) => {
+  if (/^https?:\/\//i.test(resource || "")) {
+    throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
+  }
+  return resource;
+};
 const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"))}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
@@ -28,6 +34,10 @@ const getJwks = () => {
 };
 
 const normalizeAudience = (audience) => (Array.isArray(audience) ? audience[0] : audience);
+const hasAudience = (payloadOrAudience, expectedAudience) => {
+  const audiences = Array.isArray(payloadOrAudience) ? payloadOrAudience : [payloadOrAudience];
+  return audiences.includes(expectedAudience);
+};
 
 const getTokenFromHeader = (headers) => {
   const authorization = headers.authorization;
@@ -183,10 +193,11 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE_INDICATOR, requiredScopes = [] } = {}) => {
+const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
+  assertLogicalResource(resource);
 
   return async (req, res, next) => {
     try {
@@ -230,7 +241,7 @@ const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE_INDICAT
   };
 };
 
-const requireAuth = (resource = process.env.LOGTO_API_RESOURCE_INDICATOR) => requireGlobalAccess({ resource });
+const requireAuth = (resource = process.env.LOGTO_API_RESOURCE) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
@@ -266,13 +277,20 @@ const requireOrganizationRole = (requiredRoleName) => {
   };
 };
 
-const requireOrganizationAccess = ({ requiredScopes = [], requiredRoleName = null } = {}) => {
+const requireOrganizationAccess = ({ resource = process.env.LOGTO_API_RESOURCE, requiredScopes = [], requiredRoleName = null } = {}) => {
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);
       const decodedPayload = decodeJwtPayload(token);
       const audience = normalizeAudience(decodedPayload.aud);
       const organizationId = extractOrganizationId(decodedPayload);
+      assertLogicalResource(resource);
+
+      if (!hasAudience(decodedPayload.aud, resource)) {
+        const error = new Error("Invalid organization token audience");
+        error.status = 401;
+        throw error;
+      }
 
       if (!audience || !organizationId) {
         const error = new Error("Invalid organization token");
@@ -280,7 +298,7 @@ const requireOrganizationAccess = ({ requiredScopes = [], requiredRoleName = nul
         throw error;
       }
 
-      const payload = await verifyJwt(token, audience);
+      const payload = await verifyJwt(token, resource);
       const verifiedOrganizationId = extractOrganizationId(payload);
       const scopes = parseScopes(payload.scope);
 

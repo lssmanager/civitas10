@@ -120,6 +120,7 @@ NODE_ENV=production
 
 # Frontend (Vite build-time; Logto SPA client)
 VITE_API_URL=https://civitas.didaxus.com/api
+VITE_LOGTO_API_RESOURCE=urn:civitas:api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
@@ -127,7 +128,7 @@ VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 
 # Backend/API and worker (server-side; Logto M2M client)
 API_URL=https://civitas.didaxus.com/api
-LOGTO_API_RESOURCE_INDICATOR=https://civitas.didaxus.com/api
+LOGTO_API_RESOURCE=urn:civitas:api
 LOGTO_MANAGEMENT_API_RESOURCE=https://auth.didaxus.com/
 LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
 LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
@@ -148,7 +149,7 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `VITE_*` variables belong only to the frontend build.
 - `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
 - `LOGTO_MANAGEMENT_API_APPLICATION_ID` and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` are backend-only Logto M2M credentials for Management API access; they are intentionally separate from the SPA application ID.
-- `LOGTO_API_RESOURCE_INDICATOR` is the Civitas public API resource (`https://civitas.didaxus.com/api`). `LOGTO_MANAGEMENT_API_RESOURCE` is the separate Logto Management/M2M resource (`https://auth.didaxus.com/`). Do not mix them.
+- `LOGTO_API_RESOURCE` is the logical Civitas API audience (`urn:civitas:api`), not an HTTP URL. `LOGTO_MANAGEMENT_API_RESOURCE` is the separate Logto Management/M2M resource (`https://auth.didaxus.com/`). Do not mix them.
 - `VITE_LOGTO_ENDPOINT` is the browser Logto tenant URL (`https://auth.didaxus.com`). Backend OIDC/JWKS and M2M token calls use `LOGTO_MANAGEMENT_API_RESOURCE` as the Logto tenant resource base (`https://auth.didaxus.com/`).
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
@@ -182,7 +183,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_API_RESOURCE_INDICATOR`, `LOGTO_MANAGEMENT_API_RESOURCE`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` in `backend/.env`.
+3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` in `backend/.env`.
 
 4. Install dependencies.
 
@@ -248,7 +249,7 @@ npm run dev
 ## How to connect frontend and backend correctly
 
 - `VITE_API_URL` is the frontend API base URL requested by the SPA.
-- `API_URL` is the backend API resource/audience validated by API middleware.
+- `API_URL` is only the real backend HTTP service URL. `LOGTO_API_RESOURCE` is the logical audience validated by API middleware.
 - owner-global routes must be protected by global roles, not by implicit organization membership.
 - organization-scoped routes must remain separate from global-owner routes.
 
@@ -326,7 +327,7 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 Variables obligatorias de runtime para la app:
 
 - `API_URL`
-- `LOGTO_API_RESOURCE_INDICATOR`
+- `LOGTO_API_RESOURCE`
 - `LOGTO_MANAGEMENT_API_RESOURCE`
 - `LOGTO_MANAGEMENT_API_APPLICATION_ID`
 - `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`

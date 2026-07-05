@@ -8,7 +8,7 @@ test("global auth middleware rejects organization context and enforces scopes", 
   assert.match(source, /const requireGlobalAccess/);
   assert.match(source, /GLOBAL_TOKEN_REQUIRED/);
   assert.match(source, /hasRequiredScopes\(scopes, requiredScopes\)/);
-  assert.match(source, /const requireAuth = \(resource = process\.env\.LOGTO_API_RESOURCE_INDICATOR\) => requireGlobalAccess/);
+  assert.match(source, /const requireAuth = \(resource = process\.env\.LOGTO_API_RESOURCE\) => requireGlobalAccess/);
 });
 
 test("owner routes use global access while tenant routes keep organization access", () => {

@@ -28,10 +28,15 @@ const { listRegistry } = require("./services/registryStore");
 
 const app = express();
 const port = 3000;
-const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR;
+const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
+const API_RESOURCE = process.env.LOGTO_API_RESOURCE;
 
 if (!API_RESOURCE) {
-  throw new Error("LOGTO_API_RESOURCE_INDICATOR is required for backend startup");
+  throw new Error("LOGTO_API_RESOURCE is required for backend startup");
+}
+
+if (isHttpUrl(API_RESOURCE)) {
+  throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
 }
 
 app.use(cors());
@@ -52,7 +57,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_API_RESOURCE_INDICATOR", "LOGTO_MANAGEMENT_API_RESOURCE", "LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
+  const required = ["LOGTO_API_RESOURCE", "LOGTO_MANAGEMENT_API_RESOURCE", "LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };

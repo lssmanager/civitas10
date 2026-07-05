@@ -14,6 +14,7 @@ cp .env.example .env
 
 ```env
 VITE_API_URL=https://civitas.didaxus.com/api
+VITE_LOGTO_API_RESOURCE=urn:civitas:api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
@@ -35,6 +36,7 @@ npm run dev
 ## Notes
 
 - Frontend consumes only `VITE_*` variables.
-- `VITE_API_URL` is the single API base URL exposed to the SPA.
+- `VITE_API_URL` is the single HTTP API base URL exposed to the SPA.
+- `VITE_LOGTO_API_RESOURCE` is the logical Logto API audience requested through `getAccessToken`; it must be `urn:civitas:api`, never the HTTP API URL.
 - `VITE_LOGTO_ENDPOINT` must be the base Logto tenant domain, not the `/oidc` path.
 - Missing frontend environment variables now fail fast instead of silently falling back to placeholder or localhost values.
