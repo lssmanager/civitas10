@@ -54,4 +54,7 @@ test("frontend env separates API URL from logical Logto API resource", () => {
   assert.doesNotMatch(envExample, new RegExp(`${["VITE", "LOGTO", "API", "RESOURCE"].join("_") }=`));
   assert.match(configSource, /validateDeploymentConfig\(\{ service: "frontend"/);
   assert.match(configSource, /frontendDeploymentConfig\.logtoResource/);
+  assert.match(configSource, /return `\$\{window\.location\.origin\}\/callback`/);
+  assert.match(configSource, /return window\.location\.origin/);
+  assert.doesNotMatch(configSource, /VITE_APP_REDIRECT_URI|VITE_APP_SIGNOUT_REDIRECT_URI/);
 });

@@ -67,24 +67,64 @@ const serviceAllowedVariables = Object.freeze({
   worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
 });
 
+const platformMetadataVariablePatterns = Object.freeze([
+  /^SERVICE_[A-Z0-9_]+$/,
+  /^COOLIFY_[A-Z0-9_]+$/,
+]);
+
+const forbiddenCivitasVariables = Object.freeze(new Set([
+  "LOGTO_CLIENT_ID",
+  "LOGTO_CLIENT_SECRET",
+  "LOGTO_ENDPOINT",
+  "LOGTO_MANAGEMENT_API_RESOURCE",
+  "LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT",
+  "LOGTO_MANAGEMENT_API_APPLICATION_ID",
+  "LOGTO_MANAGEMENT_API_APPLICATION_SECRET",
+  "VITE_APP_REDIRECT_URI",
+  "VITE_APP_SIGNOUT_REDIRECT_URI",
+  "VITE_API_RESOURCE_INDICATOR",
+  "VITE_API_BASE_URL",
+  "VITE_API_RESOURCE",
+  "VITE_LOGTO_API_RESOURCE",
+]));
+
 const civitasVariablePatterns = Object.freeze([
   /^VITE_/, /^LOGTO_/, /^DATABASE_URL$/, /^REDIS_URL$/, /^API_URL$/, /^BULLMQ_PREFIX$/,
   /^WORKER_CONCURRENCY$/, /^ENABLE_QUEUE_RECONCILER$/, /^ENABLE_DB_POLL_EXECUTION$/,
-  /^RUN_MIGRATIONS_ON_STARTUP$/, /^DATABASE_WAIT_TIMEOUT_MS$/, /^DATABASE_WAIT_INTERVAL_MS$/,
-  /^DATABASE_CONNECT_TIMEOUT_MS$/, new RegExp(`^${["SERVICE", "FQDN"].join("_")}_`), new RegExp(`^${["SERVICE", "URL"].join("_")}_`), new RegExp(`^${["SERVICE", "API"].join("_")}_`), /^API_BASE_URL$/,
+  /^RUN_MIGRATIONS_ON_STARTUP$/, /^DATABASE_WAIT_TIMEOUT_MS$/, /^DATABASE_WAIT_INTERVAL_MS$/, /^DATABASE_CONNECT_TIMEOUT_MS$/, /^API_BASE_URL$/,
 ]);
+
+const isPlatformMetadataVariable = (key) => platformMetadataVariablePatterns.some((pattern) => pattern.test(key));
+const isCivitasVariable = (key) => civitasVariablePatterns.some((pattern) => pattern.test(key));
+
+function classifyDeploymentVariable(key, service) {
+  if (serviceAllowedVariables[service]?.has(key)) return "contract";
+  if (isPlatformMetadataVariable(key)) return "platform_metadata";
+  if (forbiddenCivitasVariables.has(key)) return "forbidden_civitas_drift";
+  if (isCivitasVariable(key)) return "civitas_outside_service_contract";
+  return "external_runtime";
+}
 
 function assertStrictServiceContract(env, service) {
   const allowed = serviceAllowedVariables[service];
+  const ignoredPlatformMetadata = [];
   for (const key of Object.keys(env)) {
     if (String(env[key] || "").includes(["socialstudies", "cloud"].join("."))) {
-      throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "removed_domain_detected", message: `${key} references a removed domain`, hint: "Use the current Civitas deployment domains." });
+      throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_DRIFT", service, variable: key, cause: "removed_domain_detected", message: `${key} references removed Civitas domain drift`, hint: "Use the current Civitas deployment domains." });
     }
-    if (!civitasVariablePatterns.some((pattern) => pattern.test(key))) continue;
-    if (!allowed.has(key)) {
+    const classification = classifyDeploymentVariable(key, service);
+    if (classification === "platform_metadata") {
+      ignoredPlatformMetadata.push(key);
+      continue;
+    }
+    if (classification === "forbidden_civitas_drift") {
+      throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_DRIFT", service, variable: key, cause: "forbidden_civitas_drift_variable", message: `${key} is forbidden Civitas configuration drift`, hint: `Remove ${key}; it belongs to a removed Civitas configuration model.` });
+    }
+    if (classification === "civitas_outside_service_contract") {
       throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "variable_outside_service_contract", message: `${key} is outside the ${service} configuration contract`, hint: `Remove ${key} from the ${service} environment.` });
     }
   }
+  return Object.freeze(ignoredPlatformMetadata.sort());
 }
 
 function assertMatchesContract(value, expected, variable, service) {
@@ -96,9 +136,10 @@ function assertMatchesContract(value, expected, variable, service) {
 
 function validateFrontend(env, contract) {
   const service = "frontend";
-  assertStrictServiceContract(env, service);
+  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
   return {
     service,
+    ignoredPlatformMetadata,
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "VITE_API_URL", service), "VITE_API_URL", service), contract.api.publicUrl, "VITE_API_URL", service),
     logtoEndpoint: assertMatchesContract(assertNoOidcPath(requireValue(env, "VITE_LOGTO_ENDPOINT", service), "VITE_LOGTO_ENDPOINT", service), contract.logto.issuer, "VITE_LOGTO_ENDPOINT", service),
     logtoAppId: requireValue(env, "VITE_LOGTO_APP_ID", service),
@@ -108,9 +149,10 @@ function validateFrontend(env, contract) {
 
 function validateBackend(env, contract) {
   const service = "backend";
-  assertStrictServiceContract(env, service);
+  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
   return {
     service,
+    ignoredPlatformMetadata,
     nodeEnv: env.NODE_ENV || "production",
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "API_URL", service), "API_URL", service), contract.api.publicUrl, "API_URL", service),
     databaseUrl: requireValue(env, "DATABASE_URL", service),
@@ -131,9 +173,10 @@ function validateBackend(env, contract) {
 
 function validateWorker(env, contract) {
   const service = "worker";
-  assertStrictServiceContract(env, service);
+  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
   return {
     service,
+    ignoredPlatformMetadata,
     nodeEnv: env.NODE_ENV || "production",
     databaseUrl: requireValue(env, "DATABASE_URL", service),
     redisUrl: requireValue(env, "REDIS_URL", service),
@@ -159,6 +202,9 @@ function validateDeploymentConfig({ service, env = process.env, contract = loadC
 
 module.exports = {
   DeploymentConfigError,
+  classifyDeploymentVariable,
+  forbiddenCivitasVariables,
+  platformMetadataVariablePatterns,
   serviceAllowedVariables,
   validateDeploymentConfig,
 };
