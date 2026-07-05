@@ -15,10 +15,9 @@ cp .env.example .env
 ```env
 NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
-LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
-LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
-LOGTO_MANAGEMENT_API_RESOURCE=replace-with-exact-logto-management-api-resource-indicator
+LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-application-id
+LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-application-secret
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
@@ -53,9 +52,9 @@ npm run worker
 
 - `DATABASE_URL` is the only allowed PostgreSQL connection variable.
 - `REDIS_URL` is the only allowed Redis connection variable.
-- `LOGTO_ENDPOINT` must be the base tenant domain. Civitas derives OIDC, JWKS, and token endpoint URLs from that base only.
-- `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
-- `LOGTO_MANAGEMENT_API_RESOURCE` must be copied exactly from the built-in “Logto Management API” resource indicator in the Logto Console. Do not assume it is `LOGTO_ENDPOINT` plus `/api`; if it does not match the tenant resource indicator, Logto returns `oidc.invalid_target`.
+- `API_URL` and `LOGTO_API_RESOURCE` must match `dist/auth.contract.json`; `LOGTO_API_RESOURCE` must be `urn:civitas:api`, never a URL.
+- Backend env provides infrastructure, M2M credentials, and contract-mirrored public API/audience values only.
+- `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
 - Backend and worker do not consume `VITE_*` variables.
 
 

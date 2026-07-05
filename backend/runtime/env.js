@@ -1,5 +1,7 @@
 "use strict";
 
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
+
 const REQUIRED_ENV_VARS = Object.freeze(["DATABASE_URL", "REDIS_URL"]);
 
 class RuntimeEnvironmentError extends Error {
@@ -19,12 +21,14 @@ function createEnvValidationError(missing) {
   return new RuntimeEnvironmentError(missing.map((name) => `${name} is required`).join("\n"), missing);
 }
 
+
 function validateRuntimeEnv({ env = process.env, requireRedis = true } = {}) {
   const required = requireRedis ? REQUIRED_ENV_VARS : Object.freeze(["DATABASE_URL"]);
   const missing = missingVars(env, required);
   if (missing.length) {
     throw createEnvValidationError(missing);
   }
+  validateDeploymentConfig({ service: requireRedis ? "worker" : "backend", env });
   return { ok: true, required };
 }
 

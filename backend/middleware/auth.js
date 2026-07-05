@@ -1,5 +1,7 @@
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require("jose");
 const { withTimeout } = require("../services/timeouts");
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
 const LOGTO_JWKS_TIMEOUT_MS = 5000;
@@ -15,7 +17,16 @@ const getRequiredEnv = (name) => {
 };
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
-const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_ENDPOINT"))}/oidc`;
+const assertLogicalResource = (resource) => {
+  if (/^https?:\/\//i.test(resource || "")) {
+    throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
+  }
+  if (resource !== deploymentConfig.logtoResource) {
+    throw new Error("Invalid Logto API Resource drift detected");
+  }
+  return resource;
+};
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(deploymentConfig.logtoEndpoint || "https://auth.didaxus.com")}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
 const getJwks = () => {
@@ -28,6 +39,10 @@ const getJwks = () => {
 };
 
 const normalizeAudience = (audience) => (Array.isArray(audience) ? audience[0] : audience);
+const hasAudience = (payloadOrAudience, expectedAudience) => {
+  const audiences = Array.isArray(payloadOrAudience) ? payloadOrAudience : [payloadOrAudience];
+  return audiences.includes(expectedAudience);
+};
 
 const getTokenFromHeader = (headers) => {
   const authorization = headers.authorization;
@@ -183,10 +198,11 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = process.env.API_URL, requiredScopes = [] } = {}) => {
+const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
+  assertLogicalResource(resource);
 
   return async (req, res, next) => {
     try {
@@ -230,7 +246,7 @@ const requireGlobalAccess = ({ resource = process.env.API_URL, requiredScopes = 
   };
 };
 
-const requireAuth = (resource = process.env.API_URL) => requireGlobalAccess({ resource });
+const requireAuth = (resource = deploymentConfig.logtoResource) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
@@ -266,13 +282,20 @@ const requireOrganizationRole = (requiredRoleName) => {
   };
 };
 
-const requireOrganizationAccess = ({ requiredScopes = [], requiredRoleName = null } = {}) => {
+const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [], requiredRoleName = null } = {}) => {
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);
       const decodedPayload = decodeJwtPayload(token);
       const audience = normalizeAudience(decodedPayload.aud);
       const organizationId = extractOrganizationId(decodedPayload);
+      assertLogicalResource(resource);
+
+      if (!hasAudience(decodedPayload.aud, resource)) {
+        const error = new Error("Invalid organization token audience");
+        error.status = 401;
+        throw error;
+      }
 
       if (!audience || !organizationId) {
         const error = new Error("Invalid organization token");
@@ -280,7 +303,7 @@ const requireOrganizationAccess = ({ requiredScopes = [], requiredRoleName = nul
         throw error;
       }
 
-      const payload = await verifyJwt(token, audience);
+      const payload = await verifyJwt(token, resource);
       const verifiedOrganizationId = extractOrganizationId(payload);
       const scopes = parseScopes(payload.scope);
 

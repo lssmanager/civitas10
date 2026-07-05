@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
@@ -28,11 +29,8 @@ const { listRegistry } = require("./services/registryStore");
 
 const app = express();
 const port = 3000;
-const API_RESOURCE = process.env.API_URL;
-
-if (!API_RESOURCE) {
-  throw new Error("API_URL is required for backend startup");
-}
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
+const API_RESOURCE = deploymentConfig.logtoResource;
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
@@ -52,7 +50,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_ENDPOINT", "LOGTO_CLIENT_ID", "LOGTO_CLIENT_SECRET", "LOGTO_MANAGEMENT_API_RESOURCE"];
+  const required = ["LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };

@@ -1,61 +1,109 @@
-# Civitas10 environment variables
+# Civitas environment contract
 
-The project uses a single source of truth for each service configuration value. Frontend values are Vite build-time variables only. Backend and worker runtime values never use `VITE_*`. PostgreSQL and Redis are represented only by `DATABASE_URL` and `REDIS_URL`.
+## ENV CHAOS MAP
 
-## Frontend only
+Civitas separates infrastructure, runtime env, and auth identity:
 
-```env
+- Coolify owns routing/domains only.
+- Env files contain minimal per-service runtime config.
+- Logto identity values are typed in `core/auth/civitas-auth.contract.ts` and compiled to `dist/auth.contract.json`.
+- Runtime env values that mirror the contract must match it exactly and are rejected by validation if they drift.
+- Preview deployments must not inherit production env; preview env must be explicit or empty.
+
+## Compiled auth contract
+
+```ts
+CivitasAuthContract.logto.apiResource === "urn:civitas:api"
+CivitasAuthContract.logto.issuer === "https://auth.didaxus.com"
+CivitasAuthContract.logto.managementApi === "https://auth.didaxus.com"
+CivitasAuthContract.api.publicUrl === "https://civitas.didaxus.com/api"
+```
+
+Build it with:
+
+```bash
+node scripts/build-auth-contract.mjs
+```
+
+
+## Deployment Kernel
+
+`core/deployment/deployment-kernel.cjs` is the single parser/validator/normalizer for deploy config. It owns:
+
+- allowed and forbidden variables per service
+- legacy alias detection
+- HTTP URL validation
+- logical Logto resource validation
+- SPA vs M2M separation
+- contract mismatch errors
+- normalized frontend/backend/worker config shapes
+
+All service consumers must call `validateDeploymentConfig({ service, env })` directly or through a wrapper that delegates to it. Local validation is allowed only when it is subordinate to the kernel.
+
+## Frontend env
+
+```dotenv
 VITE_API_URL=https://civitas.didaxus.com/api
-VITE_API_RESOURCE=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 ```
 
-## Backend/API and worker
+Forbidden in frontend: `VITE_API_BASE_URL`, `VITE_API_RESOURCE`, `VITE_LOGTO_API_RESOURCE`, and all `SERVICE_*` variables.
 
-```env
-NODE_ENV=production
+## Backend env
+
+```dotenv
 API_URL=https://civitas.didaxus.com/api
-LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
-LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
-LOGTO_MANAGEMENT_API_RESOURCE=replace-with-exact-logto-management-api-resource-indicator
+DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
+REDIS_URL=redis://redis:6379/0
+LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-client-id
+LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-client-secret
+BULLMQ_PREFIX=civitas
+```
+
+Forbidden in backend: `SERVICE_URL_*`, `SERVICE_FQDN_*`, `SERVICE_API_*`, `API_BASE_URL`, `LOGTO_CLIENT_ID`, `LOGTO_CLIENT_SECRET`, `LOGTO_MANAGEMENT_API_RESOURCE`, and URL-shaped Logto API resources.
+
+## Worker env
+
+```dotenv
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
-ENABLE_QUEUE_RECONCILER=true
-ENABLE_DB_POLL_EXECUTION=false
-RUN_MIGRATIONS_ON_STARTUP=false
-DATABASE_WAIT_TIMEOUT_MS=60000
-DATABASE_WAIT_INTERVAL_MS=2000
-DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-## Logto separation
+Forbidden in worker: frontend variables, SPA Logto config, M2M credentials, `API_URL`, and `LOGTO_API_RESOURCE`.
 
-`VITE_LOGTO_APP_ID` is the public SPA app ID used by the browser. `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` are backend-only M2M credentials used for owner provisioning and Logto Management API calls. Do not reuse the SPA app ID as the backend M2M client.
+## Preview deployments
 
-`LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` are always the base tenant URL (`https://auth.didaxus.com`). Civitas derives OIDC/JWKS/token endpoint URLs from that base, but the Management API token resource is configured explicitly with `LOGTO_MANAGEMENT_API_RESOURCE`.
+For Coolify previews:
 
-`LOGTO_MANAGEMENT_API_RESOURCE` is the exact resource indicator of the built-in “Logto Management API” resource in the Logto Console. Copy it exactly; do not infer it from `LOGTO_ENDPOINT`. A mismatch causes Logto to reject the M2M token request with `oidc.invalid_target` / `Invalid resource indicator`.
+1. Disable automatic env inheritance from production.
+2. Delete inherited `SERVICE_*`, `SERVICE_FQDN_*`, `SERVICE_API_*`, `API_BASE_URL`, and legacy Logto aliases.
+3. Leave preview env empty unless a preview-specific value is explicitly required.
+4. Never copy production M2M credentials into preview services.
 
+## Coolify routing contract
 
-## Database migrations
+| Coolify route | Service | Env/auth source |
+| --- | --- | --- |
+| `/` | frontend | frontend env + compiled contract validation |
+| `/backend` | backend internal route | backend env + compiled contract validation |
+| `/worker` | worker internal route | worker env only |
 
-`DATABASE_URL` is the only PostgreSQL connection source for both backend and worker. The local operational backbone tables, including `operational_operations`, are defined in `backend/db/schema/index.js` and created by `backend/db/migrations/0000_foundation.sql`.
+The public API transport URL remains `https://civitas.didaxus.com/api`. If `/backend` and `/api` conflict in code or docs, `/api` wins for HTTP transport; auth audience remains `urn:civitas:api`.
 
-Deploys must run migrations before exposing owner operational endpoints:
+## Validation
+
+Run:
 
 ```bash
-cd backend
-npm run db:migrate:sql
+node scripts/build-auth-contract.mjs
+node scripts/validate-auth-contract.mjs
+node scripts/validate-env-config.mjs
 ```
 
-`RUN_MIGRATIONS_ON_STARTUP=true` is available for controlled single-instance bootstrap or maintenance deploys. When enabled, API and worker apply the idempotent SQL migrations and then validate the required operational tables/columns before starting. Leave it `false` for normal multi-replica runtime once migrations have already been applied.
-
-## Deployment cleanup
-
-Remove older platform-discovered helper names from Coolify. They are not application configuration for Civitas, and this repository intentionally does not expose them through compose, Dockerfiles, examples, or runtime loaders. If Coolify still displays them after this change, recreate or force-resync the service so cached metadata is discarded.
+The checks fail when runtime files reintroduce legacy env aliases, preview contamination patterns, URL-shaped Logto resources, frontend/backend/worker layer mixing, or API URL to audience derivation.

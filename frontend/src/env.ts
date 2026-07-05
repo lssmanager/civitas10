@@ -1,22 +1,13 @@
-const required = (name: string, value: string | undefined) => {
-  const normalized = value?.trim();
-  if (!normalized) {
-    throw new Error(`Missing required Vite environment variable: ${name}`);
-  }
-  return normalized;
-};
+import { civitasConfig } from "../../config/civitas.config";
 
 export const APP_ENV = {
   logto: {
-    endpoint: required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT),
-    appId: required("VITE_LOGTO_APP_ID", import.meta.env.VITE_LOGTO_APP_ID),
+    endpoint: civitasConfig.logtoEndpoint,
+    appId: civitasConfig.logtoAppId,
   },
   api: {
-    url: required("VITE_API_URL", import.meta.env.VITE_API_URL),
-    resource: import.meta.env.VITE_API_RESOURCE?.trim() || required("VITE_API_URL", import.meta.env.VITE_API_URL),
+    url: civitasConfig.apiBaseUrl,
+    resource: civitasConfig.logtoResource,
   },
-  app: {
-    redirectUri: required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI),
-    signOutRedirectUri: required("VITE_APP_SIGNOUT_REDIRECT_URI", import.meta.env.VITE_APP_SIGNOUT_REDIRECT_URI),
-  },
+  app: civitasConfig.app,
 } as const;

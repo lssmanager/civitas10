@@ -6,6 +6,7 @@ const baseSource = readFileSync(new URL("./base.ts", import.meta.url), "utf8");
 const ownerSource = readFileSync(new URL("./owner.ts", import.meta.url), "utf8");
 const appSource = readFileSync(new URL("../pages/App/index.tsx", import.meta.url), "utf8");
 const envSource = readFileSync(new URL("../env.ts", import.meta.url), "utf8");
+const configSource = readFileSync(new URL("../../../config/civitas.config.ts", import.meta.url), "utf8");
 const envExample = readFileSync(new URL("../../.env.example", import.meta.url), "utf8");
 
 test("owner API fetch obtains a user access token for the configured API resource", () => {
@@ -47,8 +48,11 @@ test("frontend API helpers split global owner and organization token flows", () 
   assert.match(ownerSource, /ownerApiFetch/);
 });
 
-test("frontend env documents API URL and optional API resource split", () => {
-  assert.match(envSource, /resource: import\.meta\.env\.VITE_API_RESOURCE/);
+test("frontend env separates API URL from logical Logto API resource", () => {
+  assert.match(envSource, /resource: civitasConfig\.logtoResource/);
   assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api/);
-  assert.match(envExample, /VITE_API_RESOURCE=https:\/\/civitas\.didaxus\.com\/api/);
+  assert.match(envExample, /VITE_LOGTO_ENDPOINT=https:\/\/auth\.didaxus\.com/);
+  assert.doesNotMatch(envExample, /VITE_LOGTO_API_RESOURCE=/);
+  assert.match(configSource, /validateDeploymentConfig\(\{ service: "frontend"/);
+  assert.match(configSource, /frontendDeploymentConfig\.logtoResource/);
 });

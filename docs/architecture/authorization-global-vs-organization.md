@@ -29,7 +29,7 @@ References: https://docs.logto.io/authorization, https://docs.logto.io/authoriza
 
 ## Global product authorization
 
-Global owner routes use a Logto global API access token for `VITE_API_RESOURCE` / `API_URL`. They must not use organization tokens.
+Global owner routes use a Logto global API access token for `CivitasAuthContract.logto.apiResource`. They must not use organization tokens.
 
 Minimum declared global role and permissions:
 
