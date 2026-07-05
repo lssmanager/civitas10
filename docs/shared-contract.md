@@ -15,12 +15,12 @@ The shared contract owns only cross-layer semantics:
 
 ## What does not belong in the shared contract
 
-Runtime secrets, database URLs, Redis URLs, worker concurrency, migration flags, Coolify/Compose metadata, and service-local defaults stay outside the shared contract. Those values belong to the deployment contract or service-local runtime.
+Runtime secrets, database URLs, Redis URLs, worker concurrency, migration flags, Coolify/Compose metadata, and service-local defaults stay outside the shared contract. Civitas runtime variables belong to the deployment contract or service-local runtime. Platform-generated metadata belongs to the platform and is explicitly non-contract.
 
 ## Layer boundaries
 
 1. **Shared contract**: `core/shared/civitas-shared.contract.cjs` and `core/shared/contract-loader.cjs` define and expose shared auth/platform semantics.
-2. **Deployment contract**: `core/deployment/deployment-kernel.cjs` parses service env, validates it against the shared contract, and returns normalized per-service config.
+2. **Deployment contract**: `core/deployment/deployment-kernel.cjs` parses service env, validates it against the shared contract, ignores platform-generated metadata such as `SERVICE_*`/`COOLIFY_*`, rejects removed Civitas aliases, and returns normalized per-service config.
 3. **Service-local runtime**: backend, worker, and frontend runtime code consume normalized config and shared auth names; they must not invent resource, issuer, role, or capability strings.
 4. **Docs/examples**: documentation may show expected values, but it must say they reflect the shared contract rather than define it.
 
@@ -34,5 +34,6 @@ Rules enforced by policy:
 - auth semantics are not service-local flags;
 - logical resource is not the HTTP API URL;
 - global owner auth is separate from organization-scoped auth;
-- compose metadata does not define shared semantics;
+- compose and Coolify metadata do not define shared semantics and are not consumed by Civitas runtime;
+- removed Civitas aliases remain hard errors even when platform metadata is ignored;
 - examples and docs reflect the contract and do not replace it.
