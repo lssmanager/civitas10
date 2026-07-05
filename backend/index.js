@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { CIVITAS_LOGTO_API_RESOURCE } = require("../core/auth/civitas-auth.constants.cjs");
+const { loadCivitasAuthContract } = require("../core/auth/contract-loader.cjs");
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
@@ -30,18 +30,11 @@ const { listRegistry } = require("./services/registryStore");
 const app = express();
 const port = 3000;
 const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
-const API_RESOURCE = process.env.LOGTO_API_RESOURCE;
-
-if (!API_RESOURCE) {
-  throw new Error("LOGTO_API_RESOURCE is required for backend startup");
-}
+const CivitasAuthContract = loadCivitasAuthContract();
+const API_RESOURCE = CivitasAuthContract.logto.apiResource;
 
 if (isHttpUrl(API_RESOURCE)) {
-  throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
-}
-
-if (API_RESOURCE !== CIVITAS_LOGTO_API_RESOURCE) {
-  throw new Error("Invalid Logto API Resource drift detected");
+  throw new Error("Compiled Logto API resource must be a logical identifier, not an HTTP URL");
 }
 
 app.use(cors());
@@ -62,7 +55,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_API_RESOURCE", "LOGTO_MANAGEMENT_API_RESOURCE", "LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
+  const required = ["LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };

@@ -13,9 +13,6 @@ cp .env.example .env
 2. Fill the canonical frontend variables.
 
 ```env
-VITE_API_URL=https://civitas.didaxus.com/api
-VITE_LOGTO_API_RESOURCE=urn:civitas:api
-VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
@@ -36,7 +33,7 @@ npm run dev
 ## Notes
 
 - Frontend consumes only `VITE_*` variables.
-- `VITE_API_URL` is the single HTTP API base URL exposed to the SPA.
-- `VITE_LOGTO_API_RESOURCE` is the logical Logto API audience requested through `getAccessToken`; it must be `urn:civitas:api`, never the HTTP API URL.
-- `VITE_LOGTO_ENDPOINT` must be the base Logto tenant domain, not the `/oidc` path.
+- Auth issuer, Logto API resource, and public API URL come from the compiled Civitas auth contract.
+- Frontend env is limited to SPA app ID and redirect metadata.
+- Do not define `VITE_LOGTO_API_RESOURCE`, `VITE_LOGTO_ENDPOINT`, or `VITE_API_URL`.
 - Missing frontend environment variables now fail fast instead of silently falling back to placeholder or localhost values.

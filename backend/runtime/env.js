@@ -1,8 +1,9 @@
 "use strict";
 
-const { CIVITAS_LOGTO_API_RESOURCE } = require("../../core/auth/civitas-auth.constants.cjs");
+const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
+const CivitasAuthContract = loadCivitasAuthContract();
 
-const REQUIRED_ENV_VARS = Object.freeze(["DATABASE_URL", "REDIS_URL", "LOGTO_API_RESOURCE"]);
+const REQUIRED_ENV_VARS = Object.freeze(["DATABASE_URL", "REDIS_URL"]);
 
 class RuntimeEnvironmentError extends Error {
   constructor(message, missing = []) {
@@ -22,12 +23,9 @@ function createEnvValidationError(missing) {
 }
 
 function assertLogicalLogtoApiResource(env) {
-  const resource = env.LOGTO_API_RESOURCE;
-  if (resource && /^https?:\/\//i.test(String(resource))) {
-    throw new RuntimeEnvironmentError("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL", ["LOGTO_API_RESOURCE"]);
-  }
-  if (resource && String(resource) !== CIVITAS_LOGTO_API_RESOURCE) {
-    throw new RuntimeEnvironmentError("Invalid Logto API Resource drift detected", ["LOGTO_API_RESOURCE"]);
+  const resource = CivitasAuthContract.logto.apiResource;
+  if (!resource || /^https?:\/\//i.test(String(resource))) {
+    throw new RuntimeEnvironmentError("Compiled LOGTO API resource must be a logical identifier, not an HTTP URL", ["CivitasAuthContract.logto.apiResource"]);
   }
 }
 

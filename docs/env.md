@@ -1,38 +1,51 @@
-# Civitas environment contract
+# Civitas auth and environment contract
 
 ## ENV CHAOS MAP
 
-The repository previously allowed multiple names for the same concern:
+Civitas authentication no longer treats env variables as the source of truth for identity values. The previous drift-prone model allowed frontend, backend, worker, and Logto values to be repeated as env variables. The final model is:
 
-- Frontend API resource duplicated `VITE_API_URL` with `VITE_API_RESOURCE`.
-- Backend Logto tenant endpoint, M2M app ID, and M2M secret used generic names that were easy to confuse with the public SPA app.
-- Public API routing (`/api`) and Coolify internal service routing (`/backend`) were documented in adjacent places without a hard rule.
-- Platform helper names such as `SERVICE_URL_*`, `SERVICE_FQDN_*`, and `API_BASE_URL` are explicitly outside the Civitas runtime contract.
+- Auth identity lives in `core/auth/civitas-auth.contract.ts`.
+- Runtime services load the compiled `dist/auth.contract.json`.
+- Env files contain deployment metadata and secrets only.
+- Coolify owns routing only.
 
-Final rule: Coolify owns routing only; env owns application logic only.
+## Compiled auth contract
+
+```ts
+CivitasAuthContract.logto.apiResource === "urn:civitas:api"
+CivitasAuthContract.logto.issuer === "https://auth.didaxus.com"
+CivitasAuthContract.logto.managementApi === "https://auth.didaxus.com"
+CivitasAuthContract.api.publicUrl === "https://civitas.didaxus.com/api"
+```
+
+Build it with:
+
+```bash
+node scripts/build-auth-contract.mjs
+```
+
+This writes `dist/auth.contract.json`, which backend and worker load at runtime.
 
 ## Frontend env
 
 ```dotenv
-VITE_API_URL=https://civitas.didaxus.com/api
-VITE_LOGTO_API_RESOURCE=urn:civitas:api
-VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 ```
 
+The SPA reads issuer, API resource, and API URL from the compiled auth contract via frontend config. It must not define `VITE_LOGTO_API_RESOURCE`, `VITE_LOGTO_ENDPOINT`, or `VITE_API_URL`.
+
 ## Backend env
 
 ```dotenv
-API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
-LOGTO_API_RESOURCE=urn:civitas:api
-LOGTO_MANAGEMENT_API_RESOURCE=https://auth.didaxus.com/
 LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
 LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
 ```
+
+Backend JWT validation reads the expected audience from the compiled auth contract. It must not define `LOGTO_API_RESOURCE`, `LOGTO_ENDPOINT`, `LOGTO_MANAGEMENT_API_RESOURCE`, or derive auth from `API_URL`.
 
 ## Worker env
 
@@ -41,37 +54,28 @@ WORKER_CONCURRENCY=1
 BULLMQ_PREFIX=civitas
 ```
 
-The worker also consumes shared server-side variables such as `DATABASE_URL`, `REDIS_URL`, and `LOGTO_API_RESOURCE`; it must not define API URL aliases or derive the Logto audience from `API_URL`.
+The worker shares backend infrastructure variables such as `DATABASE_URL` and `REDIS_URL`, and loads the same compiled auth contract. It must not define or derive Logto audience values.
 
 ## Coolify routing contract
 
-Coolify domains are infrastructure routing only and must not be mirrored into app env variables:
+Coolify domains are infrastructure routing only and must not be mirrored into auth env variables:
 
-| Coolify route | Service | Env exposure |
+| Coolify route | Service | Auth source |
 | --- | --- | --- |
-| `/` | frontend | none |
-| `/backend` | backend internal route | never exposed to frontend |
-| `/worker` | worker internal route | never exposed to frontend |
+| `/` | frontend | compiled contract |
+| `/backend` | backend internal route | compiled contract |
+| `/worker` | worker internal route | compiled contract |
 
-The public API is always `https://civitas.didaxus.com/api`. If `/backend` and `/api` conflict in code or docs, `/api` wins.
-
-## Logto resource separation
-
-| Concern | Variable | Value |
-| --- | --- | --- |
-| Public Civitas API Resource / RBAC audience | `LOGTO_API_RESOURCE`, `VITE_LOGTO_API_RESOURCE`, and frontend `logtoResource` | `urn:civitas:api` |
-| Logto tenant endpoint for SPA | `VITE_LOGTO_ENDPOINT` | `https://auth.didaxus.com` |
-| Logto Management / M2M resource | `LOGTO_MANAGEMENT_API_RESOURCE` | `https://auth.didaxus.com/` |
-| Backend M2M credentials | `LOGTO_MANAGEMENT_API_APPLICATION_ID`, `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` | backend-only secrets |
-
-Do not use the SPA app ID as the backend M2M application ID. Do not use the public Civitas API resource as the Logto Management API resource.
+The public API transport URL remains `https://civitas.didaxus.com/api`. If `/backend` and `/api` conflict in code or docs, `/api` wins for HTTP transport only; auth identity still comes from `urn:civitas:api`.
 
 ## Validation
 
 Run:
 
 ```bash
+node scripts/build-auth-contract.mjs
+node scripts/validate-auth-contract.mjs
 node scripts/validate-env-config.mjs
 ```
 
-The check fails when runtime files reintroduce banned aliases, duplicate API resource env names, `SERVICE_FQDN_*`, `SERVICE_URL_*`, `API_BASE_URL`, or a frontend `/backend` URL.
+The checks fail when runtime files reintroduce env-based auth resolution, URL-shaped Logto resources, duplicated audience definitions, banned aliases, or API URL to audience derivation.

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { CIVITAS_API_URL, CIVITAS_LOGTO_API_RESOURCE, CIVITAS_LOGTO_ISSUER } from "../core/auth/civitas-auth.constants";
+import { CivitasAuthContract } from "../core/auth/civitas-auth.contract";
 const required = (name: string, value: string | undefined) => {
   const normalized = value?.trim();
   if (!normalized) {
@@ -24,10 +24,10 @@ const assertMatchesConstant = (name: string, value: string, expected: string) =>
   return value;
 };
 
-const resolvedApiBaseUrl = assertMatchesConstant("VITE_API_URL", trimTrailingSlash(required("VITE_API_URL", import.meta.env.VITE_API_URL)), CIVITAS_API_URL);
-const resolvedLogtoEndpoint = assertMatchesConstant("VITE_LOGTO_ENDPOINT", trimTrailingSlash(required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT)), CIVITAS_LOGTO_ISSUER);
+const resolvedApiBaseUrl = CivitasAuthContract.api.publicUrl;
+const resolvedLogtoEndpoint = CivitasAuthContract.logto.issuer;
 const resolvedLogtoAppId = required("VITE_LOGTO_APP_ID", import.meta.env.VITE_LOGTO_APP_ID);
-const resolvedLogtoResource = assertMatchesConstant("VITE_LOGTO_API_RESOURCE", assertLogicalResource("VITE_LOGTO_API_RESOURCE", required("VITE_LOGTO_API_RESOURCE", import.meta.env.VITE_LOGTO_API_RESOURCE)), CIVITAS_LOGTO_API_RESOURCE);
+const resolvedLogtoResource = assertLogicalResource("CivitasAuthContract.logto.apiResource", CivitasAuthContract.logto.apiResource);
 const appRedirectUri = required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI);
 const appSignOutRedirectUri = required("VITE_APP_SIGNOUT_REDIRECT_URI", import.meta.env.VITE_APP_SIGNOUT_REDIRECT_URI);
 

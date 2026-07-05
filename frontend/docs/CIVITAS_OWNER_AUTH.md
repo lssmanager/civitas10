@@ -4,11 +4,11 @@ Owner global screens call `/owner/*` API endpoints and are not organization-scop
 
 ## Environment split
 
-- `VITE_API_URL`: browser network base URL for API requests.
-- `VITE_LOGTO_API_RESOURCE`: logical Logto API resource/audience requested through `getAccessToken`; it must be `urn:civitas:api`, not the HTTP API URL.
-- Backend `LOGTO_API_RESOURCE`: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
+- `CivitasAuthContract.api.publicUrl`: browser network base URL for API requests.
+- `CivitasAuthContract.logto.apiResource`: logical Logto API resource/audience requested through `getAccessToken`; it must be `urn:civitas:api`, not the HTTP API URL.
+- Backend compiled contract: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
 
-`VITE_LOGTO_API_RESOURCE` and backend `LOGTO_API_RESOURCE` must match exactly. `VITE_API_URL` is only the browser HTTP base URL and must not be reused as the Logto audience.
+Frontend and backend both load `CivitasAuthContract.logto.apiResource`; env variables must not provide the Logto audience.
 
 ## Token rules
 

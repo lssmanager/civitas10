@@ -14,9 +14,6 @@ cp .env.example .env
 
 ```env
 NODE_ENV=production
-API_URL=https://civitas.didaxus.com/api
-LOGTO_API_RESOURCE=urn:civitas:api
-LOGTO_MANAGEMENT_API_RESOURCE=https://auth.didaxus.com/
 LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
 LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
@@ -53,8 +50,8 @@ npm run worker
 
 - `DATABASE_URL` is the only allowed PostgreSQL connection variable.
 - `REDIS_URL` is the only allowed Redis connection variable.
-- `LOGTO_API_RESOURCE` is the logical Civitas API audience and must stay `urn:civitas:api`, never the public API URL.
-- `LOGTO_MANAGEMENT_API_RESOURCE` is the separate Logto Management/M2M resource and tenant base (`https://auth.didaxus.com/`). Civitas derives OIDC, JWKS, and token endpoint URLs from that base only.
+- Auth issuer, Logto API resource, Management API resource, and public API URL come from `dist/auth.contract.json`.
+- Backend env provides only infrastructure and M2M credentials, not auth identity values.
 - `LOGTO_MANAGEMENT_API_APPLICATION_ID` and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
 - Backend and worker do not consume `VITE_*` variables.
 

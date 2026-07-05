@@ -1,6 +1,7 @@
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require("jose");
 const { withTimeout } = require("../services/timeouts");
-const { CIVITAS_LOGTO_API_RESOURCE } = require("../../core/auth/civitas-auth.constants.cjs");
+const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
+const CivitasAuthContract = loadCivitasAuthContract();
 
 const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
 const LOGTO_JWKS_TIMEOUT_MS = 5000;
@@ -20,12 +21,12 @@ const assertLogicalResource = (resource) => {
   if (/^https?:\/\//i.test(resource || "")) {
     throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
   }
-  if (resource !== CIVITAS_LOGTO_API_RESOURCE) {
+  if (resource !== CivitasAuthContract.logto.apiResource) {
     throw new Error("Invalid Logto API Resource drift detected");
   }
   return resource;
 };
-const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"))}/oidc`;
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(CivitasAuthContract.logto.issuer)}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
 const getJwks = () => {
@@ -197,7 +198,7 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE, requiredScopes = [] } = {}) => {
+const requireGlobalAccess = ({ resource = CivitasAuthContract.logto.apiResource, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
@@ -245,7 +246,7 @@ const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE, requir
   };
 };
 
-const requireAuth = (resource = process.env.LOGTO_API_RESOURCE) => requireGlobalAccess({ resource });
+const requireAuth = (resource = CivitasAuthContract.logto.apiResource) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
@@ -281,7 +282,7 @@ const requireOrganizationRole = (requiredRoleName) => {
   };
 };
 
-const requireOrganizationAccess = ({ resource = process.env.LOGTO_API_RESOURCE, requiredScopes = [], requiredRoleName = null } = {}) => {
+const requireOrganizationAccess = ({ resource = CivitasAuthContract.logto.apiResource, requiredScopes = [], requiredRoleName = null } = {}) => {
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);

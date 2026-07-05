@@ -3,11 +3,8 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const {
-  CIVITAS_API_URL,
-  CIVITAS_LOGTO_API_RESOURCE,
-  CIVITAS_LOGTO_ISSUER,
-} = require("../core/auth/civitas-auth.constants.cjs");
+const { loadCivitasAuthContract } = require("../core/auth/contract-loader.cjs");
+const CivitasAuthContract = loadCivitasAuthContract();
 
 const root = new URL("..", import.meta.url).pathname;
 const read = (file) => readFileSync(join(root, file), "utf8");
@@ -16,33 +13,15 @@ const fail = (message) => {
   process.exitCode = 1;
 };
 
-const parseEnv = (file) => Object.fromEntries(
-  read(file)
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#") && line.includes("="))
-    .map((line) => {
-      const index = line.indexOf("=");
-      return [line.slice(0, index), line.slice(index + 1)];
-    })
-);
+const contractSource = read("core/auth/civitas-auth.contract.ts");
+const compiledContract = JSON.parse(read("dist/auth.contract.json"));
 
-const frontendEnv = parseEnv("frontend/.env.example");
-const backendEnv = parseEnv("backend/.env.example");
-const rootEnv = parseEnv(".env.example");
-
-for (const [file, env] of [["frontend/.env.example", frontendEnv], [".env.example", rootEnv]]) {
-  if (env.VITE_LOGTO_API_RESOURCE !== CIVITAS_LOGTO_API_RESOURCE) fail(`${file} VITE_LOGTO_API_RESOURCE drifted from canonical constant`);
-  if (/^https?:\/\//i.test(env.VITE_LOGTO_API_RESOURCE || "")) fail(`${file} VITE_LOGTO_API_RESOURCE must not be an HTTP URL`);
-  if (env.VITE_API_URL !== CIVITAS_API_URL) fail(`${file} VITE_API_URL drifted from canonical constant`);
-  if (env.VITE_LOGTO_ENDPOINT !== CIVITAS_LOGTO_ISSUER) fail(`${file} VITE_LOGTO_ENDPOINT drifted from canonical constant`);
-}
-
-for (const [file, env] of [["backend/.env.example", backendEnv], [".env.example", rootEnv]]) {
-  if (env.LOGTO_API_RESOURCE !== CIVITAS_LOGTO_API_RESOURCE) fail(`${file} LOGTO_API_RESOURCE drifted from canonical constant`);
-  if (/^https?:\/\//i.test(env.LOGTO_API_RESOURCE || "")) fail(`${file} LOGTO_API_RESOURCE must not be an HTTP URL`);
-  if (env.API_URL !== CIVITAS_API_URL) fail(`${file} API_URL drifted from canonical constant`);
-}
+if (JSON.stringify(compiledContract) !== JSON.stringify(CivitasAuthContract)) fail("compiled auth contract loader mismatch");
+if (CivitasAuthContract.logto.apiResource !== "urn:civitas:api") fail("canonical Logto API resource drifted");
+if (/^https?:\/\//i.test(CivitasAuthContract.logto.apiResource)) fail("canonical Logto API resource must not be an HTTP URL");
+if (CivitasAuthContract.api.publicUrl !== "https://civitas.didaxus.com/api") fail("canonical public API URL drifted");
+if (CivitasAuthContract.logto.issuer !== "https://auth.didaxus.com") fail("canonical Logto issuer drifted");
+if (CivitasAuthContract.logto.managementApi !== "https://auth.didaxus.com") fail("canonical Logto Management API resource drifted");
 
 const runtimeFiles = [
   "config/civitas.config.ts",
@@ -52,18 +31,35 @@ const runtimeFiles = [
   "backend/middleware/auth.js",
   "backend/runtime/env.js",
   "backend/worker/index.js",
+  "backend/services/logtoManagement.js",
+  "backend/lib/utils.js",
+  "backend/connectors/identity/logto/config.js",
   "runtime/env.js",
 ];
 
 for (const file of runtimeFiles) {
   const source = read(file);
-  if (source.includes(`${CIVITAS_LOGTO_API_RESOURCE}"`) || source.includes(`${CIVITAS_LOGTO_API_RESOURCE}'`)) {
-    fail(`${file} hardcodes the Logto API resource instead of importing the canonical constant`);
+  if (source.includes("process.env.LOGTO_API_RESOURCE") || source.includes("import.meta.env.VITE_LOGTO_API_RESOURCE")) {
+    fail(`${file} uses env-based Logto API resource resolution`);
   }
-  if (/LOGTO_API_RESOURCE\s*=\s*API_URL|API_URL\s*=\s*LOGTO_API_RESOURCE/.test(source)) {
-    fail(`${file} couples API_URL and LOGTO_API_RESOURCE`);
+  if (source.includes(`${CivitasAuthContract.logto.apiResource}"`) || source.includes(`${CivitasAuthContract.logto.apiResource}'`)) {
+    fail(`${file} hardcodes the Logto API resource instead of using the compiled contract`);
+  }
+  if (/LOGTO_API_RESOURCE\s*=\s*API_URL|API_URL\s*=\s*LOGTO_API_RESOURCE|apiResource\s*[:=]\s*.*API_URL/.test(source)) {
+    fail(`${file} couples API_URL and Logto audience`);
   }
 }
+
+const envFiles = [".env.example", "backend/.env.example", "frontend/.env.example", "docker-compose.yml", "frontend/Dockerfile"];
+for (const file of envFiles) {
+  const source = read(file);
+  if (/^\s*(VITE_)?LOGTO_API_RESOURCE\s*[=:]/m.test(source)) fail(`${file} must not define Logto API resource env vars`);
+  if (/^\s*LOGTO_MANAGEMENT_API_RESOURCE\s*[=:]/m.test(source)) fail(`${file} must not define Logto Management resource env vars`);
+  if (/^\s*VITE_LOGTO_ENDPOINT\s*[=:]/m.test(source)) fail(`${file} must not define Logto issuer env vars`);
+}
+
+const literalOccurrences = (contractSource.match(/urn:civitas:api/g) || []).length;
+if (literalOccurrences !== 1) fail("core auth contract must define the Logto resource exactly once");
 
 if (process.exitCode) process.exit(process.exitCode);
 console.log("Civitas auth contract validated");

@@ -6,6 +6,8 @@ const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = ["owner_global"];
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key)/i;
 
 const { withTimeout } = require("./timeouts");
+const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
+const CivitasAuthContract = loadCivitasAuthContract();
 
 let tokenCache = null;
 
@@ -87,25 +89,23 @@ class LogtoManagementApiError extends Error {
   }
 }
 
-const MANAGEMENT_RESOURCE_ENV = "LOGTO_MANAGEMENT_API_RESOURCE";
-
 const getRequiredEnv = (name) => {
   const value = process.env[name];
   if (!value) {
-    const isManagementResource = name === MANAGEMENT_RESOURCE_ENV;
+    const isManagementResource = false;
     const error = new LogtoManagementApiError(`${name} is required for Logto Management API`, {
       status: 500,
       body: {
         reason: "missing_logto_management_configuration",
         env: name,
         message: isManagementResource
-          ? `${MANAGEMENT_RESOURCE_ENV} must exactly match the built-in Logto Management API resource indicator configured in this Logto tenant.`
+          ? `Compiled Logto Management API resource must exactly match this Logto tenant.`
           : `${name} must be configured before Civitas can call Logto Management API.`,
       },
     });
     error.code = "LOGTO_MANAGEMENT_CONFIG_MISSING";
     error.internalDiagnostic = isManagementResource
-      ? `Missing environment variable ${MANAGEMENT_RESOURCE_ENV}; copy the exact resource indicator from the built-in “Logto Management API” resource in the Logto Console. Do not derive it from LOGTO_MANAGEMENT_API_RESOURCE; a mismatch causes oidc.invalid_target.`
+      ? `Compiled Logto Management API resource is missing from CivitasAuthContract.`
       : `Missing environment variable ${name}; configure Logto M2M credentials before calling Civitas owner organization endpoints.`;
     throw error;
   }
@@ -115,14 +115,14 @@ const getRequiredEnv = (name) => {
 const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 const getLogtoManagementConfig = () => {
-  const endpoint = normalizeEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"));
+  const endpoint = normalizeEndpoint(CivitasAuthContract.logto.managementApi);
 
   return {
     endpoint,
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
     clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
-    resource: getRequiredEnv(MANAGEMENT_RESOURCE_ENV),
+    resource: CivitasAuthContract.logto.managementApi,
   };
 };
 

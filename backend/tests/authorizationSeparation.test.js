@@ -10,7 +10,8 @@ test("global auth middleware rejects organization context and enforces scopes", 
   assert.match(source, /hasRequiredScopes\(scopes, requiredScopes\)/);
   assert.match(source, /const payload = await verifyJwt\(token, resource\)/);
   assert.match(source, /Invalid Logto API Resource drift detected/);
-  assert.match(source, /const requireAuth = \(resource = process\.env\.LOGTO_API_RESOURCE\) => requireGlobalAccess/);
+  assert.doesNotMatch(source, /process\.env\.LOGTO_API_RESOURCE/);
+  assert.match(source, /CivitasAuthContract\.logto\.apiResource/);
 });
 
 test("owner routes use global access while tenant routes keep organization access", () => {

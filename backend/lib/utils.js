@@ -1,9 +1,9 @@
 // Cache structure: { token: string, expiresAt: number }
 let tokenCache = null;
+const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
+const CivitasAuthContract = loadCivitasAuthContract();
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
-const MANAGEMENT_RESOURCE_ENV = "LOGTO_MANAGEMENT_API_RESOURCE";
-
 const getRequiredEnv = (name) => {
   const value = process.env[name];
   if (!value) {
@@ -13,12 +13,12 @@ const getRequiredEnv = (name) => {
 };
 
 function getLogtoManagementConfig() {
-  const endpoint = normalizeLogtoEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"));
+  const endpoint = normalizeLogtoEndpoint(CivitasAuthContract.logto.managementApi);
   return {
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
     clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
-    resource: getRequiredEnv(MANAGEMENT_RESOURCE_ENV),
+    resource: CivitasAuthContract.logto.managementApi,
   };
 }
 

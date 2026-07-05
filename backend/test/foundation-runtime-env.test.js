@@ -11,17 +11,9 @@ test("worker startup validation without REDIS_URL fails clearly", () => {
 });
 
 
-test("runtime validation rejects URL-shaped Logto API resources", () => {
-  assert.throws(
-    () => validateRuntimeEnv({ env: { DATABASE_URL: "postgres://localhost/db", REDIS_URL: "redis://localhost:6379", LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" }, requireRedis: true }),
-    (error) => error instanceof RuntimeEnvironmentError && error.message.includes("logical Logto API resource")
-  );
-});
-
-
-test("worker sync validation rejects drift from canonical Logto API resource", () => {
-  assert.throws(
-    () => validateRuntimeEnv({ env: { DATABASE_URL: "postgres://localhost/db", REDIS_URL: "redis://localhost:6379", LOGTO_API_RESOURCE: "urn:civitas:wrong" }, requireRedis: true }),
-    (error) => error instanceof RuntimeEnvironmentError && error.message.includes("Invalid Logto API Resource drift detected")
+test("runtime validation uses the compiled auth contract instead of auth env variables", () => {
+  assert.deepEqual(
+    validateRuntimeEnv({ env: { DATABASE_URL: "postgres://localhost/db", REDIS_URL: "redis://localhost:6379" }, requireRedis: true }).required,
+    ["DATABASE_URL", "REDIS_URL"]
   );
 });
