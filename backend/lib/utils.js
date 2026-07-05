@@ -13,11 +13,11 @@ const getRequiredEnv = (name) => {
 };
 
 function getLogtoManagementConfig() {
-  const endpoint = normalizeLogtoEndpoint(getRequiredEnv("LOGTO_ENDPOINT"));
+  const endpoint = normalizeLogtoEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"));
   return {
     tokenEndpoint: `${endpoint}/oidc/token`,
-    clientId: getRequiredEnv("LOGTO_CLIENT_ID"),
-    clientSecret: getRequiredEnv("LOGTO_CLIENT_SECRET"),
+    clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
+    clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
     resource: getRequiredEnv(MANAGEMENT_RESOURCE_ENV),
   };
 }

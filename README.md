@@ -120,7 +120,6 @@ NODE_ENV=production
 
 # Frontend (Vite build-time; Logto SPA client)
 VITE_API_URL=https://civitas.didaxus.com/api
-VITE_API_RESOURCE=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
@@ -128,10 +127,10 @@ VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 
 # Backend/API and worker (server-side; Logto M2M client)
 API_URL=https://civitas.didaxus.com/api
-LOGTO_ENDPOINT=https://auth.didaxus.com
-LOGTO_CLIENT_ID=replace-with-logto-m2m-client-id
-LOGTO_CLIENT_SECRET=replace-with-logto-m2m-client-secret
-LOGTO_MANAGEMENT_API_RESOURCE=replace-with-exact-logto-management-api-resource-indicator
+LOGTO_API_RESOURCE_INDICATOR=https://civitas.didaxus.com/api
+LOGTO_MANAGEMENT_API_RESOURCE=https://auth.didaxus.com/
+LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
+LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
@@ -148,9 +147,9 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 
 - `VITE_*` variables belong only to the frontend build.
 - `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
-- `LOGTO_CLIENT_ID` and `LOGTO_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access; they are intentionally separate from the SPA application ID.
-- `LOGTO_MANAGEMENT_API_RESOURCE` is the exact resource indicator of the built-in “Logto Management API” resource in the Logto Console. Copy it exactly; do not infer it from `LOGTO_ENDPOINT`. A mismatch causes Logto to reject the M2M token request with `oidc.invalid_target` / `Invalid resource indicator`.
-- `LOGTO_ENDPOINT` and `VITE_LOGTO_ENDPOINT` must be the base tenant domain, for example `https://auth.didaxus.com`. Civitas derives OIDC/JWKS/token endpoint URLs from that base, but does not derive the Management API token resource.
+- `LOGTO_MANAGEMENT_API_APPLICATION_ID` and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` are backend-only Logto M2M credentials for Management API access; they are intentionally separate from the SPA application ID.
+- `LOGTO_API_RESOURCE_INDICATOR` is the Civitas public API resource (`https://civitas.didaxus.com/api`). `LOGTO_MANAGEMENT_API_RESOURCE` is the separate Logto Management/M2M resource (`https://auth.didaxus.com/`). Do not mix them.
+- `VITE_LOGTO_ENDPOINT` is the browser Logto tenant URL (`https://auth.didaxus.com`). Backend OIDC/JWKS and M2M token calls use `LOGTO_MANAGEMENT_API_RESOURCE` as the Logto tenant resource base (`https://auth.didaxus.com/`).
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
 
@@ -183,7 +182,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_ENDPOINT`, `LOGTO_CLIENT_ID`, `LOGTO_CLIENT_SECRET`, and `LOGTO_MANAGEMENT_API_RESOURCE` in `backend/.env`.
+3. Configure `DATABASE_URL`, `REDIS_URL`, `API_URL`, `LOGTO_API_RESOURCE_INDICATOR`, `LOGTO_MANAGEMENT_API_RESOURCE`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` in `backend/.env`.
 
 4. Install dependencies.
 
@@ -327,10 +326,10 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 Variables obligatorias de runtime para la app:
 
 - `API_URL`
-- `LOGTO_ENDPOINT`
-- `LOGTO_CLIENT_ID`
-- `LOGTO_CLIENT_SECRET`
+- `LOGTO_API_RESOURCE_INDICATOR`
 - `LOGTO_MANAGEMENT_API_RESOURCE`
+- `LOGTO_MANAGEMENT_API_APPLICATION_ID`
+- `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`
 - `DATABASE_URL`
 - `REDIS_URL`
 

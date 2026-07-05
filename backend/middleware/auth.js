@@ -15,7 +15,7 @@ const getRequiredEnv = (name) => {
 };
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
-const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_ENDPOINT"))}/oidc`;
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"))}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
 const getJwks = () => {
@@ -183,7 +183,7 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = process.env.API_URL, requiredScopes = [] } = {}) => {
+const requireGlobalAccess = ({ resource = process.env.LOGTO_API_RESOURCE_INDICATOR, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
@@ -230,7 +230,7 @@ const requireGlobalAccess = ({ resource = process.env.API_URL, requiredScopes = 
   };
 };
 
-const requireAuth = (resource = process.env.API_URL) => requireGlobalAccess({ resource });
+const requireAuth = (resource = process.env.LOGTO_API_RESOURCE_INDICATOR) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {

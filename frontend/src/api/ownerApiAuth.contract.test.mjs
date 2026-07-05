@@ -47,8 +47,8 @@ test("frontend API helpers split global owner and organization token flows", () 
   assert.match(ownerSource, /ownerApiFetch/);
 });
 
-test("frontend env documents API URL and optional API resource split", () => {
-  assert.match(envSource, /resource: import\.meta\.env\.VITE_API_RESOURCE/);
+test("frontend env documents API URL as the Logto API resource", () => {
+  assert.match(envSource, /resource: civitasConfig\.logtoResource/);
   assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api/);
-  assert.match(envExample, /VITE_API_RESOURCE=https:\/\/civitas\.didaxus\.com\/api/);
+  assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api/);
 });

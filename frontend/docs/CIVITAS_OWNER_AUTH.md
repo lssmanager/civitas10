@@ -5,10 +5,10 @@ Owner global screens call `/owner/*` API endpoints and are not organization-scop
 ## Environment split
 
 - `VITE_API_URL`: browser network base URL for API requests.
-- `VITE_API_RESOURCE`: Logto API resource/audience requested through `getAccessToken`. If omitted, it defaults to `VITE_API_URL` for same-resource deployments.
-- Backend `API_URL`: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
+- `VITE_API_URL`: Logto API resource/audience requested through `getAccessToken`. If omitted, it defaults to `VITE_API_URL` for same-resource deployments.
+- Backend `LOGTO_API_RESOURCE_INDICATOR`: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
 
-`VITE_API_RESOURCE` and backend `API_URL` must match exactly. `VITE_API_URL` may differ when a reverse proxy path and the Logto resource indicator are not the same string.
+`VITE_API_URL` and backend `LOGTO_API_RESOURCE_INDICATOR` must match exactly. `VITE_API_URL` may differ when a reverse proxy path and the Logto resource indicator are not the same string.
 
 ## Token rules
 

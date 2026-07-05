@@ -105,7 +105,7 @@ const getRequiredEnv = (name) => {
     });
     error.code = "LOGTO_MANAGEMENT_CONFIG_MISSING";
     error.internalDiagnostic = isManagementResource
-      ? `Missing environment variable ${MANAGEMENT_RESOURCE_ENV}; copy the exact resource indicator from the built-in “Logto Management API” resource in the Logto Console. Do not derive it from LOGTO_ENDPOINT; a mismatch causes oidc.invalid_target.`
+      ? `Missing environment variable ${MANAGEMENT_RESOURCE_ENV}; copy the exact resource indicator from the built-in “Logto Management API” resource in the Logto Console. Do not derive it from LOGTO_MANAGEMENT_API_RESOURCE; a mismatch causes oidc.invalid_target.`
       : `Missing environment variable ${name}; configure Logto M2M credentials before calling Civitas owner organization endpoints.`;
     throw error;
   }
@@ -115,13 +115,13 @@ const getRequiredEnv = (name) => {
 const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 const getLogtoManagementConfig = () => {
-  const endpoint = normalizeEndpoint(getRequiredEnv("LOGTO_ENDPOINT"));
+  const endpoint = normalizeEndpoint(getRequiredEnv("LOGTO_MANAGEMENT_API_RESOURCE"));
 
   return {
     endpoint,
     tokenEndpoint: `${endpoint}/oidc/token`,
-    clientId: getRequiredEnv("LOGTO_CLIENT_ID"),
-    clientSecret: getRequiredEnv("LOGTO_CLIENT_SECRET"),
+    clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
+    clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
     resource: getRequiredEnv(MANAGEMENT_RESOURCE_ENV),
   };
 };

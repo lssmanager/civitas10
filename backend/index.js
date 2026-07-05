@@ -28,10 +28,10 @@ const { listRegistry } = require("./services/registryStore");
 
 const app = express();
 const port = 3000;
-const API_RESOURCE = process.env.API_URL;
+const API_RESOURCE = process.env.LOGTO_API_RESOURCE_INDICATOR;
 
 if (!API_RESOURCE) {
-  throw new Error("API_URL is required for backend startup");
+  throw new Error("LOGTO_API_RESOURCE_INDICATOR is required for backend startup");
 }
 
 app.use(cors());
@@ -52,7 +52,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_ENDPOINT", "LOGTO_CLIENT_ID", "LOGTO_CLIENT_SECRET", "LOGTO_MANAGEMENT_API_RESOURCE"];
+  const required = ["LOGTO_API_RESOURCE_INDICATOR", "LOGTO_MANAGEMENT_API_RESOURCE", "LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };

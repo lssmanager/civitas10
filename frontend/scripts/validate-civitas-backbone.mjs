@@ -51,7 +51,7 @@ const theme = readFileSync(new URL("../src/styles/theme.css", import.meta.url), 
 if (!theme.includes('[data-theme="light"]') || !theme.includes('[data-theme="dark"]')) fail("theme.css must define light and dark data-theme blocks");
 
 const auth = readFileSync(new URL("../docs/CIVITAS_OWNER_AUTH.md", import.meta.url), "utf8");
-if (!auth.includes("VITE_API_RESOURCE") || !auth.includes("sub === client_id") || !auth.includes("ownerApiFetch")) fail("owner auth documentation must explain API resource and user-token guard");
+if (!auth.includes("VITE_API_URL") || !auth.includes("sub === client_id") || !auth.includes("ownerApiFetch")) fail("owner auth documentation must explain API resource and user-token guard");
 
 const wizard = readFileSync(new URL("../src/pages/OwnerOrganizationsPage.tsx", import.meta.url), "utf8");
 for (const marker of ["data-civitas-create-organization-wizard", "Stepper", "FormField", "ActionBar", "StatusPill", "StepCanonicalOrganization", "StepBusinessProfile", "StepAdminUsers", "StepSegmentation", "StepReview"]) {
