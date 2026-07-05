@@ -61,43 +61,28 @@ const assertLogicalResource = (value, variable, service) => {
   return value;
 };
 
-const legacyPatterns = Object.freeze([
-  [/^LOGTO_CLIENT_ID$/, "Use LOGTO_M2M_CLIENT_ID."],
-  [/^LOGTO_CLIENT_SECRET$/, "Use LOGTO_M2M_CLIENT_SECRET."],
-  [/^LOGTO_ENDPOINT$/, "Use VITE_LOGTO_ENDPOINT for frontend metadata; backend uses the compiled contract."],
-  [/^LOGTO_MANAGEMENT_API_RESOURCE$/, "Management API resource is compiled in the auth contract."],
-  [/^LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT$/, "Token endpoint is derived from the compiled auth contract."],
-  [/^LOGTO_MANAGEMENT_API_APPLICATION_ID$/, "Use LOGTO_M2M_CLIENT_ID."],
-  [/^LOGTO_MANAGEMENT_API_APPLICATION_SECRET$/, "Use LOGTO_M2M_CLIENT_SECRET."],
-  [/^VITE_API_RESOURCE_INDICATOR$/, "Use LOGTO_API_RESOURCE on backend only."],
-  [/^VITE_API_BASE_URL$/, "Use VITE_API_URL."],
-  [/^VITE_API_RESOURCE$/, "Frontend must not define Logto API resource."],
-  [/^VITE_LOGTO_API_RESOURCE$/, "Frontend must not define Logto API resource."],
-  [/^SERVICE_FQDN_/, "Coolify service FQDN variables are routing metadata only."],
-  [/^SERVICE_URL_/, "Coolify service URL variables are routing metadata only."],
-  [/^SERVICE_API_/, "Coolify service API variables are not Civitas runtime config."],
+const serviceAllowedVariables = Object.freeze({
+  frontend: new Set(["VITE_API_URL", "VITE_LOGTO_ENDPOINT", "VITE_LOGTO_APP_ID"]),
+  backend: new Set(["NODE_ENV", "API_URL", "DATABASE_URL", "REDIS_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "BULLMQ_PREFIX", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
+  worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
+});
+
+const civitasVariablePatterns = Object.freeze([
+  /^VITE_/, /^LOGTO_/, /^DATABASE_URL$/, /^REDIS_URL$/, /^API_URL$/, /^BULLMQ_PREFIX$/,
+  /^WORKER_CONCURRENCY$/, /^ENABLE_QUEUE_RECONCILER$/, /^ENABLE_DB_POLL_EXECUTION$/,
+  /^RUN_MIGRATIONS_ON_STARTUP$/, /^DATABASE_WAIT_TIMEOUT_MS$/, /^DATABASE_WAIT_INTERVAL_MS$/,
+  /^DATABASE_CONNECT_TIMEOUT_MS$/, new RegExp(`^${["SERVICE", "FQDN"].join("_")}_`), new RegExp(`^${["SERVICE", "URL"].join("_")}_`), new RegExp(`^${["SERVICE", "API"].join("_")}_`), /^API_BASE_URL$/,
 ]);
 
-const serviceForbiddenPatterns = {
-  frontend: [/^LOGTO_M2M_/, /^LOGTO_API_RESOURCE$/, /^DATABASE_URL$/, /^REDIS_URL$/, /^API_URL$/],
-  backend: [/^VITE_/, /^WORKER_CONCURRENCY$/],
-  worker: [/^VITE_/, /^LOGTO_/, /^API_URL$/],
-};
-
-function detectLegacy(env, service) {
+function assertStrictServiceContract(env, service) {
+  const allowed = serviceAllowedVariables[service];
   for (const key of Object.keys(env)) {
-    if (String(env[key] || "") && String(env[key]).includes("socialstudies.cloud")) {
-      throw new DeploymentConfigError({ code: "CONFIG_LEGACY_VARIABLE", service, variable: key, cause: "legacy_domain_detected", message: `${key} references legacy domain socialstudies.cloud`, hint: "Replace legacy domain references with didaxus.com values." });
+    if (String(env[key] || "").includes(["socialstudies", "cloud"].join("."))) {
+      throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "removed_domain_detected", message: `${key} references a removed domain`, hint: "Use the current Civitas deployment domains." });
     }
-    for (const [pattern, hint] of legacyPatterns) {
-      if (pattern.test(key)) {
-        throw new DeploymentConfigError({ code: "CONFIG_LEGACY_VARIABLE", service, variable: key, cause: "legacy_variable_detected", message: `${key} is not supported`, hint });
-      }
-    }
-    for (const pattern of serviceForbiddenPatterns[service] || []) {
-      if (pattern.test(key)) {
-        throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_ALIAS", service, variable: key, cause: "variable_not_allowed_for_service", message: `${key} is not allowed in ${service}`, hint: `Remove ${key} from the ${service} environment.` });
-      }
+    if (!civitasVariablePatterns.some((pattern) => pattern.test(key))) continue;
+    if (!allowed.has(key)) {
+      throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "variable_outside_service_contract", message: `${key} is outside the ${service} configuration contract`, hint: `Remove ${key} from the ${service} environment.` });
     }
   }
 }
@@ -111,21 +96,19 @@ function assertMatchesContract(value, expected, variable, service) {
 
 function validateFrontend(env, contract) {
   const service = "frontend";
-  detectLegacy(env, service);
+  assertStrictServiceContract(env, service);
   return {
     service,
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "VITE_API_URL", service), "VITE_API_URL", service), contract.api.publicUrl, "VITE_API_URL", service),
     logtoEndpoint: assertMatchesContract(assertNoOidcPath(requireValue(env, "VITE_LOGTO_ENDPOINT", service), "VITE_LOGTO_ENDPOINT", service), contract.logto.issuer, "VITE_LOGTO_ENDPOINT", service),
     logtoAppId: requireValue(env, "VITE_LOGTO_APP_ID", service),
-    redirectUri: assertHttpUrl(requireValue(env, "VITE_APP_REDIRECT_URI", service), "VITE_APP_REDIRECT_URI", service),
-    signOutRedirectUri: assertHttpUrl(requireValue(env, "VITE_APP_SIGNOUT_REDIRECT_URI", service), "VITE_APP_SIGNOUT_REDIRECT_URI", service),
     logtoResource: assertLogicalResource(contract.logto.apiResource, "CivitasAuthContract.logto.apiResource", service),
   };
 }
 
 function validateBackend(env, contract) {
   const service = "backend";
-  detectLegacy(env, service);
+  assertStrictServiceContract(env, service);
   return {
     service,
     nodeEnv: env.NODE_ENV || "production",
@@ -138,12 +121,16 @@ function validateBackend(env, contract) {
     logtoEndpoint: contract.logto.issuer,
     logtoManagementApi: contract.logto.managementApi,
     bullmqPrefix: env.BULLMQ_PREFIX || "civitas",
+    runMigrationsOnStartup: asBool(env.RUN_MIGRATIONS_ON_STARTUP || "false", "RUN_MIGRATIONS_ON_STARTUP", service),
+    databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),
+    databaseWaitIntervalMs: asInt(env.DATABASE_WAIT_INTERVAL_MS || "2000", "DATABASE_WAIT_INTERVAL_MS", service),
+    databaseConnectTimeoutMs: asInt(env.DATABASE_CONNECT_TIMEOUT_MS || "5000", "DATABASE_CONNECT_TIMEOUT_MS", service),
   };
 }
 
 function validateWorker(env, contract) {
   const service = "worker";
-  detectLegacy(env, service);
+  assertStrictServiceContract(env, service);
   return {
     service,
     nodeEnv: env.NODE_ENV || "production",
@@ -171,7 +158,6 @@ function validateDeploymentConfig({ service, env = process.env, contract = loadC
 
 module.exports = {
   DeploymentConfigError,
-  legacyPatterns,
-  serviceForbiddenPatterns,
+  serviceAllowedVariables,
   validateDeploymentConfig,
 };

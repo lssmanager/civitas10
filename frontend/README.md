@@ -16,8 +16,6 @@ cp .env.example .env
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=h4xwfa8s6cuj5blhzplga
-VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
-VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 ```
 
 3. Install dependencies.
@@ -36,6 +34,6 @@ npm run dev
 
 - Frontend consumes only `VITE_*` variables.
 - `VITE_API_URL` and `VITE_LOGTO_ENDPOINT` must match the compiled Civitas auth contract.
-- `VITE_LOGTO_APP_ID` and redirect URIs remain frontend deployment metadata.
-- Do not define `VITE_LOGTO_API_RESOURCE`, `VITE_API_BASE_URL`, or `VITE_API_RESOURCE`.
+- `VITE_LOGTO_APP_ID` is frontend deployment metadata; callback and sign-out return URLs are derived from `window.location.origin`.
+- Define only the three frontend variables shown above.
 - Missing frontend environment variables now fail fast instead of silently falling back to placeholder or localhost values.

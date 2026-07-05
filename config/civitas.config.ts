@@ -17,8 +17,13 @@ export const civitasConfig = {
     enforceLogtoResourceSeparation: true,
   },
   app: {
-    redirectUri: frontendDeploymentConfig.redirectUri,
-    signOutRedirectUri: frontendDeploymentConfig.signOutRedirectUri,
+    callbackPath: "/callback",
+    get redirectUri() {
+      return `${window.location.origin}/callback`;
+    },
+    get signOutRedirectUri() {
+      return window.location.origin;
+    },
   },
 } as const;
 

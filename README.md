@@ -122,8 +122,6 @@ NODE_ENV=production
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
-VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
-VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 
 # Backend/API infrastructure/secrets
 API_URL=https://civitas.didaxus.com/api
@@ -148,7 +146,7 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access.
 - Logto issuer, Logto API resource, Logto Management API resource, and public API URL come only from the compiled auth contract.
 - `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other.
-- Do not define `VITE_LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `SERVICE_*`, `SERVICE_FQDN_*`, or legacy Logto aliases.
+- Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
 
@@ -230,7 +228,6 @@ cd frontend
 cp .env.example .env
 ```
 
-3. Configure only `VITE_LOGTO_APP_ID`, `VITE_APP_REDIRECT_URI`, and `VITE_APP_SIGNOUT_REDIRECT_URI`. Auth identity and API URL come from `dist/auth.contract.json`.
 
 4. Install dependencies.
 
@@ -253,7 +250,7 @@ npm run dev
 
 ## Worker setup
 
-The worker reuses backend runtime variables and does not define its own API or database env aliases.
+The worker uses only its worker contract and does not define API or auth environment variables.
 
 ```bash
 cd backend

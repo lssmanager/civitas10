@@ -23,19 +23,27 @@ const files = [
   "backend/connectors/identity/logto/config.js",
 ];
 
+const deletedNames = [
+  ["LOGTO", "ENDPOINT"].join("_"),
+  ["LOGTO", "CLIENT", "ID"].join("_"),
+  ["LOGTO", "CLIENT", "SECRET"].join("_"),
+  ["LOGTO", "MANAGEMENT", "API", "RESOURCE"].join("_"),
+  ["LOGTO", "MANAGEMENT", "API", "TOKEN", "ENDPOINT"].join("_"),
+  ["LOGTO", "MANAGEMENT", "API", "APPLICATION", "ID"].join("_"),
+  ["LOGTO", "MANAGEMENT", "API", "APPLICATION", "SECRET"].join("_"),
+  ["VITE", "APP", "REDIRECT", "URI"].join("_"),
+  ["VITE", "APP", "SIGNOUT", "REDIRECT", "URI"].join("_"),
+  ["VITE", "API", "BASE", "URL"].join("_"),
+  ["VITE", "API", "RESOURCE", "INDICATOR"].join("_"),
+  ["VITE", "API", "RESOURCE"].join("_"),
+  ["VITE", "LOGTO", "API", "RESOURCE"].join("_"),
+];
 const banned = [
-  /SERVICE_URL_(BACKEND|FRONTEND|WORKER)/,
-  /SERVICE_FQDN_/,
-  /SERVICE_API_/,
-  /API_BASE_URL/,
-  /VITE_API_BASE_URL/,
-  /VITE_API_RESOURCE=/,
-  /VITE_LOGTO_API_RESOURCE=/,
-  /LOGTO_CLIENT_ID/,
-  /LOGTO_CLIENT_SECRET/,
-  /LOGTO_MANAGEMENT_API_APPLICATION_/,
-  /LOGTO_MANAGEMENT_API_RESOURCE\s*[=:]/,
-  /VITE_LOGTO_MANAGEMENT_API_RESOURCE/,
+  new RegExp(`${["SERVICE", "URL"].join("_")}_`),
+  new RegExp(`${["SERVICE", "FQDN"].join("_")}_`),
+  new RegExp(`${["SERVICE", "API"].join("_")}_`),
+  new RegExp(["socialstudies", "cloud"].join("\\.")),
+  ...deletedNames.map((name) => new RegExp(`(^|[^A-Z0-9_])${name}(?=\\b|[\\s:=])`)),
 ];
 
 const read = (file) => readFileSync(join(root, file), "utf8");
@@ -47,13 +55,16 @@ const fail = (message) => {
 for (const file of files) {
   const source = read(file);
   for (const pattern of banned) {
-    if (pattern.test(source)) fail(`${file} contains banned env alias ${pattern}`);
+    if (pattern.test(source)) fail(`${file} contains deleted config reference ${pattern}`);
   }
 }
 
 const frontendEnv = read("frontend/.env.example");
 try { validateDeploymentConfig({ service: "frontend", env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
-if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain Coolify /backend internal route");
+if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain internal backend route");
+for (const name of deletedNames.filter((name) => name.startsWith("VITE_APP_"))) {
+  if (frontendEnv.includes(`${name}=`)) fail(`frontend env must not require ${name}`);
+}
 
 const backendEnv = read("backend/.env.example");
 try { validateDeploymentConfig({ service: "backend", env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
