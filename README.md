@@ -130,7 +130,7 @@ NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
-LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_API_RESOURCE=https://civitas.didaxus.com/api
 LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-application-id
 LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-application-secret
 BULLMQ_PREFIX=civitas
@@ -154,6 +154,10 @@ RUN_MIGRATIONS_ON_STARTUP=false
 DATABASE_WAIT_TIMEOUT_MS=60000
 DATABASE_WAIT_INTERVAL_MS=2000
 DATABASE_CONNECT_TIMEOUT_MS=5000
+WORKER_JOB_ATTEMPTS=3
+WORKER_JOB_BACKOFF_MS=5000
+WORKER_REMOVE_ON_COMPLETE=1000
+WORKER_REMOVE_ON_FAIL=5000
 ```
 
 ### Service ownership
@@ -163,7 +167,7 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` are API/backend-only Logto M2M credentials for Management API access.
 - `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, and `ENABLE_DB_POLL_EXECUTION` are worker-only controls.
 - Logto issuer, Logto API resource, Logto Management API resource, and public API URL come only from the compiled auth contract.
-- `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other. At runtime, a URL-shaped backend `LOGTO_API_RESOURCE` is reported in `ignoredContractDrift` and replaced with the compiled logical resource so Coolify drift cannot crash startup; strict preflight still rejects it.
+- `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other. `LOGTO_API_RESOURCE` must be exactly the canonical URL resource indicator; URN-based values are invalid.
 - Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names, while runtime reports and ignores variables from another Civitas service so Coolify shared-env noise cannot crash startup.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Coolify may inject `SERVICE_*` or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure and reports it as ignored platform metadata.

@@ -9,7 +9,7 @@ const contract = Object.freeze({
   api: { publicUrl: "https://civitas.didaxus.com/api" },
   logto: {
     issuer: "https://auth.didaxus.com",
-    apiResource: "urn:civitas:api",
+    apiResource: "https://civitas.didaxus.com/api",
     managementApi: "https://auth.didaxus.com",
     organizationAudiencePrefix: "urn:logto:organization:",
   },
@@ -21,7 +21,7 @@ const backendEnv = Object.freeze({
   API_URL: "https://civitas.didaxus.com/api",
   DATABASE_URL: "postgresql://civitas:change-me@postgres:5432/civitas",
   REDIS_URL: "redis://redis:6379/0",
-  LOGTO_API_RESOURCE: "urn:civitas:api",
+  LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api",
   LOGTO_M2M_CLIENT_ID: "m2m-client",
   LOGTO_M2M_CLIENT_SECRET: "m2m-secret",
   BULLMQ_PREFIX: "civitas",
@@ -66,13 +66,13 @@ test("deployment kernel still rejects removed Civitas aliases", () => {
 
 
 
-test("deployment kernel reports URL-shaped backend LOGTO_API_RESOURCE without consuming it at runtime", () => {
-  const config = validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } });
-  assert.equal(config.logtoResource, contract.logto.apiResource);
-  assert.deepEqual(config.ignoredContractDrift, ["LOGTO_API_RESOURCE"]);
+test("deployment kernel requires the canonical URL-shaped backend LOGTO_API_RESOURCE", () => {
+  const config = validateDeploymentConfig({ service: "backend", contract, env: backendEnv });
+  assert.equal(config.logtoResource, "https://civitas.didaxus.com/api");
+  assert.deepEqual(config.ignoredContractDrift, []);
   assert.throws(
-    () => validateDeploymentConfig({ service: "backend", contract, enforceContractEnvDrift: true, env: { ...backendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } }),
-    (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "resource_must_not_be_url" && error.variable === "LOGTO_API_RESOURCE",
+    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_API_RESOURCE: ["urn", "civitas", "api"].join(":") } }),
+    (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "expected_http_url" && error.variable === "LOGTO_API_RESOURCE",
   );
 });
 

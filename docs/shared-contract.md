@@ -7,8 +7,8 @@
 The shared contract owns only cross-layer semantics:
 
 - Logto issuer/base endpoint.
-- Logical Logto API resource (`urn:civitas:api`), which is not an HTTP URL.
-- Public API URL used as transport, kept separate from the logical resource.
+- Canonical Logto API resource (`https://civitas.didaxus.com/api`).
+- Public API URL used as transport and as the single Logto resource indicator.
 - Global owner role and global owner/runtime/worker/organization/impersonation scope names.
 - Organization-token boundary names such as the organization audience prefix, document scopes, and canonical organization role names.
 - Invariants that every service must preserve.
@@ -32,7 +32,7 @@ Rules enforced by policy:
 
 - shared contract is not runtime env;
 - auth semantics are not service-local flags;
-- logical resource is not the HTTP API URL;
+- URL resource is not the HTTP API URL;
 - global owner auth is separate from organization-scoped auth;
 - compose and Coolify metadata do not define shared semantics and are not consumed by Civitas runtime;
 - removed Civitas aliases remain hard errors even when platform metadata is ignored;

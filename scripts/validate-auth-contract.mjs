@@ -27,7 +27,7 @@ const contractSource = read("core/shared/civitas-shared.contract.cjs");
 const compiledContract = JSON.parse(read("dist/auth.contract.json"));
 const sharedContract = JSON.parse(read("dist/shared.contract.json"));
 if (compiledContract.logto.apiResource !== sharedContract.logto.apiResource) fail("canonical Logto API resource drifted");
-if (/^https?:\/\//i.test(compiledContract.logto.apiResource)) fail("canonical Logto API resource must not be an HTTP URL");
+if (compiledContract.logto.apiResource !== compiledContract.api.publicUrl) fail("canonical Logto API resource must be the Civitas API URL resource indicator");
 
 const frontendEnv = parseEnv("frontend/.env.example");
 try { validateDeploymentConfig({ service: "frontend", env: frontendEnv }); } catch (error) { fail(error.message); }
@@ -62,8 +62,8 @@ for (const file of runtimeFiles) {
   }
 }
 
-const literalOccurrences = (contractSource.match(/urn:civitas:api/g) || []).length;
-if (literalOccurrences !== 1) fail("core shared contract must define the Logto resource exactly once");
+const literalOccurrences = (contractSource.match(new RegExp(compiledContract.logto.apiResource.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length;
+if (literalOccurrences !== 2) fail("core shared contract must define the canonical API URL and Logto resource URL once each");
 
 if (process.exitCode) process.exit(process.exitCode);
 console.log("Civitas auth contract validated");

@@ -13,7 +13,7 @@ Civitas separates infrastructure metadata, Civitas runtime env, and auth identit
 ## Compiled auth contract
 
 ```ts
-CivitasSharedContract.logto.apiResource === "urn:civitas:api"
+CivitasSharedContract.logto.apiResource === "https://civitas.didaxus.com/api"
 CivitasSharedContract.logto.issuer === "https://auth.didaxus.com"
 CivitasSharedContract.logto.managementApi === "https://auth.didaxus.com"
 CivitasSharedContract.api.publicUrl === "https://civitas.didaxus.com/api"
@@ -61,7 +61,7 @@ NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
-LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_API_RESOURCE=https://civitas.didaxus.com/api
 LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-client-id
 LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-client-secret
 BULLMQ_PREFIX=civitas
@@ -71,7 +71,7 @@ DATABASE_WAIT_INTERVAL_MS=2000
 DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-Backend accepts only the variables shown above; configure `LOGTO_API_RESOURCE` as the logical resource, not a URL. Runtime reports and ignores a URL-shaped value in favor of the compiled contract, while strict validation rejects it.
+Backend accepts only the variables shown above; configure `LOGTO_API_RESOURCE=https://civitas.didaxus.com/api`. URN-shaped or alternate values are rejected.
 
 ## Worker env
 
@@ -87,6 +87,10 @@ RUN_MIGRATIONS_ON_STARTUP=false
 DATABASE_WAIT_TIMEOUT_MS=60000
 DATABASE_WAIT_INTERVAL_MS=2000
 DATABASE_CONNECT_TIMEOUT_MS=5000
+WORKER_JOB_ATTEMPTS=3
+WORKER_JOB_BACKOFF_MS=5000
+WORKER_REMOVE_ON_COMPLETE=1000
+WORKER_REMOVE_ON_FAIL=5000
 ```
 
 Worker accepts only the variables shown above.
@@ -95,7 +99,7 @@ Worker accepts only the variables shown above.
 
 The deployment kernel separates every runtime variable into four final-mode categories:
 
-1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, and shared-contract mismatches fail startup. A URL-shaped backend `LOGTO_API_RESOURCE` is the one runtime-tolerated contract drift: Civitas reports it in `ignoredContractDrift`, ignores the env value, and uses the compiled logical resource; strict preflight still fails it.
+1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, and shared-contract mismatches fail startup. `LOGTO_API_RESOURCE` must be the canonical URL resource indicator; URN-shaped or alternate values fail validation.
 2. **Platform metadata** is infrastructure data injected by Coolify or another platform, currently `SERVICE_*` and `COOLIFY_*`. Civitas ignores these variables explicitly and reports them in `ignoredPlatformMetadata`; they are not application config and must not be added to compose, examples, or service code.
 3. **Forbidden Civitas drift** is removed Civitas configuration from older models. These names still fail hard because accepting them would hide stale auth, redirect, or domain configuration.
 4. **Cross-service pollution** is a valid Civitas variable injected into the wrong service. Examples: `ENABLE_QUEUE_RECONCILER` in API/backend, or `LOGTO_API_RESOURCE` in worker. Runtime reports these names in `ignoredCrossServicePollution` and does not consume them, so Coolify shared-env noise cannot crash startup. Strict validation/preflight still fails on these names so the operator can fix Coolify without Civitas silently accepting them as contract.
@@ -117,7 +121,7 @@ Forbidden Civitas drift includes:
 - `VITE_LOGTO_API_RESOURCE`
 - references to the removed `socialstudies.cloud` domain
 
-The final rule is: service contracts are strict, Coolify metadata is ignored as non-contract infrastructure, old Civitas drift is rejected, valid Civitas variables from another service are reported and ignored at runtime while strict validation/preflight rejects them, and URL-shaped backend `LOGTO_API_RESOURCE` is reported/ignored in favor of the compiled logical resource. Unknown non-Civitas variables are not promoted to contract and are not consumed by Civitas.
+The final rule is: service contracts are strict, Coolify metadata is ignored as non-contract infrastructure, old Civitas drift is rejected, valid Civitas variables from another service are reported and ignored at runtime while strict validation/preflight rejects them, Unknown non-Civitas variables are not promoted to contract and are not consumed by Civitas.
 
 ## Coolify final-mode checklist
 
@@ -145,7 +149,7 @@ For Coolify previews:
 | `/backend` | backend internal route | backend env + compiled contract validation |
 | `/worker` | worker internal route | worker env only |
 
-The public API transport URL remains `https://civitas.didaxus.com/api`. If `/backend` and `/api` conflict in code or docs, `/api` wins for HTTP transport; auth audience remains `urn:civitas:api`.
+The public API transport URL remains `https://civitas.didaxus.com/api`. If `/backend` and `/api` conflict in code or docs, `/api` wins for HTTP transport; auth audience remains `https://civitas.didaxus.com/api`.
 
 ## Validation
 

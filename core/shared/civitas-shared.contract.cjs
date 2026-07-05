@@ -4,7 +4,7 @@ const CivitasSharedContract = Object.freeze({
   version: "2026-07-civitas-shared-contract-v1",
   logto: Object.freeze({
     issuer: "https://auth.didaxus.com",
-    apiResource: "urn:civitas:api",
+    apiResource: "https://civitas.didaxus.com/api",
     managementApi: "https://auth.didaxus.com",
     organizationAudiencePrefix: "urn:logto:organization:",
   }),
@@ -33,8 +33,8 @@ const CivitasSharedContract = Object.freeze({
       roles: Object.freeze({ admin: "organization_admin", member: "organization_member" }),
     }),
     invariants: Object.freeze([
-      "logical_resource_is_not_http_url",
-      "logical_resource_is_not_public_api_url",
+      "single_url_resource_indicator",
+      "api_resource_matches_public_api_url",
       "global_tokens_must_not_include_organization_context",
       "organization_tokens_must_stay_organization_scoped",
     ]),

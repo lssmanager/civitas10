@@ -1,4 +1,4 @@
-import { LogtoProvider, LogtoConfig, useLogto, UserScope, ReservedResource } from "@logto/react";
+import { LogtoProvider, LogtoConfig, useLogto } from "@logto/react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./Landing";
 import Callback from "../Callback";
@@ -8,14 +8,13 @@ import OwnerOperationalHomePage from "../OwnerOperationalHomePage";
 import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPage";
 import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
 import { APP_ENV } from "../../env";
-import { civitasConfig } from "../../../../config/civitas.config";
 import { appRoutes } from "../../navigation/routes";
 
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
-  scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, ...Object.values(civitasConfig.auth.organization.documentScopes), ...Object.values(civitasConfig.auth.global.scopes)],
-  resources: [ReservedResource.Organization, APP_ENV.api.resource],
+  scopes: ["openid", "profile", "email", "offline_access"],
+  resources: [APP_ENV.api.resource],
 };
 
 function App() {
