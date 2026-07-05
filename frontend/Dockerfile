@@ -10,10 +10,12 @@ ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_LOGTO_ENDPOINT=$VITE_LOGTO_ENDPOINT
 ENV VITE_LOGTO_APP_ID=$VITE_LOGTO_APP_ID
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm install --include=dev
 
-COPY . .
+COPY frontend/ ./
+COPY config/ /config/
+COPY core/ /core/
 RUN npm run build
 RUN npm install -g serve
 

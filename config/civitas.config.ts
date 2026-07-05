@@ -1,15 +1,22 @@
-/// <reference types="vite/client" />
 import { validateDeploymentConfig } from "../core/deployment/deployment-kernel.cjs";
-const frontendDeploymentConfig = validateDeploymentConfig({ service: "frontend", env: import.meta.env });
+import { loadCivitasSharedContract } from "../core/shared/contract-loader.cjs";
+
+type FrontendImportMeta = ImportMeta & {
+  env: Record<string, string | boolean | undefined>;
+};
+
+const sharedContract = loadCivitasSharedContract();
+const frontendDeploymentConfig = validateDeploymentConfig({ service: "frontend", env: (import.meta as FrontendImportMeta).env, contract: sharedContract });
 
 export const civitasConfig = {
   apiBaseUrl: frontendDeploymentConfig.apiUrl,
   logtoEndpoint: frontendDeploymentConfig.logtoEndpoint,
   logtoAppId: frontendDeploymentConfig.logtoAppId,
   logtoResource: frontendDeploymentConfig.logtoResource,
+  auth: sharedContract.auth,
   isOwnerGlobal: {
-    role: "owner_global",
-    requiredScopes: ["owner:read"],
+    role: sharedContract.auth.global.ownerRole,
+    requiredScopes: [sharedContract.auth.global.scopes.ownerRead],
   },
   runtimeFlags: {
     usePublicApiUrlOnly: true,

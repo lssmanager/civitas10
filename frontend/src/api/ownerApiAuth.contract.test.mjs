@@ -33,9 +33,8 @@ test("owner API errors use actionable user messages and keep technical details o
 
 test("Logto config asks for API audience and role claims", () => {
   assert.match(appSource, /resources: \[ReservedResource\.Organization, APP_ENV\.api\.resource\]/);
-  assert.match(appSource, /organization:create/);
-  assert.match(appSource, /worker-queues:read/);
-  assert.match(appSource, /impersonation:write/);
+  assert.match(appSource, /civitasConfig\.auth\.global\.scopes/);
+  assert.match(appSource, /civitasConfig\.auth\.organization\.documentScopes/);
   assert.match(appSource, /UserScope\.Roles/);
   assert.match(appSource, /UserScope\.OrganizationRoles/);
 });

@@ -13,10 +13,10 @@ Civitas separates infrastructure, runtime env, and auth identity:
 ## Compiled auth contract
 
 ```ts
-CivitasAuthContract.logto.apiResource === "urn:civitas:api"
-CivitasAuthContract.logto.issuer === "https://auth.didaxus.com"
-CivitasAuthContract.logto.managementApi === "https://auth.didaxus.com"
-CivitasAuthContract.api.publicUrl === "https://civitas.didaxus.com/api"
+CivitasSharedContract.logto.apiResource === "urn:civitas:api"
+CivitasSharedContract.logto.issuer === "https://auth.didaxus.com"
+CivitasSharedContract.logto.managementApi === "https://auth.didaxus.com"
+CivitasSharedContract.api.publicUrl === "https://civitas.didaxus.com/api"
 ```
 
 Build it with:
@@ -28,7 +28,7 @@ node scripts/build-auth-contract.mjs
 
 ## Deployment Kernel
 
-`core/deployment/deployment-kernel.cjs` is the single parser/validator/normalizer for deploy config. It owns:
+`core/shared/civitas-shared.contract.cjs` is the source of shared semantics. `core/deployment/deployment-kernel.cjs` is the single parser/validator/normalizer for deploy config. It owns:
 
 - exact allowed variables per service
 - outside-contract rejection

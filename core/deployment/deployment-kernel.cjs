@@ -1,6 +1,6 @@
 "use strict";
 
-const { loadCivitasAuthContract } = require("../auth/contract-loader.cjs");
+const { loadCivitasAuthContract } = require("../shared/contract-loader.cjs");
 
 class DeploymentConfigError extends Error {
   constructor({ code, message, variable, cause, hint, service }) {
@@ -56,7 +56,7 @@ const assertNoOidcPath = (value, variable, service) => {
 
 const assertLogicalResource = (value, variable, service) => {
   if (/^https?:\/\//i.test(value)) {
-    throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", service, variable, cause: "resource_must_not_be_url", message: `${variable} must be a logical resource identifier, not an HTTP URL`, hint: `Set ${variable}=urn:civitas:api.` });
+    throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", service, variable, cause: "resource_must_not_be_url", message: `${variable} must be a logical resource identifier, not an HTTP URL`, hint: `Set ${variable} to CivitasSharedContract.logto.apiResource.` });
   }
   return value;
 };
@@ -102,7 +102,7 @@ function validateFrontend(env, contract) {
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "VITE_API_URL", service), "VITE_API_URL", service), contract.api.publicUrl, "VITE_API_URL", service),
     logtoEndpoint: assertMatchesContract(assertNoOidcPath(requireValue(env, "VITE_LOGTO_ENDPOINT", service), "VITE_LOGTO_ENDPOINT", service), contract.logto.issuer, "VITE_LOGTO_ENDPOINT", service),
     logtoAppId: requireValue(env, "VITE_LOGTO_APP_ID", service),
-    logtoResource: assertLogicalResource(contract.logto.apiResource, "CivitasAuthContract.logto.apiResource", service),
+    logtoResource: assertLogicalResource(contract.logto.apiResource, "CivitasSharedContract.logto.apiResource", service),
   };
 }
 
@@ -125,6 +125,7 @@ function validateBackend(env, contract) {
     databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),
     databaseWaitIntervalMs: asInt(env.DATABASE_WAIT_INTERVAL_MS || "2000", "DATABASE_WAIT_INTERVAL_MS", service),
     databaseConnectTimeoutMs: asInt(env.DATABASE_CONNECT_TIMEOUT_MS || "5000", "DATABASE_CONNECT_TIMEOUT_MS", service),
+    contract: Object.freeze({ apiResource: contract.logto.apiResource, apiUrl: contract.api.publicUrl, organizationAudiencePrefix: contract.logto.organizationAudiencePrefix, auth: contract.auth }),
   };
 }
 
@@ -144,7 +145,7 @@ function validateWorker(env, contract) {
     databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),
     databaseWaitIntervalMs: asInt(env.DATABASE_WAIT_INTERVAL_MS || "2000", "DATABASE_WAIT_INTERVAL_MS", service),
     databaseConnectTimeoutMs: asInt(env.DATABASE_CONNECT_TIMEOUT_MS || "5000", "DATABASE_CONNECT_TIMEOUT_MS", service),
-    contract: Object.freeze({ apiResource: contract.logto.apiResource, apiUrl: contract.api.publicUrl }),
+    contract: Object.freeze({ apiResource: contract.logto.apiResource, apiUrl: contract.api.publicUrl, organizationAudiencePrefix: contract.logto.organizationAudiencePrefix, auth: contract.auth }),
   };
 }
 

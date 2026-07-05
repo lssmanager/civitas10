@@ -1,4 +1,5 @@
 {
+  "version": "2026-07-civitas-shared-contract-v1",
   "logto": {
     "issuer": "https://auth.didaxus.com",
     "apiResource": "urn:civitas:api",

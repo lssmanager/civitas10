@@ -3,7 +3,7 @@ const { withTimeout } = require("../services/timeouts");
 const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
 const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
-const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
+const ORGANIZATION_AUDIENCE_PREFIX = deploymentConfig.contract.organizationAudiencePrefix || deploymentConfig.contract.logto?.organizationAudiencePrefix || deploymentConfig.logtoOrganizationAudiencePrefix;
 const LOGTO_JWKS_TIMEOUT_MS = 5000;
 const LOGTO_JWT_VERIFY_TIMEOUT_MS = 6000;
 let jwks;
@@ -26,7 +26,7 @@ const assertLogicalResource = (resource) => {
   }
   return resource;
 };
-const getLogtoIssuer = () => `${normalizeLogtoEndpoint(deploymentConfig.logtoEndpoint || "https://auth.didaxus.com")}/oidc`;
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(deploymentConfig.logtoEndpoint)}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
 const getJwks = () => {
