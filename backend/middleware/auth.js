@@ -17,9 +17,9 @@ const getRequiredEnv = (name) => {
 };
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
-const assertLogicalResource = (resource) => {
-  if (/^https?:\/\//i.test(resource || "")) {
-    throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
+const assertUrlResource = (resource) => {
+  if (!/^https:\/\//i.test(resource || "")) {
+    throw new Error("LOGTO_API_RESOURCE must be the canonical HTTPS Logto API resource URL");
   }
   if (resource !== deploymentConfig.logtoResource) {
     throw new Error("Invalid Logto API Resource drift detected");
@@ -202,7 +202,7 @@ const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requir
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
-  assertLogicalResource(resource);
+  assertUrlResource(resource);
 
   return async (req, res, next) => {
     try {
@@ -289,7 +289,7 @@ const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, 
       const decodedPayload = decodeJwtPayload(token);
       const audience = normalizeAudience(decodedPayload.aud);
       const organizationId = extractOrganizationId(decodedPayload);
-      assertLogicalResource(resource);
+      assertUrlResource(resource);
 
       if (!hasAudience(decodedPayload.aud, resource)) {
         const error = new Error("Invalid organization token audience");

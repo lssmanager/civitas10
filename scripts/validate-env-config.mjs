@@ -134,10 +134,10 @@ try {
   if (error.code !== "CONFIG_CROSS_SERVICE_POLLUTION") fail(`ENABLE_QUEUE_RECONCILER should fail strict cross-service validation, got ${error.code || error.message}`);
 }
 try {
-  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } });
-  fail("strict validation accepted URL-shaped LOGTO_API_RESOURCE in backend");
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_API_RESOURCE: ["urn", "civitas", "api"].join(":") } });
+  fail("strict validation accepted URN-shaped LOGTO_API_RESOURCE in backend");
 } catch (error) {
-  if (error.code !== "CONFIG_INVALID_FORMAT" || error.cause !== "resource_must_not_be_url") fail(`URL-shaped LOGTO_API_RESOURCE should fail strict validation, got ${error.code || error.message}`);
+  if (error.code !== "CONFIG_INVALID_FORMAT" || error.cause !== "expected_http_url") fail(`URN-shaped LOGTO_API_RESOURCE should fail strict validation, got ${error.code || error.message}`);
 }
 
 const compose = read("docker-compose.yml");

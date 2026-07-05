@@ -13,8 +13,7 @@ const sharedSource = read("core/shared/civitas-shared.contract.cjs");
 const compiled = JSON.parse(read("dist/shared.contract.json"));
 
 if (JSON.stringify(compiled) !== JSON.stringify(shared)) fail("compiled shared contract drifted from source loader");
-if (/^https?:\/\//i.test(shared.logto.apiResource)) fail("shared logical resource must not be a URL");
-if (shared.logto.apiResource === shared.api.publicUrl) fail("shared logical resource must not equal public API URL");
+if (shared.logto.apiResource !== shared.api.publicUrl) fail("shared Logto API resource must equal the public API URL resource indicator");
 
 for (const service of ["frontend", "backend", "worker"]) {
   const env = service === "frontend"
@@ -64,7 +63,7 @@ for (const file of scannedFiles) {
   }
 }
 const resourceOccurrences = (sharedSource.match(new RegExp(shared.logto.apiResource.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length;
-if (resourceOccurrences !== 1) fail("shared source must define the logical resource exactly once");
+if (resourceOccurrences !== 2) fail("shared source must define the canonical API URL and Logto resource URL once each");
 
 if (process.exitCode) process.exit(process.exitCode);
 console.log("Civitas shared contract isolation validated");

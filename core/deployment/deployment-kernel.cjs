@@ -54,17 +54,12 @@ const assertNoOidcPath = (value, variable, service) => {
   return url.origin;
 };
 
-const assertLogicalResource = (value, variable, service) => {
-  if (/^https?:\/\//i.test(value)) {
-    throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", service, variable, cause: "resource_must_not_be_url", message: `${variable} must be a logical resource identifier, not an HTTP URL`, hint: `Set ${variable} to CivitasSharedContract.logto.apiResource.` });
-  }
-  return value;
-};
+const assertUrlResource = (value, variable, service) => assertHttpUrl(value, variable, service);
 
 const serviceAllowedVariables = Object.freeze({
   frontend: new Set(["VITE_API_URL", "VITE_LOGTO_ENDPOINT", "VITE_LOGTO_APP_ID"]),
   backend: new Set(["NODE_ENV", "API_URL", "DATABASE_URL", "REDIS_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "BULLMQ_PREFIX", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
-  worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
+  worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS", "WORKER_JOB_ATTEMPTS", "WORKER_JOB_BACKOFF_MS", "WORKER_REMOVE_ON_COMPLETE", "WORKER_REMOVE_ON_FAIL"]),
 });
 
 
@@ -108,7 +103,7 @@ const forbiddenCivitasVariables = Object.freeze(new Set([
 const civitasVariablePatterns = Object.freeze([
   /^VITE_/, /^LOGTO_/, /^DATABASE_URL$/, /^REDIS_URL$/, /^API_URL$/, /^BULLMQ_PREFIX$/,
   /^WORKER_CONCURRENCY$/, /^ENABLE_QUEUE_RECONCILER$/, /^ENABLE_DB_POLL_EXECUTION$/,
-  /^RUN_MIGRATIONS_ON_STARTUP$/, /^DATABASE_WAIT_TIMEOUT_MS$/, /^DATABASE_WAIT_INTERVAL_MS$/, /^DATABASE_CONNECT_TIMEOUT_MS$/, /^API_BASE_URL$/,
+  /^RUN_MIGRATIONS_ON_STARTUP$/, /^DATABASE_WAIT_TIMEOUT_MS$/, /^DATABASE_WAIT_INTERVAL_MS$/, /^DATABASE_CONNECT_TIMEOUT_MS$/, /^WORKER_JOB_ATTEMPTS$/, /^WORKER_JOB_BACKOFF_MS$/, /^WORKER_REMOVE_ON_COMPLETE$/, /^WORKER_REMOVE_ON_FAIL$/, /^API_BASE_URL$/,
 ]);
 
 const isPlatformMetadataVariable = (key) => platformMetadataVariablePatterns.some((pattern) => pattern.test(key));
@@ -163,21 +158,10 @@ function assertMatchesContract(value, expected, variable, service) {
 }
 
 
-const resolveBackendLogtoResource = (env, contract, service, { enforceContractEnvDrift = false } = {}) => {
-  const rawValue = requireValue(env, "LOGTO_API_RESOURCE", service);
-  const ignoredContractDrift = [];
-  if (/^https?:\/\//i.test(rawValue)) {
-    if (enforceContractEnvDrift) {
-      assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service);
-    }
-    ignoredContractDrift.push("LOGTO_API_RESOURCE");
-    return { logtoResource: contract.logto.apiResource, ignoredContractDrift };
-  }
-  return {
-    logtoResource: assertMatchesContract(assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
-    ignoredContractDrift,
-  };
-};
+const resolveBackendLogtoResource = (env, contract, service) => ({
+  logtoResource: assertMatchesContract(assertUrlResource(requireValue(env, "LOGTO_API_RESOURCE", service), "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
+  ignoredContractDrift: [],
+});
 
 function validateFrontend(env, contract, options) {
   const service = "frontend";
@@ -189,7 +173,7 @@ function validateFrontend(env, contract, options) {
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "VITE_API_URL", service), "VITE_API_URL", service), contract.api.publicUrl, "VITE_API_URL", service),
     logtoEndpoint: assertMatchesContract(assertNoOidcPath(requireValue(env, "VITE_LOGTO_ENDPOINT", service), "VITE_LOGTO_ENDPOINT", service), contract.logto.issuer, "VITE_LOGTO_ENDPOINT", service),
     logtoAppId: requireValue(env, "VITE_LOGTO_APP_ID", service),
-    logtoResource: assertLogicalResource(contract.logto.apiResource, "CivitasSharedContract.logto.apiResource", service),
+    logtoResource: assertUrlResource(contract.logto.apiResource, "CivitasSharedContract.logto.apiResource", service),
   };
 }
 
@@ -238,6 +222,10 @@ function validateWorker(env, contract, options) {
     databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),
     databaseWaitIntervalMs: asInt(env.DATABASE_WAIT_INTERVAL_MS || "2000", "DATABASE_WAIT_INTERVAL_MS", service),
     databaseConnectTimeoutMs: asInt(env.DATABASE_CONNECT_TIMEOUT_MS || "5000", "DATABASE_CONNECT_TIMEOUT_MS", service),
+    workerJobAttempts: asInt(env.WORKER_JOB_ATTEMPTS || "3", "WORKER_JOB_ATTEMPTS", service),
+    workerJobBackoffMs: asInt(env.WORKER_JOB_BACKOFF_MS || "5000", "WORKER_JOB_BACKOFF_MS", service),
+    workerRemoveOnComplete: asInt(env.WORKER_REMOVE_ON_COMPLETE || "1000", "WORKER_REMOVE_ON_COMPLETE", service),
+    workerRemoveOnFail: asInt(env.WORKER_REMOVE_ON_FAIL || "5000", "WORKER_REMOVE_ON_FAIL", service),
     contract: Object.freeze({ apiResource: contract.logto.apiResource, apiUrl: contract.api.publicUrl, organizationAudiencePrefix: contract.logto.organizationAudiencePrefix, auth: contract.auth }),
   };
 }

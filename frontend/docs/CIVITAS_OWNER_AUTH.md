@@ -5,7 +5,7 @@ Owner global screens call `/owner/*` API endpoints and are not organization-scop
 ## Environment split
 
 - deployment kernel `apiUrl`: browser network base URL for API requests.
-- deployment kernel `logtoResource`: logical Logto API resource/audience requested through `getAccessToken`; it must be `urn:civitas:api`, not the HTTP API URL.
+- deployment kernel `logtoResource`: single Logto API resource/audience requested through `getAccessToken`; it must be `https://civitas.didaxus.com/api`.
 - Backend compiled contract: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
 
 Frontend and backend both load deployment kernel `logtoResource`; env variables must not provide the Logto audience.
