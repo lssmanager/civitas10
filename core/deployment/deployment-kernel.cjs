@@ -67,6 +67,23 @@ const serviceAllowedVariables = Object.freeze({
   worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
 });
 
+
+const serviceContractOwners = (() => {
+  const owners = new Map();
+  for (const [service, variables] of Object.entries(serviceAllowedVariables)) {
+    for (const variable of variables) {
+      if (!owners.has(variable)) owners.set(variable, new Set());
+      owners.get(variable).add(service);
+    }
+  }
+  return owners;
+})();
+
+const isCrossServiceVariable = (key, service) => {
+  const owners = serviceContractOwners.get(key);
+  return Boolean(owners && !owners.has(service));
+};
+
 const platformMetadataVariablePatterns = Object.freeze([
   /^SERVICE_[A-Z0-9_]+$/,
   /^COOLIFY_[A-Z0-9_]+$/,
@@ -101,13 +118,14 @@ function classifyDeploymentVariable(key, service) {
   if (serviceAllowedVariables[service]?.has(key)) return "contract";
   if (isPlatformMetadataVariable(key)) return "platform_metadata";
   if (forbiddenCivitasVariables.has(key)) return "forbidden_civitas_drift";
+  if (isCrossServiceVariable(key, service)) return "cross_service_pollution";
   if (isCivitasVariable(key)) return "civitas_outside_service_contract";
   return "external_runtime";
 }
 
-function assertStrictServiceContract(env, service) {
-  const allowed = serviceAllowedVariables[service];
+function assertStrictServiceContract(env, service, { enforceCrossServicePollution = false } = {}) {
   const ignoredPlatformMetadata = [];
+  const ignoredCrossServicePollution = [];
   for (const key of Object.keys(env)) {
     if (String(env[key] || "").includes(["socialstudies", "cloud"].join("."))) {
       throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_DRIFT", service, variable: key, cause: "removed_domain_detected", message: `${key} references removed Civitas domain drift`, hint: "Use the current Civitas deployment domains." });
@@ -120,11 +138,21 @@ function assertStrictServiceContract(env, service) {
     if (classification === "forbidden_civitas_drift") {
       throw new DeploymentConfigError({ code: "CONFIG_FORBIDDEN_DRIFT", service, variable: key, cause: "forbidden_civitas_drift_variable", message: `${key} is forbidden Civitas configuration drift`, hint: `Remove ${key}; it belongs to a removed Civitas configuration model.` });
     }
+    if (classification === "cross_service_pollution") {
+      if (enforceCrossServicePollution) {
+        throw new DeploymentConfigError({ code: "CONFIG_CROSS_SERVICE_POLLUTION", service, variable: key, cause: "cross_service_pollution", message: `${key} belongs to another Civitas service contract and is forbidden in ${service}`, hint: `Remove ${key} from the ${service} environment in Coolify.` });
+      }
+      ignoredCrossServicePollution.push(key);
+      continue;
+    }
     if (classification === "civitas_outside_service_contract") {
       throw new DeploymentConfigError({ code: "CONFIG_OUTSIDE_CONTRACT", service, variable: key, cause: "variable_outside_service_contract", message: `${key} is outside the ${service} configuration contract`, hint: `Remove ${key} from the ${service} environment.` });
     }
   }
-  return Object.freeze(ignoredPlatformMetadata.sort());
+  return Object.freeze({
+    ignoredPlatformMetadata: Object.freeze(ignoredPlatformMetadata.sort()),
+    ignoredCrossServicePollution: Object.freeze(ignoredCrossServicePollution.sort()),
+  });
 }
 
 function assertMatchesContract(value, expected, variable, service) {
@@ -134,12 +162,30 @@ function assertMatchesContract(value, expected, variable, service) {
   return value;
 }
 
-function validateFrontend(env, contract) {
+
+const resolveBackendLogtoResource = (env, contract, service, { enforceContractEnvDrift = false } = {}) => {
+  const rawValue = requireValue(env, "LOGTO_API_RESOURCE", service);
+  const ignoredContractDrift = [];
+  if (/^https?:\/\//i.test(rawValue)) {
+    if (enforceContractEnvDrift) {
+      assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service);
+    }
+    ignoredContractDrift.push("LOGTO_API_RESOURCE");
+    return { logtoResource: contract.logto.apiResource, ignoredContractDrift };
+  }
+  return {
+    logtoResource: assertMatchesContract(assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
+    ignoredContractDrift,
+  };
+};
+
+function validateFrontend(env, contract, options) {
   const service = "frontend";
-  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
+  const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
   return {
     service,
     ignoredPlatformMetadata,
+    ignoredCrossServicePollution,
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "VITE_API_URL", service), "VITE_API_URL", service), contract.api.publicUrl, "VITE_API_URL", service),
     logtoEndpoint: assertMatchesContract(assertNoOidcPath(requireValue(env, "VITE_LOGTO_ENDPOINT", service), "VITE_LOGTO_ENDPOINT", service), contract.logto.issuer, "VITE_LOGTO_ENDPOINT", service),
     logtoAppId: requireValue(env, "VITE_LOGTO_APP_ID", service),
@@ -147,17 +193,20 @@ function validateFrontend(env, contract) {
   };
 }
 
-function validateBackend(env, contract) {
+function validateBackend(env, contract, options) {
   const service = "backend";
-  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
+  const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
+  const { logtoResource, ignoredContractDrift } = resolveBackendLogtoResource(env, contract, service, options);
   return {
     service,
     ignoredPlatformMetadata,
+    ignoredCrossServicePollution,
+    ignoredContractDrift: Object.freeze(ignoredContractDrift.sort()),
     nodeEnv: env.NODE_ENV || "production",
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "API_URL", service), "API_URL", service), contract.api.publicUrl, "API_URL", service),
     databaseUrl: requireValue(env, "DATABASE_URL", service),
     redisUrl: requireValue(env, "REDIS_URL", service),
-    logtoResource: assertMatchesContract(assertLogicalResource(requireValue(env, "LOGTO_API_RESOURCE", service), "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
+    logtoResource,
     m2mClientId: requireValue(env, "LOGTO_M2M_CLIENT_ID", service),
     m2mClientSecret: requireValue(env, "LOGTO_M2M_CLIENT_SECRET", service),
     logtoEndpoint: contract.logto.issuer,
@@ -171,12 +220,13 @@ function validateBackend(env, contract) {
   };
 }
 
-function validateWorker(env, contract) {
+function validateWorker(env, contract, options) {
   const service = "worker";
-  const ignoredPlatformMetadata = assertStrictServiceContract(env, service);
+  const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
   return {
     service,
     ignoredPlatformMetadata,
+    ignoredCrossServicePollution,
     nodeEnv: env.NODE_ENV || "production",
     databaseUrl: requireValue(env, "DATABASE_URL", service),
     redisUrl: requireValue(env, "REDIS_URL", service),
@@ -192,11 +242,12 @@ function validateWorker(env, contract) {
   };
 }
 
-function validateDeploymentConfig({ service, env = process.env, contract = loadCivitasAuthContract() } = {}) {
+function validateDeploymentConfig({ service, env = process.env, contract = loadCivitasAuthContract(), enforceCrossServicePollution = false, enforceContractEnvDrift = false } = {}) {
+  const options = { enforceCrossServicePollution, enforceContractEnvDrift };
   if (!service) throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", variable: "service", cause: "missing_service", message: "Deployment service is required", hint: "Pass service=frontend, backend, or worker." });
-  if (service === "frontend") return validateFrontend(env, contract);
-  if (service === "backend") return validateBackend(env, contract);
-  if (service === "worker") return validateWorker(env, contract);
+  if (service === "frontend") return validateFrontend(env, contract, options);
+  if (service === "backend") return validateBackend(env, contract, options);
+  if (service === "worker") return validateWorker(env, contract, options);
   throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", variable: "service", cause: "unknown_service", message: `Unknown deployment service: ${service}`, hint: "Use frontend, backend, or worker." });
 }
 
@@ -205,6 +256,7 @@ module.exports = {
   classifyDeploymentVariable,
   forbiddenCivitasVariables,
   platformMetadataVariablePatterns,
+  serviceContractOwners,
   serviceAllowedVariables,
   validateDeploymentConfig,
 };

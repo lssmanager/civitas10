@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { validateDeploymentConfig, classifyDeploymentVariable } = require("../core/deployment/deployment-kernel.cjs");
+const { validateDeploymentConfig, classifyDeploymentVariable, serviceAllowedVariables } = require("../core/deployment/deployment-kernel.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
 const files = [
@@ -86,14 +86,14 @@ for (const file of [".env.example", "backend/.env.example", "frontend/.env.examp
 }
 
 const frontendEnv = read("frontend/.env.example");
-try { validateDeploymentConfig({ service: "frontend", env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
+try { validateDeploymentConfig({ service: "frontend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain internal backend route");
 for (const name of deletedNames.filter((name) => name.startsWith("VITE_APP_"))) {
   if (frontendEnv.includes(`${name}=`)) fail(`frontend env must not require ${name}`);
 }
 
 const backendEnv = read("backend/.env.example");
-try { validateDeploymentConfig({ service: "backend", env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
+try { validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 
 const zeroDriftBackendEnv = Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2)));
 zeroDriftBackendEnv.SERVICE_FQDN_API = "civitas.didaxus.com";
@@ -102,7 +102,7 @@ zeroDriftBackendEnv.SERVICE_API_INTERNAL = "http://api:3000";
 zeroDriftBackendEnv.SERVICE_REGION = "platform-generated";
 zeroDriftBackendEnv.COOLIFY_RESOURCE_UUID = "platform-generated";
 try {
-  const config = validateDeploymentConfig({ service: "backend", env: zeroDriftBackendEnv });
+  const config = validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: zeroDriftBackendEnv });
   for (const key of ["SERVICE_FQDN_API", "SERVICE_URL_API", "SERVICE_API_INTERNAL", "SERVICE_REGION", "COOLIFY_RESOURCE_UUID"]) {
     if (!config.ignoredPlatformMetadata.includes(key)) fail(`deployment kernel did not explicitly ignore platform metadata ${key}`);
     if (classifyDeploymentVariable(key, "backend") !== "platform_metadata") fail(`deployment kernel did not classify ${key} as platform metadata`);
@@ -110,13 +110,41 @@ try {
 } catch (error) { fail(`platform metadata must not break zero-drift runtime: ${error.message}`); }
 
 try {
-  validateDeploymentConfig({ service: "backend", env: { ...zeroDriftBackendEnv, LOGTO_CLIENT_ID: "removed" } });
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_CLIENT_ID: "removed" } });
   fail("deployment kernel accepted forbidden Civitas drift variable LOGTO_CLIENT_ID");
 } catch (error) {
   if (error.code !== "CONFIG_FORBIDDEN_DRIFT") fail(`LOGTO_CLIENT_ID should fail as forbidden Civitas drift, got ${error.code || error.message}`);
 }
 
+
+const backendOnlyVariables = [...serviceAllowedVariables.backend].filter((key) => !serviceAllowedVariables.worker.has(key));
+const workerOnlyVariables = [...serviceAllowedVariables.worker].filter((key) => !serviceAllowedVariables.backend.has(key));
+for (const key of workerOnlyVariables) {
+  if (classifyDeploymentVariable(key, "backend") !== "cross_service_pollution") fail(`worker variable ${key} must be cross-service pollution in backend`);
+}
+for (const key of backendOnlyVariables) {
+  if (classifyDeploymentVariable(key, "worker") !== "cross_service_pollution") fail(`backend variable ${key} must be cross-service pollution in worker`);
+}
+if (classifyDeploymentVariable("SERVICE_FQDN_API", "backend") !== "platform_metadata") fail("SERVICE_* must classify as platform metadata");
+if (classifyDeploymentVariable("COOLIFY_RESOURCE_UUID", "worker") !== "platform_metadata") fail("COOLIFY_* must classify as platform metadata");
+try {
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, ENABLE_QUEUE_RECONCILER: "true" } });
+  fail("strict validation accepted worker variable ENABLE_QUEUE_RECONCILER in backend");
+} catch (error) {
+  if (error.code !== "CONFIG_CROSS_SERVICE_POLLUTION") fail(`ENABLE_QUEUE_RECONCILER should fail strict cross-service validation, got ${error.code || error.message}`);
+}
+try {
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } });
+  fail("strict validation accepted URL-shaped LOGTO_API_RESOURCE in backend");
+} catch (error) {
+  if (error.code !== "CONFIG_INVALID_FORMAT" || error.cause !== "resource_must_not_be_url") fail(`URL-shaped LOGTO_API_RESOURCE should fail strict validation, got ${error.code || error.message}`);
+}
+
 const compose = read("docker-compose.yml");
+const backendBlock = compose.split(/\n\s*worker:/)[0].split(/\n\s*backend:/)[1] || "";
+for (const forbidden of ["WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION"]) {
+  if (backendBlock.includes(forbidden)) fail(`backend compose block must not contain worker variable ${forbidden}`);
+}
 const workerBlock = compose.split(/\n\s*frontend:/)[0].split(/\n\s*worker:/)[1] || "";
 for (const forbidden of ["VITE_", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "LOGTO_API_RESOURCE", "API_URL"]) {
   if (workerBlock.includes(forbidden)) fail(`worker compose block must not contain ${forbidden}`);
