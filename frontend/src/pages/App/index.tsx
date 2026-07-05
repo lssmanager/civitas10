@@ -13,7 +13,7 @@ import { appRoutes } from "../../navigation/routes";
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
-  scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, "read:documents", "create:documents", "create:organization", "owner:read", "owner:write"],
+  scopes: [UserScope.Roles, UserScope.Organizations, UserScope.OrganizationRoles, "read:documents", "create:documents", "owner:read", "owner:write", "runtime:read", "runtime:write", "worker-queues:read", "worker-queues:write", "organization:create", "organization:read", "organization:write", "impersonation:write"],
   resources: [ReservedResource.Organization, APP_ENV.api.resource],
 };
 
