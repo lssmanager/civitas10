@@ -1,6 +1,10 @@
-/// <reference types="vite/client" />
 import { validateDeploymentConfig } from "../core/deployment/deployment-kernel.cjs";
-const frontendDeploymentConfig = validateDeploymentConfig({ service: "frontend", env: import.meta.env });
+
+type FrontendImportMeta = ImportMeta & {
+  env: Record<string, string | boolean | undefined>;
+};
+
+const frontendDeploymentConfig = validateDeploymentConfig({ service: "frontend", env: (import.meta as FrontendImportMeta).env });
 
 export const civitasConfig = {
   apiBaseUrl: frontendDeploymentConfig.apiUrl,

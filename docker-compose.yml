@@ -84,8 +84,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:?VITE_API_URL is required}
         VITE_LOGTO_ENDPOINT: ${VITE_LOGTO_ENDPOINT:?VITE_LOGTO_ENDPOINT is required}
