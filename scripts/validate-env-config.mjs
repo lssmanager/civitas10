@@ -86,14 +86,14 @@ for (const file of [".env.example", "backend/.env.example", "frontend/.env.examp
 }
 
 const frontendEnv = read("frontend/.env.example");
-try { validateDeploymentConfig({ service: "frontend", enforceCrossServicePollution: true, env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
+try { validateDeploymentConfig({ service: "frontend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain internal backend route");
 for (const name of deletedNames.filter((name) => name.startsWith("VITE_APP_"))) {
   if (frontendEnv.includes(`${name}=`)) fail(`frontend env must not require ${name}`);
 }
 
 const backendEnv = read("backend/.env.example");
-try { validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
+try { validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 
 const zeroDriftBackendEnv = Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2)));
 zeroDriftBackendEnv.SERVICE_FQDN_API = "civitas.didaxus.com";
@@ -102,7 +102,7 @@ zeroDriftBackendEnv.SERVICE_API_INTERNAL = "http://api:3000";
 zeroDriftBackendEnv.SERVICE_REGION = "platform-generated";
 zeroDriftBackendEnv.COOLIFY_RESOURCE_UUID = "platform-generated";
 try {
-  const config = validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, env: zeroDriftBackendEnv });
+  const config = validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: zeroDriftBackendEnv });
   for (const key of ["SERVICE_FQDN_API", "SERVICE_URL_API", "SERVICE_API_INTERNAL", "SERVICE_REGION", "COOLIFY_RESOURCE_UUID"]) {
     if (!config.ignoredPlatformMetadata.includes(key)) fail(`deployment kernel did not explicitly ignore platform metadata ${key}`);
     if (classifyDeploymentVariable(key, "backend") !== "platform_metadata") fail(`deployment kernel did not classify ${key} as platform metadata`);
@@ -110,7 +110,7 @@ try {
 } catch (error) { fail(`platform metadata must not break zero-drift runtime: ${error.message}`); }
 
 try {
-  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, env: { ...zeroDriftBackendEnv, LOGTO_CLIENT_ID: "removed" } });
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_CLIENT_ID: "removed" } });
   fail("deployment kernel accepted forbidden Civitas drift variable LOGTO_CLIENT_ID");
 } catch (error) {
   if (error.code !== "CONFIG_FORBIDDEN_DRIFT") fail(`LOGTO_CLIENT_ID should fail as forbidden Civitas drift, got ${error.code || error.message}`);
@@ -128,10 +128,16 @@ for (const key of backendOnlyVariables) {
 if (classifyDeploymentVariable("SERVICE_FQDN_API", "backend") !== "platform_metadata") fail("SERVICE_* must classify as platform metadata");
 if (classifyDeploymentVariable("COOLIFY_RESOURCE_UUID", "worker") !== "platform_metadata") fail("COOLIFY_* must classify as platform metadata");
 try {
-  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, env: { ...zeroDriftBackendEnv, ENABLE_QUEUE_RECONCILER: "true" } });
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, ENABLE_QUEUE_RECONCILER: "true" } });
   fail("strict validation accepted worker variable ENABLE_QUEUE_RECONCILER in backend");
 } catch (error) {
   if (error.code !== "CONFIG_CROSS_SERVICE_POLLUTION") fail(`ENABLE_QUEUE_RECONCILER should fail strict cross-service validation, got ${error.code || error.message}`);
+}
+try {
+  validateDeploymentConfig({ service: "backend", enforceCrossServicePollution: true, enforceContractEnvDrift: true, env: { ...zeroDriftBackendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } });
+  fail("strict validation accepted URL-shaped LOGTO_API_RESOURCE in backend");
+} catch (error) {
+  if (error.code !== "CONFIG_INVALID_FORMAT" || error.cause !== "resource_must_not_be_url") fail(`URL-shaped LOGTO_API_RESOURCE should fail strict validation, got ${error.code || error.message}`);
 }
 
 const compose = read("docker-compose.yml");

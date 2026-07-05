@@ -71,7 +71,7 @@ DATABASE_WAIT_INTERVAL_MS=2000
 DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-Backend accepts only the variables shown above; `LOGTO_API_RESOURCE` must not be URL-shaped.
+Backend accepts only the variables shown above; configure `LOGTO_API_RESOURCE` as the logical resource, not a URL. Runtime reports and ignores a URL-shaped value in favor of the compiled contract, while strict validation rejects it.
 
 ## Worker env
 
@@ -95,7 +95,7 @@ Worker accepts only the variables shown above.
 
 The deployment kernel separates every runtime variable into four final-mode categories:
 
-1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, URL-shaped Logto audiences, and mismatches against the compiled shared contract fail startup.
+1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, and shared-contract mismatches fail startup. A URL-shaped backend `LOGTO_API_RESOURCE` is the one runtime-tolerated contract drift: Civitas reports it in `ignoredContractDrift`, ignores the env value, and uses the compiled logical resource; strict preflight still fails it.
 2. **Platform metadata** is infrastructure data injected by Coolify or another platform, currently `SERVICE_*` and `COOLIFY_*`. Civitas ignores these variables explicitly and reports them in `ignoredPlatformMetadata`; they are not application config and must not be added to compose, examples, or service code.
 3. **Forbidden Civitas drift** is removed Civitas configuration from older models. These names still fail hard because accepting them would hide stale auth, redirect, or domain configuration.
 4. **Cross-service pollution** is a valid Civitas variable injected into the wrong service. Examples: `ENABLE_QUEUE_RECONCILER` in API/backend, or `LOGTO_API_RESOURCE` in worker. Runtime reports these names in `ignoredCrossServicePollution` and does not consume them, so Coolify shared-env noise cannot crash startup. Strict validation/preflight still fails on these names so the operator can fix Coolify without Civitas silently accepting them as contract.
@@ -117,7 +117,7 @@ Forbidden Civitas drift includes:
 - `VITE_LOGTO_API_RESOURCE`
 - references to the removed `socialstudies.cloud` domain
 
-The final rule is: service contracts are strict, Coolify metadata is ignored as non-contract infrastructure, old Civitas drift is rejected, and valid Civitas variables from another service are reported and ignored at runtime while strict validation/preflight rejects them. Unknown non-Civitas variables are not promoted to contract and are not consumed by Civitas.
+The final rule is: service contracts are strict, Coolify metadata is ignored as non-contract infrastructure, old Civitas drift is rejected, valid Civitas variables from another service are reported and ignored at runtime while strict validation/preflight rejects them, and URL-shaped backend `LOGTO_API_RESOURCE` is reported/ignored in favor of the compiled logical resource. Unknown non-Civitas variables are not promoted to contract and are not consumed by Civitas.
 
 ## Coolify final-mode checklist
 
@@ -157,4 +157,4 @@ node scripts/validate-auth-contract.mjs
 node scripts/validate-env-config.mjs
 ```
 
-The checks fail when runtime files introduce Civitas variables outside the final service contracts, forbidden old Civitas aliases, platform metadata consumption by app code, URL-shaped Logto resources, frontend/backend/worker layer mixing, or API URL to audience derivation. Platform-generated metadata may be present in the runtime environment without being accepted as Civitas configuration.
+The checks fail when runtime files introduce Civitas variables outside the final service contracts, forbidden old Civitas aliases, platform metadata consumption by app code, URL-shaped Logto resources in strict preflight, frontend/backend/worker layer mixing, or API URL to audience derivation. Platform-generated metadata may be present in the runtime environment without being accepted as Civitas configuration.

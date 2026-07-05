@@ -162,6 +162,23 @@ function assertMatchesContract(value, expected, variable, service) {
   return value;
 }
 
+
+const resolveBackendLogtoResource = (env, contract, service, { enforceContractEnvDrift = false } = {}) => {
+  const rawValue = requireValue(env, "LOGTO_API_RESOURCE", service);
+  const ignoredContractDrift = [];
+  if (/^https?:\/\//i.test(rawValue)) {
+    if (enforceContractEnvDrift) {
+      assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service);
+    }
+    ignoredContractDrift.push("LOGTO_API_RESOURCE");
+    return { logtoResource: contract.logto.apiResource, ignoredContractDrift };
+  }
+  return {
+    logtoResource: assertMatchesContract(assertLogicalResource(rawValue, "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
+    ignoredContractDrift,
+  };
+};
+
 function validateFrontend(env, contract, options) {
   const service = "frontend";
   const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
@@ -179,15 +196,17 @@ function validateFrontend(env, contract, options) {
 function validateBackend(env, contract, options) {
   const service = "backend";
   const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
+  const { logtoResource, ignoredContractDrift } = resolveBackendLogtoResource(env, contract, service, options);
   return {
     service,
     ignoredPlatformMetadata,
     ignoredCrossServicePollution,
+    ignoredContractDrift: Object.freeze(ignoredContractDrift.sort()),
     nodeEnv: env.NODE_ENV || "production",
     apiUrl: assertMatchesContract(assertHttpUrl(requireValue(env, "API_URL", service), "API_URL", service), contract.api.publicUrl, "API_URL", service),
     databaseUrl: requireValue(env, "DATABASE_URL", service),
     redisUrl: requireValue(env, "REDIS_URL", service),
-    logtoResource: assertMatchesContract(assertLogicalResource(requireValue(env, "LOGTO_API_RESOURCE", service), "LOGTO_API_RESOURCE", service), contract.logto.apiResource, "LOGTO_API_RESOURCE", service),
+    logtoResource,
     m2mClientId: requireValue(env, "LOGTO_M2M_CLIENT_ID", service),
     m2mClientSecret: requireValue(env, "LOGTO_M2M_CLIENT_SECRET", service),
     logtoEndpoint: contract.logto.issuer,
@@ -223,8 +242,8 @@ function validateWorker(env, contract, options) {
   };
 }
 
-function validateDeploymentConfig({ service, env = process.env, contract = loadCivitasAuthContract(), enforceCrossServicePollution = false } = {}) {
-  const options = { enforceCrossServicePollution };
+function validateDeploymentConfig({ service, env = process.env, contract = loadCivitasAuthContract(), enforceCrossServicePollution = false, enforceContractEnvDrift = false } = {}) {
+  const options = { enforceCrossServicePollution, enforceContractEnvDrift };
   if (!service) throw new DeploymentConfigError({ code: "CONFIG_INVALID_FORMAT", variable: "service", cause: "missing_service", message: "Deployment service is required", hint: "Pass service=frontend, backend, or worker." });
   if (service === "frontend") return validateFrontend(env, contract, options);
   if (service === "backend") return validateBackend(env, contract, options);

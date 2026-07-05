@@ -64,6 +64,18 @@ test("deployment kernel still rejects removed Civitas aliases", () => {
   );
 });
 
+
+
+test("deployment kernel reports URL-shaped backend LOGTO_API_RESOURCE without consuming it at runtime", () => {
+  const config = validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } });
+  assert.equal(config.logtoResource, contract.logto.apiResource);
+  assert.deepEqual(config.ignoredContractDrift, ["LOGTO_API_RESOURCE"]);
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, enforceContractEnvDrift: true, env: { ...backendEnv, LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api" } }),
+    (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "resource_must_not_be_url" && error.variable === "LOGTO_API_RESOURCE",
+  );
+});
+
 test("deployment kernel reports worker variables injected into backend without consuming them at runtime", () => {
   assert.equal(classifyDeploymentVariable("ENABLE_QUEUE_RECONCILER", "backend"), "cross_service_pollution");
   const config = validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, ENABLE_QUEUE_RECONCILER: "true" } });
