@@ -39,9 +39,7 @@ const deletedNames = [
   ["VITE", "LOGTO", "API", "RESOURCE"].join("_"),
 ];
 const platformMetadataPatterns = [
-  new RegExp(`${["SERVICE", "URL"].join("_")}_`),
-  new RegExp(`${["SERVICE", "FQDN"].join("_")}_`),
-  new RegExp(`${["SERVICE", "API"].join("_")}_`),
+  /^SERVICE_/,
   /COOLIFY_/,
 ];
 const banned = [
@@ -101,10 +99,11 @@ const zeroDriftBackendEnv = Object.fromEntries(backendEnv.split(/\r?\n/).filter(
 zeroDriftBackendEnv.SERVICE_FQDN_API = "civitas.didaxus.com";
 zeroDriftBackendEnv.SERVICE_URL_API = "https://civitas.didaxus.com";
 zeroDriftBackendEnv.SERVICE_API_INTERNAL = "http://api:3000";
+zeroDriftBackendEnv.SERVICE_REGION = "platform-generated";
 zeroDriftBackendEnv.COOLIFY_RESOURCE_UUID = "platform-generated";
 try {
   const config = validateDeploymentConfig({ service: "backend", env: zeroDriftBackendEnv });
-  for (const key of ["SERVICE_FQDN_API", "SERVICE_URL_API", "SERVICE_API_INTERNAL", "COOLIFY_RESOURCE_UUID"]) {
+  for (const key of ["SERVICE_FQDN_API", "SERVICE_URL_API", "SERVICE_API_INTERNAL", "SERVICE_REGION", "COOLIFY_RESOURCE_UUID"]) {
     if (!config.ignoredPlatformMetadata.includes(key)) fail(`deployment kernel did not explicitly ignore platform metadata ${key}`);
     if (classifyDeploymentVariable(key, "backend") !== "platform_metadata") fail(`deployment kernel did not classify ${key} as platform metadata`);
   }

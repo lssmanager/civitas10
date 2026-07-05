@@ -149,7 +149,7 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other.
 - Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
-- Zero-drift mode keeps Civitas strict without being fragile: Coolify may inject `SERVICE_FQDN_*`, `SERVICE_URL_*`, `SERVICE_API_*`, or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure.
+- Zero-drift mode keeps Civitas strict without being fragile: Coolify may inject `SERVICE_*` or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. Removed Civitas aliases such as old Logto env names, old frontend redirect env names, URL-shaped audience env names, or removed domains still fail hard.
 
 ### Database migrations and operational schema

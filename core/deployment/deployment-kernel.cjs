@@ -68,9 +68,7 @@ const serviceAllowedVariables = Object.freeze({
 });
 
 const platformMetadataVariablePatterns = Object.freeze([
-  /^SERVICE_FQDN_[A-Z0-9_]+$/,
-  /^SERVICE_URL_[A-Z0-9_]+$/,
-  /^SERVICE_API_[A-Z0-9_]+$/,
+  /^SERVICE_[A-Z0-9_]+$/,
   /^COOLIFY_[A-Z0-9_]+$/,
 ]);
 

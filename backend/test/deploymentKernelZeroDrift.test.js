@@ -40,6 +40,7 @@ test("deployment kernel ignores platform metadata without accepting it as Civita
       SERVICE_FQDN_API: "civitas.didaxus.com",
       SERVICE_URL_API: "https://civitas.didaxus.com",
       SERVICE_API_INTERNAL: "http://api:3000",
+      SERVICE_REGION: "platform-generated",
       COOLIFY_RESOURCE_UUID: "platform-generated",
     },
   });
@@ -48,9 +49,11 @@ test("deployment kernel ignores platform metadata without accepting it as Civita
     "COOLIFY_RESOURCE_UUID",
     "SERVICE_API_INTERNAL",
     "SERVICE_FQDN_API",
+    "SERVICE_REGION",
     "SERVICE_URL_API",
   ]);
   assert.equal(classifyDeploymentVariable("SERVICE_FQDN_API", "backend"), "platform_metadata");
+  assert.equal(classifyDeploymentVariable("SERVICE_REGION", "backend"), "platform_metadata");
   assert.equal(classifyDeploymentVariable("COOLIFY_RESOURCE_UUID", "backend"), "platform_metadata");
 });
 

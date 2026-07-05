@@ -33,7 +33,7 @@ node scripts/build-auth-contract.mjs
 - exact allowed variables per service
 - exact classification of Civitas contract variables, platform-generated metadata, and forbidden Civitas drift
 - outside-contract rejection for Civitas-side variables
-- explicit ignore semantics for platform metadata such as `SERVICE_FQDN_*`, `SERVICE_URL_*`, `SERVICE_API_*`, and `COOLIFY_*`
+- explicit ignore semantics for platform metadata such as `SERVICE_*` and `COOLIFY_*`
 - HTTP URL validation
 - logical Logto resource validation
 - SPA vs M2M separation
@@ -96,7 +96,7 @@ Worker accepts only the variables shown above.
 The deployment kernel separates every runtime variable into three categories:
 
 1. **Contract variables** are the per-service variables listed above. These define Civitas runtime behavior and remain strictly allowlisted.
-2. **Platform-generated metadata** is infrastructure data injected by the deployment platform, including `SERVICE_FQDN_*`, `SERVICE_URL_*`, `SERVICE_API_*`, and `COOLIFY_*`. Coolify can inject these variables for its own service metadata. Civitas does not use them, does not document them as app configuration, and does not wire them into Docker build arguments, examples, or service logic. Their presence alone does not invalidate runtime validation.
+2. **Platform-generated metadata** is infrastructure data injected by the deployment platform, including `SERVICE_*` and `COOLIFY_*`. Coolify can inject these variables for its own service metadata. Civitas does not use them, does not document them as app configuration, and does not wire them into Docker build arguments, examples, or service logic. Their presence alone does not invalidate runtime validation.
 3. **Forbidden Civitas-side aliases or drift variables** are removed Civitas configuration names. They still fail hard if present because they can mix old configuration models with the current contract.
 
 Forbidden Civitas drift includes:
