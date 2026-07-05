@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const { CIVITAS_LOGTO_API_RESOURCE } = require("../core/auth/civitas-auth.constants.cjs");
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
@@ -37,6 +38,10 @@ if (!API_RESOURCE) {
 
 if (isHttpUrl(API_RESOURCE)) {
   throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
+}
+
+if (API_RESOURCE !== CIVITAS_LOGTO_API_RESOURCE) {
+  throw new Error("Invalid Logto API Resource drift detected");
 }
 
 app.use(cors());

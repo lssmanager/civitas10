@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { CIVITAS_API_URL, CIVITAS_LOGTO_API_RESOURCE, CIVITAS_LOGTO_ISSUER } from "../core/auth/civitas-auth.constants";
 const required = (name: string, value: string | undefined) => {
   const normalized = value?.trim();
   if (!normalized) {
@@ -16,10 +17,17 @@ const assertLogicalResource = (name: string, value: string) => {
   return value;
 };
 
-const resolvedApiBaseUrl = trimTrailingSlash(required("VITE_API_URL", import.meta.env.VITE_API_URL));
-const resolvedLogtoEndpoint = trimTrailingSlash(required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT));
+const assertMatchesConstant = (name: string, value: string, expected: string) => {
+  if (value !== expected) {
+    throw new Error(`${name} must be ${expected}; auth contract drift detected`);
+  }
+  return value;
+};
+
+const resolvedApiBaseUrl = assertMatchesConstant("VITE_API_URL", trimTrailingSlash(required("VITE_API_URL", import.meta.env.VITE_API_URL)), CIVITAS_API_URL);
+const resolvedLogtoEndpoint = assertMatchesConstant("VITE_LOGTO_ENDPOINT", trimTrailingSlash(required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT)), CIVITAS_LOGTO_ISSUER);
 const resolvedLogtoAppId = required("VITE_LOGTO_APP_ID", import.meta.env.VITE_LOGTO_APP_ID);
-const resolvedLogtoResource = assertLogicalResource("VITE_LOGTO_API_RESOURCE", required("VITE_LOGTO_API_RESOURCE", import.meta.env.VITE_LOGTO_API_RESOURCE));
+const resolvedLogtoResource = assertMatchesConstant("VITE_LOGTO_API_RESOURCE", assertLogicalResource("VITE_LOGTO_API_RESOURCE", required("VITE_LOGTO_API_RESOURCE", import.meta.env.VITE_LOGTO_API_RESOURCE)), CIVITAS_LOGTO_API_RESOURCE);
 const appRedirectUri = required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI);
 const appSignOutRedirectUri = required("VITE_APP_SIGNOUT_REDIRECT_URI", import.meta.env.VITE_APP_SIGNOUT_REDIRECT_URI);
 

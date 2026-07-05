@@ -17,3 +17,11 @@ test("runtime validation rejects URL-shaped Logto API resources", () => {
     (error) => error instanceof RuntimeEnvironmentError && error.message.includes("logical Logto API resource")
   );
 });
+
+
+test("worker sync validation rejects drift from canonical Logto API resource", () => {
+  assert.throws(
+    () => validateRuntimeEnv({ env: { DATABASE_URL: "postgres://localhost/db", REDIS_URL: "redis://localhost:6379", LOGTO_API_RESOURCE: "urn:civitas:wrong" }, requireRedis: true }),
+    (error) => error instanceof RuntimeEnvironmentError && error.message.includes("Invalid Logto API Resource drift detected")
+  );
+});

@@ -1,5 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { CIVITAS_API_URL, CIVITAS_LOGTO_API_RESOURCE, CIVITAS_LOGTO_ISSUER } = require("../core/auth/civitas-auth.constants.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
 const files = [
@@ -43,16 +47,16 @@ for (const file of files) {
 }
 
 const frontendEnv = read("frontend/.env.example");
-if (!/^VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api$/m.test(frontendEnv)) fail("frontend must expose only VITE_API_URL for the public API");
-if (!/^VITE_LOGTO_API_RESOURCE=urn:civitas:api$/m.test(frontendEnv)) fail("frontend must request the logical urn:civitas:api Logto resource");
+if (!new RegExp(`^VITE_API_URL=${CIVITAS_API_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m").test(frontendEnv)) fail("frontend must expose only the canonical VITE_API_URL for the public API");
+if (!new RegExp(`^VITE_LOGTO_API_RESOURCE=${CIVITAS_LOGTO_API_RESOURCE}$`, "m").test(frontendEnv)) fail("frontend must request the canonical logical Logto resource");
 if (/^VITE_LOGTO_API_RESOURCE=https?:\/\//m.test(frontendEnv)) fail("VITE_LOGTO_API_RESOURCE must not be an HTTP URL");
 if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain Coolify /backend internal route");
 
 const backendEnv = read("backend/.env.example");
-if (!/^API_URL=https:\/\/civitas\.didaxus\.com\/api$/m.test(backendEnv)) fail("backend API_URL must be the public /api URL");
-if (!/^LOGTO_API_RESOURCE=urn:civitas:api$/m.test(backendEnv)) fail("backend Logto API resource must be the logical urn:civitas:api audience");
+if (!new RegExp(`^API_URL=${CIVITAS_API_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m").test(backendEnv)) fail("backend API_URL must be the canonical public /api URL");
+if (!new RegExp(`^LOGTO_API_RESOURCE=${CIVITAS_LOGTO_API_RESOURCE}$`, "m").test(backendEnv)) fail("backend Logto API resource must be the canonical logical audience");
 if (/^LOGTO_API_RESOURCE=https?:\/\//m.test(backendEnv)) fail("LOGTO_API_RESOURCE must not be an HTTP URL");
-if (!/^LOGTO_MANAGEMENT_API_RESOURCE=https:\/\/auth\.didaxus\.com\/$/m.test(backendEnv)) fail("Logto Management API resource must stay separate from the Civitas API resource");
+if (!new RegExp(`^LOGTO_MANAGEMENT_API_RESOURCE=${CIVITAS_LOGTO_ISSUER.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\/$`, "m").test(backendEnv)) fail("Logto Management API resource must stay separate from the Civitas API resource");
 
 if (process.exitCode) process.exit(process.exitCode);
 console.log("Civitas env config validated");

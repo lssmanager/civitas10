@@ -1,5 +1,6 @@
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require("jose");
 const { withTimeout } = require("../services/timeouts");
+const { CIVITAS_LOGTO_API_RESOURCE } = require("../../core/auth/civitas-auth.constants.cjs");
 
 const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
 const LOGTO_JWKS_TIMEOUT_MS = 5000;
@@ -18,6 +19,9 @@ const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replac
 const assertLogicalResource = (resource) => {
   if (/^https?:\/\//i.test(resource || "")) {
     throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
+  }
+  if (resource !== CIVITAS_LOGTO_API_RESOURCE) {
+    throw new Error("Invalid Logto API Resource drift detected");
   }
   return resource;
 };
