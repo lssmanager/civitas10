@@ -64,29 +64,31 @@ test("deployment kernel still rejects removed Civitas aliases", () => {
   );
 });
 
-test("deployment kernel rejects worker variables injected into backend", () => {
+test("deployment kernel reports worker variables injected into backend without consuming them at runtime", () => {
   assert.equal(classifyDeploymentVariable("ENABLE_QUEUE_RECONCILER", "backend"), "cross_service_pollution");
+  const config = validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, ENABLE_QUEUE_RECONCILER: "true" } });
+  assert.deepEqual(config.ignoredCrossServicePollution, ["ENABLE_QUEUE_RECONCILER"]);
+  assert.equal(config.enableQueueReconciler, undefined);
   assert.throws(
-    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, ENABLE_QUEUE_RECONCILER: "true" } }),
+    () => validateDeploymentConfig({ service: "backend", contract, enforceCrossServicePollution: true, env: { ...backendEnv, ENABLE_QUEUE_RECONCILER: "true" } }),
     (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "ENABLE_QUEUE_RECONCILER",
   );
 });
 
-test("deployment kernel rejects backend variables injected into worker", () => {
+test("deployment kernel reports backend variables injected into worker without consuming them at runtime", () => {
   assert.equal(classifyDeploymentVariable("LOGTO_API_RESOURCE", "worker"), "cross_service_pollution");
+  const config = validateDeploymentConfig({ service: "worker", contract, env: { ...backendEnv, WORKER_CONCURRENCY: "1" } });
+  assert.deepEqual(config.ignoredCrossServicePollution, ["API_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET"]);
+  assert.equal(config.logtoResource, undefined);
   assert.throws(
-    () => validateDeploymentConfig({ service: "worker", contract, env: { ...backendEnv, WORKER_CONCURRENCY: "1" } }),
-    (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "API_URL",
-  );
-  assert.throws(
-    () => validateDeploymentConfig({ service: "worker", contract, env: { DATABASE_URL: backendEnv.DATABASE_URL, REDIS_URL: backendEnv.REDIS_URL, LOGTO_API_RESOURCE: backendEnv.LOGTO_API_RESOURCE } }),
+    () => validateDeploymentConfig({ service: "worker", contract, enforceCrossServicePollution: true, env: { DATABASE_URL: backendEnv.DATABASE_URL, REDIS_URL: backendEnv.REDIS_URL, LOGTO_API_RESOURCE: backendEnv.LOGTO_API_RESOURCE } }),
     (error) => error.code === "CONFIG_CROSS_SERVICE_POLLUTION" && error.variable === "LOGTO_API_RESOURCE",
   );
 });
 
 test("deployment kernel still rejects unknown Civitas variables outside every service contract", () => {
   assert.throws(
-    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, API_BASE_URL: "https://civitas.didaxus.com/api" } }),
+    () => validateDeploymentConfig({ service: "backend", contract, enforceCrossServicePollution: true, env: { ...backendEnv, API_BASE_URL: "https://civitas.didaxus.com/api" } }),
     (error) => error.code === "CONFIG_OUTSIDE_CONTRACT" && error.variable === "API_BASE_URL",
   );
 });

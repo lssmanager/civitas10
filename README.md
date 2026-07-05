@@ -164,7 +164,7 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 - `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, and `ENABLE_DB_POLL_EXECUTION` are worker-only controls.
 - Logto issuer, Logto API resource, Logto Management API resource, and public API URL come only from the compiled auth contract.
 - `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other.
-- Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names and on variables from another Civitas service.
+- Define exactly the variables in the final service contracts; deployment validation fails on removed Civitas config names, while runtime reports and ignores variables from another Civitas service so Coolify shared-env noise cannot crash startup.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Coolify may inject `SERVICE_*` or `COOLIFY_*` metadata for its own resource model; Civitas explicitly ignores that metadata as non-contract infrastructure and reports it as ignored platform metadata.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. Removed Civitas aliases such as old Logto env names, old frontend redirect env names, URL-shaped audience env names, or removed domains still fail hard.
