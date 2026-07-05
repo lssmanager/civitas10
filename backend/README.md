@@ -69,3 +69,9 @@ npm run db:migrate:sql
 ```
 
 If a deployment needs the service to apply idempotent SQL migrations during startup, set `RUN_MIGRATIONS_ON_STARTUP=true` for a controlled single-instance bootstrap or maintenance rollout. API and worker will then run the SQL files in `db/migrations` and fail startup if `operational_operations`, `operational_operation_steps` or `audit_logs` are missing required columns. Keep this flag `false` during normal multi-replica runtime after migrations have been applied.
+
+## Backend container build boundary
+
+The backend image is built from the repository root (`docker-compose.yml` uses `build.context: .`) with `backend/Dockerfile`. The image intentionally keeps backend code at `/app` and packages the shared runtime contract at `/core` plus compiled contract artifacts at `/dist`.
+
+Backend runtime code may only reach outside `backend/` for the canonical shared contract/deployment runtime under `core/` (and generated contract artifacts under `dist/`). Do not add ad-hoc copies of the deployment kernel or auth contract inside `backend/`; run `npm run test:runtime-boundary` to verify that relative runtime imports remain packageable in the container.

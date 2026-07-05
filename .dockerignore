@@ -5,3 +5,7 @@
 .git
 .gitignore
 README.md
+# Backend images copy the compiled shared contract artifacts explicitly.
+!dist/
+!dist/auth.contract.json
+!dist/shared.contract.json
