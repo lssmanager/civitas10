@@ -1,7 +1,7 @@
 // Cache structure: { token: string, expiresAt: number }
 let tokenCache = null;
-const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 const getRequiredEnv = (name) => {
@@ -13,12 +13,12 @@ const getRequiredEnv = (name) => {
 };
 
 function getLogtoManagementConfig() {
-  const endpoint = normalizeLogtoEndpoint(CivitasAuthContract.logto.managementApi);
+  const endpoint = normalizeLogtoEndpoint(deploymentConfig.logtoManagementApi);
   return {
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_M2M_CLIENT_ID"),
     clientSecret: getRequiredEnv("LOGTO_M2M_CLIENT_SECRET"),
-    resource: CivitasAuthContract.logto.managementApi,
+    resource: deploymentConfig.logtoManagementApi,
   };
 }
 

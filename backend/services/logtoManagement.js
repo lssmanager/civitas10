@@ -6,8 +6,8 @@ const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = ["owner_global"];
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key)/i;
 
 const { withTimeout } = require("./timeouts");
-const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 let tokenCache = null;
 
@@ -105,7 +105,7 @@ const getRequiredEnv = (name) => {
     });
     error.code = "LOGTO_MANAGEMENT_CONFIG_MISSING";
     error.internalDiagnostic = isManagementResource
-      ? `Compiled Logto Management API resource is missing from CivitasAuthContract.`
+      ? `Compiled Logto Management API resource is missing from the deployment kernel.`
       : `Missing environment variable ${name}; configure Logto M2M credentials before calling Civitas owner organization endpoints.`;
     throw error;
   }
@@ -115,14 +115,14 @@ const getRequiredEnv = (name) => {
 const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 const getLogtoManagementConfig = () => {
-  const endpoint = normalizeEndpoint(CivitasAuthContract.logto.managementApi);
+  const endpoint = normalizeEndpoint(deploymentConfig.logtoManagementApi);
 
   return {
     endpoint,
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_M2M_CLIENT_ID"),
     clientSecret: getRequiredEnv("LOGTO_M2M_CLIENT_SECRET"),
-    resource: CivitasAuthContract.logto.managementApi,
+    resource: deploymentConfig.logtoManagementApi,
   };
 };
 

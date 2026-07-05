@@ -1,41 +1,12 @@
 /// <reference types="vite/client" />
-import { CivitasAuthContract } from "../core/auth/civitas-auth.contract";
-const required = (name: string, value: string | undefined) => {
-  const normalized = value?.trim();
-  if (!normalized) {
-    throw new Error(`Missing required Vite environment variable: ${name}`);
-  }
-  return normalized;
-};
-
-const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
-
-const assertLogicalResource = (name: string, value: string) => {
-  if (/^https?:\/\//i.test(value)) {
-    throw new Error(`${name} must be a logical Logto API resource identifier, not an HTTP URL`);
-  }
-  return value;
-};
-
-const assertMatchesConstant = (name: string, value: string, expected: string) => {
-  if (value !== expected) {
-    throw new Error(`${name} must be ${expected}; auth contract drift detected`);
-  }
-  return value;
-};
-
-const resolvedApiBaseUrl = assertMatchesConstant("VITE_API_URL", trimTrailingSlash(required("VITE_API_URL", import.meta.env.VITE_API_URL)), CivitasAuthContract.api.publicUrl);
-const resolvedLogtoEndpoint = assertMatchesConstant("VITE_LOGTO_ENDPOINT", trimTrailingSlash(required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT)), CivitasAuthContract.logto.issuer);
-const resolvedLogtoAppId = required("VITE_LOGTO_APP_ID", import.meta.env.VITE_LOGTO_APP_ID);
-const resolvedLogtoResource = assertLogicalResource("CivitasAuthContract.logto.apiResource", CivitasAuthContract.logto.apiResource);
-const appRedirectUri = required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI);
-const appSignOutRedirectUri = required("VITE_APP_SIGNOUT_REDIRECT_URI", import.meta.env.VITE_APP_SIGNOUT_REDIRECT_URI);
+import { validateDeploymentConfig } from "../core/deployment/deployment-kernel.cjs";
+const frontendDeploymentConfig = validateDeploymentConfig({ service: "frontend", env: import.meta.env });
 
 export const civitasConfig = {
-  apiBaseUrl: resolvedApiBaseUrl,
-  logtoEndpoint: resolvedLogtoEndpoint,
-  logtoAppId: resolvedLogtoAppId,
-  logtoResource: resolvedLogtoResource,
+  apiBaseUrl: frontendDeploymentConfig.apiUrl,
+  logtoEndpoint: frontendDeploymentConfig.logtoEndpoint,
+  logtoAppId: frontendDeploymentConfig.logtoAppId,
+  logtoResource: frontendDeploymentConfig.logtoResource,
   isOwnerGlobal: {
     role: "owner_global",
     requiredScopes: ["owner:read"],
@@ -46,8 +17,8 @@ export const civitasConfig = {
     enforceLogtoResourceSeparation: true,
   },
   app: {
-    redirectUri: appRedirectUri,
-    signOutRedirectUri: appSignOutRedirectUri,
+    redirectUri: frontendDeploymentConfig.redirectUri,
+    signOutRedirectUri: frontendDeploymentConfig.signOutRedirectUri,
   },
 } as const;
 

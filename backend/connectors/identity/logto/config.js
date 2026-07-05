@@ -1,17 +1,17 @@
-const { loadCivitasAuthContract } = require("../../../../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../../../../core/deployment/deployment-kernel.cjs");
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 const normalizeLogtoEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 function resolveLogtoConfig(config = {}) {
-  const endpoint = normalizeLogtoEndpoint(config.endpoint || CivitasAuthContract.logto.managementApi || "");
+  const endpoint = normalizeLogtoEndpoint(config.endpoint || deploymentConfig.logtoManagementApi || "");
 
   return {
     endpoint: endpoint || null,
     managementTokenEndpoint: endpoint ? `${endpoint}/oidc/token` : null,
     applicationId: config.applicationId || process.env.LOGTO_M2M_CLIENT_ID || null,
     applicationSecret: config.applicationSecret || process.env.LOGTO_M2M_CLIENT_SECRET || null,
-    resource: config.managementApiResource || CivitasAuthContract.logto.managementApi || null,
+    resource: config.managementApiResource || deploymentConfig.logtoManagementApi || null,
     timeoutMs: Number(config.timeoutMs || 8000),
   };
 }

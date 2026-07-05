@@ -3,8 +3,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { loadCivitasAuthContract } = require("../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
 const files = [
@@ -53,14 +52,11 @@ for (const file of files) {
 }
 
 const frontendEnv = read("frontend/.env.example");
-if (!frontendEnv.includes(`VITE_API_URL=${CivitasAuthContract.api.publicUrl}`)) fail("frontend env must expose canonical VITE_API_URL");
-if (!frontendEnv.includes(`VITE_LOGTO_ENDPOINT=${CivitasAuthContract.logto.issuer}`)) fail("frontend env must expose canonical VITE_LOGTO_ENDPOINT");
+try { validateDeploymentConfig({ service: "frontend", env: Object.fromEntries(frontendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 if (/\/backend/.test(frontendEnv)) fail("frontend env must not contain Coolify /backend internal route");
 
 const backendEnv = read("backend/.env.example");
-if (!backendEnv.includes(`API_URL=${CivitasAuthContract.api.publicUrl}`)) fail("backend env must expose canonical API_URL");
-if (!backendEnv.includes(`LOGTO_API_RESOURCE=${CivitasAuthContract.logto.apiResource}`)) fail("backend env must expose canonical LOGTO_API_RESOURCE");
-if (/^LOGTO_API_RESOURCE=https?:\/\//m.test(backendEnv)) fail("LOGTO_API_RESOURCE must not be an HTTP URL");
+try { validateDeploymentConfig({ service: "backend", env: Object.fromEntries(backendEnv.split(/\r?\n/).filter((line) => line.includes("=") && !line.trim().startsWith("#")).map((line) => line.split(/=(.*)/s).slice(0, 2))) }); } catch (error) { fail(error.message); }
 
 const compose = read("docker-compose.yml");
 const workerBlock = compose.split(/\n\s*frontend:/)[0].split(/\n\s*worker:/)[1] || "";

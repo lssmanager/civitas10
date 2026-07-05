@@ -4,11 +4,11 @@ Owner global screens call `/owner/*` API endpoints and are not organization-scop
 
 ## Environment split
 
-- `CivitasAuthContract.api.publicUrl`: browser network base URL for API requests.
-- `CivitasAuthContract.logto.apiResource`: logical Logto API resource/audience requested through `getAccessToken`; it must be `urn:civitas:api`, not the HTTP API URL.
+- deployment kernel `apiUrl`: browser network base URL for API requests.
+- deployment kernel `logtoResource`: logical Logto API resource/audience requested through `getAccessToken`; it must be `urn:civitas:api`, not the HTTP API URL.
 - Backend compiled contract: audience validated by `requireGlobalAccess({ resource: API_RESOURCE, requiredScopes })` for owner/global routes and by `requireOrganizationAccess(...)` for tenant routes.
 
-Frontend and backend both load `CivitasAuthContract.logto.apiResource`; env variables must not provide the Logto audience.
+Frontend and backend both load deployment kernel `logtoResource`; env variables must not provide the Logto audience.
 
 ## Token rules
 

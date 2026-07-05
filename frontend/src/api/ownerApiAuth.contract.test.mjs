@@ -53,5 +53,6 @@ test("frontend env separates API URL from logical Logto API resource", () => {
   assert.match(envExample, /VITE_API_URL=https:\/\/civitas\.didaxus\.com\/api/);
   assert.match(envExample, /VITE_LOGTO_ENDPOINT=https:\/\/auth\.didaxus\.com/);
   assert.doesNotMatch(envExample, /VITE_LOGTO_API_RESOURCE=/);
-  assert.match(configSource, /CivitasAuthContract\.logto\.apiResource/);
+  assert.match(configSource, /validateDeploymentConfig\(\{ service: "frontend"/);
+  assert.match(configSource, /frontendDeploymentConfig\.logtoResource/);
 });

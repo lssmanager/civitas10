@@ -25,6 +25,21 @@ Build it with:
 node scripts/build-auth-contract.mjs
 ```
 
+
+## Deployment Kernel
+
+`core/deployment/deployment-kernel.cjs` is the single parser/validator/normalizer for deploy config. It owns:
+
+- allowed and forbidden variables per service
+- legacy alias detection
+- HTTP URL validation
+- logical Logto resource validation
+- SPA vs M2M separation
+- contract mismatch errors
+- normalized frontend/backend/worker config shapes
+
+All service consumers must call `validateDeploymentConfig({ service, env })` directly or through a wrapper that delegates to it. Local validation is allowed only when it is subordinate to the kernel.
+
 ## Frontend env
 
 ```dotenv

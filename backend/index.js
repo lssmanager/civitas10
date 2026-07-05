@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { loadCivitasAuthContract } = require("../core/auth/contract-loader.cjs");
+const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
@@ -29,21 +29,8 @@ const { listRegistry } = require("./services/registryStore");
 
 const app = express();
 const port = 3000;
-const isHttpUrl = (value) => /^https?:\/\//i.test(value || "");
-const CivitasAuthContract = loadCivitasAuthContract();
-const API_RESOURCE = CivitasAuthContract.logto.apiResource;
-
-if (isHttpUrl(API_RESOURCE)) {
-  throw new Error("Compiled Logto API resource must be a logical identifier, not an HTTP URL");
-}
-
-if (process.env.LOGTO_API_RESOURCE !== API_RESOURCE) {
-  throw new Error("LOGTO_API_RESOURCE must match the compiled Civitas auth contract");
-}
-
-if (process.env.API_URL !== CivitasAuthContract.api.publicUrl) {
-  throw new Error("API_URL must match the compiled Civitas auth contract public URL");
-}
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
+const API_RESOURCE = deploymentConfig.logtoResource;
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });

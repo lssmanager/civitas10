@@ -1,7 +1,7 @@
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require("jose");
 const { withTimeout } = require("../services/timeouts");
-const { loadCivitasAuthContract } = require("../../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
+const deploymentConfig = validateDeploymentConfig({ service: "backend" });
 
 const ORGANIZATION_AUDIENCE_PREFIX = "urn:logto:organization:";
 const LOGTO_JWKS_TIMEOUT_MS = 5000;
@@ -21,12 +21,12 @@ const assertLogicalResource = (resource) => {
   if (/^https?:\/\//i.test(resource || "")) {
     throw new Error("LOGTO_API_RESOURCE must be a logical Logto API resource identifier, not an HTTP URL");
   }
-  if (resource !== CivitasAuthContract.logto.apiResource) {
+  if (resource !== deploymentConfig.logtoResource) {
     throw new Error("Invalid Logto API Resource drift detected");
   }
   return resource;
 };
-const getLogtoIssuer = () => `${normalizeLogtoEndpoint(CivitasAuthContract.logto.issuer)}/oidc`;
+const getLogtoIssuer = () => `${normalizeLogtoEndpoint(deploymentConfig.logtoEndpoint || "https://auth.didaxus.com")}/oidc`;
 const getLogtoJwksUrl = () => `${getLogtoIssuer()}/jwks`;
 
 const getJwks = () => {
@@ -198,7 +198,7 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = CivitasAuthContract.logto.apiResource, requiredScopes = [] } = {}) => {
+const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
@@ -246,7 +246,7 @@ const requireGlobalAccess = ({ resource = CivitasAuthContract.logto.apiResource,
   };
 };
 
-const requireAuth = (resource = CivitasAuthContract.logto.apiResource) => requireGlobalAccess({ resource });
+const requireAuth = (resource = deploymentConfig.logtoResource) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
@@ -282,7 +282,7 @@ const requireOrganizationRole = (requiredRoleName) => {
   };
 };
 
-const requireOrganizationAccess = ({ resource = CivitasAuthContract.logto.apiResource, requiredScopes = [], requiredRoleName = null } = {}) => {
+const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [], requiredRoleName = null } = {}) => {
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);

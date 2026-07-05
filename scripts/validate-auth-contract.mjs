@@ -3,8 +3,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { loadCivitasAuthContract } = require("../core/auth/contract-loader.cjs");
-const CivitasAuthContract = loadCivitasAuthContract();
+const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
 
 const root = new URL("..", import.meta.url).pathname;
 const read = (file) => readFileSync(join(root, file), "utf8");
@@ -26,19 +25,15 @@ const parseEnv = (file) => Object.fromEntries(
 
 const contractSource = read("core/auth/civitas-auth.contract.ts");
 const compiledContract = JSON.parse(read("dist/auth.contract.json"));
-if (JSON.stringify(compiledContract) !== JSON.stringify(CivitasAuthContract)) fail("compiled auth contract loader mismatch");
-if (CivitasAuthContract.logto.apiResource !== "urn:civitas:api") fail("canonical Logto API resource drifted");
-if (/^https?:\/\//i.test(CivitasAuthContract.logto.apiResource)) fail("canonical Logto API resource must not be an HTTP URL");
+if (compiledContract.logto.apiResource !== "urn:civitas:api") fail("canonical Logto API resource drifted");
+if (/^https?:\/\//i.test(compiledContract.logto.apiResource)) fail("canonical Logto API resource must not be an HTTP URL");
 
 const frontendEnv = parseEnv("frontend/.env.example");
-if (frontendEnv.VITE_API_URL !== CivitasAuthContract.api.publicUrl) fail("frontend VITE_API_URL drifted from contract");
-if (frontendEnv.VITE_LOGTO_ENDPOINT !== CivitasAuthContract.logto.issuer) fail("frontend VITE_LOGTO_ENDPOINT drifted from contract");
+try { validateDeploymentConfig({ service: "frontend", env: frontendEnv }); } catch (error) { fail(error.message); }
 if (frontendEnv.VITE_LOGTO_API_RESOURCE) fail("frontend must not define VITE_LOGTO_API_RESOURCE");
 
 const backendEnv = parseEnv("backend/.env.example");
-if (backendEnv.API_URL !== CivitasAuthContract.api.publicUrl) fail("backend API_URL drifted from contract");
-if (backendEnv.LOGTO_API_RESOURCE !== CivitasAuthContract.logto.apiResource) fail("backend LOGTO_API_RESOURCE drifted from contract");
-if (/^https?:\/\//i.test(backendEnv.LOGTO_API_RESOURCE || "")) fail("backend LOGTO_API_RESOURCE must not be an HTTP URL");
+try { validateDeploymentConfig({ service: "backend", env: backendEnv }); } catch (error) { fail(error.message); }
 
 const runtimeFiles = [
   "config/civitas.config.ts",
@@ -57,7 +52,7 @@ for (const file of runtimeFiles) {
   const source = read(file);
   if (source.includes("import.meta.env.VITE_LOGTO_API_RESOURCE")) fail(`${file} uses VITE_LOGTO_API_RESOURCE`);
   if (source.includes("process.env.LOGTO_API_RESOURCE")) fail(`${file} resolves Logto audience from env instead of contract`);
-  if (source.includes(`${CivitasAuthContract.logto.apiResource}"`) || source.includes(`${CivitasAuthContract.logto.apiResource}'`)) {
+  if (source.includes(`${compiledContract.logto.apiResource}"`) || source.includes(`${compiledContract.logto.apiResource}'`)) {
     fail(`${file} hardcodes the Logto API resource instead of using the contract`);
   }
   if (/LOGTO_API_RESOURCE\s*=\s*API_URL|API_URL\s*=\s*LOGTO_API_RESOURCE|apiResource\s*[:=]\s*.*API_URL/.test(source)) {
