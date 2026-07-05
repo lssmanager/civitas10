@@ -16,8 +16,8 @@ function getLogtoManagementConfig() {
   const endpoint = normalizeLogtoEndpoint(CivitasAuthContract.logto.managementApi);
   return {
     tokenEndpoint: `${endpoint}/oidc/token`,
-    clientId: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_ID"),
-    clientSecret: getRequiredEnv("LOGTO_MANAGEMENT_API_APPLICATION_SECRET"),
+    clientId: getRequiredEnv("LOGTO_M2M_CLIENT_ID"),
+    clientSecret: getRequiredEnv("LOGTO_M2M_CLIENT_SECRET"),
     resource: CivitasAuthContract.logto.managementApi,
   };
 }

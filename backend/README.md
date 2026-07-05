@@ -14,8 +14,10 @@ cp .env.example .env
 
 ```env
 NODE_ENV=production
-LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
-LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
+API_URL=https://civitas.didaxus.com/api
+LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-application-id
+LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-application-secret
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
@@ -50,9 +52,9 @@ npm run worker
 
 - `DATABASE_URL` is the only allowed PostgreSQL connection variable.
 - `REDIS_URL` is the only allowed Redis connection variable.
-- Auth issuer, Logto API resource, Management API resource, and public API URL come from `dist/auth.contract.json`.
-- Backend env provides only infrastructure and M2M credentials, not auth identity values.
-- `LOGTO_MANAGEMENT_API_APPLICATION_ID` and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
+- `API_URL` and `LOGTO_API_RESOURCE` must match `dist/auth.contract.json`; `LOGTO_API_RESOURCE` must be `urn:civitas:api`, never a URL.
+- Backend env provides infrastructure, M2M credentials, and contract-mirrored public API/audience values only.
+- `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` must be backend M2M credentials, not the frontend SPA application ID.
 - Backend and worker do not consume `VITE_*` variables.
 
 

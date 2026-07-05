@@ -9,8 +9,8 @@ function resolveLogtoConfig(config = {}) {
   return {
     endpoint: endpoint || null,
     managementTokenEndpoint: endpoint ? `${endpoint}/oidc/token` : null,
-    applicationId: config.applicationId || process.env.LOGTO_MANAGEMENT_API_APPLICATION_ID || null,
-    applicationSecret: config.applicationSecret || process.env.LOGTO_MANAGEMENT_API_APPLICATION_SECRET || null,
+    applicationId: config.applicationId || process.env.LOGTO_M2M_CLIENT_ID || null,
+    applicationSecret: config.applicationSecret || process.env.LOGTO_M2M_CLIENT_SECRET || null,
     resource: config.managementApiResource || CivitasAuthContract.logto.managementApi || null,
     timeoutMs: Number(config.timeoutMs || 8000),
   };

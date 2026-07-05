@@ -111,7 +111,7 @@ Services exposed by default:
 
 ## Environment convention
 
-Civitas auth identity is not configured through env variables. The source of truth is `core/auth/civitas-auth.contract.ts`, compiled to `dist/auth.contract.json` with `node scripts/build-auth-contract.mjs`. Frontend, backend, and worker load that compiled contract for Logto issuer, Logto API audience, Logto Management API resource, and public API URL.
+Civitas auth identity is declared in `core/auth/civitas-auth.contract.ts`, compiled to `dist/auth.contract.json` with `node scripts/build-auth-contract.mjs`, and mirrored only by the canonical per-service env names below. Runtime validation fails if env values drift from the compiled contract.
 
 ### Canonical deployment metadata
 
@@ -119,15 +119,19 @@ Civitas auth identity is not configured through env variables. The source of tru
 NODE_ENV=production
 
 # Frontend build/runtime metadata
+VITE_API_URL=https://civitas.didaxus.com/api
+VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
 VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
 VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 
-# Backend/API and worker infrastructure/secrets
+# Backend/API infrastructure/secrets
+API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
-LOGTO_MANAGEMENT_API_APPLICATION_ID=replace-with-logto-m2m-application-id
-LOGTO_MANAGEMENT_API_APPLICATION_SECRET=replace-with-logto-m2m-application-secret
+LOGTO_API_RESOURCE=urn:civitas:api
+LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-application-id
+LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-application-secret
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
 ENABLE_QUEUE_RECONCILER=true
@@ -141,9 +145,10 @@ DATABASE_CONNECT_TIMEOUT_MS=5000
 ### Service ownership
 
 - `VITE_LOGTO_APP_ID` is the public Logto SPA application ID.
-- `LOGTO_MANAGEMENT_API_APPLICATION_ID` and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` are backend-only Logto M2M credentials for Management API access.
+- `LOGTO_M2M_CLIENT_ID` and `LOGTO_M2M_CLIENT_SECRET` are backend-only Logto M2M credentials for Management API access.
 - Logto issuer, Logto API resource, Logto Management API resource, and public API URL come only from the compiled auth contract.
-- Do not define `LOGTO_API_RESOURCE`, `VITE_LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `VITE_LOGTO_ENDPOINT`, or `API_URL` as runtime auth sources.
+- `API_URL`, `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `LOGTO_API_RESOURCE` must match the compiled auth contract; they must not be derived from each other.
+- Do not define `VITE_LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `SERVICE_*`, `SERVICE_FQDN_*`, or legacy Logto aliases.
 - `DATABASE_URL` and `REDIS_URL` are the only database and Redis connection sources.
 - Platform-generated helper variables are not part of the Civitas contract and must not be wired into application logic, Docker build arguments, compose files, or examples. If Coolify cached older metadata, recreate or resync the service after deploying this repository state.
 
@@ -176,7 +181,7 @@ cd backend
 cp .env.example .env
 ```
 
-3. Configure `DATABASE_URL`, `REDIS_URL`, `LOGTO_MANAGEMENT_API_APPLICATION_ID`, and `LOGTO_MANAGEMENT_API_APPLICATION_SECRET` in `backend/.env`. Auth identity comes from `dist/auth.contract.json`.
+3. Configure `DATABASE_URL`, `REDIS_URL`, `LOGTO_M2M_CLIENT_ID`, and `LOGTO_M2M_CLIENT_SECRET` in `backend/.env`. Auth identity comes from `dist/auth.contract.json`.
 
 4. Install dependencies.
 
@@ -319,8 +324,8 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 
 Variables obligatorias de runtime para la app:
 
-- `LOGTO_MANAGEMENT_API_APPLICATION_ID`
-- `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`
+- `LOGTO_M2M_CLIENT_ID`
+- `LOGTO_M2M_CLIENT_SECRET`
 - `DATABASE_URL`
 - `REDIS_URL`
 

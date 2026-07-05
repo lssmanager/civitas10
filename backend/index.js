@@ -37,6 +37,14 @@ if (isHttpUrl(API_RESOURCE)) {
   throw new Error("Compiled Logto API resource must be a logical identifier, not an HTTP URL");
 }
 
+if (process.env.LOGTO_API_RESOURCE !== API_RESOURCE) {
+  throw new Error("LOGTO_API_RESOURCE must match the compiled Civitas auth contract");
+}
+
+if (process.env.API_URL !== CivitasAuthContract.api.publicUrl) {
+  throw new Error("API_URL must match the compiled Civitas auth contract public URL");
+}
+
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
 
@@ -55,7 +63,7 @@ const summarizeStatus = (statuses) => {
 };
 
 const getLogtoConfigHealth = () => {
-  const required = ["LOGTO_MANAGEMENT_API_APPLICATION_ID", "LOGTO_MANAGEMENT_API_APPLICATION_SECRET"];
+  const required = ["LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET"];
   const missing = required.filter((name) => !process.env[name]);
   return { status: missing.length ? "unhealthy" : "healthy", configured: missing.length === 0, missing };
 };

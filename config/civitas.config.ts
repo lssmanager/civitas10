@@ -24,8 +24,8 @@ const assertMatchesConstant = (name: string, value: string, expected: string) =>
   return value;
 };
 
-const resolvedApiBaseUrl = CivitasAuthContract.api.publicUrl;
-const resolvedLogtoEndpoint = CivitasAuthContract.logto.issuer;
+const resolvedApiBaseUrl = assertMatchesConstant("VITE_API_URL", trimTrailingSlash(required("VITE_API_URL", import.meta.env.VITE_API_URL)), CivitasAuthContract.api.publicUrl);
+const resolvedLogtoEndpoint = assertMatchesConstant("VITE_LOGTO_ENDPOINT", trimTrailingSlash(required("VITE_LOGTO_ENDPOINT", import.meta.env.VITE_LOGTO_ENDPOINT)), CivitasAuthContract.logto.issuer);
 const resolvedLogtoAppId = required("VITE_LOGTO_APP_ID", import.meta.env.VITE_LOGTO_APP_ID);
 const resolvedLogtoResource = assertLogicalResource("CivitasAuthContract.logto.apiResource", CivitasAuthContract.logto.apiResource);
 const appRedirectUri = required("VITE_APP_REDIRECT_URI", import.meta.env.VITE_APP_REDIRECT_URI);
