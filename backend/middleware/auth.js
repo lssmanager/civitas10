@@ -183,7 +183,7 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireAuth = (resource = process.env.API_URL) => {
+const requireGlobalAccess = ({ resource = process.env.API_URL, requiredScopes = [] } = {}) => {
   if (!resource) {
     throw new Error("Resource parameter is required for authentication");
   }
@@ -193,12 +193,29 @@ const requireAuth = (resource = process.env.API_URL) => {
       const token = getTokenFromHeader(req.headers);
       const payload = await verifyJwt(token, resource);
       const scopes = parseScopes(payload.scope);
+      const organizationId = extractOrganizationId(payload);
+
+      if (organizationId) {
+        return res.status(401).json({
+          error: "Unauthorized",
+          message: "Global API routes require a Logto global API access token, not an organization token.",
+          code: "GLOBAL_TOKEN_REQUIRED",
+        });
+      }
+
+      if (!hasRequiredScopes(scopes, requiredScopes)) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "Insufficient global API permissions",
+          requiredScopes,
+        });
+      }
 
       req.user = {
         id: payload.sub,
         sub: payload.sub,
         scopes,
-        organizationId: extractOrganizationId(payload),
+        organizationId,
         roles: extractRoleNames(payload),
         globalRoles: extractGlobalRoleNames(payload),
         organizationRoles: extractOrganizationRoleNames(payload),
@@ -212,6 +229,8 @@ const requireAuth = (resource = process.env.API_URL) => {
     }
   };
 };
+
+const requireAuth = (resource = process.env.API_URL) => requireGlobalAccess({ resource });
 
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
@@ -322,6 +341,7 @@ module.exports = {
   extractOrganizationRoleNames,
   hasRequiredScopes,
   requireAuth,
+  requireGlobalAccess,
   requireOrganizationAccess,
   requireOrganizationRole,
   requireScope,

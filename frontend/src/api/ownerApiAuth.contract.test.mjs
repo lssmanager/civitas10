@@ -32,8 +32,19 @@ test("owner API errors use actionable user messages and keep technical details o
 
 test("Logto config asks for API audience and role claims", () => {
   assert.match(appSource, /resources: \[ReservedResource\.Organization, APP_ENV\.api\.resource\]/);
+  assert.match(appSource, /organization:create/);
+  assert.match(appSource, /worker-queues:read/);
+  assert.match(appSource, /impersonation:write/);
   assert.match(appSource, /UserScope\.Roles/);
   assert.match(appSource, /UserScope\.OrganizationRoles/);
+});
+
+test("frontend API helpers split global owner and organization token flows", () => {
+  assert.match(baseSource, /globalApiFetch/);
+  assert.match(baseSource, /organizationApiFetch/);
+  assert.doesNotMatch(baseSource, /organizationId\?: string/);
+  assert.match(baseSource, /getOrganizationToken\(organizationId\)/);
+  assert.match(ownerSource, /ownerApiFetch/);
 });
 
 test("frontend env documents API URL and optional API resource split", () => {

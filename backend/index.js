@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-const { requireAuth, requireOrganizationAccess } = require("./middleware/auth");
+const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
   listLogtoOrganizations,
@@ -152,7 +152,7 @@ secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res
   res.json(buildMeResponse(req.user));
 });
 
-secureRoute.get("/owner/me", "ownerRead", requireAuth(API_RESOURCE), requireOwner, (req, res) => {
+secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["owner:read"] }), requireOwner, (req, res) => {
   const me = buildMeResponse(req.user);
   res.json({
     owner: {
@@ -169,7 +169,7 @@ secureRoute.get("/owner/me", "ownerRead", requireAuth(API_RESOURCE), requireOwne
   });
 });
 
-secureRoute.get("/owner/organization-template", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:read"] }), requireOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
     const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
@@ -184,7 +184,7 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireAuth(API_RES
   }
 });
 
-secureRoute.get("/owner/organizations", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:read"] }), requireOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
     return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
@@ -193,7 +193,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireAuth(API_RESOURCE), 
   }
 });
 
-secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
+secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["owner:read", "runtime:read"] }), requireOwner, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
     const profile = deriveOperationalProfile(logtoOrganization);
@@ -215,7 +215,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
   }
 });
 
-secureRoute.get("/owner/system/worker-queues", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["worker-queues:read"] }), requireOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
     const profiles = organizations.map(deriveOperationalProfile);
@@ -227,7 +227,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireAuth(API_RESO
   }
 });
 
-secureRoute.get("/owner/system/registry", "ownerRead", requireAuth(API_RESOURCE), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["runtime:read"] }), requireOwner, async (_req, res) => {
   try {
     return res.json({ registry: await listRegistry() });
   } catch (error) {
@@ -235,7 +235,7 @@ secureRoute.get("/owner/system/registry", "ownerRead", requireAuth(API_RESOURCE)
   }
 });
 
-secureRoute.post("/owner/system/operations", "operationalTrigger", requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
+secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["runtime:write"] }), requireOwner, async (req, res) => {
   try {
     const operation = await createOperation(req.body || {});
     return res.status(202).json({ operation });
@@ -244,7 +244,7 @@ secureRoute.post("/owner/system/operations", "operationalTrigger", requireAuth(A
   }
 });
 
-secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireAuth(API_RESOURCE), requireOwner, async (req, res) => {
+secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: ["organization:create"] }), requireOwner, async (req, res) => {
   try {
     const normalized = normalizeProvisioningInput(req.body || {});
     if (normalized.errors.length > 0) {

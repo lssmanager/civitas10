@@ -118,21 +118,13 @@ const joinApiUrl = (endpoint: string) => `${API_URL.replace(/\/$/, "")}/${endpoi
 export const useApi = () => {
   const { getAccessToken, getOrganizationToken } = useLogto();
 
-  const fetchWithToken = useMemo(
-    () => async (endpoint: string, options: RequestInit = {}, organizationId?: string) => {
+  const globalApiFetch = useMemo(
+    () => async (endpoint: string, options: RequestInit = {}) => {
       try {
-        let token: string | undefined;
-
-        if (organizationId) {
-          token = await getOrganizationToken(organizationId);
-        } else {
-          token = await getAccessToken(API_RESOURCE);
-        }
+        const token = await getAccessToken(API_RESOURCE);
 
         if (!token) {
-          throw new ApiRequestError(
-            organizationId ? "User is not a member of the organization" : "Failed to get access token for API resource"
-          );
+          throw new ApiRequestError("Failed to get access token for global API resource");
         }
 
         const response = await fetch(joinApiUrl(endpoint), {
@@ -157,7 +149,36 @@ export const useApi = () => {
         throw new ApiRequestError(error instanceof Error ? error.message : String(error));
       }
     },
-    [getAccessToken, getOrganizationToken]
+    [getAccessToken]
+  );
+
+  const organizationApiFetch = useMemo(
+    () => async (organizationId: string, endpoint: string, options: RequestInit = {}) => {
+      try {
+        const token = await getOrganizationToken(organizationId);
+        if (!token) throw new ApiRequestError("User is not a member of the organization");
+
+        const response = await fetch(joinApiUrl(endpoint), {
+          ...options,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...options.headers,
+          },
+        });
+
+        if (!response.ok) {
+          const apiError = await buildApiErrorMessage(response);
+          throw new ApiRequestError(apiError.message, response.status, apiError.code, apiError.details);
+        }
+
+        return await response.json();
+      } catch (error) {
+        if (error instanceof ApiRequestError) throw error;
+        throw new ApiRequestError(error instanceof Error ? error.message : String(error));
+      }
+    },
+    [getOrganizationToken]
   );
 
   const ownerApiFetch = useMemo(
@@ -190,5 +211,5 @@ export const useApi = () => {
     [getAccessToken]
   );
 
-  return { fetchWithToken, ownerApiFetch };
+  return { globalApiFetch, organizationApiFetch, ownerApiFetch };
 };
