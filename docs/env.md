@@ -30,8 +30,8 @@ node scripts/build-auth-contract.mjs
 
 `core/deployment/deployment-kernel.cjs` is the single parser/validator/normalizer for deploy config. It owns:
 
-- allowed and forbidden variables per service
-- legacy alias detection
+- exact allowed variables per service
+- outside-contract rejection
 - HTTP URL validation
 - logical Logto resource validation
 - SPA vs M2M separation
@@ -46,15 +46,14 @@ All service consumers must call `validateDeploymentConfig({ service, env })` dir
 VITE_API_URL=https://civitas.didaxus.com/api
 VITE_LOGTO_ENDPOINT=https://auth.didaxus.com
 VITE_LOGTO_APP_ID=replace-with-logto-spa-app-id
-VITE_APP_REDIRECT_URI=https://civitas.didaxus.com/callback
-VITE_APP_SIGNOUT_REDIRECT_URI=https://civitas.didaxus.com
 ```
 
-Forbidden in frontend: `VITE_API_BASE_URL`, `VITE_API_RESOURCE`, `VITE_LOGTO_API_RESOURCE`, and all `SERVICE_*` variables.
+Frontend accepts only the three variables shown above.
 
 ## Backend env
 
 ```dotenv
+NODE_ENV=production
 API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
@@ -62,27 +61,38 @@ LOGTO_API_RESOURCE=urn:civitas:api
 LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-client-id
 LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-client-secret
 BULLMQ_PREFIX=civitas
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=60000
+DATABASE_WAIT_INTERVAL_MS=2000
+DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-Forbidden in backend: `SERVICE_URL_*`, `SERVICE_FQDN_*`, `SERVICE_API_*`, `API_BASE_URL`, `LOGTO_CLIENT_ID`, `LOGTO_CLIENT_SECRET`, `LOGTO_MANAGEMENT_API_RESOURCE`, and URL-shaped Logto API resources.
+Backend accepts only the variables shown above; `LOGTO_API_RESOURCE` must not be URL-shaped.
 
 ## Worker env
 
 ```dotenv
+NODE_ENV=production
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 BULLMQ_PREFIX=civitas
 WORKER_CONCURRENCY=1
+ENABLE_QUEUE_RECONCILER=true
+ENABLE_DB_POLL_EXECUTION=false
+RUN_MIGRATIONS_ON_STARTUP=false
+DATABASE_WAIT_TIMEOUT_MS=60000
+DATABASE_WAIT_INTERVAL_MS=2000
+DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-Forbidden in worker: frontend variables, SPA Logto config, M2M credentials, `API_URL`, and `LOGTO_API_RESOURCE`.
+Worker accepts only the variables shown above.
 
 ## Preview deployments
 
 For Coolify previews:
 
 1. Disable automatic env inheritance from production.
-2. Delete inherited `SERVICE_*`, `SERVICE_FQDN_*`, `SERVICE_API_*`, `API_BASE_URL`, and legacy Logto aliases.
+2. Keep only the final service-specific variables listed in this document.
 3. Leave preview env empty unless a preview-specific value is explicitly required.
 4. Never copy production M2M credentials into preview services.
 
@@ -106,4 +116,4 @@ node scripts/validate-auth-contract.mjs
 node scripts/validate-env-config.mjs
 ```
 
-The checks fail when runtime files reintroduce legacy env aliases, preview contamination patterns, URL-shaped Logto resources, frontend/backend/worker layer mixing, or API URL to audience derivation.
+The checks fail when runtime files introduce variables outside the final service contracts, preview contamination patterns, URL-shaped Logto resources, frontend/backend/worker layer mixing, or API URL to audience derivation.

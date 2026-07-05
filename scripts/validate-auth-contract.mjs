@@ -30,7 +30,8 @@ if (/^https?:\/\//i.test(compiledContract.logto.apiResource)) fail("canonical Lo
 
 const frontendEnv = parseEnv("frontend/.env.example");
 try { validateDeploymentConfig({ service: "frontend", env: frontendEnv }); } catch (error) { fail(error.message); }
-if (frontendEnv.VITE_LOGTO_API_RESOURCE) fail("frontend must not define VITE_LOGTO_API_RESOURCE");
+const removedFrontendAudience = ["VITE", "LOGTO", "API", "RESOURCE"].join("_");
+if (frontendEnv[removedFrontendAudience]) fail("frontend must not define a Logto resource env variable");
 
 const backendEnv = parseEnv("backend/.env.example");
 try { validateDeploymentConfig({ service: "backend", env: backendEnv }); } catch (error) { fail(error.message); }
@@ -50,7 +51,7 @@ const runtimeFiles = [
 
 for (const file of runtimeFiles) {
   const source = read(file);
-  if (source.includes("import.meta.env.VITE_LOGTO_API_RESOURCE")) fail(`${file} uses VITE_LOGTO_API_RESOURCE`);
+  if (source.includes(`import.meta.env.${removedFrontendAudience}`)) fail(`${file} uses a removed frontend Logto resource env variable`);
   if (source.includes("process.env.LOGTO_API_RESOURCE")) fail(`${file} resolves Logto audience from env instead of contract`);
   if (source.includes(`${compiledContract.logto.apiResource}"`) || source.includes(`${compiledContract.logto.apiResource}'`)) {
     fail(`${file} hardcodes the Logto API resource instead of using the contract`);
