@@ -75,6 +75,7 @@ Rules:
 
 ## Frontend split
 
+- The Logto SPA config requests the global owner shell scopes from the shared Civitas contract (`owner:read`, `organization:read`, `organization:create`, `runtime:read`, and `worker-queues:read`) for the Civitas API resource. Existing browser sessions that predate these scopes may need sign-out/sign-in or renewed consent before Logto returns an access token with the expanded scope set.
 - `ownerApiFetch` obtains `getAccessToken(API_RESOURCE)`, validates that the token is a user token, and is the only owner API client used by `frontend/src/api/owner.ts`.
 - `organizationApiFetch` obtains `getOrganizationToken(organizationId)` and is the only tenant API client used by `frontend/src/api/organization.ts`.
 - `globalApiFetch` exists for non-owner global API calls; it does not accept an organization id.

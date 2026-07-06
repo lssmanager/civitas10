@@ -10,11 +10,12 @@ import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
 import { APP_ENV } from "../../env";
 import { appRoutes } from "../../navigation/routes";
 import { OwnerRouteGuard } from "../../authz/OwnerRouteGuard";
+import { LOGTO_OWNER_SHELL_SCOPES } from "../../authz/rbacMatrix";
 
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
   appId: APP_ENV.logto.appId,
-  scopes: ["openid", "profile", "email", "offline_access"],
+  scopes: [...LOGTO_OWNER_SHELL_SCOPES],
   resources: [APP_ENV.api.resource],
 };
 

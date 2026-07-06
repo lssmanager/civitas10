@@ -16,6 +16,18 @@ export const OWNER_SCOPES = {
   impersonationWrite: civitasConfig.auth.global.scopes.impersonationWrite,
 } as const;
 
+
+export const OWNER_SHELL_REQUIRED_SCOPES = Object.freeze([
+  OWNER_SCOPES.read,
+  OWNER_SCOPES.organizationsRead,
+  OWNER_SCOPES.organizationsCreate,
+  OWNER_SCOPES.runtimeRead,
+  OWNER_SCOPES.workerQueuesRead,
+]);
+
+export const OIDC_LOGIN_SCOPES = Object.freeze(["openid", "profile", "email", "offline_access"]);
+export const LOGTO_OWNER_SHELL_SCOPES = Object.freeze([...OIDC_LOGIN_SCOPES, ...OWNER_SHELL_REQUIRED_SCOPES]);
+
 export type CapabilityKey =
   | "canViewOwnerConsole"
   | "canViewOrganizations"

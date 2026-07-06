@@ -31,10 +31,10 @@ test("owner API errors use actionable user messages and keep technical details o
   assert.match(baseSource, /console\.error\("Civitas API rejected the access token"/);
 });
 
-test("Logto config asks for the single API resource and OIDC-only login scopes", () => {
+test("Logto config asks for the single API resource and owner shell global scopes", () => {
   assert.match(appSource, /resources: \[APP_ENV\.api\.resource\]/);
-  assert.match(appSource, /scopes: \["openid", "profile", "email", "offline_access"\]/);
-  assert.doesNotMatch(appSource, /civitasConfig\.auth\.global\.scopes|civitasConfig\.auth\.organization\.documentScopes/);
+  assert.match(appSource, /scopes: \[\.\.\.LOGTO_OWNER_SHELL_SCOPES\]/);
+  assert.match(appSource, /LOGTO_OWNER_SHELL_SCOPES/);
   assert.doesNotMatch(appSource, /UserScope\.Roles|UserScope\.OrganizationRoles|ReservedResource\.Organization/);
 });
 
