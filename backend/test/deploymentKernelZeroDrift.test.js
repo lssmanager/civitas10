@@ -89,6 +89,10 @@ test("deployment kernel requires a separate Logto Management API resource", () =
     () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_MANAGEMENT_API_RESOURCE: ["urn", "logto", "management"].join(":") } }),
     (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "expected_http_url" && error.variable === "LOGTO_MANAGEMENT_API_RESOURCE",
   );
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_MANAGEMENT_API_RESOURCE: backendEnv.LOGTO_API_RESOURCE } }),
+    (error) => error.code === "CONFIG_RESOURCE_COLLISION" && error.variable === "LOGTO_MANAGEMENT_API_RESOURCE",
+  );
 });
 
 test("deployment kernel reports worker variables injected into backend without consuming them at runtime", () => {

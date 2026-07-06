@@ -124,8 +124,41 @@ const getRequiredEnv = (name) => {
 
 const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
+const assertSeparateLogtoResources = (deploymentConfig) => {
+  if (!deploymentConfig.logtoResource) {
+    const error = new LogtoManagementApiError("LOGTO_API_RESOURCE is required for Civitas API authentication", {
+      status: 500,
+      body: { reason: "missing_civitas_api_resource", env: "LOGTO_API_RESOURCE" },
+    });
+    error.code = "LOGTO_API_RESOURCE_MISSING";
+    throw error;
+  }
+  if (!deploymentConfig.logtoManagementApi) {
+    const error = new LogtoManagementApiError("LOGTO_MANAGEMENT_API_RESOURCE is required for Logto Management API access", {
+      status: 500,
+      body: { reason: "missing_logto_management_resource", env: "LOGTO_MANAGEMENT_API_RESOURCE" },
+    });
+    error.code = "LOGTO_MANAGEMENT_RESOURCE_MISSING";
+    throw error;
+  }
+  if (deploymentConfig.logtoManagementApi === deploymentConfig.logtoResource) {
+    const error = new LogtoManagementApiError("LOGTO_MANAGEMENT_API_RESOURCE must be separate from LOGTO_API_RESOURCE", {
+      status: 500,
+      body: {
+        reason: "logto_resource_collision",
+        apiResourceSource: "LOGTO_API_RESOURCE",
+        managementResourceSource: "LOGTO_MANAGEMENT_API_RESOURCE",
+      },
+    });
+    error.code = "LOGTO_RESOURCE_COLLISION";
+    error.internalDiagnostic = "Refusing to request a Logto Management API M2M token with the Civitas API audience.";
+    throw error;
+  }
+};
+
 const getLogtoManagementConfig = () => {
   const deploymentConfig = getDeploymentConfig();
+  assertSeparateLogtoResources(deploymentConfig);
   const endpoint = normalizeEndpoint(deploymentConfig.logtoEndpoint);
 
   const config = {
@@ -143,6 +176,8 @@ const getLogtoManagementConfig = () => {
       tokenEndpoint: config.tokenEndpoint,
       resource: config.resource,
       resourceSource: config.resourceSource,
+      civitasApiResource: deploymentConfig.logtoResource,
+      civitasApiResourceSource: "LOGTO_API_RESOURCE",
       scope: MANAGEMENT_TOKEN_SCOPE,
       clientIdConfigured: Boolean(config.clientId),
       clientSecretConfigured: Boolean(config.clientSecret),

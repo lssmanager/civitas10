@@ -180,6 +180,10 @@ function validateBackend(env, contract, options) {
   const service = "backend";
   const { ignoredPlatformMetadata, ignoredCrossServicePollution } = assertStrictServiceContract(env, service, options);
   const { logtoResource, ignoredContractDrift } = resolveBackendLogtoResource(env, contract, service, options);
+  const logtoManagementApi = assertUrlResource(requireValue(env, "LOGTO_MANAGEMENT_API_RESOURCE", service), "LOGTO_MANAGEMENT_API_RESOURCE", service);
+  if (logtoManagementApi === logtoResource) {
+    throw new DeploymentConfigError({ code: "CONFIG_RESOURCE_COLLISION", service, variable: "LOGTO_MANAGEMENT_API_RESOURCE", cause: "management_resource_matches_civitas_api_resource", message: "LOGTO_MANAGEMENT_API_RESOURCE must be separate from LOGTO_API_RESOURCE", hint: "Set LOGTO_MANAGEMENT_API_RESOURCE to the Logto Management API resource indicator, not the Civitas API resource." });
+  }
   return {
     service,
     ignoredPlatformMetadata,
@@ -193,7 +197,7 @@ function validateBackend(env, contract, options) {
     m2mClientId: requireValue(env, "LOGTO_M2M_CLIENT_ID", service),
     m2mClientSecret: requireValue(env, "LOGTO_M2M_CLIENT_SECRET", service),
     logtoEndpoint: contract.logto.issuer,
-    logtoManagementApi: assertUrlResource(requireValue(env, "LOGTO_MANAGEMENT_API_RESOURCE", service), "LOGTO_MANAGEMENT_API_RESOURCE", service),
+    logtoManagementApi,
     bullmqPrefix: env.BULLMQ_PREFIX || "civitas",
     runMigrationsOnStartup: asBool(env.RUN_MIGRATIONS_ON_STARTUP || "false", "RUN_MIGRATIONS_ON_STARTUP", service),
     databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),
