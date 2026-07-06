@@ -1,4 +1,4 @@
-import { LogtoProvider, LogtoConfig, useLogto } from "@logto/react";
+import { LogtoProvider, useLogto } from "@logto/react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./Landing";
 import Callback from "../Callback";
@@ -7,21 +7,13 @@ import OwnerOrganizationsPage from "../OwnerOrganizationsPage";
 import OwnerOperationalHomePage from "../OwnerOperationalHomePage";
 import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPage";
 import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
-import { APP_ENV } from "../../env";
 import { appRoutes } from "../../navigation/routes";
 import { OwnerRouteGuard } from "../../authz/OwnerRouteGuard";
-import { LOGTO_OWNER_SHELL_SCOPES } from "../../authz/rbacMatrix";
-
-const config: LogtoConfig = {
-  endpoint: APP_ENV.logto.endpoint,
-  appId: APP_ENV.logto.appId,
-  scopes: [...LOGTO_OWNER_SHELL_SCOPES],
-  resources: [APP_ENV.api.resource],
-};
+import { civitasLogtoConfig } from "../../auth/logtoConfig";
 
 function App() {
   return (
-    <LogtoProvider config={config}>
+    <LogtoProvider config={civitasLogtoConfig}>
       <div className="min-h-screen bg-slate-50 text-slate-950">
         <Routes>
           <Route path="/callback" element={<Callback />} />

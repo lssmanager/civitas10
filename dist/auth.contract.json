@@ -11,6 +11,9 @@
   "auth": {
     "global": {
       "ownerRole": "owner_global",
+      "globalRoles": [
+        "owner_global"
+      ],
       "scopes": {
         "ownerRead": "owner:read",
         "ownerWrite": "owner:write",

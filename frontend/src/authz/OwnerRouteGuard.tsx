@@ -2,20 +2,15 @@ import { useLogto } from "@logto/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { getMe, type MeResponse } from "../api/me";
 import { APP_ENV } from "../env";
-import { OWNER_GLOBAL_ROLE, OWNER_SHELL_REQUIRED_SCOPES } from "./rbacMatrix";
+import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, ownerHasGlobalRole } from "./ownerScopes";
+import { getAccessTokenDiagnostics } from "../api/base";
+
+type OwnerTokenDiagnostics = ReturnType<typeof getAccessTokenDiagnostics>;
 
 type OwnerRouteGuardState =
   | { status: "loading" }
   | { status: "authorized"; me: MeResponse }
-  | { status: "denied"; reason: "authentication" | "global-role" | "global-scopes" | "token"; message: string; missingScopes?: string[] };
-
-export const ownerHasGlobalRole = (me?: MeResponse | null) => Boolean(me?.auth?.globalRoles?.includes(OWNER_GLOBAL_ROLE));
-export const getMissingOwnerShellScopes = (me?: MeResponse | null) => {
-  const scopes = new Set(me?.auth?.scopes ?? []);
-  return OWNER_SHELL_REQUIRED_SCOPES.filter((scope) => !scopes.has(scope));
-};
-export const ownerHasRequiredGlobalScopes = (me?: MeResponse | null) => getMissingOwnerShellScopes(me).length === 0;
-export const ownerHasGlobalAccess = (me?: MeResponse | null) => ownerHasGlobalRole(me) && ownerHasRequiredGlobalScopes(me);
+  | { status: "denied"; reason: "authentication" | "global-role" | "global-scopes" | "token"; message: string; missingScopes?: string[]; tokenDiagnostics?: OwnerTokenDiagnostics };
 
 export function OwnerRouteGuard({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useLogto();
@@ -32,6 +27,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
       try {
         const token = await getAccessToken(APP_ENV.api.resource);
         if (!token) throw new Error("No API access token was returned for the Civitas API resource.");
+        const tokenDiagnostics = getAccessTokenDiagnostics(token);
         const me = await getMe(token);
         if (!active) return;
         if (!ownerHasGlobalRole(me)) {
@@ -45,6 +41,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
             reason: "global-scopes",
             message: "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated.",
             missingScopes,
+            tokenDiagnostics,
           });
           return;
         }
@@ -64,6 +61,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
       <h1 className="text-2xl font-semibold text-slate-900">403 / Access denied</h1>
       <p className="mt-2 text-sm text-slate-600">{state.message}</p>
       {state.reason === "global-scopes" && state.missingScopes?.length ? <p className="mt-2 text-sm text-slate-600">Missing global scopes: {state.missingScopes.join(", ")}</p> : null}
+      {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-slate-500">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
     </div>
   );
   return <>{children}</>;
