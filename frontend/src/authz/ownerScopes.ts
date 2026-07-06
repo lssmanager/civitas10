@@ -23,7 +23,7 @@ export const OWNER_SHELL_REQUIRED_SCOPES = Object.freeze([
   OWNER_SCOPES.workerQueuesRead,
 ]);
 
-export const OIDC_LOGIN_SCOPES = Object.freeze(["openid", "profile", "email", "offline_access"]);
+export const OIDC_LOGIN_SCOPES = Object.freeze(["openid", "profile", "email"]);
 export const LOGTO_OWNER_SHELL_SCOPES = Object.freeze([...OIDC_LOGIN_SCOPES, ...OWNER_SHELL_REQUIRED_SCOPES]);
 
 export const getMissingScopes = (actualScopes: string[] = [], requiredScopes: readonly string[] = OWNER_SHELL_REQUIRED_SCOPES) => {
