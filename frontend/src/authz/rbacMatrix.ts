@@ -1,20 +1,6 @@
 import { appRoutes } from "../navigation/routes";
 import type { MeResponse } from "../api/me";
-import { civitasConfig } from "../../../config/civitas.config";
-
-export const OWNER_GLOBAL_ROLE = civitasConfig.auth.global.ownerRole;
-export const OWNER_SCOPES = {
-  read: civitasConfig.auth.global.scopes.ownerRead,
-  write: civitasConfig.auth.global.scopes.ownerWrite,
-  runtimeRead: civitasConfig.auth.global.scopes.runtimeRead,
-  runtimeWrite: civitasConfig.auth.global.scopes.runtimeWrite,
-  workerQueuesRead: civitasConfig.auth.global.scopes.workerQueuesRead,
-  workerQueuesWrite: civitasConfig.auth.global.scopes.workerQueuesWrite,
-  organizationsCreate: civitasConfig.auth.global.scopes.organizationCreate,
-  organizationsRead: civitasConfig.auth.global.scopes.organizationRead,
-  organizationsWrite: civitasConfig.auth.global.scopes.organizationWrite,
-  impersonationWrite: civitasConfig.auth.global.scopes.impersonationWrite,
-} as const;
+import { OWNER_GLOBAL_ROLE, OWNER_SCOPES } from "./ownerScopes";
 
 export type CapabilityKey =
   | "canViewOwnerConsole"

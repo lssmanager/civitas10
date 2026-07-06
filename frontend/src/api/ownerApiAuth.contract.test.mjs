@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 const baseSource = readFileSync(new URL("./base.ts", import.meta.url), "utf8");
 const ownerSource = readFileSync(new URL("./owner.ts", import.meta.url), "utf8");
 const appSource = readFileSync(new URL("../pages/App/index.tsx", import.meta.url), "utf8");
+const logtoConfigSource = readFileSync(new URL("../auth/logtoConfig.ts", import.meta.url), "utf8");
+const landingSource = readFileSync(new URL("../pages/App/Landing.tsx", import.meta.url), "utf8");
 const envSource = readFileSync(new URL("../env.ts", import.meta.url), "utf8");
 const configSource = readFileSync(new URL("../../../config/civitas.config.ts", import.meta.url), "utf8");
 const envExample = readFileSync(new URL("../../.env.example", import.meta.url), "utf8");
@@ -27,15 +29,25 @@ test("owner API client rejects client-credentials-like tokens before calling own
 
 test("owner API errors use actionable user messages and keep technical details out of the DOM path", () => {
   assert.match(baseSource, /Your owner session could not be authorized by the Civitas API/);
-  assert.match(baseSource, /owner_global role required/);
+  assert.match(baseSource, /global role required/);
+  assert.match(baseSource, /missing required scopes/);
+  assert.match(baseSource, /OWNER_GLOBAL_SCOPES_REQUIRED/);
   assert.match(baseSource, /console\.error\("Civitas API rejected the access token"/);
 });
 
-test("Logto config asks for the single API resource and OIDC-only login scopes", () => {
-  assert.match(appSource, /resources: \[APP_ENV\.api\.resource\]/);
-  assert.match(appSource, /scopes: \["openid", "profile", "email", "offline_access"\]/);
-  assert.doesNotMatch(appSource, /civitasConfig\.auth\.global\.scopes|civitasConfig\.auth\.organization\.documentScopes/);
-  assert.doesNotMatch(appSource, /UserScope\.Roles|UserScope\.OrganizationRoles|ReservedResource\.Organization/);
+test("Logto config asks for the single API resource and owner shell global scopes", () => {
+  assert.match(appSource, /config=\{civitasLogtoConfig\}/);
+  assert.match(logtoConfigSource, /resources: \[APP_ENV\.api\.resource\]/);
+  assert.match(logtoConfigSource, /scopes: \[\.\.\.LOGTO_OWNER_SHELL_SCOPES\]/);
+  assert.match(logtoConfigSource, /LOGTO_OWNER_SHELL_SCOPES/);
+  assert.doesNotMatch(logtoConfigSource, /UserScope\.Roles|UserScope\.OrganizationRoles|ReservedResource\.Organization/);
+});
+
+test("signIn uses central Civitas options without overriding scopes or resource", () => {
+  assert.match(landingSource, /signIn\(getCivitasSignInOptions\(firstScreen\)\)/);
+  assert.match(logtoConfigSource, /getCivitasSignInOptions/);
+  assert.doesNotMatch(landingSource, /scope:|scopes:|resource:|resources:/);
+  assert.doesNotMatch(logtoConfigSource, /scope:|scopes:.*getCivitasSignInOptions|resource:/);
 });
 
 test("frontend API helpers split global owner and organization token flows", () => {

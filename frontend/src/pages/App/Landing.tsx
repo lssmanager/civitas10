@@ -1,5 +1,5 @@
 import { useLogto } from "@logto/react";
-import { APP_ENV } from "../../env";
+import { getCivitasSignInOptions } from "../../auth/logtoConfig";
 import { PublicLayout } from "../../layouts/PublicLayout";
 import { KpiGrid, SectionCard } from "../../shared/ui";
 import { primaryButtonClassName, secondaryButtonClassName } from "../../components/owner/OwnerUI";
@@ -7,10 +7,7 @@ import { primaryButtonClassName, secondaryButtonClassName } from "../../componen
 const Landing = () => {
   const { signIn } = useLogto();
   const startSignIn = (firstScreen?: "register") => {
-    signIn({
-      redirectUri: APP_ENV.app.redirectUri,
-      ...(firstScreen ? { firstScreen } : {}),
-    });
+    signIn(getCivitasSignInOptions(firstScreen));
   };
 
   return (

@@ -5,7 +5,7 @@ const VALID_CAPABILITIES = Object.freeze({
   IDENTITY: "identity",
   AUTHORIZATION: "authorization",
   ORGANIZATION: "organization",
-  OWNER: "owner",
+  OWNER_GLOBAL: "owner_global",
   WORKER: "worker",
   ROLE_MAPPING: "role_mapping",
   CRM: "crm",

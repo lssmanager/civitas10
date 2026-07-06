@@ -14,6 +14,7 @@ const CivitasSharedContract = Object.freeze({
   auth: Object.freeze({
     global: Object.freeze({
       ownerRole: "owner_global",
+      globalRoles: Object.freeze(["owner_global"]),
       scopes: Object.freeze({
         ownerRead: "owner:read",
         ownerWrite: "owner:write",

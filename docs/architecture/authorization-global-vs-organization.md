@@ -5,7 +5,7 @@
 Civitas previously had the primitives for a clean Logto split, but the code path was still ambiguous:
 
 - Frontend `useApi().fetchWithToken(endpoint, options, organizationId?)` selected either a global access token or an organization token from one helper. Owner callers used `ownerApiFetch`, but the generic helper remained available for accidental `/owner/*` calls with organization tokens.
-- Backend owner routes used the generic global `requireAuth(API_RESOURCE)` and then `requireOwner`. That verified audience and `owner_global`, but it did not explicitly reject organization tokens or declare the global scopes each owner route needs.
+- Backend owner routes used the generic global `requireAuth(API_RESOURCE)` and then `requireGlobalOwner`. That verified audience and `owner_global`, but it did not explicitly reject organization tokens or declare the global scopes each owner route needs.
 - The legacy POST alias `/organizations` was protected like an owner operation. It remains accepted for compatibility, but it is global owner provisioning and must use the same global token contract as `/owner/organizations`.
 - Organization routes (`/documents`) correctly used organization tokens through `requireOrganizationAccess`, and that support must be preserved for the SaaS RBAC matrix.
 
@@ -75,6 +75,7 @@ Rules:
 
 ## Frontend split
 
+- The Logto SPA config requests the global owner shell scopes from the shared Civitas contract (`owner:read`, `organization:read`, `organization:create`, `runtime:read`, and `worker-queues:read`) for the Civitas API resource. Existing browser sessions that predate these scopes may need sign-out/sign-in or renewed consent before Logto returns an access token with the expanded scope set.
 - `ownerApiFetch` obtains `getAccessToken(API_RESOURCE)`, validates that the token is a user token, and is the only owner API client used by `frontend/src/api/owner.ts`.
 - `organizationApiFetch` obtains `getOrganizationToken(organizationId)` and is the only tenant API client used by `frontend/src/api/organization.ts`.
 - `globalApiFetch` exists for non-owner global API calls; it does not accept an organization id.
@@ -84,7 +85,7 @@ Rules:
 
 - `requireGlobalAccess({ resource, requiredScopes })` validates the global API resource token, rejects tokens that contain organization context, checks global scopes and then lets route-level middleware enforce `owner_global`.
 - `requireOrganizationAccess({ requiredScopes, requiredRoleName })` remains the organization-token middleware for tenant routes.
-- `/api/owner/*` routes use `requireGlobalAccess` and `requireOwner`; organization endpoints continue using `requireOrganizationAccess`.
+- `/api/owner/*` routes use `requireGlobalAccess` and `requireGlobalOwner`; organization endpoints continue using `requireOrganizationAccess`.
 
 ## Impersonation base
 
@@ -93,6 +94,6 @@ Impersonation is reserved as a global owner capability, represented by `imperson
 ## Validation checklist
 
 - Search owner routes with `rg -n '"/owner|/api/owner|ownerApiFetch|organizationApiFetch|requireGlobalAccess|requireOrganizationAccess' backend frontend docs`.
-- Confirm every `/owner/*` backend route uses `requireGlobalAccess` plus `requireOwner`.
+- Confirm every `/owner/*` backend route uses `requireGlobalAccess` plus `requireGlobalOwner`.
 - Confirm frontend owner flows call only `ownerApiFetch` and tenant flows call `organizationApiFetch` / `getOrganizationToken`.
 - Confirm organization auth remains present in `requireOrganizationAccess` and tenant document routes.

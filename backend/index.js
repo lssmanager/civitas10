@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
-const { requireAuth, requireGlobalAccess, requireOrganizationAccess } = require("./middleware/auth");
+const { requireAuth, requireGlobalAccess, requireOrganizationAccess, requireOrganizationRole } = require("./middleware/auth");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
   listLogtoOrganizations,
@@ -26,6 +26,7 @@ const { prepareOperationalDatabase } = require("./runtime/migrations");
 const { pingDatabase } = require("./lib/db");
 const { createOperation, listOperationalState } = require("./services/operationalOperations");
 const { listRegistry } = require("./services/registryStore");
+const { requireGlobalOwner } = require("./authorization/guards");
 
 const app = express();
 const port = 3000;
@@ -37,14 +38,6 @@ const OWNER_SCOPES = SHARED_AUTH.global.scopes;
 
 app.use(cors());
 const secureRoute = createSecurityPolicyRegistry({ app });
-
-const requireOwner = (req, res, next) => {
-  const globalRoles = Array.isArray(req.user?.globalRoles) ? req.user.globalRoles : [];
-  if (!globalRoles.includes(OWNER_GLOBAL_ROLE)) {
-    return res.status(403).json({ error: "Forbidden", message: "This endpoint requires the shared owner role." });
-  }
-  return next();
-};
 
 const summarizeStatus = (statuses) => {
   if (statuses.includes("unhealthy")) return "unhealthy";
@@ -153,7 +146,7 @@ secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res
   res.json(buildMeResponse(req.user));
 });
 
-secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead] }), requireOwner, (req, res) => {
+secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead] }), requireGlobalOwner, (req, res) => {
   const me = buildMeResponse(req.user);
   res.json({
     owner: {
@@ -170,7 +163,7 @@ secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RE
   });
 });
 
-secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
     const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
@@ -185,7 +178,7 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess
   }
 });
 
-secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
     return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
@@ -194,7 +187,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
   }
 });
 
-secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireOwner, async (req, res) => {
+secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
     const profile = deriveOperationalProfile(logtoOrganization);
@@ -216,7 +209,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
   }
 });
 
-secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.workerQueuesRead] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.workerQueuesRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
     const profiles = organizations.map(deriveOperationalProfile);
@@ -228,7 +221,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess(
   }
 });
 
-secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeRead] }), requireOwner, async (_req, res) => {
+secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     return res.json({ registry: await listRegistry() });
   } catch (error) {
@@ -236,7 +229,7 @@ secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ res
   }
 });
 
-secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeWrite] }), requireOwner, async (req, res) => {
+secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeWrite] }), requireGlobalOwner, async (req, res) => {
   try {
     const operation = await createOperation(req.body || {});
     return res.status(202).json({ operation });
@@ -245,7 +238,7 @@ secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobal
   }
 });
 
-secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireOwner, async (req, res) => {
+secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireGlobalOwner, async (req, res) => {
   try {
     const normalized = normalizeProvisioningInput(req.body || {});
     if (normalized.errors.length > 0) {
@@ -267,14 +260,14 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
   }
 });
 
-secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredScopes: ["read:documents"] }), async (_req, res) => {
+secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredScopes: ["read:documents"] }), requireOrganizationRole(SHARED_AUTH.organization.roles.member), async (_req, res) => {
   res.json([
     { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
     { id: "2", title: "Operational Contract Notes", updatedAt: "2024-03-14", updatedBy: "Alice Smith", preview: "The owner backbone now prefers operational-state over legacy logs..." },
   ]);
 });
 
-secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredScopes: ["create:documents"] }), async (_req, res) => {
+secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredScopes: ["create:documents"] }), requireOrganizationRole(SHARED_AUTH.organization.roles.admin), async (_req, res) => {
   res.json({ data: "Document created" });
 });
 
@@ -293,4 +286,4 @@ if (require.main === module) {
     .catch((error) => { console.error(`Backend startup failed: ${error.message}`); process.exit(1); });
 }
 
-module.exports = { app, secureRoute, getWorkerHealthSnapshot, deriveOperationalProfile };
+module.exports = { app, secureRoute, getWorkerHealthSnapshot, deriveOperationalProfile, requireGlobalOwner };

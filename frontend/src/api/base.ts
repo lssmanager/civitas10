@@ -1,6 +1,7 @@
 import { useLogto } from "@logto/react";
 import { useMemo } from "react";
 import { APP_ENV } from "../env";
+import { getMissingScopes, OWNER_SHELL_REQUIRED_SCOPES } from "../authz/ownerScopes";
 
 const API_URL = APP_ENV.api.url;
 const API_RESOURCE = APP_ENV.api.resource;
@@ -32,7 +33,7 @@ export class ApiRequestError extends Error {
   }
 }
 
-const decodeAccessTokenPayload = (token: string): JwtPayload | null => {
+export const decodeAccessTokenPayload = (token: string): JwtPayload | null => {
   try {
     const [, payload] = token.split(".");
     if (!payload) return null;
@@ -47,6 +48,35 @@ const decodeAccessTokenPayload = (token: string): JwtPayload | null => {
 const hasAudience = (payload: JwtPayload | null, resource: string) => {
   const audiences = Array.isArray(payload?.aud) ? payload?.aud : [payload?.aud];
   return audiences.includes(resource);
+};
+
+const parseTokenScopes = (scope?: string) => (typeof scope === "string" ? scope.split(/\s+/).filter(Boolean) : []);
+const parseClaimList = (value: unknown) => {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean);
+  if (typeof value === "string") return value.split(/[\s,]+/).filter(Boolean);
+  return [];
+};
+
+export const getAccessTokenDiagnostics = (token: string) => {
+  const payload = decodeAccessTokenPayload(token);
+  const scopes = parseTokenScopes(payload?.scope);
+  const globalRoles = [
+    ...parseClaimList(payload?.global_roles),
+    ...parseClaimList(payload?.globalRoles),
+    ...parseClaimList(payload?.roles),
+    ...parseClaimList(payload?.role_names),
+    ...parseClaimList(payload?.["https://civitas.didaxus.com/claims/global_roles"]),
+    ...parseClaimList(payload?.["https://civitas.didaxus.com/global_roles"]),
+  ];
+  return {
+    aud: payload?.aud ?? null,
+    scope: payload?.scope ?? "",
+    scopes,
+    globalRoles: [...new Set(globalRoles)],
+    hasExpectedAudience: hasAudience(payload, API_RESOURCE),
+    expectedAudience: API_RESOURCE,
+    missingOwnerShellScopes: getMissingScopes(scopes, OWNER_SHELL_REQUIRED_SCOPES),
+  };
 };
 
 const assertOwnerUserAccessToken = (token: string) => {
@@ -98,9 +128,16 @@ const buildApiErrorMessage = async (response: Response) => {
   }
 
   if (response.status === 403) {
+    const requiredScopes = Array.isArray(data?.requiredScopes) ? data.requiredScopes.join(", ") : null;
+    const requiredGlobalRole = data?.requiredGlobalRole || (typeof data?.message === "string" && data.message.includes("global role") ? "owner_global" : null);
+    const message = requiredScopes
+      ? `Your session is authenticated, but the global Civitas API token is missing required scopes: ${requiredScopes}.`
+      : requiredGlobalRole
+        ? `Your session is authenticated, but it does not include the ${requiredGlobalRole} global role required for this owner area.`
+        : technicalMessage || "Your session is authenticated, but the Civitas API rejected the requested operation.";
     return {
-      message: "Your session is authenticated, but it does not include the owner_global role required for this owner area.",
-      code: data?.code || "OWNER_ROLE_REQUIRED",
+      message,
+      code: data?.code || (requiredScopes ? "OWNER_GLOBAL_SCOPES_REQUIRED" : requiredGlobalRole ? "OWNER_GLOBAL_ROLE_REQUIRED" : "OWNER_API_FORBIDDEN"),
       details: data || technicalMessage,
     };
   }

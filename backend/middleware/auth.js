@@ -266,18 +266,30 @@ const requireScope = (requiredScope) => {
 
 const requireOrganizationRole = (requiredRoleName) => {
   return (req, res, next) => {
-    const roles = Array.isArray(req.user?.organizationRoles)
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
+    }
+
+    const organizationId = req.user.organizationId || extractOrganizationId(req.user.claims || {});
+    if (!organizationId) {
+      return res.status(403).json({
+        error: "OrganizationContextRequired",
+        message: "Organization authorization requires an organization-scoped token and membership context.",
+      });
+    }
+
+    const roles = Array.isArray(req.user.organizationRoles)
       ? req.user.organizationRoles
-      : Array.isArray(req.user?.roles)
-        ? req.user.roles
-        : extractOrganizationRoleNames(req.user?.claims || {});
+      : extractOrganizationRoleNames(req.user.claims || {});
     if (!roles.includes(requiredRoleName)) {
       return res.status(403).json({
         error: "Forbidden",
         message: `Missing required Logto organization role: ${requiredRoleName}`,
         requiredRole: requiredRoleName,
+        organizationId,
       });
     }
+    req.organization = Object.freeze({ id: organizationId, roles: [...roles] });
     return next();
   };
 };

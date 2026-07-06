@@ -1,10 +1,7 @@
 const { CANONICAL_PERMISSIONS } = require("../contracts/foundation");
 
-const GLOBAL_ROLES = Object.freeze({
-  OWNER: "owner",
-  OWNER_GLOBAL: "owner_global",
-  SUPPORT_AGENT: "support_agent",
-});
+const GLOBAL_ROLES = Object.freeze(["owner_global"]);
+const SUPPORT_AGENT_ROLE = "support_agent";
 
 const ORGANIZATION_ROLES = Object.freeze({
   ADMIN: "organization:admin",
@@ -15,9 +12,8 @@ const ORGANIZATION_ROLES = Object.freeze({
 });
 
 const RBAC_MATRIX = Object.freeze({
-  [GLOBAL_ROLES.OWNER]: CANONICAL_PERMISSIONS,
-  [GLOBAL_ROLES.OWNER_GLOBAL]: CANONICAL_PERMISSIONS,
-  [GLOBAL_ROLES.SUPPORT_AGENT]: [
+  [GLOBAL_ROLES[0]]: CANONICAL_PERMISSIONS,
+  [SUPPORT_AGENT_ROLE]: [
     "identity:read",
     "members:read",
     "connectors:read",
@@ -127,6 +123,7 @@ const requireSeats = ({ getSeatAvailability } = {}) => async (req, res, next) =>
 
 module.exports = {
   GLOBAL_ROLES,
+  SUPPORT_AGENT_ROLE,
   ORGANIZATION_ROLES,
   RBAC_MATRIX,
   getPermissionsForRoles,
