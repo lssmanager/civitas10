@@ -22,6 +22,7 @@ const backendEnv = Object.freeze({
   DATABASE_URL: "postgresql://civitas:change-me@postgres:5432/civitas",
   REDIS_URL: "redis://redis:6379/0",
   LOGTO_API_RESOURCE: "https://civitas.didaxus.com/api",
+  LOGTO_MANAGEMENT_API_RESOURCE: "https://auth.didaxus.com/api",
   LOGTO_M2M_CLIENT_ID: "m2m-client",
   LOGTO_M2M_CLIENT_SECRET: "m2m-secret",
   BULLMQ_PREFIX: "civitas",
@@ -69,10 +70,24 @@ test("deployment kernel still rejects removed Civitas aliases", () => {
 test("deployment kernel requires the canonical URL-shaped backend LOGTO_API_RESOURCE", () => {
   const config = validateDeploymentConfig({ service: "backend", contract, env: backendEnv });
   assert.equal(config.logtoResource, "https://civitas.didaxus.com/api");
+  assert.equal(config.logtoManagementApi, "https://auth.didaxus.com/api");
   assert.deepEqual(config.ignoredContractDrift, []);
   assert.throws(
     () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_API_RESOURCE: ["urn", "civitas", "api"].join(":") } }),
     (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "expected_http_url" && error.variable === "LOGTO_API_RESOURCE",
+  );
+});
+
+test("deployment kernel requires a separate Logto Management API resource", () => {
+  const { LOGTO_MANAGEMENT_API_RESOURCE, ...missingManagementResourceEnv } = backendEnv;
+
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, env: missingManagementResourceEnv }),
+    (error) => error.code === "CONFIG_MISSING" && error.variable === "LOGTO_MANAGEMENT_API_RESOURCE",
+  );
+  assert.throws(
+    () => validateDeploymentConfig({ service: "backend", contract, env: { ...backendEnv, LOGTO_MANAGEMENT_API_RESOURCE: ["urn", "logto", "management"].join(":") } }),
+    (error) => error.code === "CONFIG_INVALID_FORMAT" && error.cause === "expected_http_url" && error.variable === "LOGTO_MANAGEMENT_API_RESOURCE",
   );
 });
 
@@ -90,7 +105,7 @@ test("deployment kernel reports worker variables injected into backend without c
 test("deployment kernel reports backend variables injected into worker without consuming them at runtime", () => {
   assert.equal(classifyDeploymentVariable("LOGTO_API_RESOURCE", "worker"), "cross_service_pollution");
   const config = validateDeploymentConfig({ service: "worker", contract, env: { ...backendEnv, WORKER_CONCURRENCY: "1" } });
-  assert.deepEqual(config.ignoredCrossServicePollution, ["API_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET"]);
+  assert.deepEqual(config.ignoredCrossServicePollution, ["API_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "LOGTO_MANAGEMENT_API_RESOURCE"]);
   assert.equal(config.logtoResource, undefined);
   assert.throws(
     () => validateDeploymentConfig({ service: "worker", contract, enforceCrossServicePollution: true, env: { DATABASE_URL: backendEnv.DATABASE_URL, REDIS_URL: backendEnv.REDIS_URL, LOGTO_API_RESOURCE: backendEnv.LOGTO_API_RESOURCE } }),

@@ -27,7 +27,6 @@ const deletedNames = [
   ["LOGTO", "ENDPOINT"].join("_"),
   ["LOGTO", "CLIENT", "ID"].join("_"),
   ["LOGTO", "CLIENT", "SECRET"].join("_"),
-  ["LOGTO", "MANAGEMENT", "API", "RESOURCE"].join("_"),
   ["LOGTO", "MANAGEMENT", "API", "TOKEN", "ENDPOINT"].join("_"),
   ["LOGTO", "MANAGEMENT", "API", "APPLICATION", "ID"].join("_"),
   ["LOGTO", "MANAGEMENT", "API", "APPLICATION", "SECRET"].join("_"),
@@ -146,7 +145,7 @@ for (const forbidden of ["WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABL
   if (backendBlock.includes(forbidden)) fail(`backend compose block must not contain worker variable ${forbidden}`);
 }
 const workerBlock = compose.split(/\n\s*frontend:/)[0].split(/\n\s*worker:/)[1] || "";
-for (const forbidden of ["VITE_", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "LOGTO_API_RESOURCE", "API_URL"]) {
+for (const forbidden of ["VITE_", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "LOGTO_API_RESOURCE", "LOGTO_MANAGEMENT_API_RESOURCE", "API_URL"]) {
   if (workerBlock.includes(forbidden)) fail(`worker compose block must not contain ${forbidden}`);
 }
 

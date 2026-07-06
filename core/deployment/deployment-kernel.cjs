@@ -58,7 +58,7 @@ const assertUrlResource = (value, variable, service) => assertHttpUrl(value, var
 
 const serviceAllowedVariables = Object.freeze({
   frontend: new Set(["VITE_API_URL", "VITE_LOGTO_ENDPOINT", "VITE_LOGTO_APP_ID"]),
-  backend: new Set(["NODE_ENV", "API_URL", "DATABASE_URL", "REDIS_URL", "LOGTO_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "BULLMQ_PREFIX", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
+  backend: new Set(["NODE_ENV", "API_URL", "DATABASE_URL", "REDIS_URL", "LOGTO_API_RESOURCE", "LOGTO_MANAGEMENT_API_RESOURCE", "LOGTO_M2M_CLIENT_ID", "LOGTO_M2M_CLIENT_SECRET", "BULLMQ_PREFIX", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS"]),
   worker: new Set(["NODE_ENV", "DATABASE_URL", "REDIS_URL", "BULLMQ_PREFIX", "WORKER_CONCURRENCY", "ENABLE_QUEUE_RECONCILER", "ENABLE_DB_POLL_EXECUTION", "RUN_MIGRATIONS_ON_STARTUP", "DATABASE_WAIT_TIMEOUT_MS", "DATABASE_WAIT_INTERVAL_MS", "DATABASE_CONNECT_TIMEOUT_MS", "WORKER_JOB_ATTEMPTS", "WORKER_JOB_BACKOFF_MS", "WORKER_REMOVE_ON_COMPLETE", "WORKER_REMOVE_ON_FAIL"]),
 });
 
@@ -88,7 +88,6 @@ const forbiddenCivitasVariables = Object.freeze(new Set([
   "LOGTO_CLIENT_ID",
   "LOGTO_CLIENT_SECRET",
   "LOGTO_ENDPOINT",
-  "LOGTO_MANAGEMENT_API_RESOURCE",
   "LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT",
   "LOGTO_MANAGEMENT_API_APPLICATION_ID",
   "LOGTO_MANAGEMENT_API_APPLICATION_SECRET",
@@ -194,7 +193,7 @@ function validateBackend(env, contract, options) {
     m2mClientId: requireValue(env, "LOGTO_M2M_CLIENT_ID", service),
     m2mClientSecret: requireValue(env, "LOGTO_M2M_CLIENT_SECRET", service),
     logtoEndpoint: contract.logto.issuer,
-    logtoManagementApi: contract.logto.managementApi,
+    logtoManagementApi: assertUrlResource(requireValue(env, "LOGTO_MANAGEMENT_API_RESOURCE", service), "LOGTO_MANAGEMENT_API_RESOURCE", service),
     bullmqPrefix: env.BULLMQ_PREFIX || "civitas",
     runMigrationsOnStartup: asBool(env.RUN_MIGRATIONS_ON_STARTUP || "false", "RUN_MIGRATIONS_ON_STARTUP", service),
     databaseWaitTimeoutMs: asInt(env.DATABASE_WAIT_TIMEOUT_MS || "60000", "DATABASE_WAIT_TIMEOUT_MS", service),

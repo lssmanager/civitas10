@@ -19,6 +19,7 @@ const PROHIBITED_ORGANIZATION_USER_GLOBAL_ROLE_NAMES = [sharedContract.auth.glob
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key)/i;
 
 let tokenCache = null;
+let loggedManagementConfig = false;
 
 const LOGTO_MANAGEMENT_TIMEOUT_MS = 8000;
 
@@ -125,15 +126,30 @@ const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/
 
 const getLogtoManagementConfig = () => {
   const deploymentConfig = getDeploymentConfig();
-  const endpoint = normalizeEndpoint(deploymentConfig.logtoManagementApi);
+  const endpoint = normalizeEndpoint(deploymentConfig.logtoEndpoint);
 
-  return {
+  const config = {
     endpoint,
     tokenEndpoint: `${endpoint}/oidc/token`,
     clientId: getRequiredEnv("LOGTO_M2M_CLIENT_ID"),
     clientSecret: getRequiredEnv("LOGTO_M2M_CLIENT_SECRET"),
     resource: deploymentConfig.logtoManagementApi,
+    resourceSource: "LOGTO_MANAGEMENT_API_RESOURCE",
   };
+
+  if (!loggedManagementConfig) {
+    loggedManagementConfig = true;
+    console.info("[LogtoManagement] Using Logto Management API token configuration", {
+      tokenEndpoint: config.tokenEndpoint,
+      resource: config.resource,
+      resourceSource: config.resourceSource,
+      scope: MANAGEMENT_TOKEN_SCOPE,
+      clientIdConfigured: Boolean(config.clientId),
+      clientSecretConfigured: Boolean(config.clientSecret),
+    });
+  }
+
+  return config;
 };
 
 async function fetchLogtoManagementApiAccessToken() {
@@ -174,6 +190,12 @@ async function fetchLogtoManagementApiAccessToken() {
     throw new LogtoManagementApiError("Failed to obtain Logto Management API token", {
       status: response.status,
       body: tokenResponse,
+      diagnostic: {
+        tokenEndpoint: config.tokenEndpoint,
+        resource: config.resource,
+        resourceSource: config.resourceSource,
+        scope: MANAGEMENT_TOKEN_SCOPE,
+      },
     });
   }
 
