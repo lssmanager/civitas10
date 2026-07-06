@@ -30,6 +30,7 @@ test("Logto management service uses deployment kernel configuration explicitly",
   assert.match(source, /deploymentConfigCache = validateDeploymentConfig\(\{ service: "backend" \}\)/);
   assert.match(source, /deploymentConfig\.logtoEndpoint/);
   assert.match(source, /resource: deploymentConfig\.logtoManagementApi/);
+  assert.match(source, /assertSeparateLogtoResources\(deploymentConfig\)/);
   assert.match(source, /LOGTO_MANAGEMENT_API_RESOURCE/);
   assert.doesNotMatch(source, /resource: deploymentConfig\.logtoEndpoint/);
 });
