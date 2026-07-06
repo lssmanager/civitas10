@@ -1,6 +1,15 @@
 const { withTimeout } = require("./timeouts");
+const { validateDeploymentConfig } = require("../../core/deployment/deployment-kernel.cjs");
 const { loadCivitasSharedContract } = require("../../core/shared/contract-loader.cjs");
 const sharedContract = loadCivitasSharedContract();
+let deploymentConfigCache = null;
+
+const getDeploymentConfig = () => {
+  if (!deploymentConfigCache) {
+    deploymentConfigCache = validateDeploymentConfig({ service: "backend" });
+  }
+  return deploymentConfigCache;
+};
 
 const MANAGEMENT_TOKEN_SCOPE = "all";
 const ORGANIZATION_ADMIN_ROLE_NAME = "Admin-org";
@@ -115,6 +124,7 @@ const getRequiredEnv = (name) => {
 const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
 
 const getLogtoManagementConfig = () => {
+  const deploymentConfig = getDeploymentConfig();
   const endpoint = normalizeEndpoint(deploymentConfig.logtoManagementApi);
 
   return {
