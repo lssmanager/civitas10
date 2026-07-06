@@ -16,10 +16,10 @@ test("global auth middleware rejects organization context and enforces scopes", 
 
 test("owner routes use global access while tenant routes keep organization access", () => {
   const source = readFileSync(join(__dirname, "..", "index.js"), "utf8");
-  assert.match(source, /secureRoute\.get\("\/owner\/me", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.ownerRead\] \}\), requireOwner/);
-  assert.match(source, /secureRoute\.post\(\["\/owner\/organizations", "\/organizations"\], "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.organizationCreate\] \}\), requireOwner/);
-  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberRead", requireOrganizationAccess\(\{ requiredScopes: \["read:documents"\] \}\)/);
-  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite", requireOrganizationAccess\(\{ requiredScopes: \["create:documents"\] \}\)/);
+  assert.match(source, /secureRoute\.get\("\/owner\/me", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.ownerRead\] \}\), requireGlobalOwner/);
+  assert.match(source, /secureRoute\.post\(\["\/owner\/organizations", "\/organizations"\], "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.organizationCreate\] \}\), requireGlobalOwner/);
+  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberRead", requireOrganizationAccess\(\{ requiredScopes: \["read:documents"\] \}\), requireOrganizationRole\(SHARED_AUTH.organization.roles.member\)/);
+  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite", requireOrganizationAccess\(\{ requiredScopes: \["create:documents"\] \}\), requireOrganizationRole\(SHARED_AUTH.organization.roles.admin\)/);
 });
 
 

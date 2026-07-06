@@ -1,7 +1,7 @@
 "use strict";
 
 const ROLE_PERMISSIONS = Object.freeze({
-  owner: Object.freeze([
+  owner_global: Object.freeze([
     "owner:read",
     "owner:manage",
     "organization:create",

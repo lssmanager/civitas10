@@ -9,6 +9,7 @@ import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPag
 import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
 import { APP_ENV } from "../../env";
 import { appRoutes } from "../../navigation/routes";
+import { OwnerRouteGuard } from "../../authz/OwnerRouteGuard";
 
 const config: LogtoConfig = {
   endpoint: APP_ENV.logto.endpoint,
@@ -36,10 +37,10 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to={appRoutes.owner.path} replace />} />
-      <Route path={appRoutes.owner.path} element={<OwnerOperationalHomePage />} />
-      <Route path={appRoutes.ownerOrganizations.path} element={<OwnerOrganizationsPage />} />
-      <Route path={appRoutes.ownerOrganizationState.path} element={<OwnerOrganizationOperationalPage />} />
-      <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerWorkerQueuesPage />} />
+      <Route path={appRoutes.owner.path} element={<OwnerRouteGuard><OwnerOperationalHomePage /></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerOrganizations.path} element={<OwnerRouteGuard><OwnerOrganizationsPage /></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerOrganizationState.path} element={<OwnerRouteGuard><OwnerOrganizationOperationalPage /></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerRouteGuard><OwnerWorkerQueuesPage /></OwnerRouteGuard>} />
       <Route path="/:orgId" element={<OrganizationPage />} />
     </Routes>
   );
