@@ -11,7 +11,8 @@ function resolveLogtoConfig(config = {}) {
     managementTokenEndpoint: endpoint ? `${endpoint}/oidc/token` : null,
     applicationId: config.applicationId || process.env.LOGTO_M2M_CLIENT_ID || null,
     applicationSecret: config.applicationSecret || process.env.LOGTO_M2M_CLIENT_SECRET || null,
-    resource: config.managementApiResource || sharedContract.logto.managementApi || null,
+    resource: config.managementApiResource || process.env.LOGTO_MANAGEMENT_API_RESOURCE || null,
+    resourceSource: config.managementApiResource ? "config.managementApiResource" : "LOGTO_MANAGEMENT_API_RESOURCE",
     timeoutMs: Number(config.timeoutMs || 8000),
   };
 }

@@ -62,6 +62,7 @@ API_URL=https://civitas.didaxus.com/api
 DATABASE_URL=postgresql://civitas:change-me@postgres:5432/civitas
 REDIS_URL=redis://redis:6379/0
 LOGTO_API_RESOURCE=https://civitas.didaxus.com/api
+LOGTO_MANAGEMENT_API_RESOURCE=https://auth.didaxus.com/api
 LOGTO_M2M_CLIENT_ID=replace-with-logto-m2m-client-id
 LOGTO_M2M_CLIENT_SECRET=replace-with-logto-m2m-client-secret
 BULLMQ_PREFIX=civitas
@@ -71,7 +72,7 @@ DATABASE_WAIT_INTERVAL_MS=2000
 DATABASE_CONNECT_TIMEOUT_MS=5000
 ```
 
-Backend accepts only the variables shown above; configure `LOGTO_API_RESOURCE=https://civitas.didaxus.com/api`. URN-shaped or alternate values are rejected.
+Backend accepts only the variables shown above; configure `LOGTO_API_RESOURCE=https://civitas.didaxus.com/api` for Civitas API access and `LOGTO_MANAGEMENT_API_RESOURCE` as the separate Logto Management API resource indicator for M2M token requests. Do not use `LOGTO_ENDPOINT` or `VITE_LOGTO_ENDPOINT` as the Management API `resource`. URN-shaped or alternate Civitas API resource values are rejected.
 
 ## Worker env
 
@@ -99,7 +100,7 @@ Worker accepts only the variables shown above.
 
 The deployment kernel separates every runtime variable into four final-mode categories:
 
-1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, and shared-contract mismatches fail startup. `LOGTO_API_RESOURCE` must be the canonical URL resource indicator; URN-shaped or alternate values fail validation.
+1. **Contract variables** are the exact per-service variables listed in the Frontend, Backend, and Worker sections above. Missing required values, malformed booleans/integers/URLs, and shared-contract mismatches fail startup. `LOGTO_API_RESOURCE` must be the canonical URL resource indicator and `LOGTO_MANAGEMENT_API_RESOURCE` must be explicitly defined for Logto M2M; URN-shaped or alternate values fail validation.
 2. **Platform metadata** is infrastructure data injected by Coolify or another platform, currently `SERVICE_*` and `COOLIFY_*`. Civitas ignores these variables explicitly and reports them in `ignoredPlatformMetadata`; they are not application config and must not be added to compose, examples, or service code.
 3. **Forbidden Civitas drift** is removed Civitas configuration from older models. These names still fail hard because accepting them would hide stale auth, redirect, or domain configuration.
 4. **Cross-service pollution** is a valid Civitas variable injected into the wrong service. Examples: `ENABLE_QUEUE_RECONCILER` in API/backend, or `LOGTO_API_RESOURCE` in worker. Runtime reports these names in `ignoredCrossServicePollution` and does not consume them, so Coolify shared-env noise cannot crash startup. Strict validation/preflight still fails on these names so the operator can fix Coolify without Civitas silently accepting them as contract.
@@ -109,7 +110,6 @@ Forbidden Civitas drift includes:
 - `LOGTO_CLIENT_ID`
 - `LOGTO_CLIENT_SECRET`
 - `LOGTO_ENDPOINT`
-- `LOGTO_MANAGEMENT_API_RESOURCE`
 - `LOGTO_MANAGEMENT_API_TOKEN_ENDPOINT`
 - `LOGTO_MANAGEMENT_API_APPLICATION_ID`
 - `LOGTO_MANAGEMENT_API_APPLICATION_SECRET`
@@ -126,10 +126,10 @@ The final rule is: service contracts are strict, Coolify metadata is ignored as 
 ## Coolify final-mode checklist
 
 - **Frontend env**: configure only `VITE_API_URL`, `VITE_LOGTO_ENDPOINT`, and `VITE_LOGTO_APP_ID`. Do not configure redirect/signout variables; the frontend derives them from `window.location.origin`.
-- **API env**: configure only `NODE_ENV`, `API_URL`, `DATABASE_URL`, `REDIS_URL`, `LOGTO_API_RESOURCE`, `LOGTO_M2M_CLIENT_ID`, `LOGTO_M2M_CLIENT_SECRET`, `BULLMQ_PREFIX`, `RUN_MIGRATIONS_ON_STARTUP`, `DATABASE_WAIT_TIMEOUT_MS`, `DATABASE_WAIT_INTERVAL_MS`, and `DATABASE_CONNECT_TIMEOUT_MS`.
+- **API env**: configure only `NODE_ENV`, `API_URL`, `DATABASE_URL`, `REDIS_URL`, `LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `LOGTO_M2M_CLIENT_ID`, `LOGTO_M2M_CLIENT_SECRET`, `BULLMQ_PREFIX`, `RUN_MIGRATIONS_ON_STARTUP`, `DATABASE_WAIT_TIMEOUT_MS`, `DATABASE_WAIT_INTERVAL_MS`, and `DATABASE_CONNECT_TIMEOUT_MS`.
 - **Worker env**: configure only `NODE_ENV`, `DATABASE_URL`, `REDIS_URL`, `BULLMQ_PREFIX`, `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, `ENABLE_DB_POLL_EXECUTION`, `RUN_MIGRATIONS_ON_STARTUP`, `DATABASE_WAIT_TIMEOUT_MS`, `DATABASE_WAIT_INTERVAL_MS`, and `DATABASE_CONNECT_TIMEOUT_MS`.
 - **Platform metadata**: `SERVICE_*` and `COOLIFY_*` may appear because Coolify generated them. Do not chase them in the repo, do not copy them into env examples, and do not wire them into code.
-- **Cross-service variables to correct in Coolify**: if API shows worker variables such as `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, or `ENABLE_DB_POLL_EXECUTION`, runtime will ignore them but they should still be removed from API. If worker shows API variables such as `API_URL`, `LOGTO_API_RESOURCE`, `LOGTO_M2M_CLIENT_ID`, or `LOGTO_M2M_CLIENT_SECRET`, runtime will ignore them but they should still be removed from worker.
+- **Cross-service variables to correct in Coolify**: if API shows worker variables such as `WORKER_CONCURRENCY`, `ENABLE_QUEUE_RECONCILER`, or `ENABLE_DB_POLL_EXECUTION`, runtime will ignore them but they should still be removed from API. If worker shows API variables such as `API_URL`, `LOGTO_API_RESOURCE`, `LOGTO_MANAGEMENT_API_RESOURCE`, `LOGTO_M2M_CLIENT_ID`, or `LOGTO_M2M_CLIENT_SECRET`, runtime will ignore them but they should still be removed from worker.
 
 ## Preview deployments
 

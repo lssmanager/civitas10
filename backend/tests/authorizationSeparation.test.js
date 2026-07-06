@@ -28,7 +28,10 @@ test("Logto management service uses deployment kernel configuration explicitly",
   const source = readFileSync(join(__dirname, "..", "services", "logtoManagement.js"), "utf8");
   assert.match(source, /const \{ validateDeploymentConfig \} = require\("\.\.\/\.\.\/core\/deployment\/deployment-kernel\.cjs"\)/);
   assert.match(source, /deploymentConfigCache = validateDeploymentConfig\(\{ service: "backend" \}\)/);
-  assert.match(source, /deploymentConfig\.logtoManagementApi/);
+  assert.match(source, /deploymentConfig\.logtoEndpoint/);
+  assert.match(source, /resource: deploymentConfig\.logtoManagementApi/);
+  assert.match(source, /LOGTO_MANAGEMENT_API_RESOURCE/);
+  assert.doesNotMatch(source, /resource: deploymentConfig\.logtoEndpoint/);
 });
 
 

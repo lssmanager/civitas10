@@ -19,7 +19,7 @@ for (const service of ["frontend", "backend", "worker"]) {
   const env = service === "frontend"
     ? { VITE_API_URL: shared.api.publicUrl, VITE_LOGTO_ENDPOINT: shared.logto.issuer, VITE_LOGTO_APP_ID: "app" }
     : service === "backend"
-      ? { API_URL: shared.api.publicUrl, DATABASE_URL: "postgres://u:p@localhost:5432/db", REDIS_URL: "redis://localhost:6379", LOGTO_API_RESOURCE: shared.logto.apiResource, LOGTO_M2M_CLIENT_ID: "id", LOGTO_M2M_CLIENT_SECRET: "secret" }
+      ? { API_URL: shared.api.publicUrl, DATABASE_URL: "postgres://u:p@localhost:5432/db", REDIS_URL: "redis://localhost:6379", LOGTO_API_RESOURCE: shared.logto.apiResource, LOGTO_MANAGEMENT_API_RESOURCE: `${shared.logto.issuer}/api`, LOGTO_M2M_CLIENT_ID: "id", LOGTO_M2M_CLIENT_SECRET: "secret" }
       : { DATABASE_URL: "postgres://u:p@localhost:5432/db", REDIS_URL: "redis://localhost:6379" };
   try { validateDeploymentConfig({ service, env, contract: shared }); } catch (error) { fail(`${service} deployment config rejected shared contract: ${error.message}`); }
 }
