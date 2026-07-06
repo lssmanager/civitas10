@@ -27,6 +27,13 @@ test("owner API client rejects client-credentials-like tokens before calling own
   assert.match(baseSource, /OWNER_TOKEN_AUDIENCE_MISMATCH/);
 });
 
+test("owner API client warns during development when the resource token lacks owner shell scopes", () => {
+  assert.match(baseSource, /warnIfOwnerTokenLooksInsufficient\(token\)/);
+  assert.match(baseSource, /meta\.env\?\.DEV/);
+  assert.match(baseSource, /missingOwnerShellScopes/);
+  assert.match(baseSource, /Civitas owner API access token is missing expected claims/);
+});
+
 test("owner API errors use actionable user messages and keep technical details out of the DOM path", () => {
   assert.match(baseSource, /Your owner session could not be authorized by the Civitas API/);
   assert.match(baseSource, /global role required/);
@@ -40,6 +47,7 @@ test("Logto config asks for the single API resource and owner shell global scope
   assert.match(logtoConfigSource, /resources: \[APP_ENV\.api\.resource\]/);
   assert.match(logtoConfigSource, /scopes: \[\.\.\.LOGTO_OWNER_SHELL_SCOPES\]/);
   assert.match(logtoConfigSource, /LOGTO_OWNER_SHELL_SCOPES/);
+  assert.match(logtoConfigSource, /Do not request organization resources/);
   assert.doesNotMatch(logtoConfigSource, /UserScope\.Roles|UserScope\.OrganizationRoles|ReservedResource\.Organization/);
 });
 

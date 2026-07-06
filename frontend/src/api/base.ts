@@ -101,6 +101,22 @@ const assertOwnerUserAccessToken = (token: string) => {
   }
 };
 
+const warnIfOwnerTokenLooksInsufficient = (token: string) => {
+  const meta = import.meta as ImportMeta & { env?: { DEV?: boolean } };
+  if (!meta.env?.DEV) return;
+
+  const diagnostics = getAccessTokenDiagnostics(token);
+  const missingScopes = diagnostics.missingOwnerShellScopes;
+  if (diagnostics.hasExpectedAudience && missingScopes.length === 0) return;
+
+  console.warn("Civitas owner API access token is missing expected claims", {
+    aud: diagnostics.aud,
+    expectedAudience: diagnostics.expectedAudience,
+    scope: diagnostics.scope,
+    missingOwnerShellScopes: missingScopes,
+  });
+};
+
 const parseApiErrorBody = async (response: Response) => {
   try {
     return await response.json();
@@ -224,6 +240,7 @@ export const useApi = () => {
         const token = await getAccessToken(API_RESOURCE);
         if (!token) throw new ApiRequestError("Failed to get access token for owner API resource");
         assertOwnerUserAccessToken(token);
+        warnIfOwnerTokenLooksInsufficient(token);
 
         const response = await fetch(joinApiUrl(endpoint), {
           ...options,
