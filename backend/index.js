@@ -37,6 +37,7 @@ const OWNER_GLOBAL_ROLE = SHARED_AUTH.global.ownerRole;
 const OWNER_SCOPES = SHARED_AUTH.global.scopes;
 
 app.use(cors());
+// Orden canónico de middlewares de organización: requireAuth → requireOrg → requirePermission → requireSeats → handler.
 const secureRoute = createSecurityPolicyRegistry({ app });
 
 const summarizeStatus = (statuses) => {

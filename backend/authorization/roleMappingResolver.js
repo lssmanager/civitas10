@@ -1,5 +1,5 @@
 const { ROLE_MAPPING_NOT_CONFIGURED, RoleMappingError } = require("./roleMappingErrors");
-const { isSupportedCapability } = require("../connectors/capabilityCatalog");
+const { isSupportedCapability } = require("../connectors/adapters/contracts");
 
 function scoreMapping(row, input) {
   let score = 0;

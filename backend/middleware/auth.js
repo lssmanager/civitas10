@@ -289,7 +289,6 @@ const requireOrganizationRole = (requiredRoleName) => {
         organizationId,
       });
     }
-    req.organization = Object.freeze({ id: organizationId, roles: [...roles] });
     return next();
   };
 };

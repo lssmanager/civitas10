@@ -33,5 +33,5 @@ test("organization member role passes only with organization context", () => {
   const req = { user: { organizationId: "org-1", organizationRoles: ["organization_member"] } };
   requireOrganizationRole("organization_member")(req, r, () => { called = true; });
   assert.equal(called, true);
-  assert.equal(req.organization.id, "org-1");
+  assert.equal(req.org, undefined);
 });
