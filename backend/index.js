@@ -10,14 +10,11 @@ const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies"
 const {
   listLogtoOrganizations,
   listLogtoOrganizationRoles,
-  validateOrganizationTemplate,
   getLogtoOrganizationById,
 } = require("./services/logtoManagement");
 const {
   normalizeProvisioningInput,
   runCanonicalOrganizationProvisioning,
-  ORGANIZATION_ADMIN_ROLE_NAME,
-  JIT_DEFAULT_ORGANIZATION_ROLE_NAME,
 } = require("./services/organizationProvisioningCore");
 const { buildConsolidatedOperationalResponse } = require("./services/operationalStateAssembler");
 const { buildOperationalOrganization, deriveOperationalProfile, getLogtoOrganizationId, getLogtoOrganizationName } = require("./services/ownerOperationalProfile");
@@ -30,6 +27,7 @@ const { prepareOperationalDatabase } = require("./runtime/migrations");
 const { pingDatabase } = require("./lib/db");
 const { createOperation, listOperationalState } = require("./services/operationalOperations");
 const { listRegistry } = require("./services/registryStore");
+const { createOrganizationProvisioningRecorder } = require("./services/organizationProvisioningRecorder");
 const { requireGlobalOwner } = require("./authorization/guards");
 
 const app = express();
@@ -70,6 +68,17 @@ const sanitizePublicErrorResponse = (error, fallbackName, fallbackMessage) => {
   const rawStatus = error && Number.isInteger(error.status) ? error.status : 500;
   const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
   const safeError = error && (status < 500 || SAFE_PUBLIC_ERROR_NAMES.has(error.name)) ? error : null;
+  if (safeError?.error === "invalid_initial_organization_role") {
+    return {
+      status,
+      body: {
+        error: safeError.error,
+        message: safeError.message,
+        requestedRole: safeError.requestedRole,
+        availableRoles: safeError.availableRoles || [],
+      },
+    };
+  }
   return {
     status,
     body: {
@@ -181,12 +190,10 @@ secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RE
 secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
-    const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
     return res.json({
       roles: roles.map((role) => ({ id: role.id || role.organizationRoleId || role.roleId, name: role.name || role.nameCache || role.key })).filter((role) => role.id && role.name),
-      requiredRoleNames: template.requiredRoleNames,
-      missingRoleNames: template.missingRoleNames,
-      ready: template.ok,
+      roleSource: "logto_management_api",
+      ready: true,
     });
   } catch (error) {
     return sendPublicError(res, error, "OwnerOrganizationTemplateError", "Failed to load Logto organization template");
@@ -259,7 +266,9 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
     if (normalized.errors.length > 0) {
       return res.status(400).json({ error: "ValidationError", message: "Organization provisioning input is invalid", details: normalized.errors });
     }
-    const result = await runCanonicalOrganizationProvisioning({ input: normalized.value });
+    const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
+    const recorder = createOrganizationProvisioningRecorder({ actor, idempotencyKey: req.get?.("idempotency-key") || req.body?.idempotencyKey || null });
+    const result = await runCanonicalOrganizationProvisioning({ input: normalized.value, actor, recorder });
     return res.status(201).json({
       status: result.status,
       data: result.organization,
