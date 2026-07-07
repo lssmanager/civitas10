@@ -13,3 +13,10 @@ test("clean backend exposes owner operational-state and worker-queues routes", (
   assert.match(source, /loadWorkerQueuesObservability\(/);
   assert.match(source, /if \(require\.main === module\)/);
 });
+test("operational operation creation validates owner-supplied input before persistence", () => {
+  const source = readFileSync(join(__dirname, "..", "services", "operationalOperations.js"), "utf8");
+  assert.match(source, /async function createOperation/);
+  assert.match(source, /normalizeCreateOperationInput\(input\)/);
+  assert.match(source, /ACTION_TYPE_PATTERN/);
+  assert.match(source, /MAX_OPERATION_JSON_BYTES/);
+});

@@ -4,11 +4,73 @@ const { getRuntimeQueueConfig } = require("./runtime/config");
 
 const READY = ["pending", "retry_scheduled"];
 
+const SAFE_ID_PATTERN = /^[A-Za-z0-9_.:-]{1,128}$/;
+const ACTION_TYPE_PATTERN = /^[a-z][a-z0-9_.:-]{0,127}$/i;
+const MAX_OPERATION_JSON_BYTES = 16 * 1024;
+const assertPlainObject = (value, field) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    const error = new Error(`${field} must be a JSON object`);
+    error.status = 400;
+    error.name = "ValidationError";
+    throw error;
+  }
+  return value;
+};
+const assertSafeString = (value, field, pattern = SAFE_ID_PATTERN) => {
+  if (value == null || value === "") return null;
+  if (typeof value !== "string" || !pattern.test(value)) {
+    const error = new Error(`${field} contains invalid characters`);
+    error.status = 400;
+    error.name = "ValidationError";
+    throw error;
+  }
+  return value;
+};
+const boundedJsonObject = (value, field) => {
+  const object = value == null ? {} : assertPlainObject(value, field);
+  if (Buffer.byteLength(JSON.stringify(object), "utf8") > MAX_OPERATION_JSON_BYTES) {
+    const error = new Error(`${field} exceeds the maximum allowed size`);
+    error.status = 413;
+    error.name = "ValidationError";
+    throw error;
+  }
+  return object;
+};
+const normalizeCreateOperationInput = (input) => {
+  const body = assertPlainObject(input || {}, "operation");
+  const operationType = assertSafeString(body.actionType || body.operationType, "operationType", ACTION_TYPE_PATTERN);
+  if (!operationType) {
+    const error = new Error("operationType is required");
+    error.status = 400;
+    error.name = "ValidationError";
+    throw error;
+  }
+  const maxAttempts = Number(body.maxAttempts || 3);
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10) {
+    const error = new Error("maxAttempts must be an integer between 1 and 10");
+    error.status = 400;
+    error.name = "ValidationError";
+    throw error;
+  }
+  return {
+    logtoOrganizationId: assertSafeString(body.logtoOrganizationId, "logtoOrganizationId"),
+    operationType,
+    entityType: assertSafeString(body.entityType || "operational_task", "entityType"),
+    entityId: assertSafeString(body.entityId, "entityId"),
+    inputJson: boundedJsonObject(body.inputJson, "inputJson"),
+    maxAttempts,
+    queueName: assertSafeString(body.queueName, "queueName"),
+    idempotencyKey: assertSafeString(body.idempotencyKey, "idempotencyKey"),
+  };
+};
+
+
 async function createOperation(input) {
+  const normalized = normalizeCreateOperationInput(input);
   const db = getDb();
-  const queueName = input.queueName || getRuntimeQueueConfig().queueName;
-  const [operation] = await db.insert(schema.operationalOperations).values({ logtoOrganizationId: input.logtoOrganizationId || null, operationType: input.actionType || input.operationType, entityType: input.entityType || "operational_task", entityId: input.entityId || null, inputJson: input.inputJson || {}, maxAttempts: input.maxAttempts || 3, queueName, idempotencyKey: input.idempotencyKey || null }).onConflictDoNothing().returning();
-  const row = operation || (input.idempotencyKey ? (await db.select().from(schema.operationalOperations).where(require("drizzle-orm").eq(schema.operationalOperations.idempotencyKey, input.idempotencyKey)).limit(1))[0] : null);
+  const queueName = normalized.queueName || getRuntimeQueueConfig().queueName;
+  const [operation] = await db.insert(schema.operationalOperations).values({ logtoOrganizationId: normalized.logtoOrganizationId, operationType: normalized.operationType, entityType: normalized.entityType, entityId: normalized.entityId, inputJson: normalized.inputJson, maxAttempts: normalized.maxAttempts, queueName, idempotencyKey: normalized.idempotencyKey }).onConflictDoNothing().returning();
+  const row = operation || (normalized.idempotencyKey ? (await db.select().from(schema.operationalOperations).where(require("drizzle-orm").eq(schema.operationalOperations.idempotencyKey, normalized.idempotencyKey)).limit(1))[0] : null);
   if (row) await enqueueOperation(row.id, { queueName });
   return row;
 }
@@ -64,4 +126,4 @@ async function listOperationalState({ limit = 100 } = {}) {
   const [operations, steps, auditLogRows] = await Promise.all([db.select().from(schema.operationalOperations).orderBy(require("drizzle-orm").sql`created_at desc`).limit(limit), db.select().from(schema.operationalOperationSteps).orderBy(require("drizzle-orm").sql`created_at desc`).limit(limit), db.select().from(schema.auditLogs).orderBy(require("drizzle-orm").sql`created_at desc`).limit(limit)]);
   return { operations, steps, auditLogRows };
 }
-module.exports = { claimNextOperation, completeOperation, createOperation, enqueueOperation, failOperation, listOperationalState, startOperationStep };
+module.exports = { claimNextOperation, completeOperation, createOperation, enqueueOperation, failOperation, listOperationalState, normalizeCreateOperationInput, startOperationStep };
