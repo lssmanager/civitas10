@@ -20,8 +20,8 @@ test("owner routes use global access while tenant routes keep organization acces
   assert.match(source, /secureRoute\.get\("\/owner\/organization-template", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.organizationRead\] \}\), requireGlobalOwner/);
   assert.match(source, /secureRoute\.get\("\/owner\/organizations", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.organizationRead\] \}\), requireGlobalOwner/);
   assert.match(source, /secureRoute\.post\(\["\/owner\/organizations", "\/organizations"\], "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_SCOPES.organizationCreate\] \}\), requireGlobalOwner/);
-  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberRead", requireOrganizationAccess\(\{ requiredScopes: \["read:documents"\] \}\), requireOrganizationRole\(SHARED_AUTH.organization.roles.member\)/);
-  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite", requireOrganizationAccess\(\{ requiredScopes: \["create:documents"\] \}\), requireOrganizationRole\(SHARED_AUTH.organization.roles.admin\)/);
+  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberRead", requireOrganizationAccess\(\{ requiredScopes: \["read:documents"\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.member\), requirePermission\("lms:read"\)/);
+  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite", requireOrganizationAccess\(\{ requiredScopes: \["create:documents"\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.admin\), requirePermission\("members:write"\)/);
 });
 
 test("Logto management service uses deployment kernel configuration explicitly", () => {

@@ -73,13 +73,13 @@ const requireOrg = (req, res, next) => {
       message: "organization_id is required for B2B operations.",
     });
   }
-  req.orgId = organizationId;
+  req.org = req.org || { id: organizationId, logto_organization_id: organizationId };
   return next();
 };
 
 const requireSeats = ({ getSeatAvailability } = {}) => async (req, res, next) => {
   if (!getSeatAvailability) return next();
-  const availability = await getSeatAvailability(req.orgId || req.params?.organizationId || req.params?.id);
+  const availability = await getSeatAvailability(req.org?.logto_organization_id || req.org?.id || req.params?.organizationId || req.params?.id);
   if (!availability || Number(availability.available || 0) <= 0) {
     return res.status(422).json({
       error: "SeatsUnavailable",

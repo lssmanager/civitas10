@@ -67,3 +67,83 @@ test("canonical middleware chain reaches handler", async () => {
   calls.push("handler");
   assert.deepEqual(calls, ["auth", "org", "handler"]);
 });
+
+test("requireOrg rejects token/request organization mismatch", async () => {
+  const { requireOrg } = require("../middleware/requireOrg");
+  const r = res();
+  await requireOrg({ user: { organizationId: "org-A" }, params: { organizationId: "org-B" } }, r, () => assert.fail("next should not be called"));
+  assert.equal(r.statusCode, 403);
+  assert.equal(r.body.error, "organization_context_mismatch");
+  assert.equal(r.body.tokenOrganizationId, "org-A");
+  assert.equal(r.body.requestedOrganizationId, "org-B");
+});
+
+test("requireOrg with tenant token and no param uses token organization", async () => {
+  const dbPath = require.resolve("../lib/db");
+  const requireOrgPath = require.resolve("../middleware/requireOrg");
+  const originalDb = require.cache[dbPath];
+  delete require.cache[requireOrgPath];
+  require.cache[dbPath] = {
+    id: dbPath,
+    filename: dbPath,
+    loaded: true,
+    exports: { queryPostgres: async (_query, params) => {
+      assert.deepEqual(params, ["org-A"]);
+      return { rows: [{ id: "tenant-A", logto_organization_id: "org-A", status: "active", plan: "basic", seats_total: 3, seats_used: 1 }] };
+    } },
+  };
+  const { requireOrg } = require("../middleware/requireOrg");
+  const r = res();
+  const req = { user: { organizationId: "org-A" }, params: {} };
+  let called = false;
+  await requireOrg(req, r, () => { called = true; });
+  assert.equal(called, true);
+  assert.equal(req.org.logto_organization_id, "org-A");
+  assert.equal(req.org.seats_available, 2);
+  delete require.cache[requireOrgPath];
+  if (originalDb) require.cache[dbPath] = originalDb;
+  else delete require.cache[dbPath];
+});
+
+test("requireOrg rejects resolved organization that differs from token", async () => {
+  const dbPath = require.resolve("../lib/db");
+  const requireOrgPath = require.resolve("../middleware/requireOrg");
+  const originalDb = require.cache[dbPath];
+  delete require.cache[requireOrgPath];
+  require.cache[dbPath] = {
+    id: dbPath,
+    filename: dbPath,
+    loaded: true,
+    exports: { queryPostgres: async () => ({ rows: [{ id: "tenant-B", logto_organization_id: "org-B", status: "active", plan: "basic", seats_total: 1, seats_used: 0 }] }) },
+  };
+  const { requireOrg } = require("../middleware/requireOrg");
+  const r = res();
+  await requireOrg({ user: { organizationId: "org-A" }, params: {} }, r, () => assert.fail("next should not be called"));
+  assert.equal(r.statusCode, 403);
+  assert.equal(r.body.error, "organization_context_mismatch");
+  delete require.cache[requireOrgPath];
+  if (originalDb) require.cache[dbPath] = originalDb;
+  else delete require.cache[dbPath];
+});
+
+test("requireOrg with cancelled org returns 403 with action", async () => {
+  const dbPath = require.resolve("../lib/db");
+  const requireOrgPath = require.resolve("../middleware/requireOrg");
+  const originalDb = require.cache[dbPath];
+  delete require.cache[requireOrgPath];
+  require.cache[dbPath] = {
+    id: dbPath,
+    filename: dbPath,
+    loaded: true,
+    exports: { queryPostgres: async () => ({ rows: [{ id: "org-1", logto_organization_id: "logto-org-1", status: "cancelled", plan: "basic", seats_total: 1, seats_used: 0 }] }) },
+  };
+  const { requireOrg } = require("../middleware/requireOrg");
+  const r = res();
+  await requireOrg({ user: { organizationId: "logto-org-1" }, params: {} }, r, () => assert.fail("next should not be called"));
+  assert.equal(r.statusCode, 403);
+  assert.equal(r.body.error, "organization_cancelled");
+  assert.ok(r.body.action);
+  delete require.cache[requireOrgPath];
+  if (originalDb) require.cache[dbPath] = originalDb;
+  else delete require.cache[dbPath];
+});
