@@ -4,6 +4,7 @@ const FOUNDATION_TABLES = Object.freeze([
   "audit_logs",
   "operational_operations",
   "operational_operation_steps",
+  "organization_runtime_state",
   "registry_capabilities",
   "registry_adapters",
   "registry_connectors",
@@ -16,10 +17,11 @@ const FOUNDATION_SCHEMA_ORDER = Object.freeze({
   audit_logs: 3,
   operational_operations: 4,
   operational_operation_steps: 5,
-  registry_capabilities: 6,
-  registry_adapters: 7,
-  registry_connectors: 8,
-  registry_connector_bindings: 9,
+  organization_runtime_state: 6,
+  registry_capabilities: 7,
+  registry_adapters: 8,
+  registry_connectors: 9,
+  registry_connector_bindings: 10,
 });
 
 const FOUNDATION_CAPABILITIES = Object.freeze([

@@ -157,7 +157,7 @@ function buildBlockedOrganizations({ profiles = [], activeOperations = [], worke
       providerStatus: op?.providerStatus || profile.fluentcrmSyncStatus || null,
       operationIds: op ? [op.operationId] : [],
       source: op ? FRESHNESS_SOURCES.WORKER_RUNTIME : FRESHNESS_SOURCES.LOCAL_RECONCILED,
-      humanMessage: blocker === "missing_company" ? "Falta crear o enlazar Company en FluentCRM según el contrato operacional." : blocker === "contacts_not_started" ? "La sincronización de contactos no inició o está pendiente." : op?.humanMessage,
+      humanMessage: blocker === "missing_company" ? "Falta crear o enlazar una referencia CRM externa mediante el adapter configurado." : blocker === "contacts_not_started" ? "La sincronización de contactos no inició o está pendiente." : op?.humanMessage,
     });
     return { logtoOrganizationId: profile.logtoOrganizationId, name: profile.nameCache || null, blocker, references: { operationIds: op ? [op.operationId] : [], queueName: op?.queueName || globalQueueBlocker?.name || null }, ...block };
   }).filter(Boolean);

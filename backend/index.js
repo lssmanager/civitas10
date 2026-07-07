@@ -20,6 +20,8 @@ const {
   JIT_DEFAULT_ORGANIZATION_ROLE_NAME,
 } = require("./services/organizationProvisioningCore");
 const { buildConsolidatedOperationalResponse } = require("./services/operationalStateAssembler");
+const { buildOperationalOrganization, deriveOperationalProfile, getLogtoOrganizationId, getLogtoOrganizationName } = require("./services/ownerOperationalProfile");
+const { listRuntimeState } = require("./services/organizationRuntimeState");
 const { getWorkerHealthSnapshot, loadWorkerHealthSnapshot, loadWorkerQueuesObservability } = require("./services/operationalObservability");
 const { getDatabaseHealth } = require("./lib/databaseHealth");
 const { getRedisHealth } = require("./lib/redisHealth");
@@ -109,47 +111,29 @@ const buildMeResponse = (user) => {
   };
 };
 
-const getLogtoOrganizationId = (organization = {}) => organization.id || organization.organizationId || organization.logtoOrganizationId || null;
-const getLogtoOrganizationName = (organization = {}) => organization.name || organization.nameCache || null;
-const getLogtoOrganizationCustomData = (organization = {}) => {
-  const customData = organization.customData || organization.custom_data || {};
-  return customData && typeof customData === "object" && !Array.isArray(customData) ? customData : {};
-};
+async function loadOrganizationRuntimeStateSafe(logtoOrganizationId) {
+  if (!logtoOrganizationId) return [];
+  try { return await listRuntimeState({ logtoOrganizationId }); }
+  catch (_error) { return []; }
+}
 
-const deriveOperationalProfile = (organization = {}) => {
-  const customData = getLogtoOrganizationCustomData(organization);
-  const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : {};
-  const business = civitasProfile.business && typeof civitasProfile.business === "object" ? civitasProfile.business : {};
-  const downstream = civitasProfile.downstream && typeof downstream === "object" ? civitasProfile.downstream : {};
-  const crm = downstream.crm && typeof downstream.crm === "object" ? downstream.crm : {};
-  const fluentcrmCompanyId = crm.companyId || crm.company_id || downstream.fluentcrmCompanyId || customData.fluentcrmCompanyId || null;
+async function buildOwnerProfile(organization) {
+  const logtoOrganizationId = getLogtoOrganizationId(organization);
+  const runtimeStateRows = await loadOrganizationRuntimeStateSafe(logtoOrganizationId);
+  return deriveOperationalProfile(organization, { runtimeStateRows });
+}
+
+const serializeOwnerOrganization = async (organization) => {
+  const profile = await buildOwnerProfile(organization);
   return {
-    id: getLogtoOrganizationId(organization),
     logtoOrganizationId: getLogtoOrganizationId(organization),
-    nameCache: getLogtoOrganizationName(organization),
-    slug: business.slug || null,
-    updatedAt: civitasProfile.updatedAt || organization.updatedAt || organization.createdAt || new Date().toISOString(),
-    fluentcrmCompanyId,
-    fluentcrmSyncStatus: fluentcrmCompanyId ? "linked" : "not_linked",
-    settings: { civitasProfile },
+    name: getLogtoOrganizationName(organization),
+    logtoOrganization: organization,
+    profile,
+    runtimeState: profile.runtimeState,
+    legacy: profile.legacy,
   };
 };
-
-const serializeOwnerOrganization = (organization) => ({
-  logtoOrganizationId: getLogtoOrganizationId(organization),
-  name: getLogtoOrganizationName(organization),
-  logtoOrganization: organization,
-  profile: deriveOperationalProfile(organization),
-});
-
-const buildOperationalOrganization = (organization, profile) => ({
-  logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
-  name: profile?.nameCache || getLogtoOrganizationName(organization),
-  profileId: profile?.id || null,
-  sourceAnchors: {
-    logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
-  },
-});
 
 secureRoute.get("/health", "health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
@@ -212,7 +196,7 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess
 secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
-    return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
+    return res.json({ organizations: await Promise.all(organizations.map(serializeOwnerOrganization)) });
   } catch (error) {
     return sendPublicError(res, error, "OwnerOrganizationsListError", "Failed to list organizations from Logto");
   }
@@ -221,7 +205,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
 secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
-    const profile = deriveOperationalProfile(logtoOrganization);
+    const profile = await buildOwnerProfile(logtoOrganization);
     const workerHealth = await loadWorkerHealthSnapshot();
     const operationalState = await listOperationalState({ limit: 100 });
     const response = buildConsolidatedOperationalResponse({
@@ -243,7 +227,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
 secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.workerQueuesRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
-    const profiles = organizations.map(deriveOperationalProfile);
+    const profiles = await Promise.all(organizations.map(buildOwnerProfile));
     const operationalState = await listOperationalState({ limit: 200 });
     const aggregate = await loadWorkerQueuesObservability({ profiles, operations: operationalState.operations, steps: operationalState.steps, auditLogRows: operationalState.auditLogRows });
     return res.json(aggregate);

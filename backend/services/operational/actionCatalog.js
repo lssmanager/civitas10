@@ -10,9 +10,9 @@ const OPERATIONAL_ACTION_DEFINITIONS = Object.freeze({
   }),
   verify_provider: Object.freeze({
     action: "verify_provider",
-    semantics: "Refresh provider truth through a live or near-live provider check without asserting local canon.",
-    useWhen: "A block is stale, degraded, failed, unknown or needs confirmation from Logto, FluentCRM, WordPress or another adapter/provider.",
-    backend: "Route through the capability/provider adapter verification path and record freshness, providerCode and providerStatus.",
+    semantics: "Refresh external capability state through a live or near-live adapter check without asserting local canon.",
+    useWhen: "A block is stale, degraded, failed, unknown or needs confirmation from Logto or an external capability adapter.",
+    backend: "Route through the capability adapter verification path and record freshness plus compatibility providerCode/providerStatus diagnostics.",
     frontend: "Render as refresh/verify provider; do not imply data mutation unless the endpoint explicitly documents a mutation.",
   }),
   open_organization: Object.freeze({
@@ -24,8 +24,8 @@ const OPERATIONAL_ACTION_DEFINITIONS = Object.freeze({
   }),
   wait_first_wordpress_login: Object.freeze({
     action: "wait_first_wordpress_login",
-    semantics: "No immediate system action is required until a first WordPress login creates/links downstream state.",
-    useWhen: "WordPress user linkage is legitimately pending first login rather than failed provisioning.",
+    semantics: "No immediate system action is required until first-login compatibility creates or links downstream state.",
+    useWhen: "A legacy downstream user linkage is legitimately pending first login rather than failed provisioning.",
     backend: "Represent as waiting/pending diagnostic state, not as retryable failure.",
     frontend: "Show explanatory pending copy and avoid retry CTAs unless another action is also present.",
   }),

@@ -10,7 +10,10 @@ class ConnectorNotConfiguredError extends ConnectorError {
   constructor(capability, orgId) { super(codes.NOT_CONFIGURED, `Org ${orgId} does not have an active connector for capability: ${capability}`, { capability, orgId }); this.name = "ConnectorNotConfiguredError"; this.capability = capability; this.org_id = orgId; this.status = 422; }
 }
 class ConnectorAdapterNotFoundError extends ConnectorError {
-  constructor(capability, provider) { super(codes.PROVIDER_UNSUPPORTED, `Unknown provider: ${provider} for capability: ${capability}`, { capability, provider }); this.name = "ConnectorAdapterNotFoundError"; this.capability = capability; this.adapter = provider; this.status = 500; }
+  constructor(capability, adapter, orgId = null) { super(codes.PROVIDER_UNSUPPORTED, `Adapter not registered for capability: ${capability}`, { capability, adapter, orgId }); this.name = "ConnectorAdapterNotFoundError"; this.capability = capability; this.adapter = adapter; this.org_id = orgId; this.status = 500; }
+}
+class ConnectorBindingConflictError extends ConnectorError {
+  constructor(capability, orgId, count = 0) { super("CONNECTOR_BINDING_CONFLICT", `Org ${orgId} has ${count || "multiple"} active connector bindings for capability: ${capability}`, { capability, orgId, count }); this.name = "ConnectorBindingConflictError"; this.capability = capability; this.org_id = orgId; this.status = 409; }
 }
 class ConnectorConfigError extends ConnectorError {
   constructor(message, details = {}) { super(codes.CONFIG_INVALID, message, details); this.name = "ConnectorConfigError"; this.status = 422; }
@@ -23,12 +26,12 @@ function registerAdapter(capability, provider, factory) {
 }
 function listRegisteredAdapters() { return [...ADAPTER_FACTORIES.keys()].map((key) => { const [capability, provider] = key.split(":"); return { capability, provider, adapter: provider }; }); }
 function getFactory(capability, provider) { return ADAPTER_FACTORIES.get(legacyKey(capability, provider)); }
-function resolve({ capability, provider, adapter = provider, orgId = null, config = {}, context = {} } = {}) {
-  const providerKey = adapter || provider;
+function resolve({ capability, adapter, provider = adapter, orgId = null, config = {}, context = {} } = {}) {
+  const adapterKey = adapter || provider;
   if (!isSupportedCapability(capability)) throw connectorError(codes.CAPABILITY_UNSUPPORTED, `Unsupported capability ${capability}`, { capability });
-  const factory = getFactory(capability, providerKey);
-  if (!factory) throw connectorError(codes.PROVIDER_UNSUPPORTED, `Unsupported provider ${providerKey} for capability ${capability}`, { capability, provider: providerKey });
-  const instance = factory(config, { orgId, capability, provider: providerKey, ...context });
+  const factory = getFactory(capability, adapterKey);
+  if (!factory) throw new ConnectorAdapterNotFoundError(capability, adapterKey, orgId);
+  const instance = factory(config, { orgId, capability, adapter: adapterKey, provider: adapterKey, ...context });
   validateAdapter(instance);
   return instance;
 }
@@ -39,8 +42,10 @@ async function getConnector(orgId, capability, options = {}) {
   const loadConnectorRow = options.loadConnectorRow || defaultConnectorRowLoader;
   const decrypt = options.decrypt || defaultDecrypt;
   const row = await loadConnectorRow({ orgId, capability });
+  if (row?.conflict) throw new ConnectorBindingConflictError(capability, orgId, row.rows?.length);
   if (!row || row.status !== "connected") throw new ConnectorNotConfiguredError(capability, orgId);
-  return resolve({ capability, provider: row.provider || row.adapter || row.connector, orgId, config: decrypt(row.config), context: { row } });
+  if (!row.adapter) throw new ConnectorAdapterNotFoundError(capability, row.adapter, orgId);
+  return resolve({ capability, adapter: row.adapter, orgId, config: decrypt(row.config, row.secretsRef), context: { row, secretsRef: row.secretsRef } });
 }
 class MockBaseAdapter {
   constructor(config = {}, metadata = {}) { this.config = config; this.metadata = metadata; this.name = metadata.provider || metadata.adapter || config.provider || "mock"; this.capability = metadata.capability || config.capability || "support"; this.provider = this.name; this.version = "1.0.0"; this.actions = config.actions || ["system.echo"]; }
@@ -57,4 +62,4 @@ function registerBuiltInAdapters() {
   for (const capability of VALID_CAPABILITIES) registerAdapter(capability, "mock", (config, metadata) => new MockBaseAdapter(config, metadata));
 }
 registerBuiltInAdapters();
-module.exports = { ConnectorContractViolationError, ADAPTER_MAP: ADAPTER_FACTORIES, ConnectorAdapterNotFoundError, ConnectorConfigError, ConnectorError, ConnectorNotConfiguredError, MockBaseAdapter, connectorRegistry: { resolve, registerAdapter, listRegisteredAdapters }, getConnector, listRegisteredAdapters, registerAdapter, resolve, codes };
+module.exports = { ConnectorContractViolationError, ADAPTER_MAP: ADAPTER_FACTORIES, ConnectorAdapterNotFoundError, ConnectorBindingConflictError, ConnectorConfigError, ConnectorError, ConnectorNotConfiguredError, MockBaseAdapter, connectorRegistry: { resolve, registerAdapter, listRegisteredAdapters }, getConnector, listRegisteredAdapters, registerAdapter, resolve, codes };

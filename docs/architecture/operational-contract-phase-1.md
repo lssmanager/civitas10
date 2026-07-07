@@ -4,13 +4,13 @@
 
 ## Backbone and boundaries
 
-Canonical sources stay separate: Logto owns identity, organizations, memberships, global roles and tenant roles; FluentCRM/WordPress owns companies, contacts, tags/lists and local WP user links when they exist; PostgreSQL owns operational runtime, snapshots, retries, audit trail and live verification results only. Local rows must anchor to `logto_organization_id` / `logto_user_id` and must not become parallel identity or authorization canon.
+Canonical sources stay separate: Logto owns identity, organizations, memberships, global roles, tenant roles, permissions and tokens; Civitas PostgreSQL owns local operational runtime, snapshots, retries, audit trail, connector configuration metadata, technical mappings and live verification results only; external systems are capability adapters, not product canon. Local rows must anchor to `logto_organization_id` / `logto_user_id` when they need identity references and must not become parallel identity or authorization canon.
 
 This pass formalizes the contract, schema, TypeScript types, examples and reusable backend assemblers. It does **not** migrate every UI screen, implement final RBAC, or replace all legacy endpoint shapes.
 
 ## Shape
 
-The top-level response contains `organization`, `summary`, `canonical`, `fluentcrm`, `wordpress`, `worker`, `liveVerification`, `contactProgress`, `polling` and `latestEventIds`. Operational blocks share: `status`, `severity`, `humanMessage`, `providerCode`, `providerStatus`, `nextAction`, `availableActions`, `freshness` and `invalidation`.
+The top-level response contains `organization`, `summary`, `canonical`, legacy compatibility blocks such as `fluentcrm` and `wordpress`, `worker`, `liveVerification`, `contactProgress`, `polling` and `latestEventIds`. Operational blocks share: `status`, `severity`, `humanMessage`, `providerCode`, `providerStatus`, `nextAction`, `availableActions`, `freshness` and `invalidation`.
 
 ## Freshness
 
@@ -44,7 +44,7 @@ Each new capability in the system, for example `payments`, `lms`, `crm`, `commun
 
 - an explicit functional contract
 - standard input/output schemas
-- adapters per provider or external system
+- capability adapters per provider or external system
 - standard observability
 - reusable actions, freshness, invalidation and diagnostics
 - a coherent operational surface for backend, worker, UI and future tooling
@@ -62,16 +62,16 @@ The initial capabilities catalog for Civitas should be treated as a stable platf
 ```yaml
 connectors:
   identity:
-    description: Logto and future IdP/auth providers
+    description: Logto-backed identity capability; Logto remains canonical for identity in Civitas
 
   lms:
-    description: Moodle, Canvas, other LMS providers
+    description: LMS capability resolved by adapters such as Moodle or Canvas
 
   crm:
-    description: FluentCRM, HubSpot, other CRM providers
+    description: CRM capability resolved by adapters such as FluentCRM or HubSpot
 
   community:
-    description: BuddyBoss and future community platforms
+    description: Community capability resolved by adapters such as BuddyBoss or future platforms
 
   payments:
     description: Stripe, MercadoPago, Bancolombia, PayPal
@@ -128,8 +128,8 @@ Every capability integrated in Civitas should be able to expose, when applicable
 - `status`
 - `severity`
 - `humanMessage`
-- `providerCode`
-- `providerStatus`
+- `providerCode` (legacy/provider diagnostic field)
+- `providerStatus` (legacy/provider diagnostic field)
 - `nextAction`
 - `availableActions`
 - `freshness`
@@ -176,7 +176,7 @@ and not by isolated integrations coupled to each other.
 
 ## Compatibility and next migration
 
-Legacy fields remain in `/profile`, `/pending-sync`, `/events`, and owner list projections. The new endpoint is the future source for consolidated state. Subsequent phases should migrate owner cards, provider verification panels and polling logic to this endpoint while preserving existing retry and audit APIs until they are folded into explicit operations tooling.
+Legacy fields remain in `/profile`, `/pending-sync`, `/events`, owner list projections, and provider-named operational blocks such as `fluentcrm`/`wordpress`. They are compatibility surfaces for operational mappings and diagnostics, not canonical product domains. The new endpoint is the future source for consolidated state. Subsequent phases should migrate owner cards, provider verification panels and polling logic to this endpoint while preserving existing retry and audit APIs until they are folded into explicit operations tooling.
 
 ## Phase 7 hardening
 
