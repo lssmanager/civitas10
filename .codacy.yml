@@ -1,0 +1,9 @@
+---
+engines:
+  csslint:
+    exclude_paths:
+      - "frontend/src/**/*.css"
+      - "frontend/src/*.css"
+  tsqllint:
+    exclude_paths:
+      - "backend/db/migrations/**/*.sql"
