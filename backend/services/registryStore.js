@@ -1,4 +1,5 @@
 const { getDb, schema } = require("../lib/db");
+const { buildOwnerRegistryPayload } = require("./ownerCapabilitySurfaces");
 function orm() { return require("drizzle-orm"); }
 
 const SECRET_KEY_PATTERN = /(secret|token|password|apikey|api_key|private[_-]?key|client[_-]?secret|credential)/i;
@@ -92,8 +93,12 @@ async function loadConnectorRow({ orgId, logtoOrganizationId = orgId, capability
   return { ...row, status: row.bindingStatus === "active" && row.connectorStatus === "configured" ? "connected" : row.bindingStatus };
 }
 
-async function listRegistry() {
+async function listRegistryRows() {
   return getDb().select({ capability: schema.capabilities.key, adapter: schema.adapters.key, connector: schema.connectors.key, connectorStatus: schema.connectors.status, adapterStatus: schema.adapters.status }).from(schema.capabilities).leftJoin(schema.adapters, orm().eq(schema.adapters.capabilityId, schema.capabilities.id)).leftJoin(schema.connectors, orm().eq(schema.connectors.adapterId, schema.adapters.id));
 }
 
-module.exports = { assertNoPlaintextSecrets, bindConnector, configureOrgConnector, ensureCapability, listRegistry, loadConnectorRow, loadConnectorRows, registerConnector, registerRegistryAdapter };
+async function listRegistry() {
+  return buildOwnerRegistryPayload(await listRegistryRows());
+}
+
+module.exports = { assertNoPlaintextSecrets, bindConnector, configureOrgConnector, ensureCapability, listRegistry, listRegistryRows, loadConnectorRow, loadConnectorRows, registerConnector, registerRegistryAdapter };

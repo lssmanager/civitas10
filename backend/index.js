@@ -26,8 +26,9 @@ const { validateRuntimeEnv, waitForDatabase } = require("./runtime/env");
 const { prepareOperationalDatabase } = require("./runtime/migrations");
 const { pingDatabase } = require("./lib/db");
 const { createOperation, listOperationalState } = require("./services/operationalOperations");
-const { listRegistry } = require("./services/registryStore");
+const { listRegistry, loadConnectorRows } = require("./services/registryStore");
 const { createOrganizationProvisioningRecorder } = require("./services/organizationProvisioningRecorder");
+const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { requireGlobalOwner } = require("./authorization/guards");
 
 const app = express();
@@ -126,6 +127,16 @@ async function loadOrganizationRuntimeStateSafe(logtoOrganizationId) {
   catch (_error) { return []; }
 }
 
+async function loadOwnerConnectorRowsSafe(logtoOrganizationId) {
+  if (!logtoOrganizationId) return [];
+  const rows = [];
+  for (const capability of OWNER_CAPABILITIES) {
+    try { rows.push(...await loadConnectorRows({ logtoOrganizationId, capability })); }
+    catch (_error) { /* Registry DB may be unavailable during bootstrap; unconfigured capabilities remain explicit. */ }
+  }
+  return rows;
+}
+
 async function buildOwnerProfile(organization) {
   const logtoOrganizationId = getLogtoOrganizationId(organization);
   const runtimeStateRows = await loadOrganizationRuntimeStateSafe(logtoOrganizationId);
@@ -215,7 +226,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
     const profile = await buildOwnerProfile(logtoOrganization);
     const workerHealth = await loadWorkerHealthSnapshot();
     const operationalState = await listOperationalState({ limit: 100 });
-    const response = buildConsolidatedOperationalResponse({
+    const baseResponse = buildConsolidatedOperationalResponse({
       organization: buildOperationalOrganization(logtoOrganization, profile),
       logtoOrganization,
       profile,
@@ -225,7 +236,9 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
       generatedAt: new Date(),
       compatibility: { repository: "civitas10", mode: "clean_foundation_no_legacy_sync_tables" },
     });
-    return res.json(response);
+    const runtimeStateRows = await loadOrganizationRuntimeStateSafe(req.params.organizationId);
+    const connectorRows = await loadOwnerConnectorRowsSafe(req.params.organizationId);
+    return res.json(buildOwnerOperationalStateResponse({ baseResponse, organization: buildOperationalOrganization(logtoOrganization, profile), connectorRows, runtimeStateRows, profile }));
   } catch (error) {
     return sendPublicError(res, error, "OwnerOperationalStateError", "Failed to build operational state");
   }
@@ -245,7 +258,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess(
 
 secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, async (_req, res) => {
   try {
-    return res.json({ registry: await listRegistry() });
+    return res.json(await listRegistry());
   } catch (error) {
     return sendPublicError(res, error, "OwnerRegistryError", "Failed to load operational registry");
   }

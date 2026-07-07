@@ -6,6 +6,7 @@ const {
   buildOperationalBlock,
 } = require("./operational/contract");
 const { getWorkerHealthSnapshot, loadWorkerHealthSnapshot } = require("./runtime/ownerObservability");
+const { ownerQueueSignal } = require("./ownerCapabilitySurfaces");
 
 const safeMessage = (value, fallback = null) => {
   if (!value) return fallback;
@@ -90,6 +91,7 @@ function buildQueuesBlocks(queues = [], { workerState = "alive", generatedAt = n
       failed: Number(queue.failed || 0),
       oldestJobAgeSeconds: Number(queue.oldestJobAgeSeconds || 0),
       classification,
+      ownerSignal: ownerQueueSignal({ queueName: queue.name, classification }),
       ...blockForClassification({ classification, checkedAt: generatedAt, providerCode: queue.name, providerStatus: classification, details: { queueName: queue.name, queueRedisBase: queue.redisBase || null, oldestJobAt: queue.oldestJobAt || null, previousWaiting: previousQueue?.waiting ?? null, source: queue.source || null } }),
     };
   });
