@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const { validateDeploymentConfig } = require("../core/deployment/deployment-kernel.cjs");
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess, requireOrganizationRole } = require("./middleware/auth");
+const { requireOrg } = require("./middleware/requireOrg");
+const { requirePermission } = require("./middleware/requirePermission");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
   listLogtoOrganizations,
@@ -37,6 +39,7 @@ const OWNER_GLOBAL_ROLE = SHARED_AUTH.global.ownerRole;
 const OWNER_SCOPES = SHARED_AUTH.global.scopes;
 
 app.use(cors());
+// Orden canónico de middlewares tenant: requireOrganizationAccess → requireOrg → requirePermission → requireSeats (solo si aplica) → handler.
 const secureRoute = createSecurityPolicyRegistry({ app });
 
 const summarizeStatus = (statuses) => {
@@ -288,14 +291,14 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
   }
 });
 
-secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredScopes: ["read:documents"] }), requireOrganizationRole(SHARED_AUTH.organization.roles.member), async (_req, res) => {
+secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredScopes: ["read:documents"] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission("lms:read"), async (_req, res) => {
   res.json([
     { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
     { id: "2", title: "Operational Contract Notes", updatedAt: "2024-03-14", updatedBy: "Alice Smith", preview: "The owner backbone now prefers operational-state over legacy logs..." },
   ]);
 });
 
-secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredScopes: ["create:documents"] }), requireOrganizationRole(SHARED_AUTH.organization.roles.admin), async (_req, res) => {
+secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredScopes: ["create:documents"] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission("members:write"), async (_req, res) => {
   res.json({ data: "Document created" });
 });
 

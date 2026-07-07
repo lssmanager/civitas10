@@ -1,5 +1,5 @@
 const client = require("./client");
-const { createAdapterHealth } = require("../../adapterContract");
+const { createAdapterHealth } = require("../../adapters/contracts");
 const { codes, connectorError } = require("../../errors");
 const { validateLogtoConfig, sanitizeLogtoConfig } = require("./config");
 const actions = ["identity.organization.get", "identity.organization.roles.list", "identity.organization.memberships.list"];
@@ -21,7 +21,7 @@ function createLogtoAdapter(config = {}) {
     },
   };
   adapter.healthcheck = adapter.healthCheck;
-  adapter.ping = async () => { const health = await adapter.healthCheck(); return { status: health.status.toUpperCase(), latency_ms: health.latencyMs ?? null, message: health.error || null, checked_at: new Date(health.timestamp || Date.now()).toISOString() }; };
+  adapter.ping = async () => { const health = await adapter.healthCheck(); return { status: health.status.toUpperCase(), latency_ms: health.latency_ms ?? null, last_successful_ping: health.last_successful_ping ?? null }; };
   return adapter;
 }
 module.exports = { createLogtoAdapter };

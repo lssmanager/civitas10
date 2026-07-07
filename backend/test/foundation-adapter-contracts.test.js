@@ -5,6 +5,7 @@ const { createLogtoAdapter } = require("../connectors/identity/logto");
 const { MockBaseAdapter } = require("../connectors/registry");
 const {
   ConnectorContractViolationError,
+  ConnectorCapabilityUnsupportedError,
   validateAdapterContract,
   validateAdapterHealth,
 } = require("../connectors/adapters/contracts");
@@ -14,7 +15,7 @@ test("adapter without ping fails with ConnectorContractViolationError", () => {
 });
 
 test("invalid adapter capability fails", () => {
-  assert.throws(() => validateAdapterContract({ capability: "erp", ping() {} }, { capability: "erp" }), ConnectorContractViolationError);
+  assert.throws(() => validateAdapterContract({ capability: "owner", provider: "mock", ping() {} }, { capability: "owner" }), ConnectorCapabilityUnsupportedError);
 });
 
 test("mock adapter passes foundation contract and health validation", async () => {

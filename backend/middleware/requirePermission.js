@@ -1,24 +1,33 @@
-"use strict";
+'use strict'
 
-const { hasPermission } = require("../authorization/roles");
-function parseClaimList(value) { if (Array.isArray(value)) return value.map(String).filter(Boolean); if (typeof value === "string") return value.split(/[\s,]+/).filter(Boolean); return []; }
-function getRequestRoles(req = {}) {
-  const claims = req.user?.claims || {};
-  return [...new Set([
-    ...parseClaimList(req.user?.roles),
-    ...parseClaimList(req.user?.globalRoles),
-    ...parseClaimList(req.user?.organizationRoles),
-    ...parseClaimList(claims.roles),
-    ...parseClaimList(claims.global_roles),
-    ...parseClaimList(claims.organization_roles),
-  ])];
-}
+const { ROLE_PERMISSIONS } = require('../authorization/roles')
+
 function requirePermission(permission) {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
-    const roles = getRequestRoles(req);
-    if (!hasPermission(roles, permission)) return res.status(403).json({ error: "Forbidden", message: "Missing required permission.", requiredPermission: permission, action: "ask_owner_to_assign_required_role" });
-    return next();
-  };
+    const user = req.user
+    if (!user) {
+      return res.status(401).json({ error: 'Sin contexto de usuario' })
+    }
+
+    const userRoles = user.roles ?? []
+    const userScopes = user.scopes ?? []
+
+    const hasPermission =
+      userRoles.some((role) => {
+        const perms = ROLE_PERMISSIONS[role] ?? []
+        return perms.includes('*') || perms.includes(permission)
+      }) || userScopes.includes(permission)
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        error: 'Sin permisos suficientes',
+        required: permission,
+        roles: userRoles,
+      })
+    }
+
+    return next()
+  }
 }
-module.exports = { getRequestRoles, requirePermission };
+
+module.exports = { requirePermission }

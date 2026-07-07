@@ -1,19 +1,9 @@
 const { CANONICAL_PERMISSIONS } = require("../contracts/foundation");
-
-const GLOBAL_ROLES = Object.freeze(["owner_global"]);
-const SUPPORT_AGENT_ROLE = "support_agent";
-
-const ORGANIZATION_ROLES = Object.freeze({
-  ADMIN: "organization:admin",
-  TEACHER: "organization:teacher",
-  STUDENT: "organization:student",
-  ADMIN_LEGACY: "Admin-org",
-  STUDENT_LEGACY: "Student-org",
-});
+const { GLOBAL_ROLES, ORGANIZATION_ROLES } = require("../authorization/roles");
 
 const RBAC_MATRIX = Object.freeze({
-  [GLOBAL_ROLES[0]]: CANONICAL_PERMISSIONS,
-  [SUPPORT_AGENT_ROLE]: [
+  [GLOBAL_ROLES.OWNER]: CANONICAL_PERMISSIONS,
+  [GLOBAL_ROLES.SUPPORT_AGENT]: [
     "identity:read",
     "members:read",
     "connectors:read",
@@ -44,29 +34,8 @@ const RBAC_MATRIX = Object.freeze({
     "payments:read",
     "audit:read",
   ],
-  [ORGANIZATION_ROLES.ADMIN_LEGACY]: [
-    "identity:read",
-    "members:read",
-    "members:invite",
-    "members:remove",
-    "seats:read",
-    "seats:assign",
-    "seats:release",
-    "connectors:read",
-    "connectors:configure",
-    "lms:read",
-    "lms:enroll",
-    "crm:read",
-    "support:read",
-    "support:write",
-    "scheduling:read",
-    "scheduling:book",
-    "payments:read",
-    "audit:read",
-  ],
   [ORGANIZATION_ROLES.TEACHER]: ["members:read", "seats:read", "lms:read", "support:read", "scheduling:read"],
   [ORGANIZATION_ROLES.STUDENT]: ["lms:read", "support:read", "scheduling:read"],
-  [ORGANIZATION_ROLES.STUDENT_LEGACY]: ["lms:read", "support:read", "scheduling:read"],
 });
 
 const unique = (items) => [...new Set(items.filter(Boolean))];
@@ -104,13 +73,13 @@ const requireOrg = (req, res, next) => {
       message: "organization_id is required for B2B operations.",
     });
   }
-  req.organizationId = organizationId;
+  req.org = req.org || { id: organizationId, logto_organization_id: organizationId };
   return next();
 };
 
 const requireSeats = ({ getSeatAvailability } = {}) => async (req, res, next) => {
   if (!getSeatAvailability) return next();
-  const availability = await getSeatAvailability(req.organizationId || req.params?.organizationId || req.params?.id);
+  const availability = await getSeatAvailability(req.org?.logto_organization_id || req.org?.id || req.params?.organizationId || req.params?.id);
   if (!availability || Number(availability.available || 0) <= 0) {
     return res.status(422).json({
       error: "SeatsUnavailable",
@@ -123,7 +92,6 @@ const requireSeats = ({ getSeatAvailability } = {}) => async (req, res, next) =>
 
 module.exports = {
   GLOBAL_ROLES,
-  SUPPORT_AGENT_ROLE,
   ORGANIZATION_ROLES,
   RBAC_MATRIX,
   getPermissionsForRoles,

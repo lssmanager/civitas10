@@ -146,14 +146,19 @@ create index if not exists registry_bindings_active_idx on registry_connector_bi
 
 insert into registry_capabilities (key, description)
 values
+  ('identity', 'Identity capability'),
+  ('lms', 'Learning management capability'),
   ('crm', 'Customer relationship management capability'),
   ('marketing', 'Marketing automation capability'),
-  ('lms', 'Learning management capability'),
-  ('community', 'Community capability'),
-  ('payments', 'Payments capability'),
-  ('notifications', 'Notifications capability'),
   ('support', 'Support capability'),
-  ('analytics', 'Analytics capability')
+  ('scheduling', 'Scheduling capability'),
+  ('payments', 'Payments capability'),
+  ('email', 'Transactional email capability'),
+  ('storage', 'Storage capability'),
+  ('analytics', 'Analytics capability'),
+  ('notifications', 'Notifications capability'),
+  ('automation', 'Automation capability'),
+  ('community', 'Community capability')
 on conflict (key) do nothing;
 
 create table if not exists capability_role_mappings (

@@ -7,8 +7,8 @@ const requireGlobalOwner = (req, res, next) => {
     return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
   }
   const globalRoles = Array.isArray(req.user.globalRoles) ? req.user.globalRoles : [];
-  if (!globalRoles.includes(GLOBAL_ROLES[0])) {
-    return res.status(403).json({ error: "Forbidden", message: `Missing required global role: ${GLOBAL_ROLES[0]}`, requiredGlobalRole: GLOBAL_ROLES[0] });
+  if (!globalRoles.includes(GLOBAL_ROLES.OWNER)) {
+    return res.status(403).json({ error: "Forbidden", message: `Missing required global role: ${GLOBAL_ROLES.OWNER}`, requiredGlobalRole: GLOBAL_ROLES.OWNER });
   }
   return next();
 };
@@ -23,7 +23,6 @@ const requireOrganizationRole = (requiredRoleName) => (req, res, next) => {
   if (!roles.includes(requiredRoleName)) {
     return res.status(403).json({ error: "Forbidden", message: `Missing required Logto organization role: ${requiredRoleName}`, requiredRole: requiredRoleName, organizationId });
   }
-  req.organization = Object.freeze({ id: organizationId, roles: [...roles] });
   return next();
 };
 
