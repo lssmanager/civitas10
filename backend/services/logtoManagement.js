@@ -122,7 +122,20 @@ const getRequiredEnv = (name) => {
   return value;
 };
 
-const normalizeEndpoint = (endpoint) => endpoint.replace(/\/+$/, "").replace(/\/oidc$/, "");
+const normalizeEndpoint = (endpoint) => {
+  const parsed = new URL(endpoint);
+  if (parsed.protocol !== "https:") {
+    throw new LogtoManagementApiError("LOGTO_ENDPOINT must use HTTPS", { status: 500, body: { reason: "invalid_logto_endpoint_protocol" } });
+  }
+  if (!["", "/", "/oidc"].includes(parsed.pathname.replace(/\/+$/, "") || "/")) {
+    throw new LogtoManagementApiError("LOGTO_ENDPOINT must point to the Logto tenant origin", { status: 500, body: { reason: "invalid_logto_endpoint_path" } });
+  }
+  parsed.pathname = parsed.pathname.replace(/\/+$/, "").replace(/\/oidc$/, "");
+  parsed.search = "";
+  parsed.hash = "";
+  return parsed.toString().replace(/\/+$/, "");
+};
+const encodePathSegment = (value) => encodeURIComponent(String(value));
 
 const assertSeparateLogtoResources = (deploymentConfig) => {
   if (!deploymentConfig.logtoResource) {
@@ -328,39 +341,39 @@ async function createLogtoOrganization({ name, description, customData }) {
 }
 
 async function updateLogtoOrganizationCustomData({ organizationId, customData }) {
-  return callLogtoManagementApi(`/organizations/${organizationId}`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}`, {
     method: "PATCH",
     body: JSON.stringify({ customData }),
   });
 }
 
 async function updateLogtoOrganization({ organizationId, name, description, customData }) {
-  return callLogtoManagementApi(`/organizations/${encodeURIComponent(organizationId)}`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}`, {
     method: "PATCH",
     body: JSON.stringify({ name: name || undefined, description: description || undefined, customData: customData || undefined }),
   });
 }
 
 async function getLogtoOrganizationById(organizationId) {
-  return callLogtoManagementApi(`/organizations/${encodeURIComponent(organizationId)}`);
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}`);
 }
 
 async function addUserToLogtoOrganization({ organizationId, userId }) {
-  return callLogtoManagementApi(`/organizations/${organizationId}/users`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}/users`, {
     method: "POST",
     body: JSON.stringify({ userIds: [userId] }),
   });
 }
 
 async function replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains }) {
-  return callLogtoManagementApi(`/organizations/${organizationId}/jit/email-domains`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}/jit/email-domains`, {
     method: "PUT",
     body: JSON.stringify({ emailDomains }),
   });
 }
 
 async function replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds }) {
-  return callLogtoManagementApi(`/organizations/${organizationId}/jit/roles`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}/jit/roles`, {
     method: "PUT",
     body: JSON.stringify({ organizationRoleIds }),
   });
@@ -438,14 +451,14 @@ async function assignOrganizationRoleToUser({ organizationId, userId, organizati
   const rolePayload = organizationRoleId
     ? { organizationRoleIds: [organizationRoleId] }
     : { organizationRoleNames: [organizationRoleName] };
-  return callLogtoManagementApi(`/organizations/${organizationId}/users/${userId}/roles`, {
+  return callLogtoManagementApi(`/organizations/${encodePathSegment(organizationId)}/users/${encodePathSegment(userId)}/roles`, {
     method: "POST",
     body: JSON.stringify(rolePayload),
   });
 }
 
 async function getLogtoUserById(userId) {
-  return callLogtoManagementApi(`/users/${encodeURIComponent(userId)}`);
+  return callLogtoManagementApi(`/users/${encodePathSegment(userId)}`);
 }
 
 function normalizeLogtoPrimaryPhone(phone) {
@@ -454,7 +467,7 @@ function normalizeLogtoPrimaryPhone(phone) {
 }
 
 async function updateLogtoUser({ userId, email, primaryEmail, name, phone, primaryPhone, username, profile, customData }) {
-  return callLogtoManagementApi(`/users/${encodeURIComponent(userId)}`, {
+  return callLogtoManagementApi(`/users/${encodePathSegment(userId)}`, {
     method: "PATCH",
     body: JSON.stringify({
       primaryEmail: primaryEmail || email || undefined,

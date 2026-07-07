@@ -59,6 +59,34 @@ const getWorkerReadiness = () => ({
     : "Configure REDIS_URL to enable worker queue execution and heartbeat publishing.",
 });
 
+
+const SAFE_PUBLIC_ERROR_NAMES = new Set(["LogtoManagementApiError"]);
+const sanitizePublicErrorResponse = (error, fallbackName, fallbackMessage) => {
+  const rawStatus = error && Number.isInteger(error.status) ? error.status : 500;
+  const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
+  const safeError = error && (status < 500 || SAFE_PUBLIC_ERROR_NAMES.has(error.name)) ? error : null;
+  return {
+    status,
+    body: {
+      error: safeError && safeError.name ? safeError.name : fallbackName,
+      message: safeError && typeof safeError.message === "string" ? safeError.message : fallbackMessage,
+      ...(safeError && typeof safeError.code === "string" ? { code: safeError.code } : {}),
+      ...(safeError && safeError.body && typeof safeError.body === "object" ? { details: safeError.body } : {}),
+    },
+  };
+};
+const sendPublicError = (res, error, fallbackName, fallbackMessage) => {
+  const response = sanitizePublicErrorResponse(error, fallbackName, fallbackMessage);
+  return res.status(response.status).json(response.body);
+};
+const ORGANIZATION_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+const requireSafeOrganizationIdParam = (req, res, next) => {
+  if (!ORGANIZATION_ID_PATTERN.test(req.params.organizationId || "")) {
+    return res.status(400).json({ error: "ValidationError", message: "Invalid organization identifier." });
+  }
+  return next();
+};
+
 const buildMeResponse = (user) => {
   const globalRoles = Array.isArray(user?.globalRoles) ? user.globalRoles : [];
   const organizationRoles = Array.isArray(user?.organizationRoles) ? user.organizationRoles : [];
@@ -174,7 +202,7 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess
       ready: template.ok,
     });
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOrganizationTemplateError", message: error?.message || "Failed to load Logto organization template", code: error?.code || null, details: error?.body || null });
+    return sendPublicError(res, error, "OwnerOrganizationTemplateError", "Failed to load Logto organization template");
   }
 });
 
@@ -183,11 +211,11 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
     const organizations = await listLogtoOrganizations();
     return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOrganizationsListError", message: error?.message || "Failed to list organizations from Logto", code: error?.code || null, details: error?.body || null });
+    return sendPublicError(res, error, "OwnerOrganizationsListError", "Failed to list organizations from Logto");
   }
 });
 
-secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, async (req, res) => {
+secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
     const profile = deriveOperationalProfile(logtoOrganization);
@@ -205,7 +233,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
     });
     return res.json(response);
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OwnerOperationalStateError", message: error?.message || "Failed to build operational state", code: error?.code || null, details: error?.body || null });
+    return sendPublicError(res, error, "OwnerOperationalStateError", "Failed to build operational state");
   }
 });
 
@@ -217,7 +245,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess(
     const aggregate = await loadWorkerQueuesObservability({ profiles, operations: operationalState.operations, steps: operationalState.steps, auditLogRows: operationalState.auditLogRows });
     return res.json(aggregate);
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OwnerWorkerQueuesError", message: error?.message || "Failed to load worker and queues observability", code: error?.code || null, details: error?.body || null });
+    return sendPublicError(res, error, "OwnerWorkerQueuesError", "Failed to load worker and queues observability");
   }
 });
 
@@ -225,7 +253,7 @@ secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ res
   try {
     return res.json({ registry: await listRegistry() });
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OwnerRegistryError", message: error?.message || "Failed to load operational registry" });
+    return sendPublicError(res, error, "OwnerRegistryError", "Failed to load operational registry");
   }
 });
 
@@ -234,7 +262,7 @@ secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobal
     const operation = await createOperation(req.body || {});
     return res.status(202).json({ operation });
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OperationalOperationCreateError", message: error?.message || "Failed to enqueue operational operation" });
+    return sendPublicError(res, error, "OperationalOperationCreateError", "Failed to enqueue operational operation");
   }
 });
 
@@ -256,7 +284,7 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
       },
     });
   } catch (error) {
-    return res.status(error?.status || 500).json({ error: error?.name || "OrganizationProvisioningError", message: error?.message || "Failed to create organization in Logto", code: error?.code || null, details: error?.body || null });
+    return sendPublicError(res, error, "OrganizationProvisioningError", "Failed to create organization in Logto");
   }
 });
 

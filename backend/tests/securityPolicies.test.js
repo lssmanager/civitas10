@@ -50,3 +50,18 @@ test("Defender workflow declares least-privilege permissions for checkout and SA
   const workflow = readFileSync(join(__dirname, "..", "..", ".github", "workflows", "defender-for-devops.yml"), "utf8");
   assert.match(workflow, /permissions:\n\s+contents: read\n\s+security-events: write/);
 });
+
+test("owner route handlers use sanitized public error responses", () => {
+  const source = readFileSync(join(__dirname, "..", "index.js"), "utf8");
+  assert.match(source, /const sendPublicError = \(res, error, fallbackName, fallbackMessage\)/);
+  assert.doesNotMatch(source, /details: error\?\.body/);
+  assert.doesNotMatch(source, /message: error\?\.message/);
+  assert.match(source, /requireSafeOrganizationIdParam/);
+});
+
+test("Logto Management paths encode untrusted URL segments and require HTTPS tenant origins", () => {
+  const source = readFileSync(join(__dirname, "..", "services", "logtoManagement.js"), "utf8");
+  assert.match(source, /parsed\.protocol !== "https:"/);
+  assert.match(source, /encodePathSegment\(organizationId\)/);
+  assert.equal(source.includes("callLogtoManagementApi(`/organizations/${organizationId}"), false);
+});
