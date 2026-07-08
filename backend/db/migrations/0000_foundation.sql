@@ -92,6 +92,49 @@ create table if not exists operational_operation_steps (
 create index if not exists operational_steps_operation_idx on operational_operation_steps(operation_id);
 create index if not exists operational_steps_status_idx on operational_operation_steps(status);
 
+-- Organization provisioning drafts are local operational request envelopes only.
+-- They are keyed by idempotency_key so owner wizard resumes do not create a
+-- parallel canonical organization; Logto remains the source for current org data.
+create table if not exists organization_provisioning_drafts (
+  idempotency_key varchar(220) primary key,
+  current_stage varchar(40) not null default 'canonical',
+  stage_payloads jsonb not null default '{}'::jsonb,
+  consolidated_payload jsonb not null default '{}'::jsonb,
+  actor_json jsonb not null default '{}'::jsonb,
+  status varchar(40) not null default 'draft',
+  submit_status varchar(40) not null default 'not_submitted',
+  logto_organization_id varchar(128),
+  last_error_json jsonb,
+  submitted_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists organization_provisioning_drafts_status_idx on organization_provisioning_drafts(status, submit_status);
+create index if not exists organization_provisioning_drafts_logto_org_idx on organization_provisioning_drafts(logto_organization_id);
+
+
+create table if not exists organization_runtime_state (
+  id uuid primary key default gen_random_uuid(),
+  logto_organization_id varchar(128) not null,
+  capability varchar(80) not null,
+  state_key varchar(160) not null,
+  state_value text,
+  metadata jsonb not null default '{}'::jsonb,
+  source varchar(80) not null default 'organization_runtime_state',
+  status varchar(40) not null default 'active',
+  last_synced_at timestamptz,
+  last_error jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint organization_runtime_state_capability_check check (capability in ('identity','lms','crm','marketing','support','scheduling','payments','email','storage','analytics','notifications','automation','community')),
+  constraint organization_runtime_state_key_check check (state_key ~ '^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'),
+  constraint organization_runtime_state_no_provider_key_check check (split_part(state_key, '.', 1) not in ('fluentcrm','moodle','buddyboss','wordpress','stripe'))
+);
+create unique index if not exists organization_runtime_state_org_cap_key_uidx on organization_runtime_state(logto_organization_id, capability, state_key);
+create index if not exists organization_runtime_state_org_idx on organization_runtime_state(logto_organization_id);
+create index if not exists organization_runtime_state_capability_idx on organization_runtime_state(capability);
+create index if not exists organization_runtime_state_org_capability_idx on organization_runtime_state(logto_organization_id, capability);
+
 create table if not exists registry_capabilities (
   id uuid primary key default gen_random_uuid(),
   key varchar(80) not null unique,
@@ -132,6 +175,7 @@ create table if not exists registry_connectors (
 create table if not exists registry_connector_bindings (
   id uuid primary key default gen_random_uuid(),
   connector_id uuid not null references registry_connectors(id) on delete cascade,
+  capability_id uuid not null references registry_capabilities(id) on delete cascade,
   scope_type varchar(40) not null default 'tenant',
   logto_organization_id varchar(128),
   status varchar(40) not null default 'active',
@@ -141,8 +185,17 @@ create table if not exists registry_connector_bindings (
   updated_at timestamptz not null default now(),
   constraint registry_bindings_tenant_scope_check check (scope_type <> 'tenant' or logto_organization_id is not null)
 );
+-- Existing deployments may already have registry_connector_bindings from the pre-Fase-1
+-- connector model. CREATE TABLE IF NOT EXISTS does not add columns to those tables, so
+-- make the capability anchor explicit before creating indexes that reference it. The
+-- follow-up migration backfills this column and enforces NOT NULL after validation.
+alter table registry_connector_bindings
+  add column if not exists capability_id uuid references registry_capabilities(id) on delete cascade;
+
 create index if not exists registry_bindings_scope_idx on registry_connector_bindings(scope_type, logto_organization_id);
 create index if not exists registry_bindings_active_idx on registry_connector_bindings(is_active, status);
+create index if not exists registry_bindings_org_capability_idx on registry_connector_bindings(logto_organization_id, capability_id);
+create unique index if not exists registry_bindings_active_org_capability_uidx on registry_connector_bindings(logto_organization_id, capability_id) where is_active = true and status = 'active';
 
 insert into registry_capabilities (key, description)
 values

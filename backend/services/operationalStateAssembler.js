@@ -107,7 +107,7 @@ function buildCanonicalOperationalBlock({ logtoOrganization, profile, pending = 
     humanMessage,
     providerCode,
     providerStatus,
-    details: { sourceOfTruth: "logto", logtoOrganizationId: profile?.logtoOrganizationId || logtoOrganization?.id || null, topLevelFields: ok ? ["id", "name", "description", "customData"] : [], ...(unavailable ? { error: logtoOrganization._error } : {}) },
+    details: { canonicalSource: "logto", logtoOrganizationId: profile?.logtoOrganizationId || logtoOrganization?.id || null, topLevelFields: ok ? ["id", "name", "description", "customData"] : [], ...(unavailable ? { error: logtoOrganization._error } : {}) },
   });
 }
 
@@ -122,10 +122,10 @@ function buildFluentCrmOperationalBlock({ profile, pending = [], events = [] } =
     staleAfterSeconds: active ? 30 : 300,
     pending: company ? [company] : [],
     events,
-    humanMessage: company?.humanMessage || (profile?.fluentcrmCompanyId ? "Company FluentCRM enlazada como downstream comercial." : "Falta crear o enlazar Company en FluentCRM."),
+    humanMessage: company?.humanMessage || (profile?.fluentcrmCompanyId ? "Referencia CRM externa enlazada mediante adapter FluentCRM." : "Falta crear o enlazar la referencia CRM externa mediante adapter FluentCRM."),
     providerCode: company?.providerCode || null,
     providerStatus: company?.providerStatus || profile?.fluentcrmSyncStatus || null,
-    details: { organizationId: profile?.logtoOrganizationId || null, fluentcrmCompanyId: profile?.fluentcrmCompanyId || null, pending: company, sourceOfTruth: "fluentcrm_wordpress" },
+    details: { organizationId: profile?.logtoOrganizationId || null, fluentcrmCompanyId: profile?.fluentcrmCompanyId || null, pending: company, capability: "crm", adapter: "fluentcrm", canonicalSource: "external_capability_adapter", legacyCompatibility: true },
     runtime: company ? { isActive: Boolean(active), queueState: company.retryState || company.queueStatus || company.status, queueName: company.queueName || null, jobAgeSeconds: company.jobAgeSeconds ?? null } : null,
   });
 }
@@ -141,7 +141,7 @@ function buildWordpressOperationalBlock({ profile, pending = [], events = [] } =
     staleAfterSeconds: 120,
     pending: provider && !provider.eventId ? [provider] : [],
     events,
-    humanMessage: awaiting ? "El usuario WordPress local falta y es esperado hasta el primer login." : "WordPress no se usa como canon de autorización; requiere verificación live para estado downstream.",
+    humanMessage: awaiting ? "La referencia operacional de WordPress falta y es esperada hasta el primer login." : "WordPress no es canon de autorización; solo aparece como referencia operacional legacy/downstream.",
     providerCode: provider?.providerCode || null,
     providerStatus: provider?.providerStatus || null,
     details: { authorizationCanonicalSource: "logto", wordpressUserIsAuthorizationCanon: false },

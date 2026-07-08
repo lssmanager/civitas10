@@ -79,6 +79,26 @@ const operationalOperationSteps = pgTable("operational_operation_steps", {
   ...timestamps,
 }, (table) => ({ opIdx: index("operational_steps_operation_idx").on(table.operationId), statusIdx: index("operational_steps_status_idx").on(table.status) }));
 
+
+const organizationRuntimeState = pgTable("organization_runtime_state", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  logtoOrganizationId: varchar("logto_organization_id", { length: 128 }).notNull(),
+  capability: varchar("capability", { length: 80 }).notNull(),
+  stateKey: varchar("state_key", { length: 160 }).notNull(),
+  stateValue: text("state_value"),
+  metadata: jsonb("metadata").notNull().default(sql`'{}'::jsonb`),
+  source: varchar("source", { length: 80 }).notNull().default("organization_runtime_state"),
+  status: varchar("status", { length: 40 }).notNull().default("active"),
+  lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+  lastError: jsonb("last_error"),
+  ...timestamps,
+}, (table) => ({
+  uniqueOrgCapabilityStateKey: uniqueIndex("organization_runtime_state_org_cap_key_uidx").on(table.logtoOrganizationId, table.capability, table.stateKey),
+  orgIdx: index("organization_runtime_state_org_idx").on(table.logtoOrganizationId),
+  capabilityIdx: index("organization_runtime_state_capability_idx").on(table.capability),
+  orgCapabilityIdx: index("organization_runtime_state_org_capability_idx").on(table.logtoOrganizationId, table.capability),
+}));
+
 const capabilities = pgTable("registry_capabilities", {
   id: uuid("id").primaryKey().defaultRandom(),
   key: varchar("key", { length: 80 }).notNull().unique(),
@@ -111,16 +131,26 @@ const connectors = pgTable("registry_connectors", {
   ...timestamps,
 }, (table) => ({ uniqueAdapterConnector: uniqueIndex("registry_connectors_adapter_key_idx").on(table.adapterId, table.key) }));
 
+// Connector persistence model (capability-first):
+// - registry_capabilities: global catalog of supported external capabilities/contracts.
+// - registry_adapters: global catalog of available adapter implementations per capability.
+// - registry_connectors: configured connector instances with non-sensitive operational config and secretsRef only.
+// - registry_connector_bindings: tenant-scoped active binding from Logto organization + capability to one connector.
 const connectorBindings = pgTable("registry_connector_bindings", {
   id: uuid("id").primaryKey().defaultRandom(),
   connectorId: uuid("connector_id").notNull().references(() => connectors.id, { onDelete: "cascade" }),
+  capabilityId: uuid("capability_id").notNull().references(() => capabilities.id, { onDelete: "cascade" }),
   scopeType: varchar("scope_type", { length: 40 }).notNull().default("tenant"),
   logtoOrganizationId: varchar("logto_organization_id", { length: 128 }),
   status: varchar("status", { length: 40 }).notNull().default("active"),
   isActive: boolean("is_active").notNull().default(true),
   routingConfig: jsonb("routing_config").notNull().default(sql`'{}'::jsonb`),
   ...timestamps,
-}, (table) => ({ scopeIdx: index("registry_bindings_scope_idx").on(table.scopeType, table.logtoOrganizationId), activeIdx: index("registry_bindings_active_idx").on(table.isActive, table.status) }));
+}, (table) => ({
+  scopeIdx: index("registry_bindings_scope_idx").on(table.scopeType, table.logtoOrganizationId),
+  activeIdx: index("registry_bindings_active_idx").on(table.isActive, table.status),
+  activeOrgCapabilityUnique: uniqueIndex("registry_bindings_active_org_capability_uidx").on(table.logtoOrganizationId, table.capabilityId).where(sql`${table.isActive} = true and ${table.status} = 'active'`),
+}));
 
 
 const capabilityRoleMappings = pgTable("capability_role_mappings", {
@@ -141,6 +171,24 @@ const capabilityRoleMappings = pgTable("capability_role_mappings", {
   ...timestamps,
 }, (table) => ({ lookupIdx: index("capability_role_mappings_lookup_idx").on(table.logtoOrganizationId, table.capability, table.connectorKey, table.canonicalRoleName), activeIdx: index("capability_role_mappings_active_idx").on(table.isActive) }));
 
+
+const organizationProvisioningDrafts = pgTable("organization_provisioning_drafts", {
+  idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
+  currentStage: varchar("current_stage", { length: 40 }).notNull().default("canonical"),
+  stagePayloads: jsonb("stage_payloads").notNull().default(sql`'{}'::jsonb`),
+  consolidatedPayload: jsonb("consolidated_payload").notNull().default(sql`'{}'::jsonb`),
+  actorJson: jsonb("actor_json").notNull().default(sql`'{}'::jsonb`),
+  status: varchar("status", { length: 40 }).notNull().default("draft"),
+  submitStatus: varchar("submit_status", { length: 40 }).notNull().default("not_submitted"),
+  logtoOrganizationId: varchar("logto_organization_id", { length: 128 }),
+  lastErrorJson: jsonb("last_error_json"),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => ({
+  statusIdx: index("organization_provisioning_drafts_status_idx").on(table.status, table.submitStatus),
+  logtoOrgIdx: index("organization_provisioning_drafts_logto_org_idx").on(table.logtoOrganizationId),
+}));
+
 const idempotencyRecords = pgTable("idempotency_records", {
   idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
   operationId: uuid("operation_id"),
@@ -152,4 +200,4 @@ const idempotencyRecords = pgTable("idempotency_records", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-module.exports = { localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
+module.exports = { localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };

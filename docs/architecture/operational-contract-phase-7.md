@@ -72,7 +72,7 @@ Every new capability must declare:
 5. operational block(s) using status, severity, provider status, freshness, invalidation and standard actions;
 6. canonical source boundaries.
 
-`payments` must preserve commercial canon: payment provider(s) own payment processor state, FluentCRM/WordPress remain downstream commercial/operational systems where applicable, and Civitas stores only operational synchronization, action results, retries and diagnostics.
+`payments` must preserve canonical-source boundaries: payment processor state is external capability state exposed through adapters; FluentCRM/WordPress may remain downstream commercial/operational compatibility systems where applicable; Civitas stores only operational synchronization, action results, retries, mappings and diagnostics.
 
 ## Legacy endpoint compatibility matrix
 
@@ -90,5 +90,5 @@ No destructive deprecation occurs in Phase 7. The map is a soft-deprecation plan
 ## Follow-ups
 
 - #184 should implement concrete capability adapter interfaces using this contract grammar.
-- #186 should publish connector registry metadata that maps capability/provider/adapters into discoverable operational blocks.
+- #186 should publish connector registry metadata that maps capability/adapters into discoverable operational blocks without making provider-first lookup the public contract.
 - Future payments/RBAC work should add blocks and schemas additively, with examples and compatibility tests in the same change.

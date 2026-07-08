@@ -1,0 +1,84 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+
+const {
+  InvalidInitialOrganizationRoleError,
+  normalizeProvisioningInput,
+  runCanonicalOrganizationProvisioning,
+} = require("../services/organizationProvisioningCore");
+
+function validBody(roleName = "organization_admin") {
+  return {
+    name: "Colegio Uno",
+    entryUrl: "https://colegio.didaxus.com",
+    appSubdomain: "colegio",
+    appBaseDomain: "didaxus.com",
+    adminDomain: "colegio.didaxus.com",
+    administrativeContacts: [{ firstName: "Ada", firstSurname: "Lovelace", email: "ada@example.test", organizationRoleName: roleName }],
+    jitProvisioning: { defaultRoleNames: ["organization_member"] },
+  };
+}
+
+function fakeLogto({ roles = ["organization_admin", "organization_member"] } = {}) {
+  const calls = [];
+  const roleRows = roles.map((name, index) => ({ id: `role-${index + 1}`, name }));
+  return {
+    calls,
+    deps: {
+      async listLogtoOrganizationRoles() { calls.push(["listLogtoOrganizationRoles"]); return roleRows; },
+      async ensureOrganizationTemplate({ requiredRoleNames }) { calls.push(["ensureOrganizationTemplate", requiredRoleNames]); return { ok: true, requiredRoleNames, roles: roleRows }; },
+      async createOrganization() { calls.push(["createOrganization"]); return { id: "org-1", name: "Colegio Uno" }; },
+      async replaceJitEmailDomainsForLogtoOrganization(input) { calls.push(["replaceJitEmailDomainsForLogtoOrganization", input]); return {}; },
+      async replaceJitDefaultRolesForLogtoOrganization(input) { calls.push(["replaceJitDefaultRolesForLogtoOrganization", input]); return {}; },
+      async createOrResolveLogtoUserByEmail() { calls.push(["createOrResolveLogtoUserByEmail"]); return { user: { id: "user-1" }, created: true, source: "created" }; },
+      async addUserToLogtoOrganization(input) { calls.push(["addUserToLogtoOrganization", input]); return {}; },
+      async assignOrganizationRoleToUser(input) { calls.push(["assignOrganizationRoleToUser", input]); return {}; },
+    },
+  };
+}
+
+test("provisioning does not default a tenant role from hardcoded backend constants", () => {
+  const normalized = normalizeProvisioningInput({ ...validBody(), administrativeContacts: [{ firstName: "Ada", firstSurname: "Lovelace", email: "ada@example.test" }] });
+  assert.ok(normalized.errors.some((error) => error.field === "administrativeContacts.0.organizationRoleName"));
+});
+
+test("provisioning validates selected initial organization role against Logto roles", async () => {
+  const normalized = normalizeProvisioningInput(validBody("organization_director"));
+  assert.deepEqual(normalized.errors, []);
+  const logto = fakeLogto({ roles: ["organization_admin", "organization_member"] });
+
+  await assert.rejects(
+    () => runCanonicalOrganizationProvisioning({ input: normalized.value, logto: logto.deps }),
+    (error) => {
+      assert.ok(error instanceof InvalidInitialOrganizationRoleError);
+      assert.equal(error.error, "invalid_initial_organization_role");
+      assert.equal(error.requestedRole, "organization_director");
+      assert.deepEqual(error.availableRoles, ["organization_admin", "organization_member"]);
+      return true;
+    },
+  );
+  assert.deepEqual(logto.calls.map(([name]) => name), ["listLogtoOrganizationRoles"]);
+});
+
+test("provisioning assigns only explicit Logto organization role and does not convert owner_global into tenant membership", async () => {
+  const normalized = normalizeProvisioningInput(validBody("organization_admin"));
+  assert.deepEqual(normalized.errors, []);
+  const logto = fakeLogto({ roles: ["organization_admin", "organization_member"] });
+  const steps = [];
+
+  const result = await runCanonicalOrganizationProvisioning({
+    input: normalized.value,
+    actor: { type: "owner_global", logtoUserId: "owner-1" },
+    recorder: { async startOperation(event) { steps.push(["start", event]); }, async recordStep(event) { steps.push(["step", event]); }, async completeOperation(event) { steps.push(["complete", event]); } },
+    logto: logto.deps,
+  });
+
+  assert.equal(result.organizationId, "org-1");
+  assert.deepEqual(result.availableOrganizationRoles, ["organization_admin", "organization_member"]);
+  const assignCall = logto.calls.find(([name]) => name === "assignOrganizationRoleToUser");
+  assert.equal(assignCall[1].organizationRoleName, "organization_admin");
+  assert.equal(assignCall[1].userId, "user-1");
+  assert.ok(!logto.calls.some(([, input]) => input?.userId === "owner-1"));
+  assert.ok(steps.some(([kind, event]) => kind === "start" && event.operationType === "organization.bootstrap"));
+  assert.ok(steps.some(([kind, event]) => kind === "step" && event.stepName === "logto.organization_roles.list" && event.status === "completed"));
+});

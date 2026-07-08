@@ -10,16 +10,15 @@ const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies"
 const {
   listLogtoOrganizations,
   listLogtoOrganizationRoles,
-  validateOrganizationTemplate,
   getLogtoOrganizationById,
 } = require("./services/logtoManagement");
 const {
   normalizeProvisioningInput,
   runCanonicalOrganizationProvisioning,
-  ORGANIZATION_ADMIN_ROLE_NAME,
-  JIT_DEFAULT_ORGANIZATION_ROLE_NAME,
 } = require("./services/organizationProvisioningCore");
 const { buildConsolidatedOperationalResponse } = require("./services/operationalStateAssembler");
+const { buildOperationalOrganization, deriveOperationalProfile, getLogtoOrganizationId, getLogtoOrganizationName } = require("./services/ownerOperationalProfile");
+const { listRuntimeState } = require("./services/organizationRuntimeState");
 const { getWorkerHealthSnapshot, loadWorkerHealthSnapshot, loadWorkerQueuesObservability } = require("./services/operationalObservability");
 const { getDatabaseHealth } = require("./lib/databaseHealth");
 const { getRedisHealth } = require("./lib/redisHealth");
@@ -27,7 +26,11 @@ const { validateRuntimeEnv, waitForDatabase } = require("./runtime/env");
 const { prepareOperationalDatabase } = require("./runtime/migrations");
 const { pingDatabase } = require("./lib/db");
 const { createOperation, listOperationalState } = require("./services/operationalOperations");
-const { listRegistry } = require("./services/registryStore");
+const { listRegistry, loadConnectorRows } = require("./services/registryStore");
+const { createOrganizationProvisioningRecorder } = require("./services/organizationProvisioningRecorder");
+const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganizationProvisioningDraft } = require("./services/organizationProvisioningDrafts");
+const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
+const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { requireGlobalOwner } = require("./authorization/guards");
 
 const app = express();
@@ -68,6 +71,17 @@ const sanitizePublicErrorResponse = (error, fallbackName, fallbackMessage) => {
   const rawStatus = error && Number.isInteger(error.status) ? error.status : 500;
   const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
   const safeError = error && (status < 500 || SAFE_PUBLIC_ERROR_NAMES.has(error.name)) ? error : null;
+  if (safeError?.error === "invalid_initial_organization_role") {
+    return {
+      status,
+      body: {
+        error: safeError.error,
+        message: safeError.message,
+        requestedRole: safeError.requestedRole,
+        availableRoles: safeError.availableRoles || [],
+      },
+    };
+  }
   return {
     status,
     body: {
@@ -109,47 +123,41 @@ const buildMeResponse = (user) => {
   };
 };
 
-const getLogtoOrganizationId = (organization = {}) => organization.id || organization.organizationId || organization.logtoOrganizationId || null;
-const getLogtoOrganizationName = (organization = {}) => organization.name || organization.nameCache || null;
-const getLogtoOrganizationCustomData = (organization = {}) => {
-  const customData = organization.customData || organization.custom_data || {};
-  return customData && typeof customData === "object" && !Array.isArray(customData) ? customData : {};
-};
+async function loadOrganizationRuntimeStateSafe(logtoOrganizationId) {
+  if (!logtoOrganizationId) return [];
+  try { return await listRuntimeState({ logtoOrganizationId }); }
+  catch (_error) { return []; }
+}
 
-const deriveOperationalProfile = (organization = {}) => {
-  const customData = getLogtoOrganizationCustomData(organization);
-  const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : {};
-  const business = civitasProfile.business && typeof civitasProfile.business === "object" ? civitasProfile.business : {};
-  const downstream = civitasProfile.downstream && typeof downstream === "object" ? civitasProfile.downstream : {};
-  const crm = downstream.crm && typeof downstream.crm === "object" ? downstream.crm : {};
-  const fluentcrmCompanyId = crm.companyId || crm.company_id || downstream.fluentcrmCompanyId || customData.fluentcrmCompanyId || null;
+async function loadOwnerConnectorRowsSafe(logtoOrganizationId) {
+  if (!logtoOrganizationId) return [];
+  const rows = [];
+  for (const capability of OWNER_CAPABILITIES) {
+    try { rows.push(...await loadConnectorRows({ logtoOrganizationId, capability })); }
+    catch (_error) { /* Registry DB may be unavailable during bootstrap; unconfigured capabilities remain explicit. */ }
+  }
+  return rows;
+}
+
+async function buildOwnerProfile(organization) {
+  const logtoOrganizationId = getLogtoOrganizationId(organization);
+  const runtimeStateRows = await loadOrganizationRuntimeStateSafe(logtoOrganizationId);
+  return deriveOperationalProfile(organization, { runtimeStateRows });
+}
+
+const serializeOwnerOrganization = async (organization, { operations = [] } = {}) => {
+  const profile = await buildOwnerProfile(organization);
   return {
-    id: getLogtoOrganizationId(organization),
     logtoOrganizationId: getLogtoOrganizationId(organization),
-    nameCache: getLogtoOrganizationName(organization),
-    slug: business.slug || null,
-    updatedAt: civitasProfile.updatedAt || organization.updatedAt || organization.createdAt || new Date().toISOString(),
-    fluentcrmCompanyId,
-    fluentcrmSyncStatus: fluentcrmCompanyId ? "linked" : "not_linked",
-    settings: { civitasProfile },
+    name: getLogtoOrganizationName(organization),
+    logtoOrganization: organization,
+    canonicalSource: "logto",
+    profile,
+    runtimeState: profile.runtimeState,
+    bootstrap: buildBootstrapStatus({ logtoOrganization: organization, operations }),
+    legacy: profile.legacy,
   };
 };
-
-const serializeOwnerOrganization = (organization) => ({
-  logtoOrganizationId: getLogtoOrganizationId(organization),
-  name: getLogtoOrganizationName(organization),
-  logtoOrganization: organization,
-  profile: deriveOperationalProfile(organization),
-});
-
-const buildOperationalOrganization = (organization, profile) => ({
-  logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
-  name: profile?.nameCache || getLogtoOrganizationName(organization),
-  profileId: profile?.id || null,
-  sourceAnchors: {
-    logtoOrganizationId: profile?.logtoOrganizationId || getLogtoOrganizationId(organization),
-  },
-});
 
 secureRoute.get("/health", "health", async (_req, res) => {
   const [database, redis] = await Promise.all([getDatabaseHealth(), getRedisHealth()]);
@@ -197,12 +205,10 @@ secureRoute.get("/owner/me", "ownerRead", requireGlobalAccess({ resource: API_RE
 secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const roles = await listLogtoOrganizationRoles();
-    const template = await validateOrganizationTemplate({ requiredRoleNames: [ORGANIZATION_ADMIN_ROLE_NAME, JIT_DEFAULT_ORGANIZATION_ROLE_NAME] });
     return res.json({
       roles: roles.map((role) => ({ id: role.id || role.organizationRoleId || role.roleId, name: role.name || role.nameCache || role.key })).filter((role) => role.id && role.name),
-      requiredRoleNames: template.requiredRoleNames,
-      missingRoleNames: template.missingRoleNames,
-      ready: template.ok,
+      roleSource: "logto_management_api",
+      ready: true,
     });
   } catch (error) {
     return sendPublicError(res, error, "OwnerOrganizationTemplateError", "Failed to load Logto organization template");
@@ -212,29 +218,63 @@ secureRoute.get("/owner/organization-template", "ownerRead", requireGlobalAccess
 secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations();
-    return res.json({ organizations: organizations.map(serializeOwnerOrganization) });
+    const operationalState = await listOperationalState({ limit: 200 }).catch(() => ({ operations: [] }));
+    return res.json({ organizations: await Promise.all(organizations.map((organization) => serializeOwnerOrganization(organization, { operations: operationalState.operations }))) });
   } catch (error) {
     return sendPublicError(res, error, "OwnerOrganizationsListError", "Failed to list organizations from Logto");
+  }
+});
+
+secureRoute.post("/owner/organization-drafts", "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireGlobalOwner, async (req, res) => {
+  try {
+    const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
+    const draft = await saveOrganizationProvisioningDraft({
+      idempotencyKey: req.body?.idempotencyKey || createIdempotencyKey(),
+      currentStage: req.body?.currentStage || req.body?.stage || "canonical",
+      stagePayload: req.body?.stagePayload || {},
+      stagePayloads: req.body?.stagePayloads || null,
+      consolidatedPayload: req.body?.consolidatedPayload || {},
+      actor,
+      status: req.body?.status || "draft",
+      submitStatus: req.body?.submitStatus || "not_submitted",
+    });
+    return res.status(201).json({ draft, idempotencyKey: draft.idempotencyKey });
+  } catch (error) {
+    return sendPublicError(res, error, "OwnerOrganizationDraftError", "Failed to save organization draft");
+  }
+});
+
+secureRoute.get("/owner/organization-drafts/:idempotencyKey", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationRead] }), requireGlobalOwner, async (req, res) => {
+  try {
+    const draft = await getOrganizationProvisioningDraft({ idempotencyKey: req.params.idempotencyKey });
+    if (!draft) return res.status(404).json({ error: "OrganizationDraftNotFound", message: "Organization provisioning draft not found" });
+    return res.json({ draft });
+  } catch (error) {
+    return sendPublicError(res, error, "OwnerOrganizationDraftLoadError", "Failed to load organization draft");
   }
 });
 
 secureRoute.get("/owner/organizations/:organizationId/operational-state", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.ownerRead, OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
-    const profile = deriveOperationalProfile(logtoOrganization);
+    const profile = await buildOwnerProfile(logtoOrganization);
     const workerHealth = await loadWorkerHealthSnapshot();
     const operationalState = await listOperationalState({ limit: 100 });
-    const response = buildConsolidatedOperationalResponse({
+    const orgOperations = operationalState.operations.filter((operation) => operation.logtoOrganizationId === req.params.organizationId);
+    const baseResponse = buildConsolidatedOperationalResponse({
       organization: buildOperationalOrganization(logtoOrganization, profile),
       logtoOrganization,
       profile,
-      pending: operationalState.operations.filter((operation) => operation.logtoOrganizationId === req.params.organizationId),
+      pending: orgOperations,
       events: operationalState.auditLogRows.filter((row) => row.logtoOrganizationId === req.params.organizationId),
       workerHealth,
       generatedAt: new Date(),
       compatibility: { repository: "civitas10", mode: "clean_foundation_no_legacy_sync_tables" },
     });
-    return res.json(response);
+    const runtimeStateRows = await loadOrganizationRuntimeStateSafe(req.params.organizationId);
+    const connectorRows = await loadOwnerConnectorRowsSafe(req.params.organizationId);
+    const ownerState = buildOwnerOperationalStateResponse({ baseResponse, organization: buildOperationalOrganization(logtoOrganization, profile), connectorRows, runtimeStateRows, profile });
+    return res.json({ ...ownerState, bootstrap: buildBootstrapStatus({ logtoOrganization, operations: orgOperations }) });
   } catch (error) {
     return sendPublicError(res, error, "OwnerOperationalStateError", "Failed to build operational state");
   }
@@ -243,7 +283,7 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
 secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.workerQueuesRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
-    const profiles = organizations.map(deriveOperationalProfile);
+    const profiles = await Promise.all(organizations.map(buildOwnerProfile));
     const operationalState = await listOperationalState({ limit: 200 });
     const aggregate = await loadWorkerQueuesObservability({ profiles, operations: operationalState.operations, steps: operationalState.steps, auditLogRows: operationalState.auditLogRows });
     return res.json(aggregate);
@@ -254,7 +294,7 @@ secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess(
 
 secureRoute.get("/owner/system/registry", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.runtimeRead] }), requireGlobalOwner, async (_req, res) => {
   try {
-    return res.json({ registry: await listRegistry() });
+    return res.json(await listRegistry());
   } catch (error) {
     return sendPublicError(res, error, "OwnerRegistryError", "Failed to load operational registry");
   }
@@ -270,24 +310,38 @@ secureRoute.post("/owner/system/operations", "operationalTrigger", requireGlobal
 });
 
 secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireGlobalOwner, async (req, res) => {
+  let idempotencyKey = req.get?.("idempotency-key") || req.body?.idempotencyKey || createIdempotencyKey();
   try {
-    const normalized = normalizeProvisioningInput(req.body || {});
+    const normalized = normalizeProvisioningInput({ ...(req.body || {}), idempotencyKey });
     if (normalized.errors.length > 0) {
-      return res.status(400).json({ error: "ValidationError", message: "Organization provisioning input is invalid", details: normalized.errors });
+      return res.status(400).json({ error: "ValidationError", message: "Organization provisioning input is invalid", details: normalized.errors, idempotencyKey });
     }
-    const result = await runCanonicalOrganizationProvisioning({ input: normalized.value });
-    return res.status(201).json({
-      status: result.status,
-      data: result.organization,
-      bootstrap: {
-        firstAdminUserId: result.administrativeContactAssignments[0]?.logtoUserId || null,
-        assignedOrganizationRole: result.administrativeContactAssignments[0]?.roleName || null,
-        administrativeContactAssignments: result.administrativeContactAssignments,
-        jitProvisioning: result.jitProvisioning,
-      },
-    });
+    const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
+    await saveOrganizationProvisioningDraft({ idempotencyKey, currentStage: "review", consolidatedPayload: req.body || {}, actor, status: "submitted", submitStatus: "running", submittedAt: new Date() });
+    const recorder = createOrganizationProvisioningRecorder({ actor, idempotencyKey });
+    try {
+      const result = await runCanonicalOrganizationProvisioning({ input: normalized.value, actor, recorder });
+      await saveOrganizationProvisioningDraft({ idempotencyKey, currentStage: "review", consolidatedPayload: req.body || {}, actor, status: "submitted", submitStatus: "completed", logtoOrganizationId: result.organizationId, submittedAt: new Date() });
+      return res.status(201).json({
+        idempotencyKey,
+        status: result.status,
+        data: result.organization,
+        bootstrap: {
+          status: "reconciled",
+          firstAdminUserId: result.administrativeContactAssignments[0]?.logtoUserId || null,
+          assignedOrganizationRole: result.administrativeContactAssignments[0]?.roleName || null,
+          administrativeContactAssignments: result.administrativeContactAssignments,
+          jitProvisioning: result.jitProvisioning,
+          nextActions: [{ type: "open_logto_resource", label: "Abrir organización en Logto", target: { logtoOrganizationId: result.organizationId } }],
+        },
+      });
+    } catch (error) {
+      await saveOrganizationProvisioningDraft({ idempotencyKey, currentStage: "review", consolidatedPayload: req.body || {}, actor, status: "submitted", submitStatus: "failed", lastError: { name: error.name, message: error.message, code: error.code || null }, submittedAt: new Date() });
+      throw error;
+    }
   } catch (error) {
-    return sendPublicError(res, error, "OrganizationProvisioningError", "Failed to create organization in Logto");
+    const response = sanitizePublicErrorResponse(error, "OrganizationProvisioningError", "Failed to create organization in Logto");
+    return res.status(response.status).json({ ...response.body, idempotencyKey });
   }
 });
 

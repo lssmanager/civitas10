@@ -1,30 +1,47 @@
 # Civitas 1.1
 
-Civitas 1.1 is the clean reconstruction foundation for the Civitas platform. It keeps the parts that already work well from the previous codebase and removes the contaminated owner UI and legacy operational surfaces that were mixing logs, snapshots, and partial truths.
+Civitas 1.1 is the clean reconstruction foundation for the Civitas platform. It keeps the parts that already work well from the previous codebase and removes contaminated owner UI and legacy operational surfaces that mixed logs, snapshots, provider diagnostics, and partial truths.
 
 This repository is no longer treated as the original Logto sample app. It now serves as the clean base for:
 
 - Logto as the canonical identity, organizations, memberships, roles, permissions, tenant context, and token source
-- a standardized operational backbone for Civitas
+- Civitas DB as the canonical local operational layer for audit, synchronization state, queues, technical mappings, connector configuration metadata, connector bindings, health checks, operational errors, reconciliation state, and cross-system operational rules
+- external capability modules such as CRM, Marketing, LMS, Community, Payments, Notifications, Support, and Analytics resolved through MCP connectors
 - an extensible RBAC contract for `owner_global`, `organization_admin`, and `organization_member`
-- future capability-based modules such as CRM, Marketing, LMS, Community, and Payments
 
-## Fuente canónica por dominio
+## Canonical sources by domain
 
-- **Logto**: identity, authentication, organizations, memberships, roles, permissions, tenant context, and tokens
-- **FluentCRM / WordPress**: commercial relationship, company, contacts, tags, lists, purchase, renewal, and commercial status
-- **Moodle**: courses, enrollments, progress, and academic history
-- **BuddyBoss**: groups, community, and social memberships
-- **Civitas database**: operational metadata, audit data, synchronization state, mappings between systems, queues, events, reconciliation state, and cross-system operational rules
+Civitas follows this foundation rule:
+
+```text
+Logto = canonical identity layer
+Civitas DB = canonical local operational layer
+Everything else = modular capabilities resolved through MCP connectors
+```
+
+- **Logto** is canonical for identity, authentication, organizations, memberships, roles, permissions, organization context, and tokens.
+- **Civitas DB** does not replace Logto. It stores only local operational state and technical references: audit, sync state, queues, connector bindings, connector configuration metadata, health checks, operational errors, reconciliation state, technical mappings, and cross-system operational rules.
+- **External providers are not canonical product domains.** They are interchangeable adapter implementations of capabilities. Civitas is not FluentCRM-first, Moodle-first, BuddyBoss-first, or WordPress-first. Civitas is capability-first.
+
+Correct examples:
+
+- CRM capability can be resolved by an adapter such as FluentCRM.
+- LMS capability can be resolved by an adapter such as Moodle.
+- Community capability can be resolved by an adapter such as BuddyBoss.
+- WordPress-specific identifiers may appear only as legacy compatibility or operational references, not as core product structure.
 
 ### What must not live canonically in PostgreSQL
 
 - parallel organizations if Logto already defines the real organization
-- parallel RBAC models if Logto already defines the real permissions and roles
-- provider live state presented as if it were local truth without clear source labeling
-- UI-specific summaries as if they were canonical business state
+- parallel memberships, roles, permissions, or RBAC models if Logto already defines them
+- provider live state presented as local truth without clear operational/source labeling
+- provider-specific structures treated as product canon, such as FluentCRM, Moodle, BuddyBoss, WordPress, or any future provider as a fixed domain model
+- UI-specific summaries as canonical business state
+
+When Civitas needs a local organization reference, it must be anchored by `logto_organization_id`. External IDs such as `courseId`, `contactId`, `productId`, `paymentId`, or `ticketId` live in operational state or technical mappings such as `organization_runtime_state`, not as canonical product entities or Logto `customData` as the primary store.
 
 ## What has already been migrated into this repository
+
 
 ### Identity and access foundation
 
@@ -176,7 +193,7 @@ WORKER_REMOVE_ON_FAIL=5000
 
 ### Database migrations and operational schema
 
-The Civitas database is the source of truth for local operational state, audit, queues, reconciliation and cross-system orchestration. It does **not** duplicate Logto canonical identity entities. The `operational_operations` table is part of that local operational backbone and is defined in `backend/db/schema/index.js`; it is created by `backend/db/migrations/0000_foundation.sql`.
+The Civitas database is the canonical local operational layer for operational state, audit, queues, reconciliation and cross-system orchestration. It does **not** duplicate Logto canonical identity entities. The `operational_operations` table is part of that local operational backbone and is defined in `backend/db/schema/index.js`; it is created by `backend/db/migrations/0000_foundation.sql`.
 
 Backend and worker both use the same `DATABASE_URL` contract and both run the same startup schema guard. Startup now fails fast if the operational tables or required columns are missing, so owner operational endpoints do not appear healthy while the schema is absent.
 
@@ -312,7 +329,7 @@ Each capability should be introduced through:
 - adapters per provider
 - operational observability
 - standardized actions
-- explicit canonical source boundaries
+- explicit canonical-source boundaries
 
 ## Next migration layer
 
@@ -320,7 +337,7 @@ The next layer to migrate after this clean foundation is:
 
 1. operational state assembler and observability services after cleanup
 2. connector registry
-3. CRM capability contract from the FluentCRM foundations
+3. CRM capability contract derived from capability-first connector foundations
 4. worker action engine
 5. clean owner-facing UI surfaces rebuilt on top of the backbone
 

@@ -45,6 +45,20 @@ const REQUIRED_OPERATIONAL_SCHEMA = Object.freeze({
     "created_at",
     "updated_at",
   ]),
+  organization_provisioning_drafts: Object.freeze([
+    "idempotency_key",
+    "current_stage",
+    "stage_payloads",
+    "consolidated_payload",
+    "actor_json",
+    "status",
+    "submit_status",
+    "logto_organization_id",
+    "last_error_json",
+    "submitted_at",
+    "created_at",
+    "updated_at",
+  ]),
   audit_logs: Object.freeze(["id", "logto_organization_id", "actor_type", "action", "target_type", "target_id", "result", "metadata", "created_at"]),
 });
 

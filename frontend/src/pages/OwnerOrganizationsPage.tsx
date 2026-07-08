@@ -69,6 +69,7 @@ type AdministrativeContact = {
   phoneExtension: string;
   position: string;
   organizationRoleName: string;
+  username: string;
 };
 
 type OrganizationTemplateRole = {
@@ -78,8 +79,8 @@ type OrganizationTemplateRole = {
 
 type OrganizationTemplateResponse = {
   roles: OrganizationTemplateRole[];
-  requiredRoleNames: string[];
-  missingRoleNames: string[];
+  requiredRoleNames?: string[];
+  missingRoleNames?: string[];
   ready: boolean;
 };
 
@@ -118,6 +119,7 @@ type CreatedState = {
   organizationDescription: string | null;
   firstAdminUserId: string | null;
   assignedOrganizationRole: string | null;
+  idempotencyKey: string | null;
   administrativeContactAssignments: Array<{
     key: string;
     email: string;
@@ -152,7 +154,7 @@ const propagatePhonePrefix = (phone: string, previousPrefix: string | null, next
 
 const emptyContact = (
   index: number,
-  roleName = "Admin-org",
+  roleName = "",
   countryCode = DEFAULT_COUNTRY_CODE,
 ): AdministrativeContact => ({
   id: `contact-${index}`,
@@ -165,15 +167,16 @@ const emptyContact = (
   phoneExtension: "",
   position: "",
   organizationRoleName: roleName,
+  username: "",
 });
 
-const initialFormState = (defaultRoleName = "Admin-org"): FormState => ({
+const initialFormState = (defaultRoleName = ""): FormState => ({
   name: "",
   description: "",
   appSubdomain: "",
   appBaseDomain: APP_BASE_DOMAINS[0],
   adminDomain: "",
-  jitDefaultRoleName: "member",
+  jitDefaultRoleName: "",
   business: {
     website: "",
     addressLine1: "",
@@ -228,6 +231,9 @@ const OwnerOrganizationsPage = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [created, setCreated] = useState<CreatedState | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null);
+  const [draftSaving, setDraftSaving] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,20 +246,12 @@ const OwnerOrganizationsPage = () => {
         if (cancelled) return;
         setTemplate(response);
         setForm((current) => {
-          const adminRole =
-            response.roles.find((role) => role.name === "Admin-org")?.name ||
-            response.roles[0]?.name ||
-            "Admin-org";
-          const jitRole =
-            response.roles.find((role) => role.name === "member")?.name ||
-            response.roles[0]?.name ||
-            "member";
           return {
             ...current,
-            jitDefaultRoleName: current.jitDefaultRoleName || jitRole,
+            jitDefaultRoleName: current.jitDefaultRoleName,
             administrativeContacts: current.administrativeContacts.map((contact, index) => ({
               ...contact,
-              organizationRoleName: contact.organizationRoleName || adminRole,
+              organizationRoleName: contact.organizationRoleName,
               phone:
                 normalizePhoneValue(contact.phone) ||
                 getCountryOption(current.business.country)?.phonePrefix ||
@@ -379,9 +377,8 @@ const OwnerOrganizationsPage = () => {
 
   const addContact = () => {
     const fallbackRole =
-      adminRoleOptions.find((role) => role.name === "Admin-org")?.name ||
       adminRoleOptions[0]?.name ||
-      "Admin-org";
+      "";
     setForm((current) => ({
       ...current,
       administrativeContacts: [
@@ -397,7 +394,7 @@ const OwnerOrganizationsPage = () => {
       return {
         ...current,
         administrativeContacts:
-          next.length > 0 ? next : [emptyContact(1, "Admin-org", current.business.country)],
+          next.length > 0 ? next : [emptyContact(1, "", current.business.country)],
       };
     });
   };
@@ -448,13 +445,14 @@ const OwnerOrganizationsPage = () => {
       .trim();
 
     return {
+      idempotencyKey: idempotencyKey || undefined,
       name: form.name.trim(),
       description: form.description.trim() || undefined,
       appSubdomain: form.appSubdomain.trim().toLowerCase(),
       appBaseDomain: form.appBaseDomain.trim().toLowerCase(),
       adminDomain: form.adminDomain.trim().toLowerCase(),
       jitProvisioning: {
-        defaultRoleNames: [form.jitDefaultRoleName],
+        defaultRoleNames: form.jitDefaultRoleName ? [form.jitDefaultRoleName] : [],
       },
       contact: {
         email: primaryAdministrativeContact?.email.trim().toLowerCase() || undefined,
@@ -491,8 +489,31 @@ const OwnerOrganizationsPage = () => {
         phoneExtension: contact.phoneExtension.trim() || undefined,
         position: contact.position.trim() || undefined,
         organizationRoleName: contact.organizationRoleName,
+        username: contact.username.trim() || undefined,
       })),
     };
+  };
+
+  const saveDraft = async (stageIndex = activeStep) => {
+    setDraftSaving(true);
+    setDraftError(null);
+    try {
+      const response = await ownerApi.saveOrganizationDraft({
+        idempotencyKey: idempotencyKey || undefined,
+        currentStage: wizardSteps[stageIndex]?.id || "canonical",
+        stagePayload: form as unknown as Record<string, unknown>,
+        consolidatedPayload: buildPayload() as unknown as Record<string, unknown>,
+        status: "draft",
+        submitStatus: "not_submitted",
+      });
+      setIdempotencyKey(response.idempotencyKey);
+      return response.idempotencyKey;
+    } catch (error) {
+      setDraftError(error instanceof Error ? error.message : String(error));
+      return null;
+    } finally {
+      setDraftSaving(false);
+    }
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -506,13 +527,16 @@ const OwnerOrganizationsPage = () => {
 
     setSubmitting(true);
     try {
-      const response = await ownerApi.createOrganization(buildPayload());
+      const key = idempotencyKey || await saveDraft(4);
+      const response = await ownerApi.createOrganization({ ...buildPayload(), idempotencyKey: key || undefined });
+      setIdempotencyKey(response.idempotencyKey);
       setCreated({
         organizationId: response.data.id,
         organizationName: response.data.name || form.name,
         organizationDescription: response.data.description || form.description || null,
         firstAdminUserId: response.bootstrap?.firstAdminUserId || null,
         assignedOrganizationRole: response.bootstrap?.assignedOrganizationRole || null,
+        idempotencyKey: response.idempotencyKey,
         administrativeContactAssignments:
           response.bootstrap?.administrativeContactAssignments || [],
       });
@@ -525,7 +549,7 @@ const OwnerOrganizationsPage = () => {
 
   const templateStatus = templateLoading ? "unknown" : template?.ready ? "success" : "warning";
   const isLastStep = activeStep === wizardSteps.length - 1;
-  const goNext = () => setActiveStep((current) => Math.min(current + 1, wizardSteps.length - 1));
+  const goNext = () => { void saveDraft(activeStep); setActiveStep((current) => Math.min(current + 1, wizardSteps.length - 1)); };
   const goBack = () => setActiveStep((current) => Math.max(current - 1, 0));
 
   return (
@@ -537,10 +561,13 @@ const OwnerOrganizationsPage = () => {
       />
 
       {templateError ? <AlertStrip variant="danger" title="Organization template unavailable">Could not load the organization template from the API. {templateError}</AlertStrip> : null}
+      {draftError ? <AlertStrip variant="warning" title="Draft not saved">{draftError}</AlertStrip> : null}
+      {idempotencyKey ? <AlertStrip variant="info" title="Wizard request identifier">Idempotency key: <code>{idempotencyKey}</code>. Civitas stores this as operational draft/resume state; Logto remains canonical for the organization.</AlertStrip> : null}
 
       {created ? (
         <AlertStrip variant="success" title="Organization created in Logto">
-          <p><strong>{created.organizationName}</strong> was created successfully and the administrative users were provisioned.</p>
+          <p><strong>{created.organizationName}</strong> exists in Logto. Civitas keeps the idempotency key and operation history for traceability only.</p>
+          <p>Request identifier: <code>{created.idempotencyKey}</code></p>
           <div className="civitas-grid-2">
             <div>
               <strong>Bootstrap</strong>
@@ -611,7 +638,7 @@ const OwnerOrganizationsPage = () => {
           <StatusPill status={templateStatus} noDot>Template: {templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</StatusPill>
           <div className="civitas-action-bar">
             <button type="button" className={secondaryButtonClassName} onClick={goBack} disabled={activeStep === 0}>Back</button>
-            {!isLastStep ? <button type="button" className={primaryButtonClassName} onClick={goNext}>Next</button> : null}
+            {!isLastStep ? <button type="button" className={primaryButtonClassName} onClick={goNext}>{draftSaving ? "Saving draft..." : "Save draft & next"}</button> : null}
             {isLastStep ? <button type="submit" disabled={!canSubmit} className={primaryButtonClassName}>{submitting ? "Creating organization..." : "Create organization"}</button> : null}
           </div>
         </ActionBar>
@@ -632,7 +659,7 @@ const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, up
       <FormField id="app-subdomain" label="Application subdomain" required><input id="app-subdomain" className={inputClassName} value={form.appSubdomain} onChange={(event) => updateField("appSubdomain", event.target.value)} placeholder="school-demo" /></FormField>
       <FormField id="app-base-domain" label="Application base domain" required><select id="app-base-domain" className={inputClassName} value={form.appBaseDomain} onChange={(event) => updateField("appBaseDomain", event.target.value)}>{APP_BASE_DOMAINS.map((domain) => <option value={domain} key={domain}>{domain}</option>)}</select></FormField>
       <FormField id="admin-domain" label="Institutional provisioning domain" required><input id="admin-domain" className={inputClassName} value={form.adminDomain} onChange={(event) => updateField("adminDomain", event.target.value)} placeholder="school.edu.co" /></FormField>
-      <FormField id="jit-default-role" label="JIT default role"><select id="jit-default-role" className={inputClassName} value={form.jitDefaultRoleName} onChange={(event) => updateField("jitDefaultRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}>{adminRoleOptions.map((role) => <option key={role.id} value={role.name}>{role.name}</option>)}</select></FormField>
+      <FormField id="jit-default-role" label="JIT default role"><select id="jit-default-role" className={inputClassName} value={form.jitDefaultRoleName} onChange={(event) => updateField("jitDefaultRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}><option value="">No JIT default role</option>{adminRoleOptions.map((role) => <option key={role.id} value={role.name}>{role.name}</option>)}</select></FormField>
     </div>
     <AlertStrip variant="neutral" title="Entry URL preview">{form.appSubdomain && form.appBaseDomain ? `https://${form.appSubdomain}.${form.appBaseDomain}` : "Pending subdomain and domain"}</AlertStrip>
   </SectionCard>
@@ -673,7 +700,8 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
             <FormField id={`${contact.id}-phone`} label="Phone"><input id={`${contact.id}-phone`} className={inputClassName} value={contact.phone} onChange={(event) => updateContact(contact.id, "phone", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-extension`} label="Extension"><input id={`${contact.id}-extension`} className={inputClassName} value={contact.phoneExtension} onChange={(event) => updateContact(contact.id, "phoneExtension", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-position`} label="Position"><input id={`${contact.id}-position`} className={inputClassName} value={contact.position} onChange={(event) => updateContact(contact.id, "position", event.target.value)} /></FormField>
-            <FormField id={`${contact.id}-role`} label="Organization role" required><select id={`${contact.id}-role`} className={inputClassName} value={contact.organizationRoleName} onChange={(event) => updateContact(contact.id, "organizationRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}>{adminRoleOptions.map((role) => <option key={`${contact.id}-${role.id}`} value={role.name}>{role.name}</option>)}</select></FormField>
+            <FormField id={`${contact.id}-role`} label="Organization role" required><select id={`${contact.id}-role`} className={inputClassName} value={contact.organizationRoleName} onChange={(event) => updateContact(contact.id, "organizationRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}><option value="">Select Logto organization role</option>{adminRoleOptions.map((role) => <option key={`${contact.id}-${role.id}`} value={role.name}>{role.name}</option>)}</select></FormField>
+            <FormField id={`${contact.id}-username`} label="Username"><input id={`${contact.id}-username`} className={inputClassName} value={contact.username} onChange={(event) => updateContact(contact.id, "username", event.target.value)} /></FormField>
           </div>
         </SectionCard>
       ))}
@@ -695,7 +723,7 @@ const StepReview = ({ form, template, templateLoading, submitError }: { form: Fo
   <SectionCard title="Final confirmation" description="Review canonical organization, users, segmentation and template readiness before provisioning.">
     <div className="civitas-grid-2">
       <div><strong>Organization</strong><p>{form.name || "Unnamed organization"}</p><p>{form.appSubdomain && form.appBaseDomain ? `${form.appSubdomain}.${form.appBaseDomain}` : "Entry URL pending"}</p></div>
-      <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && template.missingRoleNames.length > 0 ? <p>Missing roles: {template.missingRoleNames.join(", ")}</p> : null}</div>
+      <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && (template.missingRoleNames || []).length > 0 ? <p>Missing roles: {(template.missingRoleNames || []).join(", ")}</p> : null}</div>
       <div><strong>Administrative users</strong><p>{form.administrativeContacts.length} contact(s)</p></div>
       <div><strong>Segmentation</strong><p>Tags: {form.segmentation.tags.join(", ") || "-"}</p><p>Lists: {form.segmentation.lists.join(", ") || "-"}</p></div>
     </div>

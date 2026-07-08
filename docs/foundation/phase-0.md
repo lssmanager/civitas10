@@ -36,7 +36,7 @@ Phase 0 is not a feature phase. It creates the contracts and guardrails that lat
 2. Adapters are loaded through the connector registry only.
 3. Worker actions must provide input validation, preconditions, retry policy and idempotency key.
 4. RBAC reads roles from Logto claims and maps them to Civitas permissions.
-5. Postgres stores operational state, snapshots, sync and audit. Logto remains the source of truth for identity.
+5. Postgres stores operational state, snapshots, sync and audit. Logto remains canonical for identity, organizations, memberships, roles, permissions and tokens.
 6. Redis powers runtime and worker queues.
 
 ## Verification
