@@ -1,0 +1,13 @@
+import * as React from 'react';
+const base = ({children, size=24, stroke=2, title, ...props}) => React.createElement('svg',{xmlns:'http://www.w3.org/2000/svg',width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:stroke,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':title?undefined:true,role:title?'img':undefined,...props}, title ? React.createElement('title',null,title) : null, children);
+const p=(d)=>React.createElement('path',{d}); const r=(x,y,w,h)=>React.createElement('rect',{x,y,width:w,height:h,rx:2});
+export const IconLayoutDashboard=(props)=>base({...props,children:React.createElement(React.Fragment,null,r(4,4,6,8),r(14,4,6,5),r(4,16,6,4),r(14,13,6,7))});
+export const IconBuilding=(props)=>base({...props,children:React.createElement(React.Fragment,null,p('M3 21h18'),p('M5 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16'),p('M9 7h1'),p('M9 11h1'),p('M9 15h1'),p('M14 7h1'),p('M14 11h1'),p('M14 15h1'))});
+export const IconServer=(props)=>base({...props,children:React.createElement(React.Fragment,null,r(3,4,18,6),r(3,14,18,6),p('M7 8h.01'),p('M7 18h.01'))});
+export const IconSettings=(props)=>base({...props,children:React.createElement(React.Fragment,null,p('M10.3 4.3l.6-1.8h2.2l.6 1.8 1.7.7 1.7-.8 1.6 1.6-.8 1.7.7 1.7 1.8.6v2.2l-1.8.6-.7 1.7.8 1.7-1.6 1.6-1.7-.8-1.7.7-.6 1.8h-2.2l-.6-1.8-1.7-.7-1.7.8-1.6-1.6.8-1.7-.7-1.7-1.8-.6V9.8l1.8-.6.7-1.7-.8-1.7 1.6-1.6 1.7.8z'),React.createElement('circle',{cx:12,cy:12,r:3}))});
+export const IconChevronLeft=(props)=>base({...props,children:p('M15 6l-6 6 6 6')});
+export const IconChevronRight=(props)=>base({...props,children:p('M9 6l6 6-6 6')});
+export const IconLogout=(props)=>base({...props,children:React.createElement(React.Fragment,null,p('M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2'),p('M9 12h12'),p('M18 9l3 3-3 3'))});
+export const IconArrowLeft=(props)=>base({...props,children:React.createElement(React.Fragment,null,p('M5 12h14'),p('M5 12l6 6'),p('M5 12l6-6'))});
+export const IconWorld=(props)=>base({...props,children:React.createElement(React.Fragment,null,React.createElement('circle',{cx:12,cy:12,r:9}),p('M3.6 9h16.8'),p('M3.6 15h16.8'),p('M12 3a14 14 0 0 1 0 18'),p('M12 3a14 14 0 0 0 0 18'))});
+export const IconFiles=(props)=>base({...props,children:React.createElement(React.Fragment,null,p('M15 3H7a2 2 0 0 0-2 2v12'),p('M9 7h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z'))});

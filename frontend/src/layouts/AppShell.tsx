@@ -1,13 +1,29 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogto } from "@logto/react";
+import {
+  IconArrowLeft,
+  IconBuilding,
+  IconChevronLeft,
+  IconChevronRight,
+  IconFiles,
+  IconLayoutDashboard,
+  IconLogout,
+  IconServer,
+  IconSettings,
+  IconWorld,
+} from "@tabler/icons-react";
+import civitasIcon from "../assets/brand/civitas-icon.svg";
+import civitasLogoFullDark from "../assets/brand/civitas-logo-full-dark.svg";
 import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
 import { NavCollapse } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
-type NavItem = { label: string; path: string; match?: (pathname: string) => boolean };
+type TablerIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; stroke?: number | string }>;
+type NavItem = { label: string; path: string; icon: TablerIcon; match?: (pathname: string) => boolean };
 
 type AppShellProps = {
   area: ShellArea;
@@ -19,18 +35,19 @@ type AppShellProps = {
 };
 
 const defaultOwnerNavItems: NavItem[] = [
-  { label: "Overview", path: appRoutes.owner.path, match: (pathname) => pathname === appRoutes.owner.path },
-  { label: "Create", path: appRoutes.ownerOrganizations.path, match: (pathname) => pathname.startsWith(appRoutes.ownerOrganizations.path) },
-  { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, match: (pathname) => pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
+  { label: "Overview", path: appRoutes.owner.path, icon: IconLayoutDashboard, match: (pathname) => pathname === appRoutes.owner.path },
+  { label: "Create", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerOrganizations.path) },
+  { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, icon: IconServer, match: (pathname) => pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
+  { label: "Settings", path: appRoutes.ownerSystem.path, icon: IconSettings, match: (pathname) => pathname.startsWith(appRoutes.ownerSystem.path) },
 ];
 
-const publicNavItems: NavItem[] = [{ label: "Public", path: "/", match: (pathname) => pathname === "/" }];
+const publicNavItems: NavItem[] = [{ label: "Public", path: "/", icon: IconWorld, match: (pathname) => pathname === "/" }];
 
 const organizationNavItems = (organizationId?: string): NavItem[] => {
   const basePath = organizationId ? `/${encodeURIComponent(organizationId)}` : "/";
   return [
-    { label: "Workspace", path: basePath, match: (pathname) => pathname === basePath },
-    { label: "Documents", path: basePath, match: (pathname) => pathname === basePath },
+    { label: "Workspace", path: basePath, icon: IconBuilding, match: (pathname) => pathname === basePath },
+    { label: "Documents", path: basePath, icon: IconFiles, match: (pathname) => pathname === basePath },
   ];
 };
 
@@ -51,30 +68,47 @@ const resolveNavItems = (area: ShellArea, organizationId?: string, navItems?: Na
 export const AppShell = ({ area, children, navItems, organizationId, showBackButton = false, actions }: AppShellProps) => {
   const navigate = useNavigate();
   const { signOut } = useLogto();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const resolvedNavItems = resolveNavItems(area, organizationId, navItems);
+  const homePath = area === "public" ? "/" : appRoutes.owner.path;
 
   return (
-    <div className={`civitas-shell civitas-shell-${area}`} data-civitas-shell="true" data-civitas-area={area}>
-      <header className="civitas-topbar">
-        <div className="civitas-topbar-inner">
-          <div className="civitas-cluster">
-            {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button">Back</button> : null}
-            <Link to={area === "public" ? "/" : appRoutes.owner.path} className="civitas-brand">Civitas 1.1</Link>
-            <NavCollapse
-              items={resolvedNavItems}
-              label={areaLabel[area]}
-              context={(
-                <>
-                  <span className="civitas-role-badge">{areaLabel[area]}</span>
-                  {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
-                </>
-              )}
-            />
-          </div>
-          {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button">Sign out</button>)}
+    <div
+      className={`civitas-shell civitas-shell-${area} ${sidebarCollapsed ? "civitas-shell-sidebar-collapsed" : ""}`}
+      data-civitas-shell="true"
+      data-civitas-area={area}
+      data-civitas-sidebar-collapsed={sidebarCollapsed}
+    >
+      <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`}>
+        <div className="civitas-sidebar-brand-row">
+          <Link to={homePath} className="civitas-sidebar-brand" aria-label="Civitas home">
+            <img src={sidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={sidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
+          </Link>
+          <button
+            type="button"
+            className="civitas-sidebar-toggle"
+            aria-label={sidebarCollapsed ? "Expand Civitas sidebar" : "Collapse Civitas sidebar"}
+            aria-pressed={sidebarCollapsed}
+            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
+          >
+            {sidebarCollapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
+          </button>
         </div>
-      </header>
-      <main className="civitas-main">{children}</main>
+        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={sidebarCollapsed} />
+      </aside>
+      <div className="civitas-shell-content">
+        <header className="civitas-topbar">
+          <div className="civitas-topbar-inner">
+            <div className="civitas-cluster">
+              {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button"><IconArrowLeft size={18} />Back</button> : null}
+              <span className="civitas-role-badge">{areaLabel[area]}</span>
+              {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
+            </div>
+            {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button"><IconLogout size={18} />Sign out</button>)}
+          </div>
+        </header>
+        <main className="civitas-main">{children}</main>
+      </div>
     </div>
   );
 };
