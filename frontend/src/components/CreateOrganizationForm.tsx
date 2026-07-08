@@ -2,6 +2,55 @@ import { useEffect, useState } from 'react';
 import { useResourceApi } from '../api/resource';
 import { CountryOption, StateOption, CityOption, useLocationsApi } from '../api/locations';
 
+
+type CreateOrganizationFormData = {
+  name: string;
+  description: string;
+  countryId: string;
+  stateId: string;
+  cityId: string;
+  manualCity: string;
+  phonePrefix: string;
+};
+
+const toOptionalNumber = (value: string) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
+export const buildCreateOrganizationPayload = (formData: CreateOrganizationFormData, options: { countries: CountryOption[]; states: StateOption[]; cities: CityOption[] }) => {
+  const countryId = toOptionalNumber(formData.countryId);
+  const stateId = toOptionalNumber(formData.stateId);
+  const cityId = toOptionalNumber(formData.cityId);
+  const selectedCountry = countryId ? options.countries.find(country => country.id === countryId) : undefined;
+  const selectedState = stateId ? options.states.find(state => state.id === stateId) : undefined;
+  const selectedCity = cityId ? options.cities.find(city => city.id === cityId) : undefined;
+  const manualCity = formData.manualCity.trim() || undefined;
+  const phonePrefix = formData.phonePrefix.trim() || selectedCountry?.phoneCode || undefined;
+  const normalizedPhonePrefix = phonePrefix ? `+${phonePrefix.replace(/^\+/, '')}` : undefined;
+
+  return {
+    name: formData.name.trim(),
+    description: formData.description.trim() || undefined,
+    business: {
+      country: selectedCountry?.name,
+      state: selectedState?.name,
+      city: selectedCity?.name || manualCity,
+      phonePrefix: normalizedPhonePrefix,
+      location: {
+        countryId,
+        stateId,
+        cityId,
+        manualCity,
+        phonePrefix: normalizedPhonePrefix,
+        countryCode: selectedCountry?.iso2,
+        stateCode: selectedState?.stateCode || undefined,
+        source: countryId || stateId || cityId || manualCity || normalizedPhonePrefix ? 'dr5hn/countries-states-cities-database' : undefined,
+      },
+    },
+  };
+};
+
 interface CreateOrganizationFormProps {
   onSuccess: (orgId: string, name?: string, description?: string) => void;
 }
@@ -31,10 +80,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     setIsCreating(true);
     
     try {
-      const payload = {
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-      };
+      const payload = buildCreateOrganizationPayload(formData, { countries, states, cities });
       const result = await createOrganization(payload);
       setFormData({ name: '', description: '', countryId: '', stateId: '', cityId: '', manualCity: '', phonePrefix: '' });
       onSuccess(result.data.id, result.data.name || payload.name, result.data.description || payload.description);

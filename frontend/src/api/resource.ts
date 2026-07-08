@@ -12,6 +12,22 @@ export type Organization = {
 export type CreateOrganizationData = {
   name: string;
   description?: string;
+  business?: {
+    country?: string;
+    state?: string;
+    city?: string;
+    phonePrefix?: string;
+    location?: {
+      countryId?: number;
+      stateId?: number;
+      cityId?: number;
+      manualCity?: string;
+      phonePrefix?: string;
+      countryCode?: string;
+      stateCode?: string;
+      source?: "dr5hn/countries-states-cities-database";
+    };
+  };
 };
 
 export const useResourceApi = () => {

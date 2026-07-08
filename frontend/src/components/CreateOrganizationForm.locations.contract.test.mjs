@@ -14,4 +14,8 @@ test('organization wizard uses cascading country state city fields and phone pre
   assert.match(source, /listCities\(stateId\)/);
   assert.match(source, /phonePrefix/);
   assert.match(source, /manualCity/);
+  assert.match(source, /buildCreateOrganizationPayload\(formData, \{ countries, states, cities \}\)/);
+  assert.match(source, /business: \{/);
+  assert.match(source, /location: \{/);
+  assert.match(source, /city: selectedCity\?\.name \|\| manualCity/);
 });

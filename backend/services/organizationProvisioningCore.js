@@ -31,6 +31,52 @@ const normalizePhone = (value) => {
   return compact.startsWith("+") ? compact : `+${compact}`;
 };
 
+
+const normalizePositiveInteger = (value) => {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
+const normalizePhonePrefix = (value) => {
+  const raw = emptyToNull(value);
+  if (!raw) return null;
+  const compact = raw.replace(/[\s().-]+/g, "");
+  if (!/^\+?[1-9]\d{0,5}$/.test(compact)) return null;
+  return compact.startsWith("+") ? compact : `+${compact}`;
+};
+
+const normalizeLocationInput = (business = {}) => {
+  const location = business && typeof business.location === "object" ? business.location : {};
+  const countryId = normalizePositiveInteger(location.countryId ?? business.countryId);
+  const stateId = normalizePositiveInteger(location.stateId ?? business.stateId);
+  const cityId = normalizePositiveInteger(location.cityId ?? business.cityId);
+  const manualCity = emptyToNull(location.manualCity ?? business.manualCity);
+  const phonePrefix = normalizePhonePrefix(location.phonePrefix ?? business.phonePrefix);
+  const normalized = {
+    countryId,
+    stateId,
+    cityId,
+    manualCity,
+    phonePrefix,
+    countryCode: emptyToNull(location.countryCode ?? business.countryCode)?.toUpperCase() || null,
+    stateCode: emptyToNull(location.stateCode ?? business.stateCode) || null,
+    source: countryId || stateId || cityId || manualCity || phonePrefix ? "dr5hn/countries-states-cities-database" : null,
+  };
+  return Object.fromEntries(Object.entries(normalized).filter(([, value]) => value !== null));
+};
+
+const normalizeBusinessInput = (business = {}) => {
+  const input = business && typeof business === "object" ? business : {};
+  const location = normalizeLocationInput(input);
+  return {
+    ...input,
+    city: emptyToNull(input.city) || location.manualCity || undefined,
+    phonePrefix: location.phonePrefix || normalizePhonePrefix(input.phonePrefix) || undefined,
+    ...(Object.keys(location).length > 0 ? { location } : {}),
+  };
+};
+
 const normalizeAdministrativeContacts = (value = []) =>
   (Array.isArray(value) ? value : [])
     .map((contact, index) => {
@@ -137,7 +183,7 @@ function normalizeProvisioningInput(body = {}) {
         body.contact && typeof body.contact === "object"
           ? body.contact
           : {},
-      business: body.business && typeof body.business === "object" ? body.business : {},
+      business: normalizeBusinessInput(body.business),
       segmentation:
         body.segmentation && typeof body.segmentation === "object"
           ? body.segmentation
