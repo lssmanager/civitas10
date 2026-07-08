@@ -1,7 +1,8 @@
-import type { ComponentType, ReactNode, SVGProps } from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogto } from "@logto/react";
+import type { Icon } from "@tabler/icons-react";
 import {
   IconArrowLeft,
   IconBuilding,
@@ -22,8 +23,7 @@ import { NavCollapse } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
-type TablerIcon = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; stroke?: number | string }>;
-type NavItem = { label: string; path: string; icon: TablerIcon; match?: (pathname: string) => boolean };
+type NavItem = { label: string; path: string; icon: Icon; match?: (pathname: string) => boolean };
 
 type AppShellProps = {
   area: ShellArea;
