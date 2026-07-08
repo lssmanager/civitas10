@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useResourceApi } from '../api/resource';
+import { CountryOption, StateOption, CityOption, useLocationsApi } from '../api/locations';
 
 interface CreateOrganizationFormProps {
   onSuccess: (orgId: string, name?: string, description?: string) => void;
@@ -7,10 +8,20 @@ interface CreateOrganizationFormProps {
 
 const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
   const { createOrganization } = useResourceApi();
+  const locationsApi = useLocationsApi();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    countryId: '',
+    stateId: '',
+    cityId: '',
+    manualCity: '',
+    phonePrefix: '',
   });
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  const [states, setStates] = useState<StateOption[]>([]);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [locationsError, setLocationsError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -25,7 +36,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
         description: formData.description.trim() || undefined,
       };
       const result = await createOrganization(payload);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: '', description: '', countryId: '', stateId: '', cityId: '', manualCity: '', phonePrefix: '' });
       onSuccess(result.data.id, result.data.name || payload.name, result.data.description || payload.description);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -35,7 +46,32 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    locationsApi.listCountries().then(setCountries).catch(() => setLocationsError('No pudimos cargar el catálogo de países. Puedes continuar sin bloquear el alta.'));
+  }, [locationsApi]);
+
+  useEffect(() => {
+    const countryId = Number(formData.countryId);
+    setStates([]); setCities([]);
+    setFormData(prev => ({ ...prev, stateId: '', cityId: '', manualCity: '' }));
+    if (!countryId) return;
+    const selected = countries.find(country => country.id === countryId);
+    setFormData(prev => ({ ...prev, phonePrefix: selected?.phoneCode ? `+${selected.phoneCode.replace(/^\+/, '')}` : '' }));
+    locationsApi.listStates(countryId).then(setStates).catch(() => setStates([]));
+    locationsApi.getPhoneCode(countryId).then(phoneCode => {
+      if (phoneCode) setFormData(prev => ({ ...prev, phonePrefix: `+${phoneCode.replace(/^\+/, '')}` }));
+    }).catch(() => undefined);
+  }, [formData.countryId, countries, locationsApi]);
+
+  useEffect(() => {
+    const stateId = Number(formData.stateId);
+    setCities([]);
+    setFormData(prev => ({ ...prev, cityId: '', manualCity: '' }));
+    if (!stateId) return;
+    locationsApi.listCities(stateId).then(setCities).catch(() => setCities([]));
+  }, [formData.stateId, locationsApi]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -77,6 +113,33 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
             placeholder="Enter organization description"
           />
         </div>
+        <div>
+          <label htmlFor="countryId" className={labelClassName}>País</label>
+          <select id="countryId" name="countryId" value={formData.countryId} onChange={handleInputChange} className={inputClassName}>
+            <option value="">Selecciona un país</option>
+            {countries.map(country => <option key={country.id} value={country.id}>{country.emoji ? `${country.emoji} ` : ''}{country.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="stateId" className={labelClassName}>Región / estado</label>
+          <select id="stateId" name="stateId" value={formData.stateId} onChange={handleInputChange} disabled={!formData.countryId || states.length === 0} className={inputClassName}>
+            <option value="">{states.length ? 'Selecciona una región' : 'Sin regiones cargadas'}</option>
+            {states.map(state => <option key={state.id} value={state.id}>{state.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="cityId" className={labelClassName}>Ciudad</label>
+          <select id="cityId" name="cityId" value={formData.cityId} onChange={handleInputChange} disabled={!formData.stateId || cities.length === 0} className={inputClassName}>
+            <option value="">{cities.length ? 'Selecciona una ciudad' : 'Usa ciudad manual si no aparece'}</option>
+            {cities.map(city => <option key={city.id} value={city.id}>{city.name}</option>)}
+          </select>
+          <input type="text" id="manualCity" name="manualCity" value={formData.manualCity} onChange={handleInputChange} className={`${inputClassName} mt-3`} placeholder="Ciudad manual (opcional si no aparece)" />
+        </div>
+        <div>
+          <label htmlFor="phonePrefix" className={labelClassName}>Prefijo telefónico</label>
+          <input type="text" id="phonePrefix" name="phonePrefix" value={formData.phonePrefix} onChange={handleInputChange} className={inputClassName} placeholder="+57" />
+        </div>
+        {locationsError && <div className="text-amber-700 text-sm bg-amber-50 px-4 py-2.5 rounded-lg">{locationsError}</div>}
         {error && (
           <div className="text-red-600 text-sm bg-red-50 px-4 py-2.5 rounded-lg">
             {error}

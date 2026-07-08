@@ -32,6 +32,7 @@ const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganization
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { requireGlobalOwner } = require("./authorization/guards");
+const { getCountryPhoneCode, listCitiesByState, listCountries, listStatesByCountry, parsePositiveInteger } = require("./services/locations");
 
 const app = express();
 const port = 3000;
@@ -179,6 +180,51 @@ secureRoute.get("/health", "health", async (_req, res) => {
     db: database.status === "healthy" ? "connected" : "disconnected",
     redis: redis.status === "healthy" ? "connected" : "disconnected",
   });
+});
+
+
+secureRoute.get("/locations/countries", "public", async (_req, res) => {
+  try {
+    return res.json({ countries: await listCountries() });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsCountriesError", "Failed to list countries");
+  }
+});
+
+secureRoute.get("/locations/countries/:countryId/states", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.params.countryId);
+  if (!countryId) return res.status(400).json({ error: "ValidationError", message: "Invalid country identifier." });
+  try {
+    const states = await listStatesByCountry(countryId);
+    if (states.length === 0) return res.status(404).json({ error: "CountryStatesNotFound", message: "No states or regions were found for this country." });
+    return res.json({ states });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsStatesError", "Failed to list country states");
+  }
+});
+
+secureRoute.get("/locations/states/:stateId/cities", "public", async (req, res) => {
+  const stateId = parsePositiveInteger(req.params.stateId);
+  if (!stateId) return res.status(400).json({ error: "ValidationError", message: "Invalid state identifier." });
+  try {
+    const cities = await listCitiesByState(stateId);
+    if (cities.length === 0) return res.status(404).json({ error: "StateCitiesNotFound", message: "No cities were found for this state or region." });
+    return res.json({ cities });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsCitiesError", "Failed to list state cities");
+  }
+});
+
+secureRoute.get("/locations/countries/:countryId/phone-code", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.params.countryId);
+  if (!countryId) return res.status(400).json({ error: "ValidationError", message: "Invalid country identifier." });
+  try {
+    const country = await getCountryPhoneCode(countryId);
+    if (!country) return res.status(404).json({ error: "CountryNotFound", message: "Country was not found." });
+    return res.json(country);
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsPhoneCodeError", "Failed to load country phone code");
+  }
 });
 
 secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res) => {

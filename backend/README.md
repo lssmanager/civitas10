@@ -73,3 +73,17 @@ If a deployment needs the service to apply idempotent SQL migrations during star
 The backend image is built from the repository root (`docker-compose.yml` uses `build.context: .`) with `backend/Dockerfile`. The image intentionally keeps backend code at `/app` and packages the shared runtime contract at `/core` plus compiled contract artifacts at `/dist`.
 
 Backend runtime code may only reach outside `backend/` for the canonical shared contract/deployment runtime under `core/` (and generated contract artifacts under `dist/`). Do not add ad-hoc copies of the deployment kernel or auth contract inside `backend/`; run `npm run test:runtime-boundary` to verify that relative runtime imports remain packageable in the container.
+
+## Location catalog import
+
+The organization wizard uses an operational country/state/city catalog stored in Postgres. The catalog is imported from the JSON files in `dr5hn/countries-states-cities-database`; do not restore the upstream SQL dump.
+
+1. Apply migrations so `countries`, `states`, and `cities` exist.
+2. Set `DATABASE_URL` for the backend Postgres database.
+3. Run:
+
+```bash
+npm --prefix backend run db:import-locations
+```
+
+The importer downloads `countries.json`, `states.json`, and `cities.json`, truncates `cities`, `states`, and `countries` with `RESTART IDENTITY CASCADE`, then imports countries, states, and cities in that order. City rows are inserted in batches of 1000 by default; override with `LOCATION_IMPORT_CITY_BATCH_SIZE` when needed.

@@ -1,5 +1,5 @@
 const { relations, sql } = require("drizzle-orm");
-const { pgTable, uuid, varchar, text, integer, timestamp, jsonb, boolean, uniqueIndex, index } = require("drizzle-orm/pg-core");
+const { pgTable, uuid, varchar, text, integer, numeric, timestamp, jsonb, boolean, uniqueIndex, index } = require("drizzle-orm/pg-core");
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -189,6 +189,64 @@ const organizationProvisioningDrafts = pgTable("organization_provisioning_drafts
   logtoOrgIdx: index("organization_provisioning_drafts_logto_org_idx").on(table.logtoOrganizationId),
 }));
 
+const countries = pgTable("countries", {
+  id: integer("id").primaryKey(),
+  name: varchar("name", { length: 160 }).notNull(),
+  iso2: varchar("iso2", { length: 2 }).notNull(),
+  iso3: varchar("iso3", { length: 3 }).notNull(),
+  numericCode: varchar("numeric_code", { length: 8 }),
+  phoneCode: varchar("phone_code", { length: 32 }),
+  capital: varchar("capital", { length: 160 }),
+  currency: varchar("currency", { length: 16 }),
+  currencyName: varchar("currency_name", { length: 120 }),
+  currencySymbol: varchar("currency_symbol", { length: 16 }),
+  region: varchar("region", { length: 120 }),
+  subregion: varchar("subregion", { length: 120 }),
+  nativeName: varchar("native_name", { length: 160 }),
+  emoji: varchar("emoji", { length: 16 }),
+  latitude: numeric("latitude", { precision: 10, scale: 7 }),
+  longitude: numeric("longitude", { precision: 10, scale: 7 }),
+  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+}, (table) => ({
+  iso2Idx: uniqueIndex("countries_iso2_uidx").on(table.iso2),
+  iso3Idx: uniqueIndex("countries_iso3_uidx").on(table.iso3),
+  nameIdx: index("countries_name_idx").on(table.name),
+}));
+
+const states = pgTable("states", {
+  id: integer("id").primaryKey(),
+  name: varchar("name", { length: 160 }).notNull(),
+  countryId: integer("country_id").notNull().references(() => countries.id, { onDelete: "cascade" }),
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  stateCode: varchar("state_code", { length: 16 }),
+  type: varchar("type", { length: 80 }),
+  latitude: numeric("latitude", { precision: 10, scale: 7 }),
+  longitude: numeric("longitude", { precision: 10, scale: 7 }),
+  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+}, (table) => ({
+  countryIdx: index("states_country_id_idx").on(table.countryId),
+  nameIdx: index("states_name_idx").on(table.name),
+  countryNameIdx: index("states_country_name_idx").on(table.countryId, table.name),
+}));
+
+const cities = pgTable("cities", {
+  id: integer("id").primaryKey(),
+  name: varchar("name", { length: 180 }).notNull(),
+  stateId: integer("state_id").references(() => states.id, { onDelete: "cascade" }),
+  stateCode: varchar("state_code", { length: 16 }),
+  countryId: integer("country_id").notNull().references(() => countries.id, { onDelete: "cascade" }),
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  latitude: numeric("latitude", { precision: 10, scale: 7 }),
+  longitude: numeric("longitude", { precision: 10, scale: 7 }),
+  timezone: varchar("timezone", { length: 120 }),
+  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+}, (table) => ({
+  stateIdx: index("cities_state_id_idx").on(table.stateId),
+  countryIdx: index("cities_country_id_idx").on(table.countryId),
+  nameIdx: index("cities_name_idx").on(table.name),
+  stateNameIdx: index("cities_state_name_idx").on(table.stateId, table.name),
+}));
+
 const idempotencyRecords = pgTable("idempotency_records", {
   idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
   operationId: uuid("operation_id"),
@@ -200,4 +258,4 @@ const idempotencyRecords = pgTable("idempotency_records", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-module.exports = { localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
+module.exports = { countries, states, cities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
