@@ -22,7 +22,11 @@ export type OwnerOrganization = {
   logtoOrganizationId: string | null;
   name: string | null;
   logtoOrganization?: Record<string, unknown> | null;
+  canonicalSource?: "logto";
   profile: Record<string, unknown> | null;
+  runtimeState?: Record<string, unknown> | null;
+  bootstrap?: Record<string, unknown> | null;
+  legacy?: Record<string, unknown> | null;
 };
 
 export type OrganizationTemplateRole = {

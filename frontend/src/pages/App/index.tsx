@@ -4,6 +4,7 @@ import Landing from "./Landing";
 import Callback from "../Callback";
 import OrganizationPage from "../OrganizationPage";
 import OwnerOrganizationsPage from "../OwnerOrganizationsPage";
+import OwnerOrganizationsIndexPage from "../OwnerOrganizationsIndexPage";
 import OwnerOperationalHomePage from "../OwnerOperationalHomePage";
 import OwnerOrganizationOperationalPage from "../OwnerOrganizationOperationalPage";
 import OwnerWorkerQueuesPage from "../OwnerWorkerQueuesPage";
@@ -31,7 +32,8 @@ function AppContent() {
     <Routes>
       <Route path="/" element={<Navigate to={appRoutes.owner.path} replace />} />
       <Route path={appRoutes.owner.path} element={<OwnerRouteGuard><OwnerOperationalHomePage /></OwnerRouteGuard>} />
-      <Route path={appRoutes.ownerOrganizations.path} element={<OwnerRouteGuard><OwnerOrganizationsPage /></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerOrganizations.path} element={<OwnerRouteGuard><OwnerOrganizationsIndexPage /></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerCreateOrganization.path} element={<OwnerRouteGuard><OwnerOrganizationsPage /></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationState.path} element={<OwnerRouteGuard><OwnerOrganizationOperationalPage /></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerRouteGuard><OwnerWorkerQueuesPage /></OwnerRouteGuard>} />
       <Route path="/:orgId" element={<OrganizationPage />} />
