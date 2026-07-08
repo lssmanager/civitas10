@@ -225,7 +225,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
   }
 });
 
-secureRoute.post("/owner/organization-drafts", "ownerWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireGlobalOwner, async (req, res) => {
+secureRoute.post("/owner/organization-drafts", "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_SCOPES.organizationCreate] }), requireGlobalOwner, async (req, res) => {
   try {
     const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
     const draft = await saveOrganizationProvisioningDraft({
