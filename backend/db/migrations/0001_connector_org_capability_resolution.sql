@@ -15,6 +15,14 @@ join registry_adapters a on a.id = c.adapter_id
 where b.connector_id = c.id
   and b.capability_id is null;
 
+do $$
+begin
+  if exists (select 1 from registry_connector_bindings where capability_id is null) then
+    raise exception 'Cannot enforce registry_connector_bindings.capability_id: existing bindings cannot be backfilled from connector adapter capability.'
+      using errcode = '23502';
+  end if;
+end $$;
+
 alter table registry_connector_bindings
   alter column capability_id set not null;
 

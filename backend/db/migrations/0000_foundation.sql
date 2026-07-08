@@ -165,6 +165,13 @@ create table if not exists registry_connector_bindings (
   updated_at timestamptz not null default now(),
   constraint registry_bindings_tenant_scope_check check (scope_type <> 'tenant' or logto_organization_id is not null)
 );
+-- Existing deployments may already have registry_connector_bindings from the pre-Fase-1
+-- connector model. CREATE TABLE IF NOT EXISTS does not add columns to those tables, so
+-- make the capability anchor explicit before creating indexes that reference it. The
+-- follow-up migration backfills this column and enforces NOT NULL after validation.
+alter table registry_connector_bindings
+  add column if not exists capability_id uuid references registry_capabilities(id) on delete cascade;
+
 create index if not exists registry_bindings_scope_idx on registry_connector_bindings(scope_type, logto_organization_id);
 create index if not exists registry_bindings_active_idx on registry_connector_bindings(is_active, status);
 create index if not exists registry_bindings_org_capability_idx on registry_connector_bindings(logto_organization_id, capability_id);

@@ -43,3 +43,25 @@ test("migration startup flag is explicit and database errors are classified with
     table: "operational_operations",
   });
 });
+
+test("foundation migration is safe for existing connector binding tables before capability backfill", async () => {
+  const fs = require("node:fs/promises");
+  const path = require("node:path");
+  const foundationSql = await fs.readFile(path.join(__dirname, "..", "db", "migrations", "0000_foundation.sql"), "utf8");
+  const addColumnIndex = foundationSql.indexOf("add column if not exists capability_id");
+  const orgCapabilityIndex = foundationSql.indexOf("registry_bindings_org_capability_idx");
+
+  assert.ok(addColumnIndex > 0, "0000 must repair pre-existing bindings tables before indexes use capability_id");
+  assert.ok(orgCapabilityIndex > addColumnIndex, "capability_id must exist before registry_bindings_org_capability_idx is created");
+});
+
+test("connector capability migration validates backfill before enforcing not null", async () => {
+  const fs = require("node:fs/promises");
+  const path = require("node:path");
+  const migrationSql = await fs.readFile(path.join(__dirname, "..", "db", "migrations", "0001_connector_org_capability_resolution.sql"), "utf8");
+  const validationIndex = migrationSql.indexOf("existing bindings cannot be backfilled");
+  const notNullIndex = migrationSql.indexOf("alter column capability_id set not null");
+
+  assert.ok(validationIndex > 0, "0001 must raise an operable error for unbackfillable bindings");
+  assert.ok(notNullIndex > validationIndex, "0001 must validate backfill before enforcing NOT NULL");
+});
