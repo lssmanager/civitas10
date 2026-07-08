@@ -1,10 +1,10 @@
-import type { ComponentType, SVGProps } from "react";
 import { Link, useLocation } from "react-router-dom";
+import type { Icon } from "@tabler/icons-react";
 
 export type NavCollapseItem = {
   label: string;
   path: string;
-  icon?: ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; stroke?: number | string }>;
+  icon?: Icon;
   match?: (pathname: string) => boolean;
 };
 
