@@ -14,7 +14,8 @@ test("OwnerOperationalHomePage keeps primary navigation out of the page body", (
   assert.doesNotMatch(source, /Create organization<\/Link>|Create organization<\/button>/);
   assert.match(source, /appRoutes\.ownerWorkerQueues\.path/);
   assert.match(source, /View operational issues/);
-  assert.match(source, /Open organization/);
+  assert.match(source, /View organizations/);
+  assert.doesNotMatch(source, /DataTable/);
 });
 
 test("OwnerOperationalHomePage explains its executive summary responsibility", () => {
