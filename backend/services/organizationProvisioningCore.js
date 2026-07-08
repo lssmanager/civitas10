@@ -190,82 +190,120 @@ async function runCanonicalOrganizationProvisioning({ input, actor = {}, recorde
     createOrganization: createOrganizationFromCanonicalInput,
     ...logto,
   };
-  const recordStep = async (stepName, status, metadata = {}) => {
-    if (recorder?.recordStep) await recorder.recordStep({ stepName, status, metadata });
+  const completedSteps = recorder?.getCompletedSteps ? await recorder.getCompletedSteps() : new Map();
+  const getCompleted = (stepName) => completedSteps.get(stepName) || null;
+  const recordStep = async (stepName, status, metadata = {}, error = null) => {
+    if (recorder?.recordStep) await recorder.recordStep({ stepName, status, metadata, error });
+  };
+  const runStep = async (stepName, effect, { replayable = false } = {}) => {
+    const previous = getCompleted(stepName);
+    if (previous && !replayable) return { skipped: true, output: previous };
+    await recordStep(stepName, "running", {});
+    try {
+      const output = await effect(previous);
+      await recordStep(stepName, "completed", { output });
+      completedSteps.set(stepName, output || {});
+      return { skipped: false, output };
+    } catch (error) {
+      await recordStep(stepName, "failed", {}, error);
+      throw error;
+    }
   };
 
-  if (recorder?.startOperation) await recorder.startOperation({ operationType: "organization.bootstrap", actor, input: { organizationName: input.canonical.name } });
-  await recordStep("organization.bootstrap.started", "completed", { actorType: actor?.type || "owner_global" });
-
-  const requiredRoleNames = Array.from(new Set([
-    ...input.canonical.jitProvisioning.defaultRoleNames,
-    ...input.canonical.administrativeContacts.map((contact) => contact.organizationRoleName),
-  ].filter(Boolean)));
-
-  await recordStep("logto.organization_roles.list", "running", {});
-  const roleResolver = createRoleResolver(await deps.listLogtoOrganizationRoles());
-  await recordStep("logto.organization_roles.list", "completed", { availableRoles: roleResolver.availableRoles });
-  for (const roleName of requiredRoleNames) roleResolver.requireRole(roleName);
-
-  const template = await deps.ensureOrganizationTemplate({ requiredRoleNames });
-  await recordStep("logto.organization_template.validate", "completed", { requiredRoleNames });
-
-  const organization = await deps.createOrganization(input);
-  const organizationId = organization.id;
-  await recordStep("logto.organization.create", "completed", { organizationId });
-
-  const jitRoleIds = [];
-  for (const roleName of input.canonical.jitProvisioning.defaultRoleNames) {
-    const role = roleResolver.requireRole(roleName);
-    const roleId = getRoleId(role);
-    if (!roleId) throw new Error(`Logto organization role ${roleName} exists but no role id was returned`);
-    jitRoleIds.push(roleId);
-  }
-
-  if (input.canonical.jitProvisioning.domain) {
-    await deps.replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains: [input.canonical.jitProvisioning.domain] });
-    await recordStep("logto.organization_jit.email_domains.replace", "completed", { organizationId });
-  }
-  if (jitRoleIds.length > 0) {
-    await deps.replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds: jitRoleIds });
-    await recordStep("logto.organization_jit.default_roles.replace", "completed", { organizationId, roleNames: input.canonical.jitProvisioning.defaultRoleNames });
-  }
-
+  let organization = null;
+  let organizationId = null;
+  let roleResolver = null;
+  let template = null;
   const administrativeContactAssignments = [];
-  for (const contact of input.canonical.administrativeContacts) {
-    const resolved = await deps.createOrResolveLogtoUserByEmail(buildUserCreatePayload(contact));
-    const userId = getUserId(resolved.user);
-    if (!userId) throw new Error(`Administrative contact ${contact.email} did not resolve a Logto user id`);
-    const role = roleResolver.requireRole(contact.organizationRoleName);
-    const roleId = getRoleId(role);
-    if (!roleId) throw new Error(`Logto organization role ${contact.organizationRoleName} exists but no role id was returned`);
 
-    await deps.addUserToLogtoOrganization({ organizationId, userId });
-    await deps.assignOrganizationRoleToUser({ organizationId, userId, organizationRoleId: roleId, organizationRoleName: contact.organizationRoleName });
-    await recordStep("logto.organization_user.assign_role", "completed", { organizationId, userId, roleName: contact.organizationRoleName });
+  try {
+    if (recorder?.startOperation) await recorder.startOperation({ operationType: "organization.bootstrap", actor, input: { organizationName: input.canonical.name, requestEnvelope: input } });
+    await runStep("organization.bootstrap.started", async () => ({ actorType: actor?.type || "owner_global" }));
 
-    administrativeContactAssignments.push({
-      key: contact.key,
-      email: contact.email,
-      logtoUserId: userId,
-      roleName: contact.organizationRoleName,
-      userCreated: Boolean(resolved.created),
-      userSource: resolved.source,
-      membershipAdded: true,
-      roleAssigned: true,
+    const requiredRoleNames = Array.from(new Set([
+      ...input.canonical.jitProvisioning.defaultRoleNames,
+      ...input.canonical.administrativeContacts.map((contact) => contact.organizationRoleName),
+    ].filter(Boolean)));
+
+    const rolesStep = await runStep("logto.organization_roles.list", async () => {
+      const roles = await deps.listLogtoOrganizationRoles();
+      return { roles, availableRoles: createRoleResolver(roles).availableRoles };
+    }, { replayable: true });
+    roleResolver = createRoleResolver(rolesStep.output.roles || []);
+    for (const roleName of requiredRoleNames) roleResolver.requireRole(roleName);
+
+    const templateStep = await runStep("logto.organization_template.validate", async () => ({ template: await deps.ensureOrganizationTemplate({ requiredRoleNames }), requiredRoleNames }), { replayable: true });
+    template = templateStep.output.template || templateStep.output;
+
+    const createStep = await runStep("logto.organization.create", async () => {
+      const created = await deps.createOrganization(input);
+      return { organization: created, organizationId: created.id };
     });
-  }
+    organization = createStep.output.organization || { id: createStep.output.organizationId, name: input.canonical.name, description: input.canonical.description || null };
+    organizationId = createStep.output.organizationId || organization.id;
 
-  if (recorder?.completeOperation) await recorder.completeOperation({ organizationId, status: "created_with_logto_bootstrap" });
-  return {
-    organization,
-    organizationId,
-    template,
-    availableOrganizationRoles: roleResolver.availableRoles,
-    jitProvisioning: { domain: input.canonical.jitProvisioning.domain, defaultRoleNames: input.canonical.jitProvisioning.defaultRoleNames, defaultRoleIds: jitRoleIds },
-    administrativeContactAssignments,
-    status: "created_with_logto_bootstrap",
-  };
+    const jitRoleIds = [];
+    for (const roleName of input.canonical.jitProvisioning.defaultRoleNames) {
+      const role = roleResolver.requireRole(roleName);
+      const roleId = getRoleId(role);
+      if (!roleId) throw new Error(`Logto organization role ${roleName} exists but no role id was returned`);
+      jitRoleIds.push(roleId);
+    }
+
+    if (input.canonical.jitProvisioning.domain) {
+      await runStep("logto.organization_jit.email_domains.replace", async () => {
+        await deps.replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains: [input.canonical.jitProvisioning.domain] });
+        return { organizationId, emailDomains: [input.canonical.jitProvisioning.domain] };
+      });
+    }
+    await runStep("logto.organization_jit.default_roles.replace", async () => {
+      await deps.replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds: jitRoleIds });
+      return { organizationId, roleNames: input.canonical.jitProvisioning.defaultRoleNames, roleIds: jitRoleIds };
+    });
+
+    for (const contact of input.canonical.administrativeContacts) {
+      const stepName = `logto.organization_user.assign_role:${contact.key}`;
+      const assignmentStep = await runStep(stepName, async () => {
+        const resolved = await deps.createOrResolveLogtoUserByEmail(buildUserCreatePayload(contact));
+        const userId = getUserId(resolved.user);
+        if (!userId) throw new Error(`Administrative contact ${contact.email} did not resolve a Logto user id`);
+        const role = roleResolver.requireRole(contact.organizationRoleName);
+        const roleId = getRoleId(role);
+        if (!roleId) throw new Error(`Logto organization role ${contact.organizationRoleName} exists but no role id was returned`);
+        await deps.addUserToLogtoOrganization({ organizationId, userId });
+        await deps.assignOrganizationRoleToUser({ organizationId, userId, organizationRoleId: roleId, organizationRoleName: contact.organizationRoleName });
+        return { key: contact.key, email: contact.email, organizationId, userId, roleName: contact.organizationRoleName, userCreated: Boolean(resolved.created), userSource: resolved.source, membershipAdded: true, roleAssigned: true, primaryOperationalContact: contact.key === input.canonical.administrativeContacts[0]?.key };
+      });
+      administrativeContactAssignments.push({
+        key: contact.key,
+        email: contact.email,
+        logtoUserId: assignmentStep.output.userId,
+        roleName: assignmentStep.output.roleName,
+        userCreated: Boolean(assignmentStep.output.userCreated),
+        userSource: assignmentStep.output.userSource,
+        membershipAdded: Boolean(assignmentStep.output.membershipAdded),
+        roleAssigned: Boolean(assignmentStep.output.roleAssigned),
+        primaryOperationalContact: Boolean(assignmentStep.output.primaryOperationalContact),
+        skipped: Boolean(assignmentStep.skipped),
+      });
+    }
+
+    const result = {
+      organization,
+      organizationId,
+      template,
+      availableOrganizationRoles: roleResolver.availableRoles,
+      jitProvisioning: { domain: input.canonical.jitProvisioning.domain, defaultRoleNames: input.canonical.jitProvisioning.defaultRoleNames, defaultRoleIds: jitRoleIds },
+      administrativeContactAssignments,
+      status: "created_with_logto_bootstrap",
+      resume: { idempotent: completedSteps.size > 0 },
+    };
+    if (recorder?.completeOperation) await recorder.completeOperation({ organizationId, status: result.status, result });
+    return result;
+  } catch (error) {
+    if (recorder?.failOperation) await recorder.failOperation({ organizationId, error, status: organizationId ? "bootstrap_incomplete" : "bootstrap_failed", result: { organizationId, organization } });
+    throw error;
+  }
 }
 
 function createOrganizationFromCanonicalInput(input) {

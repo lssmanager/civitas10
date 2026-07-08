@@ -32,8 +32,9 @@ export type OrganizationTemplateRole = {
 
 export type OrganizationTemplateResponse = {
   roles: OrganizationTemplateRole[];
-  requiredRoleNames: string[];
-  missingRoleNames: string[];
+  requiredRoleNames?: string[];
+  missingRoleNames?: string[];
+  roleSource?: string;
   ready: boolean;
 };
 
@@ -64,9 +65,11 @@ export type AdministrativeContactInput = {
   phoneExtension?: string;
   position?: string;
   organizationRoleName: string;
+  username?: string;
 };
 
 export type CreateOwnerOrganizationInput = {
+  idempotencyKey?: string;
   name: string;
   description?: string;
   appSubdomain: string;
@@ -103,6 +106,7 @@ export type CreateOwnerOrganizationInput = {
 };
 
 export type CreateOwnerOrganizationResponse = {
+  idempotencyKey: string;
   status: string;
   data: { id: string; name?: string; description?: string | null };
   bootstrap?: {
@@ -126,6 +130,18 @@ export type CreateOwnerOrganizationResponse = {
   };
 };
 
+export type OrganizationProvisioningDraft = {
+  idempotencyKey: string;
+  currentStage: string;
+  stagePayloads: Record<string, unknown>;
+  consolidatedPayload: Record<string, unknown>;
+  status: string;
+  submitStatus: string;
+  logtoOrganizationId?: string | null;
+  canonicalSource: "logto";
+  localPurpose: "operational_wizard_draft_only";
+};
+
 export const useOwnerApi = () => {
   const { ownerApiFetch } = useApi();
 
@@ -134,6 +150,9 @@ export const useOwnerApi = () => {
       getOwnerMe: async (): Promise<OwnerMeResponse> => ownerApiFetch("/owner/me"),
       getOrganizations: async (): Promise<{ organizations: OwnerOrganization[] }> => ownerApiFetch("/owner/organizations"),
       getOrganizationTemplate: async (): Promise<OrganizationTemplateResponse> => ownerApiFetch("/owner/organization-template"),
+      saveOrganizationDraft: async (data: { idempotencyKey?: string; currentStage: string; stagePayload?: Record<string, unknown>; consolidatedPayload?: Record<string, unknown>; status?: string; submitStatus?: string }): Promise<{ draft: OrganizationProvisioningDraft; idempotencyKey: string }> =>
+        ownerApiFetch("/owner/organization-drafts", { method: "POST", body: JSON.stringify(data) }),
+      getOrganizationDraft: async (idempotencyKey: string): Promise<{ draft: OrganizationProvisioningDraft }> => ownerApiFetch(`/owner/organization-drafts/${encodeURIComponent(idempotencyKey)}`),
       getOrganizationOperationalState: async (organizationId: string): Promise<ConsolidatedOperationalResponse> => ownerApiFetch(`/owner/organizations/${encodeURIComponent(organizationId)}/operational-state`),
       getWorkerQueuesObservability: async (): Promise<WorkerHealthAggregate> => ownerApiFetch("/owner/system/worker-queues"),
       createOrganization: async (data: CreateOwnerOrganizationInput): Promise<CreateOwnerOrganizationResponse> =>

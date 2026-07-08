@@ -171,6 +171,24 @@ const capabilityRoleMappings = pgTable("capability_role_mappings", {
   ...timestamps,
 }, (table) => ({ lookupIdx: index("capability_role_mappings_lookup_idx").on(table.logtoOrganizationId, table.capability, table.connectorKey, table.canonicalRoleName), activeIdx: index("capability_role_mappings_active_idx").on(table.isActive) }));
 
+
+const organizationProvisioningDrafts = pgTable("organization_provisioning_drafts", {
+  idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
+  currentStage: varchar("current_stage", { length: 40 }).notNull().default("canonical"),
+  stagePayloads: jsonb("stage_payloads").notNull().default(sql`'{}'::jsonb`),
+  consolidatedPayload: jsonb("consolidated_payload").notNull().default(sql`'{}'::jsonb`),
+  actorJson: jsonb("actor_json").notNull().default(sql`'{}'::jsonb`),
+  status: varchar("status", { length: 40 }).notNull().default("draft"),
+  submitStatus: varchar("submit_status", { length: 40 }).notNull().default("not_submitted"),
+  logtoOrganizationId: varchar("logto_organization_id", { length: 128 }),
+  lastErrorJson: jsonb("last_error_json"),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => ({
+  statusIdx: index("organization_provisioning_drafts_status_idx").on(table.status, table.submitStatus),
+  logtoOrgIdx: index("organization_provisioning_drafts_logto_org_idx").on(table.logtoOrganizationId),
+}));
+
 const idempotencyRecords = pgTable("idempotency_records", {
   idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
   operationId: uuid("operation_id"),
@@ -182,4 +200,4 @@ const idempotencyRecords = pgTable("idempotency_records", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-module.exports = { localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
+module.exports = { localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
