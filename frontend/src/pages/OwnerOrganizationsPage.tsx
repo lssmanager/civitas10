@@ -2,61 +2,13 @@ import { useEffect, useMemo, useState, type Dispatch, type FormEvent, type SetSt
 import { OwnerShell, PageHeader, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
 import { AlertStrip, ActionBar, FormField, SectionCard, StatusPill, Stepper } from "../shared/ui";
 import { useOwnerApi, type CreateOwnerOrganizationInput } from "../api/owner";
+import { useLocationsApi, type CountryOption, type StateOption, type CityOption } from "../api/locations";
 
 const APP_BASE_DOMAINS = ["didaxus.com"] as const;
+const LOCATION_CATALOG_SOURCE = "dr5hn/countries-states-cities-database" as const;
+const DEFAULT_COUNTRY_ISO2 = "CO";
 
-type GeographyRegion = {
-  code: string;
-  name: string;
-  cities: readonly string[];
-};
-
-type GeographyCountry = {
-  code: string;
-  name: string;
-  phonePrefix: string;
-  regionLabel: string;
-  regions: readonly GeographyRegion[];
-};
-
-const COUNTRY_OPTIONS: readonly GeographyCountry[] = [
-  {
-    code: "CO",
-    name: "Colombia",
-    phonePrefix: "+57",
-    regionLabel: "Department",
-    regions: [
-      { code: "ANT", name: "Antioquia", cities: ["Medellin", "Envigado", "Bello"] },
-      { code: "DC", name: "Bogota D.C.", cities: ["Bogota"] },
-      { code: "CUN", name: "Cundinamarca", cities: ["Chia", "Soacha", "Zipaquira"] },
-      { code: "VAC", name: "Valle del Cauca", cities: ["Cali", "Palmira", "Jamundi"] },
-    ],
-  },
-  {
-    code: "MX",
-    name: "Mexico",
-    phonePrefix: "+52",
-    regionLabel: "State",
-    regions: [
-      { code: "CDMX", name: "Ciudad de Mexico", cities: ["Ciudad de Mexico"] },
-      { code: "JAL", name: "Jalisco", cities: ["Guadalajara", "Zapopan", "Tlaquepaque"] },
-      { code: "NLE", name: "Nuevo Leon", cities: ["Monterrey", "San Nicolas", "Guadalupe"] },
-    ],
-  },
-  {
-    code: "US",
-    name: "United States",
-    phonePrefix: "+1",
-    regionLabel: "State",
-    regions: [
-      { code: "CA", name: "California", cities: ["Los Angeles", "San Diego", "San Francisco"] },
-      { code: "FL", name: "Florida", cities: ["Miami", "Orlando", "Tampa"] },
-      { code: "NY", name: "New York", cities: ["New York City", "Buffalo", "Albany"] },
-    ],
-  },
-];
-
-const DEFAULT_COUNTRY_CODE = "CO";
+const formatPhonePrefix = (phoneCode?: string | null) => phoneCode ? `+${phoneCode.replace(/^\+/, "")}` : "";
 
 type AdministrativeContact = {
   id: string;
@@ -97,6 +49,11 @@ type FormState = {
     addressLine2: string;
     city: string;
     state: string;
+    countryId: string;
+    stateId: string;
+    cityId: string;
+    manualCity: string;
+    phonePrefix: string;
     postalCode: string;
     country: string;
     numberOfEmployees: string;
@@ -130,12 +87,6 @@ type CreatedState = {
   }>;
 };
 
-const getCountryOption = (countryCode: string): GeographyCountry | null =>
-  COUNTRY_OPTIONS.find((country) => country.code === countryCode) ?? null;
-
-const getRegionOption = (countryCode: string, regionCode: string): GeographyRegion | null =>
-  getCountryOption(countryCode)?.regions.find((region) => region.code === regionCode) ?? null;
-
 const normalizePhoneValue = (value: string) => value.replace(/\s+/g, " ").trim();
 
 const propagatePhonePrefix = (phone: string, previousPrefix: string | null, nextPrefix: string) => {
@@ -155,7 +106,7 @@ const propagatePhonePrefix = (phone: string, previousPrefix: string | null, next
 const emptyContact = (
   index: number,
   roleName = "",
-  countryCode = DEFAULT_COUNTRY_CODE,
+  phonePrefix = "",
 ): AdministrativeContact => ({
   id: `contact-${index}`,
   firstName: "",
@@ -163,7 +114,7 @@ const emptyContact = (
   firstSurname: "",
   secondSurname: "",
   email: "",
-  phone: getCountryOption(countryCode)?.phonePrefix || "",
+  phone: phonePrefix,
   phoneExtension: "",
   position: "",
   organizationRoleName: roleName,
@@ -183,8 +134,13 @@ const initialFormState = (defaultRoleName = ""): FormState => ({
     addressLine2: "",
     city: "",
     state: "",
+    countryId: "",
+    stateId: "",
+    cityId: "",
+    manualCity: "",
+    phonePrefix: "",
     postalCode: "",
-    country: DEFAULT_COUNTRY_CODE,
+    country: "",
     numberOfEmployees: "",
     industry: "",
     type: "",
@@ -196,7 +152,7 @@ const initialFormState = (defaultRoleName = ""): FormState => ({
     tags: [],
     lists: [],
   },
-  administrativeContacts: [emptyContact(1, defaultRoleName, DEFAULT_COUNTRY_CODE)],
+  administrativeContacts: [emptyContact(1, defaultRoleName)],
 });
 
 const toSentence = (value: string) => value.trim();
@@ -223,6 +179,7 @@ const wizardSteps = [
 
 const OwnerOrganizationsPage = () => {
   const ownerApi = useOwnerApi();
+  const locationsApi = useLocationsApi();
   const [template, setTemplate] = useState<OrganizationTemplateResponse | null>(null);
   const [templateLoading, setTemplateLoading] = useState(true);
   const [templateError, setTemplateError] = useState<string | null>(null);
@@ -234,6 +191,10 @@ const OwnerOrganizationsPage = () => {
   const [idempotencyKey, setIdempotencyKey] = useState<string | null>(null);
   const [draftSaving, setDraftSaving] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  const [states, setStates] = useState<StateOption[]>([]);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [locationsError, setLocationsError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -254,9 +215,7 @@ const OwnerOrganizationsPage = () => {
               organizationRoleName: contact.organizationRoleName,
               phone:
                 normalizePhoneValue(contact.phone) ||
-                getCountryOption(current.business.country)?.phonePrefix ||
-                getCountryOption(DEFAULT_COUNTRY_CODE)?.phonePrefix ||
-                "",
+                current.business.phonePrefix || "",
               id: `contact-${index + 1}`,
             })),
           };
@@ -275,17 +234,67 @@ const OwnerOrganizationsPage = () => {
     };
   }, [ownerApi]);
 
+  useEffect(() => {
+    let cancelled = false;
+    locationsApi.listCountries()
+      .then((rows) => {
+        if (cancelled) return;
+        setCountries(rows);
+        setLocationsError(null);
+        setForm((current) => {
+          if (current.business.countryId || rows.length === 0) return current;
+          const defaultCountry = rows.find((country) => country.iso2 === DEFAULT_COUNTRY_ISO2) || rows[0];
+          const phonePrefix = formatPhonePrefix(defaultCountry.phoneCode);
+          return {
+            ...current,
+            business: { ...current.business, countryId: String(defaultCountry.id), country: defaultCountry.name, phonePrefix },
+            administrativeContacts: current.administrativeContacts.map((contact) => ({
+              ...contact,
+              phone: normalizePhoneValue(contact.phone) || phonePrefix,
+            })),
+          };
+        });
+      })
+      .catch((error) => {
+        if (!cancelled) setLocationsError(error instanceof Error ? error.message : String(error));
+      });
+    return () => { cancelled = true; };
+  }, [locationsApi]);
+
+  useEffect(() => {
+    const countryId = Number(form.business.countryId);
+    setStates([]);
+    setCities([]);
+    if (!countryId) return;
+    let cancelled = false;
+    locationsApi.listStates(countryId).then((rows) => { if (!cancelled) setStates(rows); }).catch(() => { if (!cancelled) setStates([]); });
+    return () => { cancelled = true; };
+  }, [form.business.countryId, locationsApi]);
+
+  useEffect(() => {
+    const stateId = Number(form.business.stateId);
+    setCities([]);
+    if (!stateId) return;
+    let cancelled = false;
+    locationsApi.listCities(stateId).then((rows) => { if (!cancelled) setCities(rows); }).catch(() => { if (!cancelled) setCities([]); });
+    return () => { cancelled = true; };
+  }, [form.business.stateId, locationsApi]);
+
   const adminRoleOptions = useMemo(() => template?.roles ?? [], [template]);
   const selectedCountry = useMemo(
-    () => getCountryOption(form.business.country) ?? getCountryOption(DEFAULT_COUNTRY_CODE),
-    [form.business.country],
+    () => countries.find((country) => String(country.id) === form.business.countryId) ?? null,
+    [countries, form.business.countryId],
   );
-  const regionOptions: readonly GeographyRegion[] = selectedCountry?.regions ?? [];
+  const regionOptions = states;
   const selectedRegion = useMemo(
-    () => getRegionOption(form.business.country, form.business.state),
-    [form.business.country, form.business.state],
+    () => states.find((state) => String(state.id) === form.business.stateId) ?? null,
+    [states, form.business.stateId],
   );
-  const cityOptions: readonly string[] = selectedRegion?.cities ?? [];
+  const cityOptions = cities;
+  const selectedCity = useMemo(
+    () => cities.find((city) => String(city.id) === form.business.cityId) ?? null,
+    [cities, form.business.cityId],
+  );
   const canSubmit = Boolean(template?.ready) && !submitting;
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -302,68 +311,58 @@ const OwnerOrganizationsPage = () => {
     }));
   };
 
-  const updateCountryField = (countryCode: string) => {
+  const updateCountryField = (countryId: string) => {
     setForm((current) => {
-      const previousCountry = getCountryOption(current.business.country);
-      const nextCountry = getCountryOption(countryCode);
-
-      if (!nextCountry) {
-        return {
-          ...current,
-          business: {
-            ...current.business,
-            country: countryCode,
-            state: "",
-            city: "",
-          },
-        };
-      }
-
-      const stateIsStillValid = nextCountry.regions.some(
-        (region) => region.code === current.business.state,
-      );
-      const nextState = stateIsStillValid ? current.business.state : "";
-      const nextRegion = nextCountry.regions.find((region) => region.code === nextState) ?? null;
-      const cityIsStillValid = nextRegion
-        ? nextRegion.cities.includes(current.business.city)
-        : false;
-      const nextCity = cityIsStillValid ? current.business.city : "";
-
+      const previousPrefix = current.business.phonePrefix || null;
+      const nextCountry = countries.find((country) => String(country.id) === countryId) ?? null;
+      const nextPrefix = formatPhonePrefix(nextCountry?.phoneCode);
       return {
         ...current,
         business: {
           ...current.business,
-          country: countryCode,
-          state: nextState,
-          city: nextCity,
+          countryId,
+          country: nextCountry?.name || "",
+          stateId: "",
+          state: "",
+          cityId: "",
+          city: "",
+          manualCity: "",
+          phonePrefix: nextPrefix,
         },
         administrativeContacts: current.administrativeContacts.map((contact) => ({
           ...contact,
-          phone: propagatePhonePrefix(
-            contact.phone,
-            previousCountry?.phonePrefix ?? null,
-            nextCountry.phonePrefix,
-          ),
+          phone: nextPrefix ? propagatePhonePrefix(contact.phone, previousPrefix, nextPrefix) : contact.phone,
         })),
       };
     });
   };
 
-  const updateStateField = (stateCode: string) => {
-    setForm((current) => {
-      const nextRegion = getRegionOption(current.business.country, stateCode);
-      const cityIsStillValid = nextRegion
-        ? nextRegion.cities.includes(current.business.city)
-        : false;
-      return {
-        ...current,
-        business: {
-          ...current.business,
-          state: stateCode,
-          city: cityIsStillValid ? current.business.city : "",
-        },
-      };
-    });
+  const updateStateField = (stateId: string) => {
+    const nextRegion = states.find((state) => String(state.id) === stateId) ?? null;
+    setForm((current) => ({
+      ...current,
+      business: {
+        ...current.business,
+        stateId,
+        state: nextRegion?.name || "",
+        cityId: "",
+        city: "",
+        manualCity: "",
+      },
+    }));
+  };
+
+  const updateCityField = (cityId: string) => {
+    const nextCity = cities.find((city) => String(city.id) === cityId) ?? null;
+    setForm((current) => ({
+      ...current,
+      business: {
+        ...current.business,
+        cityId,
+        city: nextCity?.name || "",
+        manualCity: cityId ? "" : current.business.manualCity,
+      },
+    }));
   };
 
   const updateContact = (id: string, field: keyof AdministrativeContact, value: string) => {
@@ -383,7 +382,7 @@ const OwnerOrganizationsPage = () => {
       ...current,
       administrativeContacts: [
         ...current.administrativeContacts,
-        emptyContact(current.administrativeContacts.length + 1, fallbackRole, current.business.country),
+        emptyContact(current.administrativeContacts.length + 1, fallbackRole, current.business.phonePrefix),
       ],
     }));
   };
@@ -394,7 +393,7 @@ const OwnerOrganizationsPage = () => {
       return {
         ...current,
         administrativeContacts:
-          next.length > 0 ? next : [emptyContact(1, "", current.business.country)],
+          next.length > 0 ? next : [emptyContact(1, "", current.business.phonePrefix)],
       };
     });
   };
@@ -463,10 +462,21 @@ const OwnerOrganizationsPage = () => {
         website: form.business.website.trim() || undefined,
         addressLine1: form.business.addressLine1.trim() || undefined,
         addressLine2: form.business.addressLine2.trim() || undefined,
-        city: form.business.city.trim() || undefined,
+        city: selectedCity?.name || form.business.manualCity.trim() || form.business.city.trim() || undefined,
         state: selectedRegion?.name || undefined,
         postalCode: form.business.postalCode.trim() || undefined,
         country: selectedCountry?.name || undefined,
+        phonePrefix: form.business.phonePrefix || undefined,
+        location: {
+          countryId: selectedCountry?.id,
+          stateId: selectedRegion?.id,
+          cityId: selectedCity?.id,
+          manualCity: form.business.manualCity.trim() || undefined,
+          phonePrefix: form.business.phonePrefix || undefined,
+          countryCode: selectedCountry?.iso2,
+          stateCode: selectedRegion?.stateCode || undefined,
+          source: selectedCountry ? LOCATION_CATALOG_SOURCE : undefined,
+        },
         numberOfEmployees: form.business.numberOfEmployees.trim() || undefined,
         industry: form.business.industry.trim() || undefined,
         type: form.business.type.trim() || undefined,
@@ -604,12 +614,14 @@ const OwnerOrganizationsPage = () => {
         {activeStep === 1 ? (
           <StepBusinessProfile
             form={form}
-            selectedCountry={selectedCountry}
+            countries={countries}
             regionOptions={regionOptions}
             cityOptions={cityOptions}
             updateBusinessField={updateBusinessField}
             updateCountryField={updateCountryField}
             updateStateField={updateStateField}
+            updateCityField={updateCityField}
+            locationsError={locationsError}
             inputClassName={inputClassName}
           />
         ) : null}
@@ -665,14 +677,17 @@ const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, up
   </SectionCard>
 );
 
-const StepBusinessProfile = ({ form, selectedCountry, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, inputClassName }: { form: FormState; selectedCountry: GeographyCountry | null; regionOptions: readonly GeographyRegion[]; cityOptions: readonly string[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryCode: string) => void; updateStateField: (stateCode: string) => void; inputClassName: string }) => (
+const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, updateCityField, locationsError, inputClassName }: { form: FormState; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => (
   <SectionCard title="Profile fields" description="Populate custom data attached to the canonical organization record.">
-    <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists.</AlertStrip>
+    <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists from the operational location catalog.</AlertStrip>
+    {locationsError ? <AlertStrip variant="warning" title="Location catalog unavailable">The catalog could not be loaded. You can continue with manual city/address fields. {locationsError}</AlertStrip> : null}
     <div className="civitas-form-grid">
       <FormField id="business-website" label="Website"><input id="business-website" className={inputClassName} value={form.business.website} onChange={(event) => updateBusinessField("website", event.target.value)} /></FormField>
-      <FormField id="business-country" label="Country"><select id="business-country" className={inputClassName} value={form.business.country} onChange={(event) => updateCountryField(event.target.value)}>{COUNTRY_OPTIONS.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}</select></FormField>
-      <FormField id="business-state" label={selectedCountry?.regionLabel || "State / region"}><select id="business-state" className={inputClassName} value={form.business.state} onChange={(event) => updateStateField(event.target.value)}><option value="">Select {selectedCountry?.regionLabel?.toLowerCase() || "region"}</option>{regionOptions.map((region) => <option key={region.code} value={region.code}>{region.name}</option>)}</select></FormField>
-      <FormField id="business-city" label="City"><select id="business-city" className={inputClassName} value={form.business.city} onChange={(event) => updateBusinessField("city", event.target.value)} disabled={cityOptions.length === 0}><option value="">Select city</option>{cityOptions.map((city) => <option key={city} value={city}>{city}</option>)}</select></FormField>
+      <FormField id="business-country" label="Country"><select id="business-country" className={inputClassName} value={form.business.countryId} onChange={(event) => updateCountryField(event.target.value)}><option value="">Select country</option>{countries.map((country) => <option key={country.id} value={country.id}>{country.emoji ? `${country.emoji} ` : ""}{country.name}</option>)}</select></FormField>
+      <FormField id="business-state" label="State / region"><select id="business-state" className={inputClassName} value={form.business.stateId} onChange={(event) => updateStateField(event.target.value)} disabled={!form.business.countryId || regionOptions.length === 0}><option value="">Select state / region</option>{regionOptions.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}</select></FormField>
+      <FormField id="business-city" label="City"><select id="business-city" className={inputClassName} value={form.business.cityId} onChange={(event) => updateCityField(event.target.value)} disabled={!form.business.stateId || cityOptions.length === 0}><option value="">Select city</option>{cityOptions.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}</select></FormField>
+      <FormField id="business-manual-city" label="Manual city fallback"><input id="business-manual-city" className={inputClassName} value={form.business.manualCity} onChange={(event) => updateBusinessField("manualCity", event.target.value)} placeholder="Use when the city is missing from the catalog" /></FormField>
+      <FormField id="business-phone-prefix" label="Phone prefix"><input id="business-phone-prefix" className={inputClassName} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" /></FormField>
       <FormField id="postal-code" label="Postal code"><input id="postal-code" className={inputClassName} value={form.business.postalCode} onChange={(event) => updateBusinessField("postalCode", event.target.value)} /></FormField>
       <FormField id="employee-count" label="Number of employees"><input id="employee-count" className={inputClassName} value={form.business.numberOfEmployees} onChange={(event) => updateBusinessField("numberOfEmployees", event.target.value)} /></FormField>
       <FormField id="industry" label="Industry"><input id="industry" className={inputClassName} value={form.business.industry} onChange={(event) => updateBusinessField("industry", event.target.value)} /></FormField>
@@ -685,6 +700,7 @@ const StepBusinessProfile = ({ form, selectedCountry, regionOptions, cityOptions
     </div>
   </SectionCard>
 );
+
 
 const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateContact, addContact, removeContact, inputClassName }: { contacts: AdministrativeContact[]; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateContact: (id: string, field: keyof AdministrativeContact, value: string) => void; addContact: () => void; removeContact: (id: string) => void; inputClassName: string }) => (
   <SectionCard title="User bootstrap" description="Provision or resolve Logto users, add them to the organization and assign roles.">
