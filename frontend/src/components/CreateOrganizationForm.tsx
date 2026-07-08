@@ -3,6 +3,8 @@ import { useResourceApi } from '../api/resource';
 import { CountryOption, StateOption, CityOption, useLocationsApi } from '../api/locations';
 
 
+const LOCATION_CATALOG_SOURCE = 'dr5hn/countries-states-cities-database' as const;
+
 type CreateOrganizationFormData = {
   name: string;
   description: string;
@@ -45,7 +47,7 @@ export const buildCreateOrganizationPayload = (formData: CreateOrganizationFormD
         phonePrefix: normalizedPhonePrefix,
         countryCode: selectedCountry?.iso2,
         stateCode: selectedState?.stateCode || undefined,
-        source: countryId || stateId || cityId || manualCity || normalizedPhonePrefix ? 'dr5hn/countries-states-cities-database' : undefined,
+        source: selectedCountry ? LOCATION_CATALOG_SOURCE : undefined,
       },
     },
   };
