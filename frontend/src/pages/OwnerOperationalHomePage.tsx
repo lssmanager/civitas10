@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { OwnerBadge, OwnerShell, ownerToneFromSeverity } from "../components/owner/OwnerUI";
-import { AlertStrip, DataTable, EmptyState, KpiGrid, MetricCard, PageHeader, SectionCard, StatusPill, type DataTableColumn } from "../shared/ui";
+import { AlertStrip, KpiGrid, MetricCard, PageHeader, SectionCard, StatusPill } from "../shared/ui";
 import { useOwnerApi, type OwnerOrganization, type WorkerHealthAggregate } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
 
@@ -36,17 +36,6 @@ const OwnerOperationalHomePage = () => {
     return () => { cancelled = true; };
   }, [ownerApi]);
 
-  const columns: DataTableColumn<OwnerOrganization>[] = [
-    { key: "organization", header: "Organization", render: (organization) => <strong>{organization.name || "Unnamed organization"}</strong> },
-    { key: "logto", header: "Logto org id", render: (organization) => organization.logtoOrganizationId || "-" },
-    { key: "profile", header: "Profile signal", render: (organization) => {
-      const profile = (organization.profile || {}) as Record<string, unknown>;
-      const profileSignal = Object.keys(profile).length > 0 ? "profile present" : "needs review";
-      return <OwnerBadge tone={profileSignal === "profile present" ? "success" : "warning"}>{profileSignal}</OwnerBadge>;
-    } },
-    { key: "action", header: "Action", render: (organization) => organization.logtoOrganizationId ? <Link to={`/owner/organizations/${encodeURIComponent(organization.logtoOrganizationId)}`} className="civitas-nav-link">Open organization</Link> : <span className="civitas-muted">Unavailable</span> },
-  ];
-
   return (
     <OwnerShell>
       <PageHeader eyebrow="Owner overview" title="Global owner summary" description="Resumen ejecutivo del estado global: organizaciones, señales críticas y accesos profundos a vistas especializadas. El detalle técnico vive en Runtime y la creación vive en Create." />
@@ -63,8 +52,11 @@ const OwnerOperationalHomePage = () => {
         </MetricCard>
       </KpiGrid>
 
-      <SectionCard title="Organizations" description="Resumen de organizaciones canónicas disponibles para revisión owner." icon="◫" actions={<StatusPill status="live" noDot>live</StatusPill>} body="flush">
-        <DataTable columns={columns} data={organizations} getKey={(organization, index) => organization.logtoOrganizationId || organization.name || String(index)} emptyState={!loading ? <EmptyState message="No organizations found." /> : undefined} />
+      <SectionCard title="Organizations" description="Directorio canónico movido a una vista especializada para mantener este Overview como resumen ejecutivo." icon="◫" actions={<Link to={appRoutes.ownerOrganizations.path} className="civitas-secondary-button">View organizations</Link>}>
+        <div className="civitas-cluster">
+          <OwnerBadge tone="info">Logto canonical source</OwnerBadge>
+          <span className="civitas-muted">{loading ? "Loading organization count..." : `${organizations.length} organizations available for owner_global management.`}</span>
+        </div>
       </SectionCard>
     </OwnerShell>
   );

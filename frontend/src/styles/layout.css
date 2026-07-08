@@ -208,3 +208,188 @@
   gap: var(--civitas-space-2);
   margin-top: var(--civitas-space-2);
 }
+
+.civitas-shell {
+  display: flex;
+}
+
+.civitas-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: calc(var(--civitas-z-topbar) + 1);
+  width: 16.5rem;
+  min-height: 100vh;
+  flex: 0 0 16.5rem;
+  border-right: var(--civitas-border-width) solid rgba(148, 163, 184, 0.24);
+  background: linear-gradient(180deg, #061525 0%, #0f2740 100%);
+  color: #e2e8f0;
+  transition: width 180ms ease, flex-basis 180ms ease;
+}
+
+.civitas-shell-sidebar-collapsed .civitas-sidebar {
+  width: 5.25rem;
+  flex-basis: 5.25rem;
+}
+
+.civitas-shell-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.civitas-sidebar-brand-row {
+  display: flex;
+  min-height: 4.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--civitas-space-3);
+  padding: var(--civitas-space-4);
+}
+
+.civitas-sidebar-brand {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.civitas-brand-logo {
+  display: block;
+  width: 10.75rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.civitas-brand-icon {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+.civitas-sidebar-toggle {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: var(--civitas-border-width) solid rgba(226, 232, 240, 0.2);
+  border-radius: var(--civitas-radius-pill);
+  background: rgba(15, 23, 42, 0.42);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.civitas-sidebar-toggle:hover {
+  border-color: rgba(226, 232, 240, 0.42);
+  background: rgba(37, 99, 235, 0.32);
+  color: #ffffff;
+}
+
+.civitas-sidebar .civitas-nav-row {
+  display: block;
+  padding: var(--civitas-space-2) var(--civitas-space-3) var(--civitas-space-4);
+}
+
+.civitas-sidebar .civitas-primary-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--civitas-space-2);
+  overflow: visible;
+}
+
+.civitas-sidebar .civitas-nav-link {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--civitas-space-3);
+  border-radius: var(--civitas-radius-md);
+  padding: var(--civitas-space-3);
+  color: #cbd5e1;
+}
+
+.civitas-sidebar .civitas-nav-link:hover {
+  background: rgba(148, 163, 184, 0.14);
+  color: #ffffff;
+}
+
+.civitas-sidebar .civitas-nav-link-active {
+  background: rgba(59, 173, 241, 0.18);
+  color: #ffffff;
+}
+
+.civitas-nav-link-icon {
+  flex: 0 0 auto;
+}
+
+.civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row {
+  flex-direction: column;
+  justify-content: center;
+  padding-left: var(--civitas-space-2);
+  padding-right: var(--civitas-space-2);
+}
+
+.civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link {
+  justify-content: center;
+  padding-left: var(--civitas-space-2);
+  padding-right: var(--civitas-space-2);
+}
+
+.civitas-shell-sidebar-collapsed .civitas-nav-link-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .civitas-shell {
+    display: block;
+  }
+
+  .civitas-sidebar,
+  .civitas-shell-sidebar-collapsed .civitas-sidebar {
+    position: sticky;
+    width: 100%;
+    min-height: auto;
+    flex-basis: auto;
+    border-right: 0;
+    border-bottom: var(--civitas-border-width) solid rgba(148, 163, 184, 0.24);
+  }
+
+  .civitas-sidebar-brand-row,
+  .civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row {
+    min-height: 4rem;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--civitas-space-3) var(--civitas-space-4);
+  }
+
+  .civitas-brand-logo,
+  .civitas-shell-sidebar-collapsed .civitas-brand-icon {
+    width: auto;
+    max-width: 11rem;
+    height: 2.5rem;
+  }
+
+  .civitas-sidebar .civitas-nav-row {
+    padding: 0 var(--civitas-space-4) var(--civitas-space-3);
+  }
+
+  .civitas-sidebar .civitas-primary-nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .civitas-shell-sidebar-collapsed .civitas-nav-link-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}

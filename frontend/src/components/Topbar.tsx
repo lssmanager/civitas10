@@ -25,7 +25,7 @@ const Topbar = ({ organizationId, showBackButton = false }: TopbarProps) => {
               Back
             </button>
           ) : null}
-          <Link to={appRoutes.owner.path} className="text-xl font-semibold text-slate-900">Civitas 1.1</Link>
+          <Link to={appRoutes.owner.path} className="text-xl font-semibold text-slate-900">Civitas</Link>
           <nav className="civitas-primary-nav">
             <Link to={appRoutes.owner.path} className={navLinkClass(location.pathname === appRoutes.owner.path)}>Overview</Link>
             <Link to={appRoutes.ownerOrganizations.path} className={navLinkClass(location.pathname.startsWith(appRoutes.ownerOrganizations.path) && location.pathname !== appRoutes.owner.path)}>Create</Link>

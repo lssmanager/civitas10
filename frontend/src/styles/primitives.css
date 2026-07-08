@@ -611,3 +611,33 @@ textarea.owner-field {
     width: 100%;
   }
 }
+
+.civitas-organization-card-details {
+  display: grid;
+  gap: var(--civitas-space-3);
+  margin: 0;
+}
+
+.civitas-organization-card-details div {
+  display: grid;
+  gap: var(--civitas-space-1);
+  border-top: var(--civitas-border-width) solid var(--civitas-border);
+  padding-top: var(--civitas-space-3);
+}
+
+.civitas-organization-card-details dt {
+  color: var(--civitas-muted);
+  font-size: var(--civitas-font-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.civitas-organization-card-details dd {
+  margin: 0;
+  color: var(--civitas-body);
+  font-size: var(--civitas-font-sm);
+  line-height: 1.35rem;
+  overflow-wrap: anywhere;
+}
