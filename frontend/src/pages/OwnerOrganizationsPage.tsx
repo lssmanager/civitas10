@@ -240,7 +240,7 @@ const OwnerOrganizationsPage = () => {
       .then((rows) => {
         if (cancelled) return;
         setCountries(rows);
-        setLocationsError(null);
+        setLocationsError(rows.length === 0 ? "Location catalog is empty. Run the backend location import before using country/state/city selects." : null);
         setForm((current) => {
           if (current.business.countryId || rows.length === 0) return current;
           const defaultCountry = rows.find((country) => country.iso2 === DEFAULT_COUNTRY_ISO2) || rows[0];

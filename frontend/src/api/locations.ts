@@ -1,16 +1,33 @@
 import { useMemo } from 'react';
-import { useApi } from './base';
+import { APP_ENV } from '../env';
 
 export type CountryOption = { id: number; name: string; iso2: string; phoneCode: string | null; emoji: string | null };
 export type StateOption = { id: number; name: string; countryId: number; countryCode: string; stateCode: string | null; type: string | null };
 export type CityOption = { id: number; name: string; stateId: number; stateCode: string | null; countryId: number; countryCode: string; timezone: string | null };
 
-export const useLocationsApi = () => {
-  const { ownerApiFetch } = useApi();
-  return useMemo(() => ({
-    listCountries: async (): Promise<CountryOption[]> => (await ownerApiFetch('/locations/countries')).countries,
-    listStates: async (countryId: number): Promise<StateOption[]> => (await ownerApiFetch(`/locations/countries/${countryId}/states`)).states,
-    listCities: async (stateId: number): Promise<CityOption[]> => (await ownerApiFetch(`/locations/states/${stateId}/cities`)).cities,
-    getPhoneCode: async (countryId: number): Promise<string | null> => (await ownerApiFetch(`/locations/countries/${countryId}/phone-code`)).phoneCode ?? null,
-  }), [ownerApiFetch]);
+type CountriesResponse = { countries?: CountryOption[] } | CountryOption[];
+type StatesResponse = { states?: StateOption[] } | StateOption[];
+type CitiesResponse = { cities?: CityOption[] } | CityOption[];
+type PhoneCodeResponse = { phoneCode?: string | null };
+
+const joinApiUrl = (endpoint: string) => `${APP_ENV.api.url.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+
+const publicLocationFetch = async <T>(endpoint: string): Promise<T> => {
+  const response = await fetch(joinApiUrl(endpoint), { headers: { Accept: 'application/json' } });
+  if (!response.ok) {
+    const message = `Location catalog request failed: ${response.status} ${response.statusText}`.trim();
+    throw new Error(message);
+  }
+  return await response.json() as T;
 };
+
+const unwrapCountries = (response: CountriesResponse) => Array.isArray(response) ? response : response.countries ?? [];
+const unwrapStates = (response: StatesResponse) => Array.isArray(response) ? response : response.states ?? [];
+const unwrapCities = (response: CitiesResponse) => Array.isArray(response) ? response : response.cities ?? [];
+
+export const useLocationsApi = () => useMemo(() => ({
+  listCountries: async (): Promise<CountryOption[]> => unwrapCountries(await publicLocationFetch<CountriesResponse>('/locations/countries')),
+  listStates: async (countryId: number): Promise<StateOption[]> => unwrapStates(await publicLocationFetch<StatesResponse>(`/locations/countries/${countryId}/states`)),
+  listCities: async (stateId: number): Promise<CityOption[]> => unwrapCities(await publicLocationFetch<CitiesResponse>(`/locations/states/${stateId}/cities`)),
+  getPhoneCode: async (countryId: number): Promise<string | null> => (await publicLocationFetch<PhoneCodeResponse>(`/locations/countries/${countryId}/phone-code`)).phoneCode ?? null,
+}), []);
