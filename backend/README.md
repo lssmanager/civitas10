@@ -87,7 +87,7 @@ cd backend
 npm run locations:import
 ```
 
-The importer records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version.
+The importer reads `countries.json` and `states.json` from the repository JSON directory and `json-cities.json.gz` from the latest GitHub release asset (the upstream project no longer publishes `json/cities.json` in the repository tree). It records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version. Override `LOCATION_COUNTRIES_JSON_URL`, `LOCATION_STATES_JSON_URL`, or `LOCATION_CITIES_JSON_URL` only for controlled mirrors.
 
 Verify with SQL:
 

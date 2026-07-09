@@ -11,6 +11,10 @@ function loadRuntime() {
 const SOURCE_NAME = "dr5hn/countries-states-cities-database";
 const SOURCE_URL = "https://github.com/dr5hn/countries-states-cities-database";
 const RAW_BASE_URL = "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json";
+const RELEASE_ASSET_BASE_URL = "https://github.com/dr5hn/countries-states-cities-database/releases/latest/download";
+const COUNTRIES_JSON_URL = process.env.LOCATION_COUNTRIES_JSON_URL || `${RAW_BASE_URL}/countries.json`;
+const STATES_JSON_URL = process.env.LOCATION_STATES_JSON_URL || `${RAW_BASE_URL}/states.json`;
+const CITIES_JSON_URL = process.env.LOCATION_CITIES_JSON_URL || `${RELEASE_ASSET_BASE_URL}/json-cities.json.gz`;
 const SOURCE_VERSION = process.env.LOCATION_CATALOG_SOURCE_VERSION || "dr5hn-master-json";
 const SOURCE_LICENSE = "ODbL-1.0 (Open Database License)";
 const CITY_BATCH_SIZE = Number(process.env.LOCATION_IMPORT_CITY_BATCH_SIZE || 1000);
@@ -19,9 +23,14 @@ const toText = (value) => (value === null || value === undefined || value === ""
 const toDecimal = toText;
 const toSourceId = (value) => Number(value);
 
-async function downloadJson(file) {
-  const response = await fetch(`${RAW_BASE_URL}/${file}`);
-  if (!response.ok) throw new Error(`Failed to download ${file}: ${response.status} ${response.statusText}`);
+async function downloadJson(url, label) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to download ${label}: ${response.status} ${response.statusText}`);
+  if (url.endsWith(".gz")) {
+    const { gunzipSync } = require("node:zlib");
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return JSON.parse(gunzipSync(buffer).toString("utf8"));
+  }
   return response.json();
 }
 
@@ -105,7 +114,11 @@ async function markInactive(table, sourceIds) {
 async function run() {
   const importRunId = await createImportRun();
   try {
-    const [countryRows, stateRows, cityRows] = await Promise.all([downloadJson("countries.json"), downloadJson("states.json"), downloadJson("cities.json")]);
+    const [countryRows, stateRows, cityRows] = await Promise.all([
+      downloadJson(COUNTRIES_JSON_URL, "countries.json"),
+      downloadJson(STATES_JSON_URL, "states.json"),
+      downloadJson(CITIES_JSON_URL, "json-cities.json.gz"),
+    ]);
 
     await upsertRows("location_countries", ["source_id", "source_version", "name", "iso2", "iso3", "numeric_code", "phone_code", "capital", "currency", "native", "emoji", "region", "subregion", "latitude", "longitude"], "source_id", countryRows.map(mapCountry));
     const countryIdBySource = await loadIdMap("location_countries");
@@ -132,4 +145,4 @@ async function run() {
 }
 
 if (require.main === module) run().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => loadRuntime().closeDatabase());
-module.exports = { CITY_BATCH_SIZE, SOURCE_LICENSE, SOURCE_NAME, SOURCE_URL, SOURCE_VERSION, mapCity, mapCountry, mapState };
+module.exports = { CITIES_JSON_URL, CITY_BATCH_SIZE, COUNTRIES_JSON_URL, SOURCE_LICENSE, SOURCE_NAME, SOURCE_URL, SOURCE_VERSION, STATES_JSON_URL, mapCity, mapCountry, mapState };
