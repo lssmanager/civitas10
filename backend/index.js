@@ -32,6 +32,7 @@ const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganization
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { requireGlobalOwner } = require("./authorization/guards");
+const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
 
 const app = express();
 const port = 3000;
@@ -179,6 +180,86 @@ secureRoute.get("/health", "health", async (_req, res) => {
     db: database.status === "healthy" ? "connected" : "disconnected",
     redis: redis.status === "healthy" ? "connected" : "disconnected",
   });
+});
+
+
+secureRoute.get("/locations/health", "public", async (_req, res) => {
+  try {
+    const catalog = await getCatalogHealth();
+    return res.json({ catalog });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsHealthError", "Failed to load location catalog health");
+  }
+});
+
+secureRoute.get("/locations/countries", "public", async (_req, res) => {
+  try {
+    const countries = await listCountries();
+    if (countries.length === 0) return res.status(503).json({ ...emptyCatalogPayload("countries"), countries: [] });
+    return res.json({ countries });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsCountriesError", "Failed to list countries");
+  }
+});
+
+secureRoute.get("/locations/states", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.query.countryId);
+  if (!countryId) return res.status(400).json({ error: "ValidationError", message: "countryId query parameter is required." });
+  try {
+    const states = await listStatesByCountry(countryId);
+    return res.json({ states });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsStatesError", "Failed to list country states");
+  }
+});
+
+secureRoute.get("/locations/cities", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.query.countryId);
+  const stateId = parsePositiveInteger(req.query.stateId);
+  if (!countryId && !stateId) return res.status(400).json({ error: "ValidationError", message: "countryId or stateId query parameter is required." });
+  try {
+    const cities = await listCities({ countryId, stateId });
+    return res.json({ cities });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsCitiesError", "Failed to list cities");
+  }
+});
+
+secureRoute.get("/locations/search", "public", async (req, res) => {
+  const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  if (q.length < 2) return res.status(400).json({ error: "ValidationError", message: "q must contain at least 2 characters." });
+  try {
+    return res.json({ results: await searchLocations(q) });
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsSearchError", "Failed to search locations");
+  }
+});
+
+// Backward-compatible aliases for the first catalog UI iteration.
+secureRoute.get("/locations/countries/:countryId/states", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.params.countryId);
+  if (!countryId) return res.status(400).json({ error: "ValidationError", message: "Invalid country identifier." });
+  try { return res.json({ states: await listStatesByCountry(countryId) }); }
+  catch (error) { return sendPublicError(res, error, "LocationsStatesError", "Failed to list country states"); }
+});
+
+secureRoute.get("/locations/states/:stateId/cities", "public", async (req, res) => {
+  const stateId = parsePositiveInteger(req.params.stateId);
+  if (!stateId) return res.status(400).json({ error: "ValidationError", message: "Invalid state identifier." });
+  try { return res.json({ cities: await listCities({ stateId }) }); }
+  catch (error) { return sendPublicError(res, error, "LocationsCitiesError", "Failed to list state cities"); }
+});
+
+secureRoute.get("/locations/countries/:countryId/phone-code", "public", async (req, res) => {
+  const countryId = parsePositiveInteger(req.params.countryId);
+  if (!countryId) return res.status(400).json({ error: "ValidationError", message: "Invalid country identifier." });
+  try {
+    const country = await getCountryPhoneCode(countryId);
+    if (!country) return res.status(404).json({ error: "CountryNotFound", message: "Country was not found." });
+    return res.json(country);
+  } catch (error) {
+    return sendPublicError(res, error, "LocationsPhoneCodeError", "Failed to load country phone code");
+  }
 });
 
 secureRoute.get("/me", "authenticatedRead", requireAuth(API_RESOURCE), (req, res) => {

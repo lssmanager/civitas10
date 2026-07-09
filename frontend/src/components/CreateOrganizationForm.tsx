@@ -18,7 +18,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     e.preventDefault();
     setError(null);
     setIsCreating(true);
-    
+
     try {
       const payload = {
         name: formData.name.trim(),

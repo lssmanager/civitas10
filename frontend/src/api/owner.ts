@@ -95,6 +95,17 @@ export type CreateOwnerOrganizationInput = {
     state?: string;
     postalCode?: string;
     country?: string;
+    phonePrefix?: string;
+    location?: {
+      countryId?: number;
+      stateId?: number;
+      cityId?: number;
+      manualCity?: string;
+      phonePrefix?: string;
+      countryCode?: string;
+      stateCode?: string;
+      source?: "dr5hn/countries-states-cities-database";
+    };
     numberOfEmployees?: string;
     industry?: string;
     type?: string;

@@ -15,6 +15,7 @@
     "db:studio": "drizzle-kit studio",
     "smoke:bullmq": "node scripts/smoke-bullmq-real.js",
     "db:migrate:sql": "node scripts/run-sql-migrations.js",
+    "locations:import": "node scripts/import-location-catalog.js",
     "test:runtime-boundary": "node scripts/validate-runtime-boundary.js"
   },
   "keywords": [],

@@ -73,3 +73,39 @@ If a deployment needs the service to apply idempotent SQL migrations during star
 The backend image is built from the repository root (`docker-compose.yml` uses `build.context: .`) with `backend/Dockerfile`. The image intentionally keeps backend code at `/app` and packages the shared runtime contract at `/core` plus compiled contract artifacts at `/dist`.
 
 Backend runtime code may only reach outside `backend/` for the canonical shared contract/deployment runtime under `core/` (and generated contract artifacts under `dist/`). Do not add ad-hoc copies of the deployment kernel or auth contract inside `backend/`; run `npm run test:runtime-boundary` to verify that relative runtime imports remain packageable in the container.
+
+## Geographic reference catalog
+
+Civitas stores the geographic catalog (`location_countries`, `location_states`, `location_cities`) as local PostgreSQL reference data. It is not Logto identity data, it is not `organization_runtime_state`, and it is not resolved through runtime connectors. Organization provisioning may carry catalog IDs plus textual snapshots in operational payloads, but Logto remains canonical for organizations and memberships.
+
+Dataset source: [`dr5hn/countries-states-cities-database`](https://github.com/dr5hn/countries-states-cities-database). The importer uses the upstream JSON files as a controlled import source. Civitas does **not** depend on GitHub at runtime to serve country/state/city lists. The dataset is licensed under ODbL; deployments using the imported data must keep attribution to dr5hn and the Open Database License.
+
+Apply migrations, set `DATABASE_URL`, then run the official idempotent import:
+
+```bash
+cd backend
+npm run locations:import
+```
+
+The importer reads `countries.json` and `states.json` from the repository JSON directory and `json-cities.json.gz` from the latest GitHub release asset (the upstream project no longer publishes `json/cities.json` in the repository tree). It records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version. Override `LOCATION_COUNTRIES_JSON_URL`, `LOCATION_STATES_JSON_URL`, or `LOCATION_CITIES_JSON_URL` only for controlled mirrors.
+
+Verify with SQL:
+
+```sql
+select count(*) from location_countries;
+select count(*) from location_states;
+select count(*) from location_cities;
+select * from location_import_runs order by started_at desc limit 1;
+```
+
+Verify with API routes mounted internally by Express:
+
+```bash
+curl http://localhost:3000/locations/health
+curl http://localhost:3000/locations/countries
+curl "http://localhost:3000/locations/states?countryId=1"
+curl "http://localhost:3000/locations/cities?countryId=1&stateId=1"
+curl "http://localhost:3000/locations/search?q=bog"
+```
+
+When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.
