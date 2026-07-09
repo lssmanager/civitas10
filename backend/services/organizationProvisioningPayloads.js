@@ -66,9 +66,9 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = 
     oidcRedirectUri: settings.oidcRedirectUri || null,
     civitasProfile: cleanObject({
       contact: cleanObject({
-        email: trim(contact.email) || trim(primaryContact?.email),
-        owner: trim(contact.owner) || trim(primaryContact?.name),
-        phone: trim(contact.phone) || trim(primaryContact?.phone),
+        email: trim(contact.email),
+        owner: trim(contact.owner),
+        phone: trim(contact.phone),
       }),
       version: 1,
       business: cleanObject({
@@ -78,6 +78,7 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = 
         state: trim(business.state),
         country: trim(business.country),
         phonePrefix: trim(business.phonePrefix) || trim(business.location?.phonePrefix),
+        phoneNumber: trim(business.phoneNumber),
         location: cleanObject({
           countryId: business.location?.countryId,
           stateId: business.location?.stateId,

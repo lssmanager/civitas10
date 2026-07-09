@@ -17,6 +17,7 @@ export type CreateOrganizationData = {
     state?: string;
     city?: string;
     phonePrefix?: string;
+    phoneNumber?: string;
     location?: {
       countryId?: number;
       stateId?: number;

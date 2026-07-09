@@ -69,3 +69,17 @@ test("organization payload preserves operational location metadata in Logto cust
     source: "dr5hn/countries-states-cities-database",
   });
 });
+
+test("organization institutional contact does not copy administrative user personal contact data", () => {
+  const { buildOrganizationCreatePayload } = require("../services/organizationProvisioningPayloads");
+  const payload = buildOrganizationCreatePayload({
+    canonical: { name: "Institution", description: "", appSubdomain: "institution", appBaseDomain: "didaxus.com", adminDomain: "institution.edu", jitProvisioning: { defaultRoleNames: [] } },
+    contact: {},
+    business: { phonePrefix: "+593", phoneNumber: "987654321" },
+    administrativeContacts: [{ name: "Admin User", email: "admin@example.test", phone: "+573001112233" }],
+  });
+  assert.equal(payload.customData.civitasProfile.contact.email, undefined);
+  assert.equal(payload.customData.civitasProfile.contact.phone, undefined);
+  assert.equal(payload.customData.civitasProfile.business.phonePrefix, "+593");
+  assert.equal(payload.customData.civitasProfile.business.phoneNumber, "987654321");
+});
