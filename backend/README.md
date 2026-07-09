@@ -74,16 +74,38 @@ The backend image is built from the repository root (`docker-compose.yml` uses `
 
 Backend runtime code may only reach outside `backend/` for the canonical shared contract/deployment runtime under `core/` (and generated contract artifacts under `dist/`). Do not add ad-hoc copies of the deployment kernel or auth contract inside `backend/`; run `npm run test:runtime-boundary` to verify that relative runtime imports remain packageable in the container.
 
-## Location catalog import
+## Geographic reference catalog
 
-The organization wizard uses an operational country/state/city catalog stored in Postgres. The catalog is imported from the JSON files in `dr5hn/countries-states-cities-database`; do not restore the upstream SQL dump.
+Civitas stores the geographic catalog (`location_countries`, `location_states`, `location_cities`) as local PostgreSQL reference data. It is not Logto identity data, it is not `organization_runtime_state`, and it is not resolved through runtime connectors. Organization provisioning may carry catalog IDs plus textual snapshots in operational payloads, but Logto remains canonical for organizations and memberships.
 
-1. Apply migrations so `countries`, `states`, and `cities` exist.
-2. Set `DATABASE_URL` for the backend Postgres database.
-3. Run:
+Dataset source: [`dr5hn/countries-states-cities-database`](https://github.com/dr5hn/countries-states-cities-database). The importer uses the upstream JSON files as a controlled import source. Civitas does **not** depend on GitHub at runtime to serve country/state/city lists. The dataset is licensed under ODbL; deployments using the imported data must keep attribution to dr5hn and the Open Database License.
+
+Apply migrations, set `DATABASE_URL`, then run the official idempotent import:
 
 ```bash
-npm --prefix backend run db:import-locations
+cd backend
+npm run locations:import
 ```
 
-The importer downloads `countries.json`, `states.json`, and `cities.json`, truncates `cities`, `states`, and `countries` with `RESTART IDENTITY CASCADE`, then imports countries, states, and cities in that order. City rows are inserted in batches of 1000 by default; override with `LOCATION_IMPORT_CITY_BATCH_SIZE` when needed.
+The importer records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version.
+
+Verify with SQL:
+
+```sql
+select count(*) from location_countries;
+select count(*) from location_states;
+select count(*) from location_cities;
+select * from location_import_runs order by started_at desc limit 1;
+```
+
+Verify with API routes mounted internally by Express:
+
+```bash
+curl http://localhost:3000/locations/health
+curl http://localhost:3000/locations/countries
+curl "http://localhost:3000/locations/states?countryId=1"
+curl "http://localhost:3000/locations/cities?countryId=1&stateId=1"
+curl "http://localhost:3000/locations/search?q=bog"
+```
+
+When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.

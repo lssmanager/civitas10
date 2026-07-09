@@ -14,11 +14,12 @@ const joinApiUrl = (endpoint: string) => `${APP_ENV.api.url.replace(/\/$/, '')}/
 
 const publicLocationFetch = async <T>(endpoint: string): Promise<T> => {
   const response = await fetch(joinApiUrl(endpoint), { headers: { Accept: 'application/json' } });
+  const data = await response.json().catch(() => null);
   if (!response.ok) {
-    const message = `Location catalog request failed: ${response.status} ${response.statusText}`.trim();
+    const message = typeof data?.message === 'string' ? data.message : `Location catalog request failed: ${response.status} ${response.statusText}`.trim();
     throw new Error(message);
   }
-  return await response.json() as T;
+  return data as T;
 };
 
 const unwrapCountries = (response: CountriesResponse) => Array.isArray(response) ? response : response.countries ?? [];
@@ -27,7 +28,7 @@ const unwrapCities = (response: CitiesResponse) => Array.isArray(response) ? res
 
 export const useLocationsApi = () => useMemo(() => ({
   listCountries: async (): Promise<CountryOption[]> => unwrapCountries(await publicLocationFetch<CountriesResponse>('/locations/countries')),
-  listStates: async (countryId: number): Promise<StateOption[]> => unwrapStates(await publicLocationFetch<StatesResponse>(`/locations/countries/${countryId}/states`)),
-  listCities: async (stateId: number): Promise<CityOption[]> => unwrapCities(await publicLocationFetch<CitiesResponse>(`/locations/states/${stateId}/cities`)),
+  listStates: async (countryId: number): Promise<StateOption[]> => unwrapStates(await publicLocationFetch<StatesResponse>(`/locations/states?countryId=${countryId}`)),
+  listCities: async (stateId: number): Promise<CityOption[]> => unwrapCities(await publicLocationFetch<CitiesResponse>(`/locations/cities?stateId=${stateId}`)),
   getPhoneCode: async (countryId: number): Promise<string | null> => (await publicLocationFetch<PhoneCodeResponse>(`/locations/countries/${countryId}/phone-code`)).phoneCode ?? null,
 }), []);

@@ -189,62 +189,84 @@ const organizationProvisioningDrafts = pgTable("organization_provisioning_drafts
   logtoOrgIdx: index("organization_provisioning_drafts_logto_org_idx").on(table.logtoOrganizationId),
 }));
 
-const countries = pgTable("countries", {
-  id: integer("id").primaryKey(),
+const locationImportRuns = pgTable("location_import_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sourceName: varchar("source_name", { length: 120 }).notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceVersion: varchar("source_version", { length: 120 }).notNull(),
+  license: varchar("license", { length: 120 }).notNull(),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  status: varchar("status", { length: 40 }).notNull().default("running"),
+  countriesCount: integer("countries_count").notNull().default(0),
+  statesCount: integer("states_count").notNull().default(0),
+  citiesCount: integer("cities_count").notNull().default(0),
+  errorJson: jsonb("error_json"),
+}, (table) => ({ statusIdx: index("location_import_runs_status_idx").on(table.status, table.startedAt) }));
+
+const locationCountries = pgTable("location_countries", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  sourceId: integer("source_id").notNull(),
+  sourceVersion: varchar("source_version", { length: 120 }).notNull(),
   name: varchar("name", { length: 160 }).notNull(),
   iso2: varchar("iso2", { length: 2 }).notNull(),
-  iso3: varchar("iso3", { length: 3 }).notNull(),
+  iso3: varchar("iso3", { length: 3 }),
   numericCode: varchar("numeric_code", { length: 8 }),
   phoneCode: varchar("phone_code", { length: 32 }),
   capital: varchar("capital", { length: 160 }),
   currency: varchar("currency", { length: 16 }),
-  currencyName: varchar("currency_name", { length: 120 }),
-  currencySymbol: varchar("currency_symbol", { length: 16 }),
+  native: varchar("native", { length: 160 }),
+  emoji: varchar("emoji", { length: 16 }),
   region: varchar("region", { length: 120 }),
   subregion: varchar("subregion", { length: 120 }),
-  nativeName: varchar("native_name", { length: 160 }),
-  emoji: varchar("emoji", { length: 16 }),
   latitude: numeric("latitude", { precision: 10, scale: 7 }),
   longitude: numeric("longitude", { precision: 10, scale: 7 }),
-  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+  isActive: boolean("is_active").notNull().default(true),
+  ...timestamps,
 }, (table) => ({
-  iso2Idx: uniqueIndex("countries_iso2_uidx").on(table.iso2),
-  iso3Idx: uniqueIndex("countries_iso3_uidx").on(table.iso3),
-  nameIdx: index("countries_name_idx").on(table.name),
+  sourceIdx: uniqueIndex("location_countries_source_uidx").on(table.sourceId),
+  iso2Idx: uniqueIndex("location_countries_iso2_uidx").on(table.iso2),
+  nameIdx: index("location_countries_name_idx").on(table.name),
+  activeNameIdx: index("location_countries_active_name_idx").on(table.isActive, table.name),
 }));
 
-const states = pgTable("states", {
-  id: integer("id").primaryKey(),
+const locationStates = pgTable("location_states", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  sourceId: integer("source_id").notNull(),
+  sourceVersion: varchar("source_version", { length: 120 }).notNull(),
+  countryId: integer("country_id").notNull().references(() => locationCountries.id, { onDelete: "cascade" }),
+  countrySourceId: integer("country_source_id").notNull(),
   name: varchar("name", { length: 160 }).notNull(),
-  countryId: integer("country_id").notNull().references(() => countries.id, { onDelete: "cascade" }),
-  countryCode: varchar("country_code", { length: 2 }).notNull(),
-  stateCode: varchar("state_code", { length: 16 }),
+  stateCode: varchar("state_code", { length: 32 }),
   type: varchar("type", { length: 80 }),
   latitude: numeric("latitude", { precision: 10, scale: 7 }),
   longitude: numeric("longitude", { precision: 10, scale: 7 }),
-  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+  isActive: boolean("is_active").notNull().default(true),
+  ...timestamps,
 }, (table) => ({
-  countryIdx: index("states_country_id_idx").on(table.countryId),
-  nameIdx: index("states_name_idx").on(table.name),
-  countryNameIdx: index("states_country_name_idx").on(table.countryId, table.name),
+  sourceIdx: uniqueIndex("location_states_source_uidx").on(table.sourceId),
+  countryIdx: index("location_states_country_idx").on(table.countryId, table.isActive, table.name),
+  nameIdx: index("location_states_name_idx").on(table.name),
 }));
 
-const cities = pgTable("cities", {
-  id: integer("id").primaryKey(),
+const locationCities = pgTable("location_cities", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  sourceId: integer("source_id").notNull(),
+  sourceVersion: varchar("source_version", { length: 120 }).notNull(),
+  countryId: integer("country_id").notNull().references(() => locationCountries.id, { onDelete: "cascade" }),
+  stateId: integer("state_id").references(() => locationStates.id, { onDelete: "cascade" }),
+  countrySourceId: integer("country_source_id").notNull(),
+  stateSourceId: integer("state_source_id"),
   name: varchar("name", { length: 180 }).notNull(),
-  stateId: integer("state_id").references(() => states.id, { onDelete: "cascade" }),
-  stateCode: varchar("state_code", { length: 16 }),
-  countryId: integer("country_id").notNull().references(() => countries.id, { onDelete: "cascade" }),
-  countryCode: varchar("country_code", { length: 2 }).notNull(),
   latitude: numeric("latitude", { precision: 10, scale: 7 }),
   longitude: numeric("longitude", { precision: 10, scale: 7 }),
-  timezone: varchar("timezone", { length: 120 }),
-  wikiDataId: varchar("wiki_data_id", { length: 32 }),
+  isActive: boolean("is_active").notNull().default(true),
+  ...timestamps,
 }, (table) => ({
-  stateIdx: index("cities_state_id_idx").on(table.stateId),
-  countryIdx: index("cities_country_id_idx").on(table.countryId),
-  nameIdx: index("cities_name_idx").on(table.name),
-  stateNameIdx: index("cities_state_name_idx").on(table.stateId, table.name),
+  sourceIdx: uniqueIndex("location_cities_source_uidx").on(table.sourceId),
+  countryIdx: index("location_cities_country_idx").on(table.countryId, table.isActive, table.name),
+  stateIdx: index("location_cities_state_idx").on(table.stateId, table.isActive, table.name),
+  nameIdx: index("location_cities_name_idx").on(table.name),
 }));
 
 const idempotencyRecords = pgTable("idempotency_records", {
@@ -258,4 +280,4 @@ const idempotencyRecords = pgTable("idempotency_records", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-module.exports = { countries, states, cities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
+module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
