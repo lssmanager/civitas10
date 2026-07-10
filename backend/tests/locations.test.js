@@ -28,3 +28,48 @@ test("backend registers canonical public location endpoints", () => {
   assert.match(source, /secureRoute\.get\("\/locations\/search", "public"/);
   assert.match(source, /secureRoute\.get\("\/locations\/health", "public"/);
 });
+
+const { ensureLocationCatalog, isCatalogReady, loadCatalogStatus, REQUIRED_TABLES } = require("../scripts/ensure-location-catalog");
+
+test("location ensure skips import when active countries and a completed import exist", async () => {
+  let imported = false;
+  const status = { countries: 250, states: 5308, cities: 152967, lastCompletedImport: { id: 1 } };
+  const result = await ensureLocationCatalog({
+    queryPostgres: async (sql) => sql.includes("information_schema.tables")
+      ? { rows: REQUIRED_TABLES.map((table_name) => ({ table_name })) }
+      : { rows: [status] },
+    runImport: async () => { imported = true; },
+    logger: { log() {} },
+  });
+  assert.equal(imported, false);
+  assert.equal(result.action, "skipped");
+});
+
+test("location ensure imports when catalog is empty or incomplete", async () => {
+  let imported = false;
+  let calls = 0;
+  const result = await ensureLocationCatalog({
+    queryPostgres: async (sql) => {
+      if (sql.includes("information_schema.tables")) return { rows: REQUIRED_TABLES.map((table_name) => ({ table_name })) };
+      calls += 1;
+      return { rows: [calls === 1 ? { countries: 0, states: 0, cities: 0, lastCompletedImport: null } : { countries: 250, states: 5308, cities: 152967, lastCompletedImport: { id: 2 } }] };
+    },
+    runImport: async () => { imported = true; },
+    logger: { log() {} },
+  });
+  assert.equal(imported, true);
+  assert.equal(result.action, "imported");
+});
+
+test("location ensure fails clearly when required location tables are missing", async () => {
+  await assert.rejects(
+    () => loadCatalogStatus({ queryPostgres: async () => ({ rows: [{ table_name: "location_countries" }] }) }),
+    /Location catalog schema is missing required tables/,
+  );
+});
+
+test("location ensure CLI closes database connections", () => {
+  const source = readFileSync(join(__dirname, "..", "scripts", "ensure-location-catalog.js"), "utf8");
+  assert.match(source, /finally \{\s*await runtime\.closeDatabase\(\);\s*\}/);
+  assert.equal(isCatalogReady({ countries: 1, lastCompletedImport: { id: 1 } }), true);
+});

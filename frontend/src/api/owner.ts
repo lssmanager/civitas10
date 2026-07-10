@@ -96,6 +96,7 @@ export type CreateOwnerOrganizationInput = {
     postalCode?: string;
     country?: string;
     phonePrefix?: string;
+    phoneNumber?: string;
     location?: {
       countryId?: number;
       stateId?: number;

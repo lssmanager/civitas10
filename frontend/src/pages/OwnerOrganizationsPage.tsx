@@ -17,7 +17,8 @@ type AdministrativeContact = {
   firstSurname: string;
   secondSurname: string;
   email: string;
-  phone: string;
+  phonePrefix: string;
+  phoneNumber: string;
   phoneExtension: string;
   position: string;
   organizationRoleName: string;
@@ -53,7 +54,9 @@ type FormState = {
     stateId: string;
     cityId: string;
     manualCity: string;
+    contactEmail: string;
     phonePrefix: string;
+    phoneNumber: string;
     postalCode: string;
     country: string;
     numberOfEmployees: string;
@@ -114,7 +117,8 @@ const emptyContact = (
   firstSurname: "",
   secondSurname: "",
   email: "",
-  phone: phonePrefix,
+  phonePrefix,
+  phoneNumber: "",
   phoneExtension: "",
   position: "",
   organizationRoleName: roleName,
@@ -138,7 +142,9 @@ const initialFormState = (defaultRoleName = ""): FormState => ({
     stateId: "",
     cityId: "",
     manualCity: "",
+    contactEmail: "",
     phonePrefix: "",
+    phoneNumber: "",
     postalCode: "",
     country: "",
     numberOfEmployees: "",
@@ -170,8 +176,7 @@ const parseDelimitedValues = (value: string) =>
 const inputClassName = "civitas-field";
 
 const wizardSteps = [
-  { id: "canonical", label: "Canonical organization" },
-  { id: "business", label: "Business profile" },
+  { id: "organization", label: "Organization" },
   { id: "admins", label: "Administrative users" },
   { id: "segmentation", label: "Segmentation" },
   { id: "review", label: "Review & submit" },
@@ -213,9 +218,7 @@ const OwnerOrganizationsPage = () => {
             administrativeContacts: current.administrativeContacts.map((contact, index) => ({
               ...contact,
               organizationRoleName: contact.organizationRoleName,
-              phone:
-                normalizePhoneValue(contact.phone) ||
-                current.business.phonePrefix || "",
+              phonePrefix: normalizePhoneValue(contact.phonePrefix) || current.business.phonePrefix || "",
               id: `contact-${index + 1}`,
             })),
           };
@@ -250,7 +253,7 @@ const OwnerOrganizationsPage = () => {
             business: { ...current.business, countryId: String(defaultCountry.id), country: defaultCountry.name, phonePrefix },
             administrativeContacts: current.administrativeContacts.map((contact) => ({
               ...contact,
-              phone: normalizePhoneValue(contact.phone) || phonePrefix,
+              phonePrefix: normalizePhoneValue(contact.phonePrefix) || phonePrefix,
             })),
           };
         });
@@ -331,7 +334,7 @@ const OwnerOrganizationsPage = () => {
         },
         administrativeContacts: current.administrativeContacts.map((contact) => ({
           ...contact,
-          phone: nextPrefix ? propagatePhonePrefix(contact.phone, previousPrefix, nextPrefix) : contact.phone,
+          phonePrefix: nextPrefix ? propagatePhonePrefix(contact.phonePrefix, previousPrefix, nextPrefix) : contact.phonePrefix,
         })),
       };
     });
@@ -454,8 +457,8 @@ const OwnerOrganizationsPage = () => {
         defaultRoleNames: form.jitDefaultRoleName ? [form.jitDefaultRoleName] : [],
       },
       contact: {
-        email: primaryAdministrativeContact?.email.trim().toLowerCase() || undefined,
-        phone: primaryAdministrativeContact?.phone.trim() || undefined,
+        email: form.business.contactEmail.trim().toLowerCase() || undefined,
+        phone: [form.business.phonePrefix.trim(), form.business.phoneNumber.trim()].filter(Boolean).join(" ") || undefined,
         owner: primaryOwnerName || undefined,
       },
       business: {
@@ -467,6 +470,7 @@ const OwnerOrganizationsPage = () => {
         postalCode: form.business.postalCode.trim() || undefined,
         country: selectedCountry?.name || undefined,
         phonePrefix: form.business.phonePrefix || undefined,
+        phoneNumber: form.business.phoneNumber.trim() || undefined,
         location: {
           countryId: selectedCountry?.id,
           stateId: selectedRegion?.id,
@@ -495,7 +499,7 @@ const OwnerOrganizationsPage = () => {
         firstSurname: contact.firstSurname.trim(),
         secondSurname: contact.secondSurname.trim() || undefined,
         email: contact.email.trim().toLowerCase(),
-        phone: contact.phone.trim() || undefined,
+        phone: [contact.phonePrefix.trim(), contact.phoneNumber.trim()].filter(Boolean).join(" ") || undefined,
         phoneExtension: contact.phoneExtension.trim() || undefined,
         position: contact.position.trim() || undefined,
         organizationRoleName: contact.organizationRoleName,
@@ -510,7 +514,7 @@ const OwnerOrganizationsPage = () => {
     try {
       const response = await ownerApi.saveOrganizationDraft({
         idempotencyKey: idempotencyKey || undefined,
-        currentStage: wizardSteps[stageIndex]?.id || "canonical",
+        currentStage: wizardSteps[stageIndex]?.id || "organization",
         stagePayload: form as unknown as Record<string, unknown>,
         consolidatedPayload: buildPayload() as unknown as Record<string, unknown>,
         status: "draft",
@@ -537,7 +541,7 @@ const OwnerOrganizationsPage = () => {
 
     setSubmitting(true);
     try {
-      const key = idempotencyKey || await saveDraft(4);
+      const key = idempotencyKey || await saveDraft(3);
       const response = await ownerApi.createOrganization({ ...buildPayload(), idempotencyKey: key || undefined });
       setIdempotencyKey(response.idempotencyKey);
       setCreated({
@@ -602,18 +606,11 @@ const OwnerOrganizationsPage = () => {
         </SectionCard>
 
         {activeStep === 0 ? (
-          <StepCanonicalOrganization
+          <StepOrganization
             form={form}
             adminRoleOptions={adminRoleOptions}
             templateLoading={templateLoading}
             updateField={updateField}
-            inputClassName={inputClassName}
-          />
-        ) : null}
-
-        {activeStep === 1 ? (
-          <StepBusinessProfile
-            form={form}
             countries={countries}
             regionOptions={regionOptions}
             cityOptions={cityOptions}
@@ -626,7 +623,7 @@ const OwnerOrganizationsPage = () => {
           />
         ) : null}
 
-        {activeStep === 2 ? (
+        {activeStep === 1 ? (
           <StepAdminUsers
             contacts={form.administrativeContacts}
             adminRoleOptions={adminRoleOptions}
@@ -638,11 +635,11 @@ const OwnerOrganizationsPage = () => {
           />
         ) : null}
 
-        {activeStep === 3 ? (
+        {activeStep === 2 ? (
           <StepSegmentation form={form} setForm={setForm} inputClassName={inputClassName} />
         ) : null}
 
-        {activeStep === 4 ? (
+        {activeStep === 3 ? (
           <StepReview form={form} template={template} templateLoading={templateLoading} submitError={submitError} />
         ) : null}
 
@@ -663,6 +660,14 @@ const OwnerOrganizationsPage = () => {
 type UpdateField = <K extends keyof FormState>(field: K, value: FormState[K]) => void;
 type UpdateBusinessField = <K extends keyof FormState["business"]>(field: K, value: string) => void;
 
+
+const StepOrganization = (props: { form: FormState; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateField: UpdateField; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => (
+  <div className="civitas-stack">
+    <StepCanonicalOrganization form={props.form} adminRoleOptions={props.adminRoleOptions} templateLoading={props.templateLoading} updateField={props.updateField} inputClassName={props.inputClassName} />
+    <StepBusinessProfile form={props.form} countries={props.countries} regionOptions={props.regionOptions} cityOptions={props.cityOptions} updateBusinessField={props.updateBusinessField} updateCountryField={props.updateCountryField} updateStateField={props.updateStateField} updateCityField={props.updateCityField} locationsError={props.locationsError} inputClassName={props.inputClassName} />
+  </div>
+);
+
 const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, updateField, inputClassName }: { form: FormState; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateField: UpdateField; inputClassName: string }) => (
   <SectionCard title="Identity & routing" description="Created canonically in Logto; configure display name, entry URL, provisioning domain and default role.">
     <div className="civitas-form-grid">
@@ -677,17 +682,21 @@ const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, up
   </SectionCard>
 );
 
-const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, updateCityField, locationsError, inputClassName }: { form: FormState; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => (
+const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, updateCityField, locationsError, inputClassName }: { form: FormState; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => {
+  const shouldShowManualCityFallback = Boolean(locationsError || (form.business.stateId && cityOptions.length === 0) || (!form.business.cityId && form.business.manualCity));
+  return (
   <SectionCard title="Profile fields" description="Populate custom data attached to the canonical organization record.">
     <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists from the operational location catalog.</AlertStrip>
     {locationsError ? <AlertStrip variant="warning" title="Location catalog unavailable">The catalog could not be loaded. You can continue with manual city/address fields. {locationsError}</AlertStrip> : null}
     <div className="civitas-form-grid">
+      <FormField id="business-contact-email" label="Contact email"><input id="business-contact-email" className={inputClassName} type="email" value={form.business.contactEmail} onChange={(event) => updateBusinessField("contactEmail", event.target.value)} /></FormField>
       <FormField id="business-website" label="Website"><input id="business-website" className={inputClassName} value={form.business.website} onChange={(event) => updateBusinessField("website", event.target.value)} /></FormField>
       <FormField id="business-country" label="Country"><select id="business-country" className={inputClassName} value={form.business.countryId} onChange={(event) => updateCountryField(event.target.value)}><option value="">Select country</option>{countries.map((country) => <option key={country.id} value={country.id}>{country.emoji ? `${country.emoji} ` : ""}{country.name}</option>)}</select></FormField>
       <FormField id="business-state" label="State / region"><select id="business-state" className={inputClassName} value={form.business.stateId} onChange={(event) => updateStateField(event.target.value)} disabled={!form.business.countryId || regionOptions.length === 0}><option value="">Select state / region</option>{regionOptions.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}</select></FormField>
       <FormField id="business-city" label="City"><select id="business-city" className={inputClassName} value={form.business.cityId} onChange={(event) => updateCityField(event.target.value)} disabled={!form.business.stateId || cityOptions.length === 0}><option value="">Select city</option>{cityOptions.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}</select></FormField>
-      <FormField id="business-manual-city" label="Manual city fallback"><input id="business-manual-city" className={inputClassName} value={form.business.manualCity} onChange={(event) => updateBusinessField("manualCity", event.target.value)} placeholder="Use when the city is missing from the catalog" /></FormField>
-      <FormField id="business-phone-prefix" label="Phone prefix"><input id="business-phone-prefix" className={inputClassName} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" /></FormField>
+      {shouldShowManualCityFallback ? <FormField id="business-manual-city" label="Manual city fallback (optional)"><input id="business-manual-city" className={inputClassName} value={form.business.manualCity} onChange={(event) => updateBusinessField("manualCity", event.target.value)} placeholder="Use only when the city is missing from the catalog" /></FormField> : null}
+      <FormField id="business-phone-prefix" label="Organization phone prefix"><input id="business-phone-prefix" className={inputClassName} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" /></FormField>
+      <FormField id="business-phone-number" label="Organization phone number"><input id="business-phone-number" className={inputClassName} value={form.business.phoneNumber} onChange={(event) => updateBusinessField("phoneNumber", event.target.value)} placeholder="3001234567" /></FormField>
       <FormField id="postal-code" label="Postal code"><input id="postal-code" className={inputClassName} value={form.business.postalCode} onChange={(event) => updateBusinessField("postalCode", event.target.value)} /></FormField>
       <FormField id="employee-count" label="Number of employees"><input id="employee-count" className={inputClassName} value={form.business.numberOfEmployees} onChange={(event) => updateBusinessField("numberOfEmployees", event.target.value)} /></FormField>
       <FormField id="industry" label="Industry"><input id="industry" className={inputClassName} value={form.business.industry} onChange={(event) => updateBusinessField("industry", event.target.value)} /></FormField>
@@ -699,7 +708,8 @@ const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, upda
       <FormField id="business-about" label="About" className="civitas-form-field-wide"><textarea id="business-about" className={inputClassName} value={form.business.about} onChange={(event) => updateBusinessField("about", event.target.value)} /></FormField>
     </div>
   </SectionCard>
-);
+  );
+};
 
 
 const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateContact, addContact, removeContact, inputClassName }: { contacts: AdministrativeContact[]; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateContact: (id: string, field: keyof AdministrativeContact, value: string) => void; addContact: () => void; removeContact: (id: string) => void; inputClassName: string }) => (
@@ -713,7 +723,8 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
             <FormField id={`${contact.id}-first-surname`} label="First surname" required><input id={`${contact.id}-first-surname`} className={inputClassName} value={contact.firstSurname} onChange={(event) => updateContact(contact.id, "firstSurname", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-second-surname`} label="Second surname"><input id={`${contact.id}-second-surname`} className={inputClassName} value={contact.secondSurname} onChange={(event) => updateContact(contact.id, "secondSurname", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-email`} label="Email" required><input id={`${contact.id}-email`} className={inputClassName} type="email" value={contact.email} onChange={(event) => updateContact(contact.id, "email", event.target.value)} /></FormField>
-            <FormField id={`${contact.id}-phone`} label="Phone"><input id={`${contact.id}-phone`} className={inputClassName} value={contact.phone} onChange={(event) => updateContact(contact.id, "phone", event.target.value)} /></FormField>
+            <FormField id={`${contact.id}-phone-prefix`} label="User phone prefix"><input id={`${contact.id}-phone-prefix`} className={inputClassName} value={contact.phonePrefix} onChange={(event) => updateContact(contact.id, "phonePrefix", event.target.value)} placeholder="+57" /></FormField>
+            <FormField id={`${contact.id}-phone`} label="User phone number"><input id={`${contact.id}-phone`} className={inputClassName} value={contact.phoneNumber} onChange={(event) => updateContact(contact.id, "phoneNumber", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-extension`} label="Extension"><input id={`${contact.id}-extension`} className={inputClassName} value={contact.phoneExtension} onChange={(event) => updateContact(contact.id, "phoneExtension", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-position`} label="Position"><input id={`${contact.id}-position`} className={inputClassName} value={contact.position} onChange={(event) => updateContact(contact.id, "position", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-role`} label="Organization role" required><select id={`${contact.id}-role`} className={inputClassName} value={contact.organizationRoleName} onChange={(event) => updateContact(contact.id, "organizationRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}><option value="">Select Logto organization role</option>{adminRoleOptions.map((role) => <option key={`${contact.id}-${role.id}`} value={role.name}>{role.name}</option>)}</select></FormField>

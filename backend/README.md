@@ -80,25 +80,30 @@ Civitas stores the geographic catalog (`location_countries`, `location_states`, 
 
 Dataset source: [`dr5hn/countries-states-cities-database`](https://github.com/dr5hn/countries-states-cities-database). The importer uses the upstream JSON files as a controlled import source. Civitas does **not** depend on GitHub at runtime to serve country/state/city lists. The dataset is licensed under ODbL; deployments using the imported data must keep attribution to dr5hn and the Open Database License.
 
-Apply migrations, set `DATABASE_URL`, then run the official idempotent import:
+### New installs and preview environments
+
+For a fresh backend database, run the bootstrap command after `DATABASE_URL` is configured:
 
 ```bash
 cd backend
-npm run locations:import
+npm run db:bootstrap
 ```
 
-The importer reads `countries.json` and `states.json` from the repository JSON directory and `json-cities.json.gz` from the latest GitHub release asset (the upstream project no longer publishes `json/cities.json` in the repository tree). It records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version. Override `LOCATION_COUNTRIES_JSON_URL`, `LOCATION_STATES_JSON_URL`, or `LOCATION_CITIES_JSON_URL` only for controlled mirrors.
+`db:bootstrap` runs SQL migrations first and then `locations:ensure`. The ensure step checks that the four location tables exist, counts active countries/states/cities, inspects the latest completed `location_import_runs` row, and skips the heavy import when the catalog is already ready. This makes the command idempotent for local development, review apps, and preview deploys.
 
-Verify with SQL:
+### Manual import and controlled mirrors
 
-```sql
-select count(*) from location_countries;
-select count(*) from location_states;
-select count(*) from location_cities;
-select * from location_import_runs order by started_at desc limit 1;
-```
+Use `npm run locations:import` only when you intentionally want to refresh the full upstream catalog. The importer reads `countries.json` and `states.json` from the repository JSON directory and `json-cities.json.gz` from the latest GitHub release asset (the upstream project no longer publishes `json/cities.json` in the repository tree). It records each run in `location_import_runs`, upserts rows by upstream `source_id`, preserves local foreign keys, and marks rows inactive when they disappear from the imported source version. Override `LOCATION_COUNTRIES_JSON_URL`, `LOCATION_STATES_JSON_URL`, or `LOCATION_CITIES_JSON_URL` only for controlled mirrors.
 
-Verify with API routes mounted internally by Express:
+### Coolify and production
+
+Recommended Coolify flow: keep `npm start` as the backend start command and add a post-deploy command that runs `cd backend && npm run db:bootstrap` once per deploy/environment. In production, prefer an explicit release/job step for `npm run db:bootstrap` so only one process downloads and imports the ~250 countries, ~5,308 states, and ~152,967 cities.
+
+`BOOTSTRAP_LOCATION_CATALOG_ON_STARTUP=true` is available as a controlled escape hatch after startup migrations. It is disabled by default and should not be used as the normal routine in multi-replica deployments because every starting replica would be allowed to evaluate the import path and compete for database/network work.
+
+### Verification
+
+Verify with the health endpoint after bootstrap:
 
 ```bash
 curl http://localhost:3000/locations/health
@@ -108,4 +113,13 @@ curl "http://localhost:3000/locations/cities?countryId=1&stateId=1"
 curl "http://localhost:3000/locations/search?q=bog"
 ```
 
-When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.
+Verify with SQL when debugging:
+
+```sql
+select count(*) from location_countries;
+select count(*) from location_states;
+select count(*) from location_cities;
+select * from location_import_runs order by started_at desc limit 1;
+```
+
+`locations:import` intentionally does not run automatically on every deploy or every `npm start`: it is network-dependent, large, unnecessary after the first successful import, and unsafe to trigger blindly from multiple containers. Use `locations:ensure` or `db:bootstrap` for idempotent readiness instead. When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.

@@ -16,7 +16,9 @@
     "smoke:bullmq": "node scripts/smoke-bullmq-real.js",
     "db:migrate:sql": "node scripts/run-sql-migrations.js",
     "locations:import": "node scripts/import-location-catalog.js",
-    "test:runtime-boundary": "node scripts/validate-runtime-boundary.js"
+    "test:runtime-boundary": "node scripts/validate-runtime-boundary.js",
+    "locations:ensure": "node scripts/ensure-location-catalog.js",
+    "db:bootstrap": "npm run db:migrate:sql && npm run locations:ensure"
   },
   "keywords": [],
   "author": "",

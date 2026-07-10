@@ -111,7 +111,7 @@ async function markInactive(table, sourceIds) {
   await queryPostgres(`update ${table} set is_active = false, updated_at = now() where source_version = $1 and not (source_id = any($2::int[]))`, [SOURCE_VERSION, sourceIds]);
 }
 
-async function run() {
+async function runImport() {
   const importRunId = await createImportRun();
   try {
     const [countryRows, stateRows, cityRows] = await Promise.all([
@@ -144,5 +144,5 @@ async function run() {
   }
 }
 
-if (require.main === module) run().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => loadRuntime().closeDatabase());
-module.exports = { CITIES_JSON_URL, CITY_BATCH_SIZE, COUNTRIES_JSON_URL, SOURCE_LICENSE, SOURCE_NAME, SOURCE_URL, SOURCE_VERSION, STATES_JSON_URL, mapCity, mapCountry, mapState };
+if (require.main === module) runImport().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => loadRuntime().closeDatabase());
+module.exports = { CITIES_JSON_URL, CITY_BATCH_SIZE, COUNTRIES_JSON_URL, SOURCE_LICENSE, SOURCE_NAME, SOURCE_URL, SOURCE_VERSION, STATES_JSON_URL, mapCity, mapCountry, mapState, runImport };
