@@ -23,7 +23,7 @@ import { NavCollapse } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
-type NavItem = { label: string; path: string; icon: Icon; match?: (pathname: string) => boolean };
+type NavItem = { label: string; path: string; icon: Icon; match?: (pathname: string) => boolean; level?: number };
 
 type AppShellProps = {
   area: ShellArea;
@@ -35,11 +35,21 @@ type AppShellProps = {
 };
 
 const defaultOwnerNavItems: NavItem[] = [
-  { label: "Overview", path: appRoutes.owner.path, icon: IconLayoutDashboard, match: (pathname) => pathname === appRoutes.owner.path },
-  { label: "Organizations", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
-  { label: "Create", path: appRoutes.ownerCreateOrganization.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerCreateOrganization.path) },
-  { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, icon: IconServer, match: (pathname) => pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
-  { label: "Settings", path: appRoutes.ownerSystem.path, icon: IconSettings, match: (pathname) => pathname.startsWith(appRoutes.ownerSystem.path) },
+  {
+    label: "Overview",
+    path: appRoutes.owner.path,
+    icon: IconLayoutDashboard,
+    match: (pathname) => pathname === appRoutes.owner.path || pathname.startsWith(appRoutes.ownerWorkerQueues.path),
+  },
+  { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, icon: IconServer, match: (pathname) => pathname.startsWith(appRoutes.ownerWorkerQueues.path), level: 1 },
+  {
+    label: "Organizations",
+    path: appRoutes.ownerOrganizations.path,
+    icon: IconBuilding,
+    match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") || pathname.startsWith(appRoutes.ownerCreateOrganization.path),
+  },
+  { label: "Create", path: appRoutes.ownerCreateOrganization.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerCreateOrganization.path), level: 1 },
+  { label: "Setup", path: appRoutes.ownerSystem.path, icon: IconSettings, match: (pathname) => pathname.startsWith(appRoutes.ownerSystem.path) && !pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
 ];
 
 const publicNavItems: NavItem[] = [{ label: "Public", path: "/", icon: IconWorld, match: (pathname) => pathname === "/" }];

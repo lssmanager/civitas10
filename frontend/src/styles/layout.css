@@ -1,5 +1,7 @@
 .civitas-shell {
+  height: 100vh;
   min-height: 100vh;
+  overflow: hidden;
   background: var(--civitas-bg);
   color: var(--civitas-text);
 }
@@ -68,9 +70,9 @@
 
 .civitas-main {
   width: 100%;
-  max-width: var(--civitas-container-max);
+  max-width: min(100%, 96rem);
   margin: 0 auto;
-  padding: var(--civitas-space-8) var(--civitas-space-4);
+  padding: var(--civitas-space-6) var(--civitas-space-4);
   display: flex;
   flex-direction: column;
   gap: var(--civitas-space-6);
@@ -181,7 +183,10 @@
 
 .civitas-nav-collapse {
   min-width: 0;
+  height: 100vh;
   flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .civitas-nav-collapse-summary {
@@ -217,8 +222,11 @@
   position: sticky;
   top: 0;
   z-index: calc(var(--civitas-z-topbar) + 1);
+  display: flex;
   width: 16.5rem;
+  height: 100vh;
   min-height: 100vh;
+  flex-direction: column;
   flex: 0 0 16.5rem;
   border-right: var(--civitas-border-width) solid rgba(148, 163, 184, 0.24);
   background: linear-gradient(180deg, #061525 0%, #0f2740 100%);
@@ -233,7 +241,10 @@
 
 .civitas-shell-content {
   min-width: 0;
+  height: 100vh;
   flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .civitas-sidebar-brand-row {
@@ -289,7 +300,10 @@
 
 .civitas-sidebar .civitas-nav-row {
   display: block;
+  min-height: 0;
   padding: var(--civitas-space-2) var(--civitas-space-3) var(--civitas-space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .civitas-sidebar .civitas-primary-nav {
@@ -307,6 +321,19 @@
   border-radius: var(--civitas-radius-md);
   padding: var(--civitas-space-3);
   color: #cbd5e1;
+}
+
+.civitas-sidebar .civitas-nav-link[data-civitas-nav-level="1"] {
+  margin-left: var(--civitas-space-5);
+  min-height: 2.5rem;
+  padding-block: var(--civitas-space-2);
+  background: rgba(15, 23, 42, 0.18);
+  font-size: var(--civitas-font-sm);
+}
+
+.civitas-sidebar .civitas-nav-link[data-civitas-nav-level="1"] .civitas-nav-link-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .civitas-sidebar .civitas-nav-link:hover {
@@ -348,12 +375,16 @@
 @media (max-width: 768px) {
   .civitas-shell {
     display: block;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
 
   .civitas-sidebar,
   .civitas-shell-sidebar-collapsed .civitas-sidebar {
     position: sticky;
     width: 100%;
+    height: auto;
     min-height: auto;
     flex-basis: auto;
     border-right: 0;
@@ -375,8 +406,14 @@
     height: 2.5rem;
   }
 
+  .civitas-shell-content {
+    height: auto;
+    overflow-y: visible;
+  }
+
   .civitas-sidebar .civitas-nav-row {
     padding: 0 var(--civitas-space-4) var(--civitas-space-3);
+    overflow-y: visible;
   }
 
   .civitas-sidebar .civitas-primary-nav {
@@ -391,5 +428,30 @@
     overflow: visible;
     clip: auto;
     white-space: normal;
+  }
+}
+
+.civitas-phone-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr);
+  gap: var(--civitas-space-3);
+  align-items: center;
+}
+
+.civitas-phone-prefix-field {
+  max-width: 7rem;
+}
+
+.civitas-phone-number-field {
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .civitas-phone-row {
+    grid-template-columns: 1fr;
+  }
+
+  .civitas-phone-prefix-field {
+    max-width: 100%;
   }
 }

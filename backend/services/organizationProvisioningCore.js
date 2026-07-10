@@ -131,9 +131,27 @@ const getAdministrativeContactUniquenessErrors = (contacts = []) => {
   return errors;
 };
 
+const normalizeSegmentationValues = (value) =>
+  Array.from(new Set((Array.isArray(value) ? value : []).map(emptyToNull).filter(Boolean)));
+
 function normalizeProvisioningInput(body = {}) {
   const settings = normalizeProvisioningSettings(body);
   const administrativeContacts = normalizeAdministrativeContacts(body.administrativeContacts);
+  const segmentation =
+    body.segmentation && typeof body.segmentation === "object"
+      ? {
+          tags: normalizeSegmentationValues(body.segmentation.tags),
+          lists: normalizeSegmentationValues(body.segmentation.lists),
+        }
+      : {};
+  const administrativeContactsWithSegmentation = administrativeContacts.map((contact) => ({
+    ...contact,
+    segmentation: {
+      roleTag: contact.organizationRoleName,
+      organizationTags: segmentation.tags || [],
+      organizationLists: segmentation.lists || [],
+    },
+  }));
   const jitDefaultRoleNames = normalizeRoleNames(body.jitProvisioning?.defaultRoleNames);
 
   const errors = [];
@@ -148,7 +166,7 @@ function normalizeProvisioningInput(body = {}) {
     errors.push({ field: "administrativeContacts", message: "At least one administrative contact is required" });
   }
 
-  administrativeContacts.forEach((contact, index) => {
+  administrativeContactsWithSegmentation.forEach((contact, index) => {
     if (!contact.firstName) {
       errors.push({ field: `administrativeContacts.${index}.firstName`, message: "Administrative contact first name is required" });
     }
@@ -164,7 +182,7 @@ function normalizeProvisioningInput(body = {}) {
   });
 
   errors.push(...settings.errors);
-  errors.push(...getAdministrativeContactUniquenessErrors(administrativeContacts));
+  errors.push(...getAdministrativeContactUniquenessErrors(administrativeContactsWithSegmentation));
 
   return {
     errors,
@@ -172,7 +190,7 @@ function normalizeProvisioningInput(body = {}) {
       canonical: {
         name,
         description,
-        administrativeContacts,
+        administrativeContacts: administrativeContactsWithSegmentation,
         jitProvisioning: {
           domain: settings.value.adminDomain,
           defaultRoleNames: jitDefaultRoleNames,
@@ -184,10 +202,7 @@ function normalizeProvisioningInput(body = {}) {
           ? body.contact
           : {},
       business: normalizeBusinessInput(body.business),
-      segmentation:
-        body.segmentation && typeof body.segmentation === "object"
-          ? body.segmentation
-          : {},
+      segmentation,
     },
   };
 }

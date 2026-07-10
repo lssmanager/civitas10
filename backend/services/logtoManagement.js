@@ -674,7 +674,8 @@ async function createOrResolveLogtoUserByEmail({ email, primaryEmail, name, phon
       if (username) {
         for (let suffix = 1; suffix <= 20; suffix += 1) {
           try {
-            const fallbackUsername = `${username}${suffix}`;
+            const suffixText = String(suffix);
+            const fallbackUsername = `${username.slice(0, Math.max(1, 128 - suffixText.length))}${suffixText}`;
             return { user: await createLogtoUser({ ...basePayload, username: fallbackUsername, profile: { ...(profile || {}), preferredUsername: fallbackUsername } }), created: true, source: "create_user_username_suffix", username: fallbackUsername, reconciliation: baseReconciliation };
           } catch (retryError) {
             if (!(retryError instanceof LogtoManagementApiError) || ![400, 409, 422].includes(retryError.status)) throw retryError;
