@@ -1,27 +1,24 @@
 "use strict";
 
+/*
+ * Root capability contract: only canonical external capabilities resolvable by
+ * adapters/MCP connectors live here. Do not add auth, authorization, global
+ * roles, internal workers, audit, or health as capabilities.
+ */
 const VALID_CAPABILITIES = Object.freeze({
-  AUTH: "auth",
   IDENTITY: "identity",
-  AUTHORIZATION: "authorization",
-  ORGANIZATION: "organization",
-  OWNER_GLOBAL: "owner_global",
-  WORKER: "worker",
-  ROLE_MAPPING: "role_mapping",
-  CRM: "crm",
-  CRM_SYNC: "crm_sync",
   LMS: "lms",
-  COMMUNITY: "community",
-  PAYMENTS: "payments",
-  BILLING: "billing",
-  EMAIL: "email",
-  NOTIFICATIONS: "notifications",
+  CRM: "crm",
+  MARKETING: "marketing",
   SUPPORT: "support",
   SCHEDULING: "scheduling",
+  PAYMENTS: "payments",
+  EMAIL: "email",
   STORAGE: "storage",
   ANALYTICS: "analytics",
-  AUDIT: "audit",
-  HEALTH: "health",
+  NOTIFICATIONS: "notifications",
+  AUTOMATION: "automation",
+  COMMUNITY: "community",
 });
 
 const CAPABILITIES = Object.freeze(Object.values(VALID_CAPABILITIES));
