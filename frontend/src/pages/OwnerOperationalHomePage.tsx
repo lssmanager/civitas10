@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { OwnerBadge, OwnerShell, ownerToneFromSeverity } from "../components/owner/OwnerUI";
-import { AlertStrip, KpiGrid, MetricCard, PageHeader, SectionCard, StatusPill } from "../shared/ui";
+import { AlertStrip, KpiGrid, MetricCard, PageHeader, SectionCard, StateRegion, StatusPill } from "../shared/ui";
 import { useOwnerApi, type OwnerOrganization, type WorkerHealthAggregate } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
 
@@ -40,7 +40,7 @@ const OwnerOperationalHomePage = () => {
     <OwnerShell>
       <PageHeader eyebrow="Owner overview" title="Global owner summary" description="Resumen ejecutivo del estado global: organizaciones, señales críticas y accesos profundos a vistas especializadas. El detalle técnico vive en Runtime y la creación vive en Create." />
 
-      {error ? <AlertStrip variant="danger">{error}</AlertStrip> : null}
+      {error ? <StateRegion><AlertStrip variant="danger">{error}</AlertStrip></StateRegion> : null}
 
       <KpiGrid cols={3}>
         <MetricCard label="Organizations" value={loading ? "..." : organizations.length} variant={loading ? "neutral" : "ok"} />

@@ -7,7 +7,7 @@ import { APP_ENV } from "../../env";
 import { evaluateCapabilityRule, RBACMatrix } from "../../authz/rbacMatrix";
 import Topbar from "../../components/Topbar";
 import { appRoutes } from "../../navigation/routes";
-import { AlertStrip } from "../../shared/ui";
+import { AlertStrip, StateRegion } from "../../shared/ui";
 
 type OrganizationCard = {
   id: string;
@@ -118,9 +118,11 @@ const Dashboard = () => {
           </div>
 
           {error && (
-            <AlertStrip variant="danger" title="Could not load owner state">
-              Could not load the owner state from the API. {error}
-            </AlertStrip>
+            <StateRegion>
+              <AlertStrip variant="danger" title="Could not load owner state">
+                Could not load the owner state from the API. {error}
+              </AlertStrip>
+            </StateRegion>
           )}
 
           <div className="mb-8 grid gap-4 md:grid-cols-3">

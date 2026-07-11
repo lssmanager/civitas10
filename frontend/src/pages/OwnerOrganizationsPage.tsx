@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { OwnerShell, PageHeader, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
-import { AlertStrip, ActionBar, FormField, SectionCard, StatusPill, Stepper } from "../shared/ui";
+import { AlertStrip, ActionBar, FormField, SectionCard, StateRegion, StatusPill, Stepper } from "../shared/ui";
 import { useOwnerApi, type CreateOwnerOrganizationInput } from "../api/owner";
 import { useLocationsApi, type CountryOption, type StateOption, type CityOption } from "../api/locations";
 
@@ -723,8 +723,7 @@ const OwnerOrganizationsPage = () => {
       />
 
       {templateError || draftError || idempotencyKey || created ? (
-        <SectionCard className="civitas-state-region" data-variant="state-region">
-          <div className="civitas-stack-sm" aria-live="polite">
+        <StateRegion>
             {templateError ? <AlertStrip variant="danger" title="Organization template unavailable">Could not load the organization template from the API. {templateError}</AlertStrip> : null}
             {draftError ? <AlertStrip variant="warning" title="Draft not saved">{draftError}</AlertStrip> : null}
             {idempotencyKey ? <AlertStrip variant="info" title="Wizard request identifier">Idempotency key: <code>{idempotencyKey}</code>. Civitas stores this as operational draft/resume state; Logto remains canonical for the organization.</AlertStrip> : null}
@@ -750,8 +749,7 @@ const OwnerOrganizationsPage = () => {
                 </div>
               </AlertStrip>
             ) : null}
-          </div>
-        </SectionCard>
+        </StateRegion>
       ) : null}
 
       <form onSubmit={handleSubmit} className="civitas-stack" data-civitas-create-organization-wizard="true">

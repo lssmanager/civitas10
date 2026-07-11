@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { OwnerBadge, OwnerShell, ownerToneFromSeverity } from "../components/owner/OwnerUI";
-import { AlertStrip, EmptyState, KpiGrid, MetricCard, PageHeader, SectionCard, StatusPill } from "../shared/ui";
+import { AlertStrip, EmptyState, KpiGrid, MetricCard, PageHeader, SectionCard, StateRegion, StatusPill } from "../shared/ui";
 import { useOwnerApi, type WorkerHealthAggregate } from "../api/owner";
 
 const OwnerWorkerQueuesPage = () => {
@@ -29,7 +29,7 @@ const OwnerWorkerQueuesPage = () => {
   return (
     <OwnerShell>
       <PageHeader eyebrow="Runtime" title="Operational runtime console" description="Consola técnica owner para worker heartbeat, Redis signal, colas, backlog, failed jobs y organizaciones bloqueadas." />
-      {error ? <AlertStrip variant="danger">{error}</AlertStrip> : null}
+      {error ? <StateRegion><AlertStrip variant="danger">{error}</AlertStrip></StateRegion> : null}
       <KpiGrid cols={3}>
         <MetricCard label="Worker" detail={data?.workerHealth.humanMessage || "Loading worker health..."}>{data ? <OwnerBadge tone={ownerToneFromSeverity(data.workerHealth.severity)}>{data.workerHealth.classification}</OwnerBadge> : <StatusPill status="unknown">loading</StatusPill>}</MetricCard>
         <MetricCard label="Queue incidents" value={data?.queues.filter((queue) => queue.classification !== "alive").length ?? 0} detail="Backlog and failed job signals across runtime queues." />

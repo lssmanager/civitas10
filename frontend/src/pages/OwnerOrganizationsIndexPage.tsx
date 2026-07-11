@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { IconBuildingCommunity, IconExternalLink, IconRefresh } from "@tabler/icons-react";
 import { OwnerBadge, OwnerShell, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
-import { AlertStrip, EmptyState, PageHeader, SectionCard, StatusPill } from "../shared/ui";
+import { AlertStrip, EmptyState, PageHeader, SectionCard, StateRegion, StatusPill } from "../shared/ui";
 import { useOwnerApi, type OwnerOrganization } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
 
@@ -100,7 +100,7 @@ const OwnerOrganizationsIndexPage = () => {
   return (
     <OwnerShell>
       <PageHeader eyebrow="Owner organizations" title="Organizations" description="Gestión owner_global de organizaciones reales de Logto, enriquecida con señales operativas de Civitas sin convertir PostgreSQL en fuente canónica." />
-      {error ? <AlertStrip variant="danger" title="Could not load organizations">Failed to load the owner organization listing. The canonical source remains Logto. <button type="button" className={secondaryButtonClassName} onClick={() => void loadOrganizations()}><IconRefresh size={18} />Retry</button></AlertStrip> : null}
+      {error ? <StateRegion><AlertStrip variant="danger" title="Could not load organizations">Failed to load the owner organization listing. The canonical source remains Logto. <button type="button" className={secondaryButtonClassName} onClick={() => void loadOrganizations()}><IconRefresh size={18} />Retry</button></AlertStrip></StateRegion> : null}
       <SectionCard title="Organization directory" description="Cards accionables con identidad canónica Logto y perfil operacional enriquecido cuando existe." actions={<><StatusPill status="live" noDot>{sourceLabel}</StatusPill><Link to={appRoutes.ownerCreateOrganization.path} className={primaryButtonClassName}>Create organization</Link></>}>
         {loading ? <EmptyState message="Loading organizations from the owner Logto contract..." /> : null}
         {!loading && !error && organizations.length === 0 ? <EmptyState message="No Logto organizations are available yet. Create the first canonical organization to start provisioning operational signals."><Link to={appRoutes.ownerCreateOrganization.path} className={primaryButtonClassName}>Create organization</Link></EmptyState> : null}
