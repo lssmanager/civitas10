@@ -131,10 +131,10 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
 
 test("sidebar nav geometry computes from one canonical token family", () => {
   const readDeclarations = (selector) => {
-    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const matches = [...layoutCss.matchAll(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "g"))];
-    assert.ok(matches.length, `Missing CSS selector: ${selector}`);
-    return Object.fromEntries(matches[0][1].split(";").map((entry) => entry.trim()).filter(Boolean).map((entry) => {
+    const blocks = [...layoutCss.matchAll(/([^{}]+)\{([^}]*)\}/g)];
+    const match = blocks.find(([, selectorList]) => selectorList.split(",").map((entry) => entry.trim()).includes(selector));
+    assert.ok(match, `Missing CSS selector: ${selector}`);
+    return Object.fromEntries(match[2].split(";").map((entry) => entry.trim()).filter(Boolean).map((entry) => {
       const [property, ...value] = entry.split(":");
       return [property.trim(), value.join(":").trim()];
     }));
@@ -153,7 +153,21 @@ test("sidebar nav geometry computes from one canonical token family", () => {
     }).reduce((sum, number) => sum + number, 0);
   };
 
-  const header = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row");
+  const tokenNames = [
+    "--civitas-nav-item-padding-x",
+    "--civitas-nav-child-indent",
+    "--civitas-nav-item-height",
+    "--civitas-nav-item-gap",
+    "--civitas-nav-icon-size",
+    "--civitas-nav-icon-label-gap",
+    "--civitas-nav-collapse-button-size",
+  ];
+  for (const tokenName of tokenNames) {
+    assert.equal([...tokensCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 1, `${tokenName} must have exactly one canonical definition`);
+  }
+
+  const header = readDeclarations(".civitas-sidebar-header");
+  const collapsedHeader = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-header");
   const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
   const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
   const collapsedParent = { ...parent, ...readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link") };
@@ -167,7 +181,10 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   const basePadding = toRemNumber("var(--civitas-nav-item-padding-x)");
   const childIndent = toRemNumber("var(--civitas-nav-child-indent)");
 
+  const collapsedHeaderPadding = toRemNumber(collapsedHeader["padding-left"]);
+
   assert.equal(headerPadding, basePadding);
+  assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);
   assert.equal(collapsedParentPadding, basePadding);
   assert.equal(childPadding, basePadding + childIndent);
@@ -178,6 +195,9 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   assert.equal(toRemNumber(button.width), toRemNumber("var(--civitas-nav-collapse-button-size)"));
   assert.equal(toRemNumber(button.height), toRemNumber("var(--civitas-nav-collapse-button-size)"));
   const collapsedIcon = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link-icon");
-  assert.equal(collapsedIcon.width, undefined);
-  assert.equal(collapsedIcon.height, undefined);
+  assert.equal(collapsedIcon.width, undefined, "collapsed nav icon must inherit canonical icon width");
+  assert.equal(collapsedIcon.height, undefined, "collapsed nav icon must inherit canonical icon height");
+
+  const collapsedSizeOverrides = /civitas-shell-sidebar-collapsed[^{}]*(?:civitas-nav-link-icon|civitas-sidebar-toggle)[^{}]*\{[^}]*?(?:width|height|font-size):\s*(?!var\(--civitas-nav-collapse-button-size\)|var\(--civitas-nav-icon-size\))/s;
+  assert.doesNotMatch(layoutCss, collapsedSizeOverrides, "collapsed icon/toggle rules must not introduce smaller icon or toggle sizes");
 });

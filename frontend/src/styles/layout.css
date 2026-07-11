@@ -269,6 +269,7 @@
   overflow: hidden;
 }
 
+.civitas-sidebar-header,
 .civitas-sidebar-brand-row {
   display: flex;
   min-height: 4.75rem;
@@ -276,7 +277,9 @@
   justify-content: space-between;
   gap: var(--civitas-space-3);
   background: var(--civitas-nav-shell-brand-bg);
-  padding: var(--civitas-space-4) var(--civitas-nav-item-padding-x);
+  padding-block: var(--civitas-space-4);
+  padding-left: var(--civitas-nav-item-padding-x);
+  padding-right: var(--civitas-nav-item-padding-x);
 }
 
 .civitas-sidebar-brand {
@@ -461,6 +464,7 @@
   box-shadow: 0 0 0 0.125rem var(--civitas-nav-focus-ring);
 }
 
+.civitas-shell-sidebar-collapsed .civitas-sidebar-header,
 .civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row {
   flex-direction: column;
   justify-content: center;
@@ -605,12 +609,16 @@
     transform: translateX(0);
   }
 
+  .civitas-sidebar-header,
   .civitas-sidebar-brand-row,
+  .civitas-shell-sidebar-collapsed .civitas-sidebar-header,
   .civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row {
     min-height: 4rem;
     flex-direction: row;
     justify-content: space-between;
-    padding: var(--civitas-space-3) var(--civitas-nav-item-padding-x);
+    padding-block: var(--civitas-space-3);
+    padding-left: var(--civitas-nav-item-padding-x);
+    padding-right: var(--civitas-nav-item-padding-x);
   }
 
   .civitas-brand-logo,

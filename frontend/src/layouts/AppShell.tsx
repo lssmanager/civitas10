@@ -119,7 +119,7 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
     >
       {isMobile && mobileOpen ? <button type="button" className="civitas-sidebar-backdrop" aria-label="Close Civitas navigation" onClick={() => setMobileOpen(false)} /> : null}
       <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`} data-mobile-open={mobileOpen}>
-        <div className="civitas-sidebar-brand-row">
+        <div className="civitas-sidebar-header civitas-sidebar-brand-row">
           <Link to={homePath} className="civitas-sidebar-brand" aria-label="Civitas home">
             <img src={effectiveSidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={effectiveSidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
           </Link>
