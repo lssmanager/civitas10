@@ -657,3 +657,21 @@ textarea.owner-field {
   line-height: 1.35rem;
   overflow-wrap: anywhere;
 }
+
+.civitas-stack-sm {
+  display: grid;
+  gap: var(--civitas-space-4);
+}
+
+.civitas-summary-list {
+  display: grid;
+  gap: var(--civitas-space-2);
+}
+
+.civitas-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--civitas-space-2);
+  color: var(--civitas-muted-strong);
+}

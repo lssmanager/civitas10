@@ -28,3 +28,11 @@ test("OwnerOrganizationsPage submits location metadata in the real create payloa
   assert.match(source, /manualCity: form\.business\.manualCity\.trim\(\) \|\| undefined/);
   assert.match(source, /source: selectedCountry \? LOCATION_CATALOG_SOURCE : undefined/);
 });
+
+
+test("OwnerOrganizationsPage review step summarizes completed groups", () => {
+  assert.match(source, /aria-label="Completed provisioning groups"/);
+  assert.match(source, /<StatusPill status="success" noDot>✓ Organization<\/StatusPill>/);
+  assert.match(source, /<StatusPill status="success" noDot>✓ Administrative users<\/StatusPill>/);
+  assert.match(source, /<StatusPill status="success" noDot>✓ Segmentation<\/StatusPill>/);
+});

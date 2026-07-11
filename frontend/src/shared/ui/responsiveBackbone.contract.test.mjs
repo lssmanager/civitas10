@@ -56,6 +56,7 @@ test("authenticated shell has only sidebar and main scroll containers", () => {
   assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar,[\s\S]*?height: 100vh;[\s\S]*?min-height: 0;/s);
   assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;/s);
   assert.doesNotMatch(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow-y: auto;/s);

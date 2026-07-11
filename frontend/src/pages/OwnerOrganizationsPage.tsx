@@ -829,11 +829,18 @@ const StepSegmentation = ({ form, setForm, setSegmentationEdited, inputClassName
 
 const StepReview = ({ form, template, templateLoading, submitError }: { form: FormState; template: OrganizationTemplateResponse | null; templateLoading: boolean; submitError: string | null }) => (
   <SectionCard title="Final confirmation" description="Review canonical organization, users, segmentation and template readiness before provisioning.">
-    <div className="civitas-grid-2">
-      <div><strong>Organization</strong><p>{form.name || "Unnamed organization"}</p><p>{form.appSubdomain && form.appBaseDomain ? `${form.appSubdomain}.${form.appBaseDomain}` : "Entry URL pending"}</p></div>
-      <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && (template.missingRoleNames || []).length > 0 ? <p>Missing roles: {(template.missingRoleNames || []).join(", ")}</p> : null}</div>
-      <div><strong>Administrative users</strong><p>{form.administrativeContacts.length} contact(s)</p></div>
-      <div><strong>Segmentation</strong><p>Tags: {form.segmentation.tags.join(", ") || "-"}</p><p>Lists: {form.segmentation.lists.join(", ") || "-"}</p></div>
+    <div className="civitas-stack-sm">
+      <div className="civitas-summary-list" aria-label="Completed provisioning groups">
+        <div className="civitas-summary-row"><StatusPill status="success" noDot>✓ Organization</StatusPill><span>completado</span></div>
+        <div className="civitas-summary-row"><StatusPill status="success" noDot>✓ Administrative users</StatusPill><span>completado</span></div>
+        <div className="civitas-summary-row"><StatusPill status="success" noDot>✓ Segmentation</StatusPill><span>completado</span></div>
+      </div>
+      <div className="civitas-grid-2">
+        <div><strong>Organization</strong><p>{form.name || "Unnamed organization"}</p><p>{form.appSubdomain && form.appBaseDomain ? `${form.appSubdomain}.${form.appBaseDomain}` : "Entry URL pending"}</p></div>
+        <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && (template.missingRoleNames || []).length > 0 ? <p>Missing roles: {(template.missingRoleNames || []).join(", ")}</p> : null}</div>
+        <div><strong>Administrative users</strong><p>{form.administrativeContacts.length} contact(s)</p></div>
+        <div><strong>Segmentation</strong><p>Tags: {form.segmentation.tags.join(", ") || "-"}</p><p>Lists: {form.segmentation.lists.join(", ") || "-"}</p></div>
+      </div>
     </div>
     {submitError ? <AlertStrip variant="danger" title="Cannot submit organization">{submitError}</AlertStrip> : null}
   </SectionCard>
