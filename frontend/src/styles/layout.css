@@ -38,7 +38,6 @@
 
 .civitas-primary-nav {
   display: none;
-  align-items: center;
   gap: var(--civitas-nav-item-gap);
   overflow-x: auto;
   scrollbar-width: none;
@@ -46,6 +45,10 @@
 
 .civitas-primary-nav::-webkit-scrollbar {
   display: none;
+}
+
+.civitas-topbar .civitas-primary-nav {
+  align-items: center;
 }
 
 .civitas-nav-link {

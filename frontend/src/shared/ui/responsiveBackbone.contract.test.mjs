@@ -172,6 +172,8 @@ test("sidebar nav geometry computes from one canonical token family", () => {
 
   const header = readDeclarations(".civitas-sidebar-header");
   const collapsedHeader = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-header");
+  const genericNav = readDeclarations(".civitas-primary-nav");
+  const topbarNav = readDeclarations(".civitas-topbar .civitas-primary-nav");
   const sidebarNav = readDeclarations(".civitas-sidebar .civitas-primary-nav");
   const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
   const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
@@ -188,7 +190,9 @@ test("sidebar nav geometry computes from one canonical token family", () => {
 
   const collapsedHeaderPadding = toRemNumber(collapsedHeader["padding-left"]);
 
-  assert.equal(sidebarNav["align-items"], "stretch", "sidebar nav must override the generic top-nav center alignment");
+  assert.equal(genericNav["align-items"], undefined, "generic nav must not carry legacy centered alignment into the sidebar");
+  assert.equal(topbarNav["align-items"], "center", "topbar nav owns its horizontal centering explicitly");
+  assert.equal(sidebarNav["align-items"], "stretch", "sidebar nav must own left-aligned row stretching");
   assert.equal(parent.width, "100%", "sidebar nav rows must fill the nav column before padding is computed");
   assert.equal(headerPadding, basePadding);
   assert.equal(collapsedHeaderPadding, basePadding);
