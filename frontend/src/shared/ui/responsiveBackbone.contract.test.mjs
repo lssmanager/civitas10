@@ -125,4 +125,59 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-main\s*\{[\s\S]*?overflow-y: auto;[\s\S]*?-webkit-overflow-scrolling: touch;/s);
   assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, var\(--civitas-content-max-width\)\);/s);
   assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow: visible;/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?left: calc\(100% \+ var\(--civitas-popover-offset\)\);[\s\S]*?z-index: var\(--civitas-z-nav-flyout\);/s);
+});
+
+test("sidebar nav geometry computes from one canonical token family", () => {
+  const readDeclarations = (selector) => {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matches = [...layoutCss.matchAll(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "g"))];
+    assert.ok(matches.length, `Missing CSS selector: ${selector}`);
+    return Object.fromEntries(matches[0][1].split(";").map((entry) => entry.trim()).filter(Boolean).map((entry) => {
+      const [property, ...value] = entry.split(":");
+      return [property.trim(), value.join(":").trim()];
+    }));
+  };
+  const rootTokens = Object.fromEntries([...tokensCss.matchAll(/(--civitas-[\w-]+):\s*([^;]+);/g)].map((match) => [match[1], match[2].trim()]));
+  const resolveTokens = (value, localTokens = {}) => value.replace(/var\((--civitas-[\w-]+)\)/g, (_, token) => resolveTokens(localTokens[token] || rootTokens[token] || "", localTokens));
+  const toRemNumber = (value, localTokens = {}) => {
+    const resolved = resolveTokens(value, localTokens).replace(/calc\((.*)\)/, "$1").trim();
+    const normalized = resolved.replace(/([0-9.]+)rem/g, "$1").replace(/\s*\*\s*/g, "*");
+    return normalized.split("+").map((part) => {
+      const term = part.trim();
+      if (term.includes("*")) {
+        return term.split("*").map(Number).reduce((product, number) => product * number, 1);
+      }
+      return Number(term);
+    }).reduce((sum, number) => sum + number, 0);
+  };
+
+  const header = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row");
+  const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
+  const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
+  const collapsedParent = { ...parent, ...readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link") };
+  const button = readDeclarations(".civitas-sidebar-toggle");
+  const icon = readDeclarations(".civitas-nav-link-icon");
+
+  const headerPadding = toRemNumber(header["padding-left"]);
+  const parentPadding = toRemNumber(parent["padding-left"], parent);
+  const collapsedParentPadding = toRemNumber(collapsedParent["padding-left"], collapsedParent);
+  const childPadding = toRemNumber(child["padding-left"], child);
+  const basePadding = toRemNumber("var(--civitas-nav-item-padding-x)");
+  const childIndent = toRemNumber("var(--civitas-nav-child-indent)");
+
+  assert.equal(headerPadding, basePadding);
+  assert.equal(parentPadding, basePadding);
+  assert.equal(collapsedParentPadding, basePadding);
+  assert.equal(childPadding, basePadding + childIndent);
+  assert.equal(toRemNumber(parent.height, parent), toRemNumber("var(--civitas-nav-item-height)"));
+  assert.equal(toRemNumber(child["min-height"], child), toRemNumber("var(--civitas-nav-item-height)"));
+  assert.equal(toRemNumber(icon.width), toRemNumber("var(--civitas-nav-icon-size)"));
+  assert.equal(toRemNumber(icon.height), toRemNumber("var(--civitas-nav-icon-size)"));
+  assert.equal(toRemNumber(button.width), toRemNumber("var(--civitas-nav-collapse-button-size)"));
+  assert.equal(toRemNumber(button.height), toRemNumber("var(--civitas-nav-collapse-button-size)"));
+  const collapsedIcon = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link-icon");
+  assert.equal(collapsedIcon.width, undefined);
+  assert.equal(collapsedIcon.height, undefined);
 });
