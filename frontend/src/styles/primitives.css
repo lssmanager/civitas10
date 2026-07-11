@@ -190,7 +190,7 @@ textarea.owner-field {
 
 .civitas-form-field-required,
 .civitas-form-field-error {
-  color: var(--civitas-danger-strong);
+  color: var(--text-field-helper-error);
 }
 
 .civitas-form-field-hint,
@@ -198,28 +198,65 @@ textarea.owner-field {
   margin: 0;
   font-size: var(--civitas-font-xs);
   line-height: 1rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .civitas-form-field-hint {
   color: var(--civitas-muted);
 }
 
+.civitas-field[aria-invalid="true"],
+.civitas-field[data-invalid="true"] {
+  border-color: var(--border-color-error);
+}
+
 .civitas-alert,
 .owner-banner {
+  position: relative;
+  width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--civitas-space-2);
   border: var(--civitas-border-width) solid var(--civitas-alert-border, var(--civitas-border));
+  border-left-width: var(--civitas-space-1);
   border-radius: var(--civitas-radius-lg);
   background: var(--civitas-alert-bg, var(--civitas-surface));
-  padding: var(--civitas-space-4) var(--civitas-space-5);
+  padding: var(--civitas-space-3);
   color: var(--civitas-alert-text, var(--civitas-body));
-  font-size: var(--civitas-font-sm);
+  font-size: max(0.85rem, var(--civitas-font-xs));
   line-height: 1.5rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .civitas-alert-title {
-  margin-bottom: var(--civitas-space-1);
+  margin-bottom: 0;
+  min-width: 0;
   color: var(--civitas-alert-title, var(--civitas-text));
   font-weight: 800;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.civitas-alert-content {
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.civitas-alert :is(button, a),
+.owner-banner :is(button, a),
+.civitas-state-actions :is(button, a) {
+  flex-shrink: 0;
+}
+
+.civitas-state-actions :is(a, button:not([class])) {
+  color: var(--action-link-primary);
 }
 
 .civitas-alert-info,
@@ -248,10 +285,10 @@ textarea.owner-field {
 
 .civitas-alert-danger,
 .owner-banner-critical {
-  --civitas-alert-bg: var(--civitas-danger-soft);
-  --civitas-alert-border: var(--civitas-danger-muted);
-  --civitas-alert-text: var(--civitas-danger-strong);
-  --civitas-alert-title: var(--civitas-danger-strong);
+  --civitas-alert-bg: var(--color-feedback-error-surface);
+  --civitas-alert-border: var(--border-error-strong);
+  --civitas-alert-text: var(--text-feedback-error);
+  --civitas-alert-title: var(--text-feedback-error);
 }
 
 .civitas-alert-neutral,
@@ -260,6 +297,30 @@ textarea.owner-field {
   --civitas-alert-border: var(--civitas-neutral-muted);
   --civitas-alert-text: var(--civitas-neutral-strong);
   --civitas-alert-title: var(--civitas-text);
+}
+
+@media (min-width: 768px) {
+  .civitas-alert,
+  .owner-banner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--civitas-space-3);
+    padding: var(--civitas-space-4);
+    font-size: 0.9rem;
+  }
+
+  .civitas-alert-content {
+    flex: 1 1 auto;
+    width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .civitas-alert,
+  .owner-banner {
+    padding: var(--spacing-inset-lg);
+    font-size: var(--civitas-font-sm);
+  }
 }
 
 .civitas-pill,
@@ -332,15 +393,20 @@ textarea.owner-field {
 
 .civitas-state,
 .owner-state {
+  position: relative;
+  width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
   border: var(--civitas-border-width) dashed var(--civitas-border-strong);
   border-radius: var(--civitas-radius-md);
   background: var(--civitas-surface-subtle);
-  padding: var(--civitas-space-8) var(--civitas-space-4);
-  color: var(--civitas-muted);
-  font-size: var(--civitas-font-sm);
+  padding: var(--civitas-space-3);
+  color: var(--color-foreground-subtle);
+  font-size: max(0.85rem, var(--civitas-font-xs));
   line-height: 1.25rem;
   text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 
@@ -582,15 +648,6 @@ textarea.owner-field {
   text-transform: none;
 }
 
-.civitas-alert {
-  display: grid;
-  gap: var(--civitas-space-1);
-  padding-block: var(--civitas-space-3);
-}
-
-.civitas-alert-title {
-  margin-bottom: 0;
-}
 
 .civitas-wizard-progress-card {
   padding-block: var(--civitas-space-4);
@@ -723,4 +780,60 @@ textarea.owner-field {
 .civitas-review-field[data-missing="true"] dd {
   color: var(--civitas-danger-strong);
   font-weight: 700;
+}
+
+.civitas-state-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--civitas-space-2);
+  max-width: 100%;
+}
+
+.civitas-loading-state {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--civitas-space-3);
+  color: var(--color-foreground-subtle);
+}
+
+.civitas-loading-spinner {
+  width: var(--civitas-space-8);
+  height: var(--civitas-space-8);
+  border: var(--civitas-border-width) solid var(--color-background-skeleton);
+  border-bottom-color: var(--civitas-primary);
+  border-radius: var(--civitas-radius-pill);
+  animation: civitas-loading-spin var(--motion-duration-slow) linear infinite;
+}
+
+@keyframes civitas-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 768px) {
+  .civitas-state,
+  .owner-state,
+  .civitas-loading-state {
+    padding: var(--civitas-space-4);
+    font-size: 0.9rem;
+  }
+
+  .civitas-state-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .civitas-state,
+  .owner-state,
+  .civitas-loading-state {
+    padding: var(--spacing-inset-lg);
+    font-size: var(--civitas-font-sm);
+  }
 }

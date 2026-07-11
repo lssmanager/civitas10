@@ -1,7 +1,7 @@
 export const LoadingSpinner = () => {
   return (
-    <div className="flex justify-center items-center py-12">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <div className="civitas-loading-state" role="status" aria-label="Loading organization workspace">
+      <div className="civitas-loading-spinner" aria-hidden="true" />
     </div>
   );
-}; 
+};
