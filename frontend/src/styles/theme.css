@@ -65,6 +65,16 @@
   --civitas-nav-collapse-bg-hover: var(--civitas-primary-soft);
   --civitas-nav-collapse-icon: var(--civitas-muted-strong);
   --civitas-nav-focus-ring: var(--civitas-focus);
+  --civitas-popover-bg: var(--civitas-surface-raised);
+  --civitas-popover-border: var(--civitas-border);
+  --civitas-popover-text: var(--civitas-text);
+  --civitas-popover-shadow: var(--civitas-shadow-lg);
+  --civitas-popover-radius: var(--civitas-radius-md);
+  --civitas-popover-offset: var(--civitas-space-2);
+  --civitas-tooltip-bg: #031C44;
+  --civitas-tooltip-text: #FFFFFF;
+  --civitas-tooltip-radius: var(--civitas-radius-sm);
+  --civitas-tooltip-offset: var(--civitas-space-1);
 }
 
 :root[data-theme="dark"] {
@@ -133,4 +143,14 @@
   --civitas-nav-collapse-bg-hover: var(--civitas-neutral-muted);
   --civitas-nav-collapse-icon: var(--civitas-muted-strong);
   --civitas-nav-focus-ring: var(--civitas-focus);
+  --civitas-popover-bg: var(--civitas-surface-raised);
+  --civitas-popover-border: var(--civitas-border);
+  --civitas-popover-text: var(--civitas-text);
+  --civitas-popover-shadow: var(--civitas-shadow-lg);
+  --civitas-popover-radius: var(--civitas-radius-md);
+  --civitas-popover-offset: var(--civitas-space-2);
+  --civitas-tooltip-bg: #E8EBF4;
+  --civitas-tooltip-text: #031C44;
+  --civitas-tooltip-radius: var(--civitas-radius-sm);
+  --civitas-tooltip-offset: var(--civitas-space-1);
 }

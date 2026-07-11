@@ -65,6 +65,9 @@
   --civitas-z-topbar: 20;
   --civitas-z-sticky-action: 30;
   --civitas-z-overlay: 50;
+  --civitas-z-popover: 1000;
+  --civitas-z-nav-flyout: var(--civitas-z-popover);
+  --civitas-z-tooltip: 1400;
   --civitas-z-sidebar-mobile: var(--civitas-z-overlay);
   --civitas-border-width: thin;
 }

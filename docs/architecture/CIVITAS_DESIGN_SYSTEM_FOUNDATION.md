@@ -202,6 +202,9 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-z-topbar`
 - `--civitas-z-sticky-action`
 - `--civitas-z-overlay`
+- `--civitas-z-popover`
+- `--civitas-z-nav-flyout`
+- `--civitas-z-tooltip`
 - `--civitas-border-width`
 
 ### 4.2 Theme tokens en `theme.css`
@@ -302,6 +305,41 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-nav-collapse-bg-hover` (canonical)
 - `--civitas-nav-collapse-icon` (canonical)
 - `--civitas-nav-focus-ring` (canonical)
+
+
+### 4.3 Floating layer: popover, flyout, tooltip
+
+Esta familia cubre contenido flotante opaco que aparece por encima del contenido base. No reemplaza `--civitas-overlay-backdrop`, que es solo para scrims/backdrops detrás de overlays, ni `--civitas-surface-translucent`, que no debe usarse como fondo del contenido de un popover/flyout.
+
+#### Popover / flyout tokens
+
+- `--civitas-popover-bg` (canonical; siempre opaco)
+- `--civitas-popover-border` (canonical)
+- `--civitas-popover-text` (canonical)
+- `--civitas-popover-shadow` (canonical)
+- `--civitas-popover-radius` (canonical; alias semántico a la escala de radius)
+- `--civitas-popover-offset` (canonical; alias semántico a la escala de spacing)
+- `--civitas-z-popover` (canonical)
+- `--civitas-z-nav-flyout` (canonical; mismo nivel que popover porque el flyout de nav es un caso específico de popover)
+
+#### Tooltip tokens
+
+- `--civitas-tooltip-bg` (canonical)
+- `--civitas-tooltip-text` (canonical)
+- `--civitas-tooltip-radius` (canonical; alias semántico a la escala de radius)
+- `--civitas-tooltip-offset` (canonical; alias semántico a la escala de spacing)
+- `--civitas-z-tooltip` (canonical; siempre por encima de popover/flyout)
+
+#### Regla de interacción XOR
+
+Un mismo trigger muestra `tooltip` o `popover/flyout`, nunca ambos simultáneamente. En `NavCollapse` collapsed, un item sin hijos puede exponer tooltip de label, pero un item con hijos abre solo el flyout porque el flyout ya contiene el label/contexto necesario.
+
+#### Tabla de consumo
+
+- `NavCollapse`: el flyout del sidebar contraído consume `--civitas-popover-bg`, `--civitas-popover-border`, `--civitas-popover-text`, `--civitas-popover-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset` y `--civitas-z-nav-flyout`.
+- `Dropdown` futuro: debe consumir `--civitas-popover-*` y `--civitas-z-popover`; no debe inventar fondo, border, radius ni shadow propios.
+- `ConfirmDialog` futuro: si usa una capa flotante no modal o panel auxiliar, debe consumir `--civitas-popover-*`; si usa scrim, el scrim consume `--civitas-overlay-backdrop`, no el panel.
+- `Tooltip` futuro: debe consumir `--civitas-tooltip-*` y `--civitas-z-tooltip`.
 
 ## 5. Component Library Actual
 
@@ -478,7 +516,7 @@ El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/la
 - Scroll desktop: `civitas-sidebar` es el shell visual con altura `100vh` + `--civitas-viewport-height` y `overflow: hidden`; la región que scrollea es `civitas-sidebar .civitas-nav-row`, con `min-height: 0`, `overflow-y: auto` y `--civitas-nav-scroll-padding`.
 - Scroll tablet/mobile: el drawer fixed usa `--civitas-sidebar-mobile-width`, `100vh` + `--civitas-nav-mobile-max-height`, `overflow: hidden` y conserva `civitas-nav-row` como única región vertical scrolleable del menú. Esto evita que un body/root lock bloquee el scroll interno del panel.
 - Focus-visible: `--civitas-nav-focus-ring`; disabled: `--civitas-disabled`.
-- Flyout collapsed: `--civitas-nav-bg`, `--civitas-nav-border`, `--civitas-nav-flyout-min-width`, `--civitas-nav-flyout-max-width`; no usa sombras como recurso ornamental.
+- Flyout collapsed: `--civitas-popover-bg`, `--civitas-popover-border`, `--civitas-popover-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset`, `--civitas-z-nav-flyout`, `--civitas-nav-flyout-min-width` y `--civitas-nav-flyout-max-width`; es opaco, no usa `surface-translucent`, y no puede mostrarse junto con tooltip en el mismo trigger.
 
 Este contrato aplica en light y dark theme. Cualquier cambio futuro del menú debe ajustar primero estos tokens o primitives; no se aceptan estilos locales ni inline styles para identidad visual.
 

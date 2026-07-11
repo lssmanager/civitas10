@@ -521,9 +521,9 @@
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:hover .civitas-nav-tree-children,
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:focus-within .civitas-nav-tree-children {
   position: absolute;
-  top: 0;
-  left: calc(100% + var(--civitas-space-2));
-  z-index: var(--civitas-z-overlay);
+  top: 50%;
+  left: calc(100% + var(--civitas-popover-offset));
+  z-index: var(--civitas-z-nav-flyout);
   display: grid;
   min-width: var(--civitas-nav-flyout-min-width);
   width: max-content;
@@ -534,10 +534,13 @@
   overflow-y: auto;
   clip: auto;
   gap: var(--civitas-space-1);
-  border: var(--civitas-border-width) solid var(--civitas-border-strong);
-  border-radius: var(--civitas-radius-lg);
-  background: var(--civitas-nav-bg);
+  border: var(--civitas-border-width) solid var(--civitas-popover-border);
+  border-radius: var(--civitas-popover-radius);
+  background: var(--civitas-popover-bg);
   padding: var(--civitas-space-2);
+  color: var(--civitas-popover-text);
+  box-shadow: var(--civitas-popover-shadow);
+  transform: translateY(-50%);
   white-space: normal;
 }
 

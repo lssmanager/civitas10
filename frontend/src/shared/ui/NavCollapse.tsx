@@ -75,7 +75,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     const Icon = item.icon;
     return (
       <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded} data-depth={depth}>
-        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)} aria-label={collapsed ? item.label : undefined}>
           {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
           <span className="civitas-nav-link-label">{item.label}</span>
           <span className="civitas-nav-tree-caret" aria-hidden="true"><IconChevronRight className="civitas-nav-tree-caret-icon" /></span>
