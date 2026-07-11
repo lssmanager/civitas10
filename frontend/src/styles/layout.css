@@ -564,11 +564,11 @@
 
 @media (max-width: 768px) {
   .civitas-shell {
-    display: block;
-    height: auto;
-    min-height: 100vh;
-    min-height: var(--civitas-viewport-height);
-    overflow: visible;
+    display: flex;
+    height: 100vh;
+    height: var(--civitas-viewport-height);
+    min-height: 0;
+    overflow: hidden;
   }
 
   .civitas-mobile-menu-button {
@@ -619,12 +619,16 @@
 
   .civitas-shell-content {
     width: 100%;
-    height: auto;
-    overflow: visible;
+    height: 100vh;
+    height: var(--civitas-viewport-height);
+    min-height: 0;
+    overflow: hidden;
   }
 
   .civitas-main {
-    overflow-y: visible;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .civitas-sidebar .civitas-nav-row {
