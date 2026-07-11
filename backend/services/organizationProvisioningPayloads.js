@@ -56,79 +56,92 @@ function buildAdministrativeContactsCustomData(contacts = []) {
     .filter((contact) => Object.keys(contact).length > 0);
 }
 
-function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = {}, business = {}, segmentation = {} } = {}) {
-  const administrativeContacts = buildAdministrativeContactsCustomData(canonical.administrativeContacts);
-  const primaryContact = administrativeContacts.find((entry) => entry.email || entry.name) || null;
-  const tags = unique(segmentation.tags);
-  const lists = unique(segmentation.lists);
-  const companyName = trim(canonical.name);
+function buildUserDataCustomData(person = {}) {
+  const firstName = trim(person.firstName);
+  const middleName = trim(person.middleName);
+  const firstSurname = trim(person.firstSurname);
+  const secondSurname = trim(person.secondSurname);
+  const fullName = [firstName, middleName, firstSurname, secondSurname]
+    .filter(Boolean)
+    .join(" ");
+  const roleTag = trim(person.segmentation?.roleTag) || trim(person.organizationRoleName) || "";
+  const organizationTags = unique(person.segmentation?.organizationTags);
+  const organizationLists = unique(person.segmentation?.organizationLists);
+  const userTags = unique(person.segmentation?.userTags || [roleTag, ...organizationTags]);
 
-  return cleanObject({
-    provisioning: cleanObject({
-      entryUrl: settings.entryUrl,
-      appSubdomain: settings.appSubdomain,
-      appBaseDomain: settings.appBaseDomain,
-      institutionalDomain: settings.adminDomain,
-      jitDefaultRoleNames: unique(canonical.jitProvisioning?.defaultRoleNames),
-    }),
-    oidcRedirectUri: settings.oidcRedirectUri || null,
-    civitasProfile: cleanObject({
-      contact: cleanObject({
-        email: trim(contact.email),
-        owner: trim(contact.owner),
-        phone: trim(contact.phone),
+  return {
+    key: trim(person.key) || "",
+    phone: trim(person.phone) || "",
+    source: trim(person.source) || "owner_organization_provisioning",
+    fullName: trim(person.name) || fullName || "",
+    position: trim(person.position) || "",
+    segmentation: {
+      roleTag,
+      userTags,
+      organizationTags,
+      organizationLists,
+    },
+    phoneExtension: trim(person.phoneExtension) || "",
+    organizationRoleName: trim(person.organizationRoleName) || "",
+  };
+}
+
+function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = {}, business = {}, segmentation = {} } = {}) {
+  const administrativeContacts = Array.isArray(canonical.administrativeContacts) ? canonical.administrativeContacts : [];
+  const primaryContact = administrativeContacts[0] || {};
+  const organizationTags = unique(segmentation.tags || segmentation.organizationTags);
+  const organizationLists = unique(segmentation.lists || segmentation.organizationLists);
+
+  return {
+    provisioning: {
+      entryUrl: trim(settings.entryUrl) || "",
+      appSubdomain: trim(settings.appSubdomain) || "",
+      appBaseDomain: trim(settings.appBaseDomain) || "",
+      institutionalDomain: trim(settings.adminDomain) || trim(settings.institutionalDomain) || "",
+    },
+    civitasProfile: {
+      contact: {
+        email: trim(contact.email) || "",
+        owner: trim(contact.owner) || "",
+        phone: trim(contact.phone) || "",
+      },
+      version: Number.isInteger(canonical.version) ? canonical.version : 0,
+      business: {
+        nit: trim(business.nit) || "",
+        city: trim(business.city) || "",
+        type: trim(business.type) || "",
+        state: trim(business.state) || "",
+        country: trim(business.country) || "",
+        website: trim(business.website) || "",
+        entryUrl: trim(settings.entryUrl) || "",
+        industry: trim(business.industry) || "",
+        postalCode: trim(business.postalCode) || "",
+        description: trim(business.description) || trim(canonical.description) || "",
+        addressLine1: trim(business.addressLine1) || "",
+        addressLine2: trim(business.addressLine2) || "",
+        appSubdomain: trim(settings.appSubdomain) || "",
+        appBaseDomain: trim(settings.appBaseDomain) || "",
+        numberOfEmployees: trim(business.numberOfEmployees) || "",
+        verificationDigit: trim(business.verificationDigit) || "",
+        institutionalDomain: trim(settings.adminDomain) || trim(settings.institutionalDomain) || "",
+      },
+      segmentation: {
+        organizationTags,
+        organizationLists,
+      },
+      userData: buildUserDataCustomData({
+        ...primaryContact,
+        segmentation: {
+          roleTag: primaryContact.segmentation?.roleTag || primaryContact.organizationRoleName,
+          userTags: primaryContact.segmentation?.userTags,
+          organizationTags,
+          organizationLists,
+        },
       }),
-      version: 1,
-      business: cleanObject({
-        nit: trim(business.nit),
-        city: trim(business.city),
-        type: trim(business.type),
-        state: trim(business.state),
-        country: trim(business.country),
-        phonePrefix: trim(business.phonePrefix) || trim(business.location?.phonePrefix),
-        phoneNumber: trim(business.phoneNumber),
-        location: cleanObject({
-          countryId: business.location?.countryId,
-          stateId: business.location?.stateId,
-          cityId: business.location?.cityId,
-          manualCity: trim(business.location?.manualCity),
-          phonePrefix: trim(business.location?.phonePrefix),
-          countryCode: trim(business.location?.countryCode),
-          stateCode: trim(business.location?.stateCode),
-          source: trim(business.location?.source),
-        }),
-        website: trim(business.website),
-        entryUrl: settings.entryUrl,
-        industry: trim(business.industry),
-        postalCode: trim(business.postalCode),
-        addressLine1: trim(business.addressLine1),
-        addressLine2: trim(business.addressLine2),
-        appSubdomain: settings.appSubdomain,
-        appBaseDomain: settings.appBaseDomain,
-        numberOfEmployees: trim(business.numberOfEmployees),
-        verificationDigit: trim(business.verificationDigit),
-        institutionalDomain: settings.adminDomain,
-        about: trim(business.about),
-        description: trim(business.description) || canonical.description || null,
-      }),
-      administrativeContacts,
-      downstream: cleanObject({
-        crm: cleanObject({
-          tags,
-          lists,
-          companyName,
-          segmentation: cleanObject({
-            organizationTags: tags,
-            organizationLists: lists,
-          }),
-        }),
-      }),
-      segmentation: cleanObject({
-        tags,
-        lists,
-      }),
-    }),
-  });
+      secondFamilyName: trim(primaryContact.secondSurname) || "",
+    },
+    oidcRedirectUri: trim(settings.oidcRedirectUri) || "",
+  };
 }
 
 function buildOrganizationCreatePayload({ canonical = {}, settings = {}, contact = {}, business = {}, segmentation = {} } = {}) {

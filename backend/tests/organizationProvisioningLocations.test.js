@@ -45,7 +45,7 @@ test("provisioning normalizes wizard location fields under business.location", (
   assert.equal(normalized.value.business.phonePrefix, "+57");
 });
 
-test("organization payload preserves operational location metadata in Logto customData", () => {
+test("organization payload keeps only required business customData fields", () => {
   const normalized = normalizeProvisioningInput({
     ...baseBody(),
     business: {
@@ -59,15 +59,8 @@ test("organization payload preserves operational location metadata in Logto cust
   const payload = buildOrganizationCreatePayload(normalized.value);
   assert.equal(payload.customData.civitasProfile.business.country, "Colombia");
   assert.equal(payload.customData.civitasProfile.business.city, "Medellín");
-  assert.deepEqual(payload.customData.civitasProfile.business.location, {
-    countryId: 48,
-    stateId: 2890,
-    cityId: 21160,
-    phonePrefix: "+57",
-    countryCode: "CO",
-    stateCode: "ANT",
-    source: "dr5hn/countries-states-cities-database",
-  });
+  assert.equal(payload.customData.civitasProfile.business.location, undefined);
+  assert.equal(payload.customData.civitasProfile.business.phonePrefix, undefined);
 });
 
 test("organization institutional contact does not copy administrative user personal contact data", () => {
@@ -78,8 +71,8 @@ test("organization institutional contact does not copy administrative user perso
     business: { phonePrefix: "+593", phoneNumber: "987654321" },
     administrativeContacts: [{ name: "Admin User", email: "admin@example.test", phone: "+573001112233" }],
   });
-  assert.equal(payload.customData.civitasProfile.contact.email, undefined);
-  assert.equal(payload.customData.civitasProfile.contact.phone, undefined);
-  assert.equal(payload.customData.civitasProfile.business.phonePrefix, "+593");
-  assert.equal(payload.customData.civitasProfile.business.phoneNumber, "987654321");
+  assert.equal(payload.customData.civitasProfile.contact.email, "");
+  assert.equal(payload.customData.civitasProfile.contact.phone, "");
+  assert.equal(payload.customData.civitasProfile.business.phonePrefix, undefined);
+  assert.equal(payload.customData.civitasProfile.business.phoneNumber, undefined);
 });
