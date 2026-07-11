@@ -48,7 +48,8 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /children\?: NavCollapseItem\[\]/);
   assert.match(navCollapse, /NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded"/);
   assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
-  assert.match(navCollapse, /hidden=\{!expanded\}/);
+  assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
+  assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
   assert.match(appShell, /children: \[/);
 });
 

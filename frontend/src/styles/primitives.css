@@ -675,3 +675,34 @@ textarea.owner-field {
   gap: var(--civitas-space-2);
   color: var(--civitas-muted-strong);
 }
+
+.civitas-review-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--civitas-space-3);
+  margin: 0;
+}
+
+.civitas-review-field {
+  display: grid;
+  gap: var(--civitas-space-1);
+}
+
+.civitas-review-field dt {
+  color: var(--civitas-muted);
+  font-size: var(--civitas-font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.civitas-review-field dd {
+  margin: 0;
+  color: var(--civitas-body);
+  font-size: var(--civitas-font-sm);
+  overflow-wrap: anywhere;
+}
+
+.civitas-review-field[data-missing="true"] dd {
+  color: var(--civitas-danger-strong);
+  font-weight: 700;
+}

@@ -34,7 +34,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     () => items.filter((item) => item.children?.length && itemOrChildIsActive(item, location.pathname)).map(itemKey),
     [items, location.pathname],
   );
-  const [expandedKeys, setExpandedKeys] = useState<string[]>(() => readStoredExpanded() ?? activeParentKeys);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>(() => readStoredExpanded() ?? activeParentKeys.slice(0, 1));
 
   useEffect(() => {
     setExpandedKeys((current) => Array.from(new Set([...current, ...activeParentKeys])));
@@ -74,7 +74,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
           <span className="civitas-nav-link-label">{item.label}</span>
           <span className="civitas-nav-tree-caret" aria-hidden="true">{expanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}</span>
         </button>
-        <div className="civitas-nav-tree-children" hidden={!expanded}>
+        <div className="civitas-nav-tree-children" hidden={!expanded && !collapsed}>
           {item.children.map((child) => renderLink(child, 1))}
         </div>
       </div>
