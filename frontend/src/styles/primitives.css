@@ -356,11 +356,29 @@ textarea.owner-field {
 
 .civitas-visually-hidden {
   position: absolute;
-  inline-size: var(--civitas-space-1);
-  block-size: var(--civitas-space-1);
+  width: 1px;
+  height: 1px;
   overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .civitas-icon-button {
+    min-width: var(--civitas-control-height);
+    padding-inline: var(--civitas-space-3);
+  }
+
+  .civitas-icon-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .civitas-kpi-grid {

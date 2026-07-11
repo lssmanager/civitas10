@@ -39,6 +39,9 @@
   --civitas-container-max: 80rem;
   --civitas-readable-max: 48rem;
   --civitas-viewport-height: 100dvh;
+  --civitas-shell-inline-padding: var(--civitas-space-6);
+  --civitas-topbar-height: 4rem;
+  --civitas-content-max-width: var(--civitas-breakpoint-xl);
   --civitas-sidebar-width: 16.5rem;
   --civitas-sidebar-collapsed-width: 5.25rem;
   --civitas-sidebar-mobile-width: min(85vw, 20rem);
@@ -51,6 +54,9 @@
   --civitas-nav-icon-label-gap: var(--civitas-space-2);
   --civitas-nav-chevron-column: 1rem;
   --civitas-nav-collapse-button-size: var(--civitas-control-height-sm);
+  --civitas-nav-item-padding-x: var(--civitas-space-3);
+  --civitas-nav-padding-inline: var(--civitas-space-3);
+  --civitas-nav-gutter-inline: var(--civitas-space-2);
   --civitas-nav-scroll-padding: var(--civitas-space-2);
   --civitas-nav-mobile-max-height: var(--civitas-viewport-height);
   --civitas-nav-flyout-min-width: 13rem;
