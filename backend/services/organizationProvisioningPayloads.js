@@ -120,42 +120,43 @@ function buildUserCreatePayload(person = {}) {
     .filter(Boolean)
     .join(" ");
   const phoneExtension = trim(person.phoneExtension);
-  const username = trim(person.username) || buildLogtoUsername({ email: person.email });
-  const roleTag = trim(person.segmentation?.roleTag) || trim(person.organizationRoleName);
+  const username = trim(person.username) || buildLogtoUsername({ email: person.email }) || "";
+  const roleTag = trim(person.segmentation?.roleTag) || trim(person.organizationRoleName) || "";
   const organizationTags = unique(person.segmentation?.organizationTags);
   const organizationLists = unique(person.segmentation?.organizationLists);
-  const userTags = unique([roleTag, ...organizationTags]);
+  const userTags = unique(person.segmentation?.userTags || [roleTag, ...organizationTags]);
 
-  return cleanObject({
-    primaryEmail: trim(person.email)?.toLowerCase(),
-    primaryPhone: phoneExtension ? null : trim(person.phone),
+  return {
+    primaryEmail: trim(person.email)?.toLowerCase() || "",
+    primaryPhone: phoneExtension ? "" : trim(person.phone) || "",
+    name: trim(person.name) || fullName || "",
     username,
-    name: trim(person.name) || fullName || null,
-    profile: cleanObject({
-      familyName: firstSurname,
-      givenName: firstName,
-      middleName,
-      preferredUsername: username,
-    }),
-    customData: cleanObject({
-      civitasProfile: cleanObject({
-        phone: trim(person.phone),
-        source: "owner_organization_provisioning",
-        position: trim(person.position),
-        key: trim(person.key),
-        organizationRoleName: trim(person.organizationRoleName),
-        segmentation: cleanObject({
+    avatar: trim(person.avatar) || "",
+    profile: {
+      familyName: firstSurname || "",
+      givenName: firstName || "",
+      middleName: middleName || "",
+      nickname: trim(person.nickname) || username || "",
+    },
+    customData: {
+      contact: {
+        key: trim(person.key) || "",
+        phone: trim(person.phone) || "",
+        source: trim(person.source) || "",
+        fullName: trim(person.name) || fullName || "",
+        position: trim(person.position) || "",
+        segmentation: {
           roleTag,
+          userTags,
           organizationTags,
           organizationLists,
-          userTags,
-        }),
-        phoneExtension,
-        fullName: fullName || null,
-      }),
-      secondFamilyName: secondSurname,
-    }),
-  });
+        },
+        phoneExtension: phoneExtension || "",
+        organizationRoleName: trim(person.organizationRoleName) || "",
+      },
+      secondFamilyName: secondSurname || "",
+    },
+  };
 }
 
 module.exports = {

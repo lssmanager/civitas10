@@ -28,12 +28,52 @@ test("normalized provisioning input and Logto payload carry the generated userna
   });
   const payload = buildUserCreatePayload(normalized.value.canonical.administrativeContacts[0]);
   assert.equal(payload.username, "j_rodriguez");
-  assert.equal(payload.profile.preferredUsername, "j_rodriguez");
-  assert.deepEqual(payload.customData.civitasProfile.segmentation, {
+  assert.equal(payload.avatar, "");
+  assert.equal(payload.profile.nickname, "j_rodriguez");
+  assert.equal(payload.profile.preferredUsername, undefined);
+  assert.equal(payload.customData.civitasProfile, undefined);
+  assert.deepEqual(payload.customData.contact.segmentation, {
     roleTag: "organization_payroll",
+    userTags: ["organization_payroll", "org-colegio-demo"],
     organizationTags: ["org-colegio-demo"],
     organizationLists: ["onboarding-colegio-demo"],
-    userTags: ["organization_payroll", "org-colegio-demo"],
+  });
+  assert.equal(payload.customData.contact.source, "");
+  assert.equal(payload.customData.secondFamilyName, "");
+});
+
+
+test("member contact payload separates Logto profile and customData spaces", () => {
+  assert.deepEqual(buildUserCreatePayload({}), {
+    primaryEmail: "",
+    primaryPhone: "",
+    name: "",
+    username: "",
+    avatar: "",
+    profile: {
+      familyName: "",
+      givenName: "",
+      middleName: "",
+      nickname: "",
+    },
+    customData: {
+      contact: {
+        key: "",
+        phone: "",
+        source: "",
+        fullName: "",
+        position: "",
+        segmentation: {
+          roleTag: "",
+          userTags: [],
+          organizationTags: [],
+          organizationLists: [],
+        },
+        phoneExtension: "",
+        organizationRoleName: "",
+      },
+      secondFamilyName: "",
+    },
   });
 });
 
