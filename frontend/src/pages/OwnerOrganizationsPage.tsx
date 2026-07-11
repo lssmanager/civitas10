@@ -32,17 +32,11 @@ const buildPhoneFromParts = (prefix: string, localNumber: string) => {
   return [normalizedPrefix, number].filter(Boolean).join(" ");
 };
 
-const slugSegment = (value: string) =>
-  value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+const normalizeSegmentationLabel = (value: string) => value.replace(/\s+/g, " ").trim();
 
 const buildSegmentationDefaults = (organizationName: string) => {
-  const slug = slugSegment(organizationName);
-  return slug ? { tags: [`org-${slug}`], lists: [`onboarding-${slug}`] } : { tags: [], lists: [] };
+  const label = normalizeSegmentationLabel(organizationName);
+  return label ? { tags: [label], lists: [label] } : { tags: [], lists: [] };
 };
 
 const formatPhonePrefix = (phoneCode?: string | null) => phoneCode ? `+${phoneCode.replace(/^\+/, "")}` : "";
@@ -365,10 +359,10 @@ const OwnerOrganizationsPage = () => {
   };
 
   const updateCountryField = (countryId: string) => {
+    const nextCountry = countries.find((country) => String(country.id) === countryId) ?? null;
+    const nextPrefix = formatPhonePrefix(nextCountry?.phoneCode);
     setForm((current) => {
       const previousPrefix = current.business.phonePrefix || null;
-      const nextCountry = countries.find((country) => String(country.id) === countryId) ?? null;
-      const nextPrefix = formatPhonePrefix(nextCountry?.phoneCode);
       return {
         ...current,
         business: {
@@ -388,6 +382,27 @@ const OwnerOrganizationsPage = () => {
         })),
       };
     });
+    if (countryId && !nextPrefix) {
+      void locationsApi.getPhoneCode(Number(countryId)).then((phoneCode) => {
+        const fetchedPrefix = formatPhonePrefix(phoneCode);
+        if (!fetchedPrefix) return;
+        setForm((current) => {
+          if (current.business.countryId !== countryId) return current;
+          const previousPrefix = current.business.phonePrefix || null;
+          return {
+            ...current,
+            business: {
+              ...current.business,
+              phonePrefix: current.business.phonePrefix || fetchedPrefix,
+            },
+            administrativeContacts: current.administrativeContacts.map((contact) => ({
+              ...contact,
+              phonePrefix: propagatePhonePrefix(contact.phonePrefix, previousPrefix, fetchedPrefix),
+            })),
+          };
+        });
+      }).catch(() => undefined);
+    }
   };
 
   const updateStateField = (stateId: string) => {
@@ -806,8 +821,8 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
 const StepSegmentation = ({ form, setForm, setSegmentationEdited, inputClassName }: { form: FormState; setForm: Dispatch<SetStateAction<FormState>>; setSegmentationEdited: Dispatch<SetStateAction<{ tags: boolean; lists: boolean }>>; inputClassName: string }) => (
   <SectionCard title="Tags and lists" description="Store clean segmentation metadata for later connector orchestration. Civitas auto-builds onboarding defaults from the organization name; you can edit or remove them before submit.">
     <div className="civitas-form-grid">
-      <FormField id="segmentation-tags" label="Tags"><input id="segmentation-tags" className={inputClassName} value={form.segmentation.tags.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, tags: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, tags: parseDelimitedValues(event.target.value) } })); }} placeholder="org-school-demo" /></FormField>
-      <FormField id="segmentation-lists" label="Lists"><input id="segmentation-lists" className={inputClassName} value={form.segmentation.lists.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, lists: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, lists: parseDelimitedValues(event.target.value) } })); }} placeholder="onboarding-school-demo" /></FormField>
+      <FormField id="segmentation-tags" label="Tags"><input id="segmentation-tags" className={inputClassName} value={form.segmentation.tags.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, tags: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, tags: parseDelimitedValues(event.target.value) } })); }} placeholder="La W" /></FormField>
+      <FormField id="segmentation-lists" label="Lists"><input id="segmentation-lists" className={inputClassName} value={form.segmentation.lists.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, lists: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, lists: parseDelimitedValues(event.target.value) } })); }} placeholder="La W" /></FormField>
     </div>
   </SectionCard>
 );

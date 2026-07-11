@@ -1,32 +1,90 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { Icon } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
+
+const NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded";
 
 export type NavCollapseItem = {
   label: string;
-  path: string;
+  path?: string;
   icon?: Icon;
   match?: (pathname: string) => boolean;
   level?: number;
+  children?: NavCollapseItem[];
+};
+
+const itemKey = (item: NavCollapseItem) => `${item.label}-${item.path || "group"}`;
+const itemIsActive = (item: NavCollapseItem, pathname: string) => item.match ? item.match(pathname) : item.path === pathname;
+const itemOrChildIsActive = (item: NavCollapseItem, pathname: string): boolean => itemIsActive(item, pathname) || Boolean(item.children?.some((child) => itemOrChildIsActive(child, pathname)));
+
+const readStoredExpanded = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(NAV_TREE_STORAGE_KEY) || "null");
+    return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : null;
+  } catch {
+    return null;
+  }
 };
 
 export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCollapseItem[]; label: string; collapsed?: boolean }) => {
   const location = useLocation();
+  const activeParentKeys = useMemo(
+    () => items.filter((item) => item.children?.length && itemOrChildIsActive(item, location.pathname)).map(itemKey),
+    [items, location.pathname],
+  );
+  const [expandedKeys, setExpandedKeys] = useState<string[]>(() => readStoredExpanded() ?? activeParentKeys);
 
-  const links = items.map((item) => {
-    const active = item.match ? item.match(location.pathname) : location.pathname === item.path;
+  useEffect(() => {
+    setExpandedKeys((current) => Array.from(new Set([...current, ...activeParentKeys])));
+  }, [activeParentKeys]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(NAV_TREE_STORAGE_KEY, JSON.stringify(expandedKeys));
+  }, [expandedKeys]);
+
+  const toggleExpanded = (key: string) => {
+    setExpandedKeys((current) => current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]);
+  };
+
+  const renderLink = (item: NavCollapseItem, level = 0) => {
+    const active = itemIsActive(item, location.pathname);
     const Icon = item.icon;
     return (
-      <Link key={`${item.label}-${item.path}`} to={item.path} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={item.level ?? 0} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
-        {Icon ? <Icon className="civitas-nav-link-icon" size={20} /> : null}
+      <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={level} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+        {Icon ? <Icon className="civitas-nav-link-icon" size={level > 0 ? 18 : 20} /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
       </Link>
     );
-  });
+  };
+
+  const renderItem = (item: NavCollapseItem) => {
+    if (!item.children?.length) return renderLink(item, item.level ?? 0);
+
+    const key = itemKey(item);
+    const expanded = !collapsed && expandedKeys.includes(key);
+    const active = itemOrChildIsActive(item, location.pathname);
+    const Icon = item.icon;
+    return (
+      <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded}>
+        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={0} aria-expanded={expanded} onClick={() => toggleExpanded(key)} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+          {Icon ? <Icon className="civitas-nav-link-icon" size={20} /> : null}
+          <span className="civitas-nav-link-label">{item.label}</span>
+          <span className="civitas-nav-tree-caret" aria-hidden="true">{expanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}</span>
+        </button>
+        <div className="civitas-nav-tree-children" hidden={!expanded}>
+          {item.children.map((child) => renderLink(child, 1))}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="civitas-nav-row" data-civitas-nav="true" data-civitas-nav-collapsed={collapsed}>
-      <nav className="civitas-primary-nav civitas-scroll-x civitas-nowrap-children" aria-label={`${label} navigation`}>
-        {links}
+    <div className="civitas-nav-row" data-civitas-nav="true" data-civitas-nav-collapsed={collapsed} data-civitas-nav-tree="true">
+      <nav className="civitas-primary-nav" aria-label={`${label} navigation`}>
+        {items.map(renderItem)}
       </nav>
     </div>
   );

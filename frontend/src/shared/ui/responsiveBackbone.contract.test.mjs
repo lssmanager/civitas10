@@ -10,6 +10,8 @@ const barrel = readFileSync(new URL("./index.ts", import.meta.url), "utf8");
 const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), "utf8");
 const dataTable = readFileSync(new URL("./DataTable.tsx", import.meta.url), "utf8");
 const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.url), "utf8");
+const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
+const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
 
 test("responsive breakpoints are canonical and centralized", () => {
   for (const value of ["480px", "768px", "1024px", "1280px"]) {
@@ -40,4 +42,21 @@ test("navigation is provided by the shared NavCollapse primitive", () => {
   assert.match(barrel, /NavCollapse/);
   assert.match(appShell, /<NavCollapse/);
   assert.doesNotMatch(appShell, /<nav className="civitas-primary-nav"/);
+});
+
+test("owner sidebar navigation is a persisted multi-expand tree", () => {
+  assert.match(navCollapse, /children\?: NavCollapseItem\[\]/);
+  assert.match(navCollapse, /NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded"/);
+  assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
+  assert.match(navCollapse, /hidden=\{!expanded\}/);
+  assert.match(appShell, /children: \[/);
+});
+
+test("authenticated shell has only sidebar and main scroll containers", () => {
+  assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
+  assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*overflow: hidden;/s);
+  assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
+  assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;/s);
+  assert.doesNotMatch(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow-y: auto;/s);
 });

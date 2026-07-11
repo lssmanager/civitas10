@@ -1,6 +1,6 @@
 .civitas-shell {
   height: 100vh;
-  min-height: 100vh;
+  min-height: 0;
   overflow: hidden;
   background: var(--civitas-bg);
   color: var(--civitas-text);
@@ -71,11 +71,16 @@
 .civitas-main {
   width: 100%;
   max-width: min(100%, 96rem);
+  min-height: 0;
   margin: 0 auto;
   padding: var(--civitas-space-6) var(--civitas-space-4);
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--civitas-space-6);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .civitas-cluster {
@@ -183,10 +188,7 @@
 
 .civitas-nav-collapse {
   min-width: 0;
-  height: 100vh;
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  flex: 0 0 auto;
 }
 
 .civitas-nav-collapse-summary {
@@ -225,9 +227,12 @@
   display: flex;
   width: 16.5rem;
   height: 100vh;
-  min-height: 100vh;
-  flex-direction: column;
+  min-height: 0;
   flex: 0 0 16.5rem;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-right: var(--civitas-border-width) solid rgba(148, 163, 184, 0.24);
   background: linear-gradient(180deg, #061525 0%, #0f2740 100%);
   color: #e2e8f0;
@@ -240,11 +245,13 @@
 }
 
 .civitas-shell-content {
+  display: flex;
   min-width: 0;
   height: 100vh;
+  min-height: 0;
   flex: 1 1 auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .civitas-sidebar-brand-row {
@@ -302,8 +309,6 @@
   display: block;
   min-height: 0;
   padding: var(--civitas-space-2) var(--civitas-space-3) var(--civitas-space-4);
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 .civitas-sidebar .civitas-primary-nav {
@@ -323,9 +328,39 @@
   color: #cbd5e1;
 }
 
+.civitas-nav-tree-group {
+  display: grid;
+  gap: var(--civitas-space-1);
+}
+
+.civitas-nav-tree-parent {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.civitas-nav-tree-caret {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  opacity: 0.74;
+}
+
+.civitas-nav-tree-children[hidden] {
+  display: none;
+}
+
+.civitas-nav-tree-children {
+  display: grid;
+  gap: var(--civitas-space-1);
+}
+
 .civitas-sidebar .civitas-nav-link[data-civitas-nav-level="1"] {
   margin-left: var(--civitas-space-5);
-  min-height: 2.5rem;
+  min-height: 2.35rem;
   padding-block: var(--civitas-space-2);
   background: rgba(15, 23, 42, 0.18);
   font-size: var(--civitas-font-sm);
@@ -363,7 +398,9 @@
   padding-right: var(--civitas-space-2);
 }
 
-.civitas-shell-sidebar-collapsed .civitas-nav-link-label {
+.civitas-shell-sidebar-collapsed .civitas-nav-link-label,
+.civitas-shell-sidebar-collapsed .civitas-nav-tree-caret,
+.civitas-shell-sidebar-collapsed .civitas-nav-tree-children {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -408,17 +445,20 @@
 
   .civitas-shell-content {
     height: auto;
+    overflow: visible;
+  }
+
+  .civitas-main {
     overflow-y: visible;
   }
 
   .civitas-sidebar .civitas-nav-row {
     padding: 0 var(--civitas-space-4) var(--civitas-space-3);
-    overflow-y: visible;
   }
 
   .civitas-sidebar .civitas-primary-nav {
-    flex-direction: row;
-    overflow-x: auto;
+    flex-direction: column;
+    overflow-x: visible;
   }
 
   .civitas-shell-sidebar-collapsed .civitas-nav-link-label {

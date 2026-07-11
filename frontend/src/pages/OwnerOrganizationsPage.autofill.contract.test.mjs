@@ -24,9 +24,12 @@ test("owner create autogenerates Logto-safe usernames from email local-part", ()
 });
 
 test("owner create autogenerates editable segmentation defaults from organization name", () => {
+  assert.match(source, /const normalizeSegmentationLabel = \(value: string\)/);
   assert.match(source, /const buildSegmentationDefaults = \(organizationName: string\)/);
-  assert.match(source, /tags: \[`org-\$\{slug\}`\]/);
-  assert.match(source, /lists: \[`onboarding-\$\{slug\}`\]/);
+  assert.match(source, /tags: \[label\]/);
+  assert.match(source, /lists: \[label\]/);
+  assert.doesNotMatch(source, /org-\$\{slug\}/);
+  assert.doesNotMatch(source, /onboarding-\$\{slug\}/);
   assert.match(source, /const \[segmentationEdited, setSegmentationEdited\]/);
   assert.match(source, /setSegmentationEdited\(\(current\) => \(\{ \.\.\.current, tags: true \}\)\)/);
   assert.match(source, /setSegmentationEdited\(\(current\) => \(\{ \.\.\.current, lists: true \}\)\)/);
