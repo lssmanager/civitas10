@@ -618,7 +618,6 @@ textarea.owner-field {
   grid-column: 1 / -1;
 }
 
-.civitas-card .civitas-alert,
 .civitas-card .civitas-form-grid,
 .civitas-card .civitas-grid-2 {
   margin-top: var(--civitas-space-5);
