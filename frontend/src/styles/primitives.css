@@ -111,8 +111,8 @@
 
 .civitas-primary-button:hover,
 .btn-civitas.btn-primary:hover {
-  background: var(--civitas-primary-strong);
-  border-color: var(--civitas-primary-strong);
+  background: var(--civitas-hover-primary);
+  border-color: var(--civitas-hover-primary);
 }
 
 .civitas-secondary-button,
@@ -124,7 +124,7 @@
 
 .civitas-secondary-button:hover,
 .btn-civitas.btn-secondary:hover {
-  background: var(--civitas-surface-subtle);
+  background: var(--civitas-hover-surface);
   color: var(--civitas-body);
 }
 

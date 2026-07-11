@@ -68,6 +68,15 @@ const organizationNavItems = (organizationId?: string): NavItem[] => {
   ];
 };
 
+const SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state";
+
+type SidebarState = "expanded" | "collapsed";
+
+const readStoredSidebarState = (): SidebarState => {
+  if (typeof window === "undefined") return "expanded";
+  return window.localStorage.getItem(SIDEBAR_STATE_STORAGE_KEY) === "collapsed" ? "collapsed" : "expanded";
+};
+
 const areaLabel: Record<ShellArea, string> = {
   public: "Public visitor",
   owner: "Owner global",
@@ -86,11 +95,13 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
   const navigate = useNavigate();
   const { signOut } = useLogto();
   const isMobile = useBreakpoint("md");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => readStoredSidebarState() === "collapsed");
   const [mobileOpen, setMobileOpen] = useState(false);
   const resolvedNavItems = resolveNavItems(area, organizationId, navItems);
   const effectiveSidebarCollapsed = isMobile ? false : sidebarCollapsed;
   const homePath = area === "public" ? "/" : appRoutes.owner.path;
+  const sidebarState: SidebarState = effectiveSidebarCollapsed ? "collapsed" : "expanded";
+  const mobileState = mobileOpen ? "mobile-open" : "mobile-closed";
 
   useEffect(() => {
     if (!isMobile) setMobileOpen(false);
@@ -102,7 +113,9 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
       data-civitas-shell="true"
       data-civitas-area={area}
       data-civitas-sidebar-collapsed={effectiveSidebarCollapsed}
+      data-civitas-sidebar-state={sidebarState}
       data-civitas-sidebar-mobile-open={mobileOpen}
+      data-civitas-sidebar-mobile-state={mobileState}
     >
       {isMobile && mobileOpen ? <button type="button" className="civitas-sidebar-backdrop" aria-label="Close Civitas navigation" onClick={() => setMobileOpen(false)} /> : null}
       <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`} data-mobile-open={mobileOpen}>
@@ -115,7 +128,11 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
             className="civitas-sidebar-toggle"
             aria-label={sidebarCollapsed ? "Expand Civitas sidebar" : "Collapse Civitas sidebar"}
             aria-pressed={sidebarCollapsed}
-            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
+            onClick={() => setSidebarCollapsed((collapsed) => {
+              const nextCollapsed = !collapsed;
+              window.localStorage.setItem(SIDEBAR_STATE_STORAGE_KEY, nextCollapsed ? "collapsed" : "expanded");
+              return nextCollapsed;
+            })}
           >
             {sidebarCollapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
           </button>

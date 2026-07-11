@@ -38,6 +38,24 @@
   --civitas-control-height-lg: 3.25rem;
   --civitas-container-max: 80rem;
   --civitas-readable-max: 48rem;
+  --civitas-viewport-height: 100dvh;
+  --civitas-sidebar-width: 16.5rem;
+  --civitas-sidebar-collapsed-width: 5.25rem;
+  --civitas-sidebar-mobile-width: min(85vw, 20rem);
+  --civitas-nav-item-height: 2.75rem;
+  --civitas-nav-item-height-sm: 2.35rem;
+  --civitas-nav-item-gap: var(--civitas-space-2);
+  --civitas-nav-indent-step: var(--civitas-space-5);
+  --civitas-nav-icon-size: 1.25rem;
+  --civitas-nav-icon-size-sm: 1rem;
+  --civitas-nav-icon-column: 1.5rem;
+  --civitas-nav-chevron-column: 1rem;
+  --civitas-nav-padding-inline: var(--civitas-space-3);
+  --civitas-nav-gutter-inline: var(--civitas-space-2);
+  --civitas-nav-scroll-padding: var(--civitas-space-2);
+  --civitas-nav-mobile-max-height: var(--civitas-viewport-height);
+  --civitas-nav-flyout-min-width: 13rem;
+  --civitas-nav-flyout-max-width: 18rem;
   /* Canonical responsive breakpoints: sm 480px, md 768px, lg 1024px, xl 1280px. */
   --civitas-breakpoint-sm: 480px;
   --civitas-breakpoint-md: 768px;
@@ -47,6 +65,9 @@
   --civitas-z-topbar: 20;
   --civitas-z-sticky-action: 30;
   --civitas-z-overlay: 50;
+  --civitas-z-popover: 1000;
+  --civitas-z-nav-flyout: var(--civitas-z-popover);
+  --civitas-z-tooltip: 1400;
   --civitas-z-sidebar-mobile: var(--civitas-z-overlay);
   --civitas-border-width: thin;
 }

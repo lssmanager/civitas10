@@ -171,6 +171,24 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-control-height-lg`
 - `--civitas-container-max`
 - `--civitas-readable-max`
+- `--civitas-viewport-height`
+- `--civitas-sidebar-width`
+- `--civitas-sidebar-collapsed-width`
+- `--civitas-sidebar-mobile-width`
+- `--civitas-nav-item-height`
+- `--civitas-nav-item-height-sm`
+- `--civitas-nav-item-gap`
+- `--civitas-nav-indent-step`
+- `--civitas-nav-icon-size`
+- `--civitas-nav-icon-size-sm`
+- `--civitas-nav-icon-column`
+- `--civitas-nav-chevron-column`
+- `--civitas-nav-padding-inline`
+- `--civitas-nav-gutter-inline`
+- `--civitas-nav-scroll-padding`
+- `--civitas-nav-mobile-max-height`
+- `--civitas-nav-flyout-min-width`
+- `--civitas-nav-flyout-max-width`
 
 #### Breakpoints
 
@@ -184,6 +202,9 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-z-topbar`
 - `--civitas-z-sticky-action`
 - `--civitas-z-overlay`
+- `--civitas-z-popover`
+- `--civitas-z-nav-flyout`
+- `--civitas-z-tooltip`
 - `--civitas-border-width`
 
 ### 4.2 Theme tokens en `theme.css`
@@ -253,10 +274,80 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 
 #### Interaction and elevation
 
-- `--civitas-disabled`
-- `--civitas-focus`
-- `--civitas-shadow`
-- `--civitas-shadow-raised`
+- `--civitas-disabled` (canonical)
+- `--civitas-focus` (canonical)
+- `--civitas-hover-surface` (canonical)
+- `--civitas-hover-primary` (canonical)
+- `--civitas-overlay-backdrop` (canonical)
+- `--civitas-selection-surface` (canonical)
+- `--civitas-icon-muted` (canonical)
+- `--civitas-icon-strong` (canonical)
+- `--civitas-shadow-sm` (canonical)
+- `--civitas-shadow-md` (canonical)
+- `--civitas-shadow-lg` (canonical)
+- `--civitas-shadow` (alias to `--civitas-shadow-sm`)
+- `--civitas-shadow-raised` (alias to `--civitas-shadow-lg`)
+
+#### Sidebar navigation
+
+- `--civitas-nav-shell-bg` (canonical)
+- `--civitas-nav-shell-border` (canonical)
+- `--civitas-nav-shell-text` (canonical)
+- `--civitas-nav-shell-muted` (canonical)
+- `--civitas-nav-shell-brand-bg` (canonical)
+- `--civitas-nav-bg` (alias to `--civitas-nav-shell-bg`)
+- `--civitas-nav-border` (alias to `--civitas-nav-shell-border`)
+- `--civitas-nav-item-bg` (canonical)
+- `--civitas-nav-item-bg-hover` (canonical)
+- `--civitas-nav-item-bg-active` (canonical)
+- `--civitas-nav-item-text` (canonical)
+- `--civitas-nav-item-text-active` (canonical)
+- `--civitas-nav-item-icon` (canonical)
+- `--civitas-nav-item-icon-active` (canonical)
+- `--civitas-nav-chevron` (canonical)
+- `--civitas-nav-chevron-active` (canonical)
+- `--civitas-nav-collapse-bg` (canonical)
+- `--civitas-nav-collapse-bg-hover` (canonical)
+- `--civitas-nav-collapse-icon` (canonical)
+- `--civitas-nav-focus-ring` (canonical)
+- `--civitas-nav-flyout-bg` (canonical)
+- `--civitas-nav-flyout-border` (canonical)
+- `--civitas-nav-flyout-shadow` (canonical)
+
+
+### 4.3 Floating layer: popover, flyout, tooltip
+
+Esta familia cubre contenido flotante opaco que aparece por encima del contenido base. No reemplaza `--civitas-overlay-backdrop`, que es solo para scrims/backdrops detrás de overlays, ni `--civitas-surface-translucent`, que no debe usarse como fondo del contenido de un popover/flyout.
+
+#### Popover / flyout tokens
+
+- `--civitas-popover-bg` (canonical; siempre opaco)
+- `--civitas-popover-border` (canonical)
+- `--civitas-popover-text` (canonical)
+- `--civitas-popover-shadow` (canonical)
+- `--civitas-popover-radius` (canonical; alias semántico a la escala de radius)
+- `--civitas-popover-offset` (canonical; alias semántico a la escala de spacing)
+- `--civitas-z-popover` (canonical)
+- `--civitas-z-nav-flyout` (canonical; mismo nivel que popover porque el flyout de nav es un caso específico de popover)
+
+#### Tooltip tokens
+
+- `--civitas-tooltip-bg` (canonical)
+- `--civitas-tooltip-text` (canonical)
+- `--civitas-tooltip-radius` (canonical; alias semántico a la escala de radius)
+- `--civitas-tooltip-offset` (canonical; alias semántico a la escala de spacing)
+- `--civitas-z-tooltip` (canonical; siempre por encima de popover/flyout)
+
+#### Regla de interacción XOR
+
+Un mismo trigger muestra `tooltip` o `popover/flyout`, nunca ambos simultáneamente. En `NavCollapse` collapsed, un item sin hijos puede exponer tooltip de label, pero un item con hijos abre solo el flyout porque el flyout ya contiene el label/contexto necesario.
+
+#### Tabla de consumo
+
+- `NavCollapse`: el flyout del sidebar contraído consume `--civitas-popover-bg`, `--civitas-popover-border`, `--civitas-popover-text`, `--civitas-popover-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset` y `--civitas-z-nav-flyout`.
+- `Dropdown` futuro: debe consumir `--civitas-popover-*` y `--civitas-z-popover`; no debe inventar fondo, border, radius ni shadow propios.
+- `ConfirmDialog` futuro: si usa una capa flotante no modal o panel auxiliar, debe consumir `--civitas-popover-*`; si usa scrim, el scrim consume `--civitas-overlay-backdrop`, no el panel.
+- `Tooltip` futuro: debe consumir `--civitas-tooltip-*` y `--civitas-z-tooltip`.
 
 ## 5. Component Library Actual
 
@@ -384,32 +475,68 @@ Hace falta documentar cada token con:
 
 Este documento cierra la estructura y el criterio. La tabla exhaustiva puede crecer a partir de aquí.
 
-### 8.2 Falta cubrir algunos estados de interacción como tokens explícitos
+### 8.2 Historial: estados de interacción ya cerrados como tokens explícitos
 
-Recomendados para agregar sin romper la convención actual:
+Estos tokens se agregaron a `frontend/src/styles/theme.css` sin romper la convención actual:
 
-- `--civitas-hover-surface`
-- `--civitas-hover-primary`
-- `--civitas-overlay-backdrop`
-- `--civitas-selection-surface`
-- `--civitas-icon-muted`
-- `--civitas-icon-strong`
-- `--civitas-shadow-sm`
-- `--civitas-shadow-md`
-- `--civitas-shadow-lg`
+- `--civitas-hover-surface`: canonical; light `#e2e8f0`, dark `#334155`.
+- `--civitas-hover-primary`: canonical; light `#1d4ed8`, dark `#93c5fd`.
+- `--civitas-overlay-backdrop`: canonical; light `rgba(3, 28, 68, 0.45)`, dark `rgba(0, 0, 0, 0.6)`.
+- `--civitas-selection-surface`: canonical; light `rgba(37, 99, 235, 0.16)`, dark `rgba(96, 165, 250, 0.24)`.
+- `--civitas-icon-muted`: canonical; alias a `--civitas-muted` en ambos temas.
+- `--civitas-icon-strong`: canonical; alias a `--civitas-text` en ambos temas.
+- `--civitas-shadow-sm`: canonical; light `0 1px 2px rgba(3, 28, 68, .06)`, dark `0 1px 2px rgba(0, 0, 0, .3)`.
+- `--civitas-shadow-md`: canonical; light `0 4px 12px rgba(3, 28, 68, .08)`, dark `0 4px 14px rgba(0, 0, 0, .4)`.
+- `--civitas-shadow-lg`: canonical; light `0 12px 32px rgba(3, 28, 68, .14)`, dark `0 16px 40px rgba(0, 0, 0, .5)`.
 
-Regla: estos nombres deben alinearse con el vocabulario actual del repo.
+Regla cerrada: estos nombres quedan alineados con el vocabulario actual del repo y no habilitan la reintroducción de taxonomías paralelas.
 
-### 8.3 Falta documentar consumo por componente
+### 8.3 Consumo por componente documentado
 
-Por ejemplo:
+- `ActionBar` consume `civitas-action-bar`, `civitas-bottom-action-bar`, spacing, superficie translúcida, borde fuerte, shadow raised y z-index sticky action.
+- `AlertStrip` consume `civitas-alert`, variantes `info/success/warning/danger/neutral` y las familias semánticas `*-soft`, `*-muted`, `*-strong`.
+- `DataTable` consume `civitas-table-wrap`, `civitas-table`, superficie subtle, borde, texto muted-strong, spacing y typography sm.
+- `EmptyState` consume `civitas-state`, superficie subtle, borde fuerte dashed, muted text, spacing y radius md.
+- `FormField` consume `civitas-form-field`, `civitas-form-field-label`, `civitas-form-field-hint`, `civitas-form-field-error`, `civitas-field`, label muted-strong, hint muted, danger-strong y estados focus/disabled.
+- `FormGrid` consume `civitas-form-grid`, `civitas-stack-md`, layout grid, gap y breakpoint responsive.
+- `KpiGrid` consume `civitas-kpi-grid`, grid responsive, gap y columnas declaradas por `data-cols`.
+- `MetricCard` consume `SectionCard`, `civitas-metric-card`, `civitas-metric-label`, `civitas-metric-value`, `civitas-metric-detail`, muted text, text strong y typography de métricas.
+- `NavCollapse` consume `civitas-nav-row`, `civitas-primary-nav`, `civitas-nav-link`, `civitas-nav-link-active`, `civitas-nav-link-icon`, `civitas-nav-tree-*`, `--civitas-nav-*`, spacing, typography y sidebar layout tokens.
+- `PageHeader` consume `SectionCard`, `civitas-page-header`, `civitas-page-header-inner`, `civitas-eyebrow`, `civitas-page-title`, `civitas-page-description`, primary, text, muted y readable max.
+- `SectionCard` consume `civitas-card`, `civitas-card-header`, `civitas-card-title`, `civitas-card-description`, `civitas-card-body-flush`, superficie, borde, radius, spacing y shadow base.
+- `StatusPill` consume `civitas-pill`, `civitas-pill-dot`, familia semántica de `success/warning/danger/neutral`, superficie subtle fallback, borde y muted-strong.
+- `Stepper` consume `civitas-stepper`, `civitas-stepper-list`, `civitas-stepper-item`, `civitas-stepper-marker`, `civitas-stepper-label`, primary, primary-contrast, success-strong, border, border-strong, surface, muted, text y utilities responsive `civitas-scroll-x`, `civitas-nowrap-children`, `civitas-visually-hidden`.
 
-- `PageHeader` consume `civitas-eyebrow`, `civitas-page-title`, `civitas-page-description`
-- `StatusPill` consume familia semántica de `success/warning/danger/neutral`
-- `FormField` consume labels, hints, errors y estados de input
-- `SectionCard` consume superficie, borde, spacing y shadow base
+Esto queda documentado para que la library no derive con el tiempo.
 
-Esto debe quedar documentado para que la library no derive con el tiempo.
+### 8.4 Contrato cerrado de sidebar navigation
+
+El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/layout.css` y wrapper React en `frontend/src/shared/ui/NavCollapse.tsx`.
+
+- Fondo del sidebar: `--civitas-nav-shell-bg`; separación: `--civitas-nav-shell-border`; texto base: `--civitas-nav-shell-text`; texto/iconografía secundaria: `--civitas-nav-shell-muted`; marca/header lateral: `--civitas-nav-shell-brand-bg`. En light theme esta superficie mantiene identidad lateral propia y no hereda el blanco genérico de `--civitas-surface`. No se permiten gradientes, glassmorphism ni sombras ornamentales en el shell.
+- Item base: `--civitas-nav-item-bg`, `--civitas-nav-item-text`, `--civitas-nav-item-icon`, `--civitas-nav-item-height`, `--civitas-nav-icon-size`, `--civitas-nav-icon-column`, `--civitas-nav-chevron-column`, `--civitas-nav-item-gap`, `--civitas-nav-padding-inline`, `--civitas-nav-gutter-inline` y `--civitas-radius-md`.
+- Retícula interna: cada item usa columnas fijas `icon / label / trailing`; el inicio del label queda gobernado por `--civitas-nav-gutter-inline + --civitas-nav-icon-column + --civitas-nav-item-gap`, y el chevron por `--civitas-nav-chevron-column`.
+- Jerarquía: `NavCollapse` emite `data-depth`, `data-active`, `data-expanded` y `data-has-children`; depth 0 no suma indent, depth 1 suma `--civitas-nav-indent-step`, y depth 2 suma dos veces ese token. La indentación mueve la retícula completa del item, no solo el texto.
+- Hover: `--civitas-nav-item-bg-hover`; debe ser sutil y no puede parecer estado activo.
+- Active: `--civitas-nav-item-bg-active`, `--civitas-nav-item-text-active`, `--civitas-nav-item-icon-active`; usa una sola lógica tonal basada en el primary oficial, sin degradado, doble borde ni shadow flotante, y no altera columnas, padding ni ancho del item.
+- Expanded/collapsed: el grupo usa `civitas-nav-tree-group` y `data-civitas-nav-expanded`; el chevron usa `--civitas-nav-chevron` / `--civitas-nav-chevron-active`, ocupa la columna trailing fija y rota con transición mínima, sin cápsula ni borde decorativo.
+- Collapse button: `civitas-sidebar-toggle` consume `--civitas-nav-collapse-bg`, `--civitas-nav-collapse-bg-hover`, `--civitas-nav-collapse-icon`, `--civitas-control-height-sm` y `--civitas-radius-md`; queda definido como icon button de sistema integrado al shell, sin borde blanco brillante ni glow.
+- Scroll desktop: `civitas-sidebar` es el shell visual con altura `100vh` + `--civitas-viewport-height` y `overflow: hidden`; la región que scrollea es `civitas-sidebar .civitas-nav-row`, con `min-height: 0`, `overflow-y: auto` y `--civitas-nav-scroll-padding`.
+- Scroll tablet/mobile: el drawer fixed usa `--civitas-sidebar-mobile-width`, `100vh` + `--civitas-nav-mobile-max-height`, `overflow: hidden` y conserva `civitas-nav-row` como única región vertical scrolleable del menú. Esto evita que un body/root lock bloquee el scroll interno del panel.
+- Focus-visible: `--civitas-nav-focus-ring`; disabled: `--civitas-disabled`.
+- Flyout collapsed: `--civitas-nav-flyout-bg`, `--civitas-nav-flyout-border`, `--civitas-nav-flyout-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset`, `--civitas-z-nav-flyout`, `--civitas-nav-flyout-min-width` y `--civitas-nav-flyout-max-width`; es opaco, no usa `surface-translucent`, y no puede mostrarse junto con tooltip en el mismo trigger.
+
+
+#### Máquina de estados del sidebar
+
+- `expanded`: `data-civitas-sidebar-state="expanded"`; el shell usa `--civitas-sidebar-width`, labels visibles y navegación inline.
+- `collapsed`: `data-civitas-sidebar-state="collapsed"`; el shell usa `--civitas-sidebar-collapsed-width`, labels ocultos en el rail principal y navegación mínima por iconos.
+- `flyout-open`: estado efímero CSS (`:hover` / `:focus-within`) disponible solo bajo `.civitas-shell-sidebar-collapsed`; abre un panel contextual del item, no cambia `data-civitas-sidebar-state`, no modifica la preferencia persistida y no empuja el layout principal.
+- `mobile-open`: `data-civitas-sidebar-mobile-state="mobile-open"`; drawer visible en mobile/tablet, independiente de la preferencia desktop `expanded/collapsed`.
+
+Regla de transición: solo `civitas-sidebar-toggle` puede persistir el cambio `expanded <-> collapsed`. Abrir un flyout o abrir/cerrar el drawer mobile no escribe la preferencia desktop y no puede reexpandir el shell colapsado.
+
+Este contrato aplica en light y dark theme. Cualquier cambio futuro del menú debe ajustar primero estos tokens o primitives; no se aceptan estilos locales ni inline styles para identidad visual.
 
 ## 9. Qué No Se Debe Reintroducir
 
