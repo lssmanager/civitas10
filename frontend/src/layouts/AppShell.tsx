@@ -10,7 +10,6 @@ import {
   IconChevronRight,
   IconFiles,
   IconLayoutDashboard,
-  IconLogout,
   IconMenu2,
   IconServer,
   IconSettings,
@@ -22,6 +21,7 @@ import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
 import { useBreakpoint } from "../shared/hooks";
 import { NavCollapse } from "../shared/ui";
+import { SignOutActionButton } from "../components/layout/TopBar/ActionButtons";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
@@ -142,13 +142,13 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
       <div className="civitas-shell-content">
         <header className="civitas-topbar">
           <div className="civitas-topbar-inner">
-            <div className="civitas-cluster">
+            <div className="civitas-topbar-left civitas-cluster">
               {isMobile ? <button type="button" className="civitas-secondary-button civitas-icon-button civitas-mobile-menu-button" aria-label="Abrir menú" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><IconMenu2 size={18} /><span className="civitas-icon-button-label">Menu</span></button> : null}
               {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button"><IconArrowLeft size={18} />Back</button> : null}
               <span className="civitas-role-badge">{areaLabel[area]}</span>
               {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
             </div>
-            {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button civitas-icon-button" aria-label="Cerrar sesión"><IconLogout size={18} /><span className="civitas-icon-button-label">Sign out</span></button>)}
+            <div className="civitas-topbar-right">{actions ?? (area === "public" ? null : <SignOutActionButton onAction={() => signOut(APP_ENV.app.signOutRedirectUri)} />)}</div>
           </div>
         </header>
         <main className="civitas-main">{children}</main>

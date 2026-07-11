@@ -2,6 +2,7 @@ import { useLogto } from "@logto/react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
+import { SignOutActionButton } from "./layout/TopBar/ActionButtons";
 
 type TopbarProps = {
   organizationId?: string;
@@ -19,7 +20,7 @@ const Topbar = ({ organizationId, showBackButton = false }: TopbarProps) => {
   return (
     <div className="civitas-topbar">
       <div className="civitas-topbar-inner">
-        <div className="flex items-center gap-6">
+        <div className="civitas-topbar-left">
           {showBackButton ? (
             <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button">
               Back
@@ -33,7 +34,7 @@ const Topbar = ({ organizationId, showBackButton = false }: TopbarProps) => {
           </nav>
           {organizationId ? <span className="civitas-badge bg-slate-100 text-slate-700">{organizationId}</span> : null}
         </div>
-        <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button">Sign out</button>
+        <div className="civitas-topbar-right"><SignOutActionButton onAction={() => signOut(APP_ENV.app.signOutRedirectUri)} /></div>
       </div>
     </div>
   );

@@ -13,6 +13,8 @@ const dataTable = readFileSync(new URL("./DataTable.tsx", import.meta.url), "utf
 const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.url), "utf8");
 const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
 const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
+const actionButtons = readFileSync(new URL("../../components/layout/TopBar/ActionButtons.tsx", import.meta.url), "utf8");
+const actionButtonCss = readFileSync(new URL("../../components/common/ActionButton/ActionButton.module.css", import.meta.url), "utf8");
 
 const rootTokenValue = (name) => {
   const match = tokensCss.match(new RegExp(`${name}:\\s*([^;]+);`));
@@ -67,13 +69,17 @@ test("base primitives inherit responsive utilities", () => {
   assert.match(dataTable, /civitas-table-wrap civitas-scroll-x/);
 });
 
-test("mobile topbar icon actions keep accessible labels while hiding visual text", () => {
+test("mobile and tablet action buttons keep accessible labels while hiding visual text", () => {
   assert.match(appShell, /className="civitas-secondary-button civitas-icon-button civitas-mobile-menu-button"/);
   assert.match(appShell, /aria-label="Abrir menú"/);
   assert.match(appShell, /<span className="civitas-icon-button-label">Menu<\/span>/);
-  assert.match(appShell, /className="civitas-secondary-button civitas-icon-button"/);
-  assert.match(appShell, /aria-label="Cerrar sesión"/);
-  assert.match(appShell, /<span className="civitas-icon-button-label">Sign out<\/span>/);
+  assert.match(appShell, /<SignOutActionButton onAction=\{\(\) => signOut\(APP_ENV\.app\.signOutRedirectUri\)\} \/>/);
+  assert.match(actionButtons, /label="Sign out"/);
+  assert.match(actionButtons, /label="Sign in"/);
+  assert.match(actionButtons, /label="Request access"/);
+  assert.equal(rootTokenValue("--action-button-icon-size-tablet"), "var(--civitas-space-10)");
+  assert.equal(rootTokenValue("--action-button-icon-size-mobile"), "var(--civitas-control-height)");
+  assert.match(actionButtonCss, /@media \(max-width: 1024px\) \{[\s\S]*?\.label\s*\{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0 0 0 0\);/s);
   assert.match(primitivesCss, /@media \(max-width: 480px\) \{[\s\S]*?\.civitas-icon-button-label\s*{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0, 0, 0, 0\);/s);
 });
 
@@ -102,18 +108,35 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
-test("shell topbar and main content share one semantic inline padding token", () => {
-  assert.equal(rootTokenValue("--civitas-shell-inline-padding"), "var(--civitas-space-6)");
-  assert.equal(rootTokenValue("--civitas-topbar-height"), "4rem");
-  assert.equal(rootTokenValue("--civitas-content-max-width"), "var(--civitas-breakpoint-xl)");
+test("shell topbar uses the canonical flex-between layout tokens", () => {
+  assert.equal(rootTokenValue("--civitas-topbar-height"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height"), "4.5rem");
+  assert.equal(rootTokenValue("--topbar-height-desktop"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height-tablet"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height-mobile"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-padding-inline-desktop"), "var(--civitas-space-8)");
+  assert.equal(rootTokenValue("--topbar-padding-inline-tablet"), "var(--civitas-space-6)");
+  assert.equal(rootTokenValue("--topbar-padding-inline-mobile"), "var(--civitas-space-4)");
+  assert.equal(rootTokenValue("--topbar-gap"), "var(--civitas-space-4)");
+  assert.equal(rootTokenValue("--topbar-gap-tablet"), "var(--civitas-space-3)");
+  assert.equal(rootTokenValue("--topbar-gap-mobile"), "var(--civitas-space-2)");
+  assert.equal(rootTokenValue("--civitas-content-max-width"), "var(--topbar-max-width)");
 
-  const topbarPadding = declarationValue(selectorBlock(layoutCss, ".civitas-topbar-inner"), "padding-inline");
-  const mainPadding = declarationValue(selectorBlock(layoutCss, ".civitas-main"), "padding-inline");
-
-  assert.equal(topbarPadding, "var(--civitas-shell-inline-padding)");
-  assert.equal(mainPadding, "var(--civitas-shell-inline-padding)");
-  assert.equal(resolveRootVar(topbarPadding), resolveRootVar(mainPadding));
-  assert.doesNotMatch(layoutCss, /\.civitas-topbar-inner,\s*\.civitas-main\s*\{[^}]*padding-(?:left|right):\s*var\(--civitas-space-/s);
+  const shellTopbarBlock = selectorBlock(layoutCss, ".civitas-topbar");
+  const topbarBlock = selectorBlock(layoutCss, ".civitas-topbar-inner");
+  const leftBlock = selectorBlock(layoutCss, ".civitas-topbar-left,\n.civitas-topbar-center,\n.civitas-topbar-right");
+  const centerBlock = selectorBlock(layoutCss, ".civitas-topbar-center");
+  assert.equal(declarationValue(shellTopbarBlock, "height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "min-height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "max-height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "flex"), "0 0 var(--civitas-topbar-height)");
+  assert.equal(declarationValue(topbarBlock, "justify-content"), "space-between");
+  assert.equal(declarationValue(topbarBlock, "padding"), "var(--topbar-padding-desktop)");
+  assert.doesNotMatch(layoutCss, /@media \(max-width: (?:1024|768)px\) \{[\s\S]*?\.civitas-topbar\s*\{[\s\S]*?height:/s);
+  assert.equal(declarationValue(leftBlock, "gap"), "var(--topbar-gap)");
+  assert.equal(declarationValue(centerBlock, "flex"), "1 1 auto");
+  assert.equal(declarationValue(centerBlock, "justify-content"), "center");
+  assert.match(layoutCss, /\.civitas-topbar-right\s*\{[^}]*margin-left:\s*auto;/s);
 });
 
 test("authenticated shell has explicit desktop and mobile scroll containers", () => {

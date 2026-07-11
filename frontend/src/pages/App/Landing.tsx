@@ -2,7 +2,7 @@ import { useLogto } from "@logto/react";
 import { getCivitasSignInOptions } from "../../auth/logtoConfig";
 import { PublicLayout } from "../../layouts/PublicLayout";
 import { KpiGrid, SectionCard } from "../../shared/ui";
-import { primaryButtonClassName, secondaryButtonClassName } from "../../components/owner/OwnerUI";
+import { RequestAccessActionButton, SignInActionButton } from "../../components/layout/TopBar/ActionButtons";
 
 const Landing = () => {
   const { signIn } = useLogto();
@@ -14,8 +14,8 @@ const Landing = () => {
     <PublicLayout
       actions={
         <div className="civitas-action-bar">
-          <button className={secondaryButtonClassName} onClick={() => startSignIn()}>Sign in</button>
-          <button className={primaryButtonClassName} onClick={() => startSignIn("register")}>Request access</button>
+          <SignInActionButton onAction={() => startSignIn()} />
+          <RequestAccessActionButton onAction={() => startSignIn("register")} />
         </div>
       }
     >
@@ -26,8 +26,8 @@ const Landing = () => {
           Civitas connects the public entry point, global owner operations, and tenant workspaces through one canonical interface. Identity, organizations, memberships, roles, and permissions remain governed by Logto; Civitas keeps the local operational state and runtime visibility.
         </p>
         <div className="civitas-action-bar civitas-hero-actions">
-          <button className="btn-civitas btn-primary" onClick={() => startSignIn()}>Enter Civitas</button>
-          <button className="btn-civitas btn-secondary" onClick={() => startSignIn("register")}>Request access</button>
+          <SignInActionButton onAction={() => startSignIn()} />
+          <RequestAccessActionButton onAction={() => startSignIn("register")} />
         </div>
       </SectionCard>
 
