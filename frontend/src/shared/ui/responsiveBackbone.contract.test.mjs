@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const tokensCss = readFileSync(new URL("../../styles/tokens.css", import.meta.url), "utf8");
 const primitivesCss = readFileSync(new URL("../../styles/primitives.css", import.meta.url), "utf8");
 const layoutCss = readFileSync(new URL("../../styles/layout.css", import.meta.url), "utf8");
+const themeCss = readFileSync(new URL("../../styles/theme.css", import.meta.url), "utf8");
 const hookSource = readFileSync(new URL("../hooks/useBreakpoint.ts", import.meta.url), "utf8");
 const barrel = readFileSync(new URL("./index.ts", import.meta.url), "utf8");
 const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), "utf8");
@@ -90,6 +91,9 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
   assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
   assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
+  assert.match(navCollapse, /itemCanBeSelfActive = \(item: NavCollapseItem, pathname: string\) => Boolean\(item\.path\) && itemIsActive\(item, pathname\)/);
+  assert.match(navCollapse, /data-branch-active=\{branchActive\}/);
+  assert.match(navCollapse, /selfActive \? "civitas-nav-link-active"/);
   assert.match(appShell, /children: \[/);
   assert.match(appShell, /SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state"/);
   assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
@@ -187,7 +191,9 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);
   assert.equal(collapsedParentPadding, basePadding);
+  assert.equal(childIndent, 0, "child nav icons must share the same left edge as parent icons");
   assert.equal(childPadding, basePadding + childIndent);
+  assert.equal(childPadding, parentPadding);
   assert.equal(toRemNumber(parent.height, parent), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(child["min-height"], child), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(icon.width), toRemNumber("var(--civitas-nav-icon-size)"));
@@ -200,4 +206,19 @@ test("sidebar nav geometry computes from one canonical token family", () => {
 
   const collapsedSizeOverrides = /civitas-shell-sidebar-collapsed[^{}]*(?:civitas-nav-link-icon|civitas-sidebar-toggle)[^{}]*\{[^}]*?(?:width|height|font-size):\s*(?!var\(--civitas-nav-collapse-button-size\)|var\(--civitas-nav-icon-size\))/s;
   assert.doesNotMatch(layoutCss, collapsedSizeOverrides, "collapsed icon/toggle rules must not introduce smaller icon or toggle sizes");
+});
+
+test("sidebar flyout contrast uses dedicated theme tokens", () => {
+  for (const tokenName of [
+    "--civitas-nav-flyout-bg",
+    "--civitas-nav-flyout-border",
+    "--civitas-nav-flyout-text",
+    "--civitas-nav-flyout-icon",
+  ]) {
+    assert.equal([...themeCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 2, `${tokenName} must be defined for light and dark themes`);
+  }
+
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?background: var\(--civitas-nav-flyout-bg\);[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link,[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link-icon,[\s\S]*?color: var\(--civitas-nav-flyout-icon\);/s);
 });

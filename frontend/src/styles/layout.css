@@ -538,7 +538,7 @@
   border-radius: var(--civitas-popover-radius);
   background: var(--civitas-nav-flyout-bg);
   padding: var(--civitas-space-2);
-  color: var(--civitas-popover-text);
+  color: var(--civitas-nav-flyout-text);
   box-shadow: var(--civitas-nav-flyout-shadow);
   transform: translateY(-50%);
   white-space: normal;
@@ -552,11 +552,13 @@
   padding-block: 0;
   padding-left: calc(var(--civitas-nav-item-padding-x) + var(--civitas-nav-depth-offset));
   padding-right: var(--civitas-nav-item-padding-x);
+  color: var(--civitas-nav-flyout-text);
 }
 
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:hover .civitas-nav-tree-children .civitas-nav-link-icon,
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:focus-within .civitas-nav-tree-children .civitas-nav-link-icon {
   justify-self: center;
+  color: var(--civitas-nav-flyout-icon);
 }
 
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:hover .civitas-nav-tree-children .civitas-nav-link-label,
