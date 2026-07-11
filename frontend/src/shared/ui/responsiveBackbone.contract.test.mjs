@@ -77,6 +77,8 @@ test("mobile and tablet action buttons keep accessible labels while hiding visua
   assert.match(actionButtons, /label="Sign out"/);
   assert.match(actionButtons, /label="Sign in"/);
   assert.match(actionButtons, /label="Request access"/);
+  assert.equal(rootTokenValue("--action-button-icon-size-tablet"), "var(--civitas-space-10)");
+  assert.equal(rootTokenValue("--action-button-icon-size-mobile"), "var(--civitas-control-height)");
   assert.match(actionButtonCss, /@media \(max-width: 1024px\) \{[\s\S]*?\.label\s*\{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0 0 0 0\);/s);
   assert.match(primitivesCss, /@media \(max-width: 480px\) \{[\s\S]*?\.civitas-icon-button-label\s*{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0, 0, 0, 0\);/s);
 });
@@ -108,9 +110,15 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
 
 test("shell topbar uses the canonical flex-between layout tokens", () => {
   assert.equal(rootTokenValue("--civitas-topbar-height"), "var(--topbar-height-desktop)");
-  assert.equal(rootTokenValue("--topbar-height-desktop"), "72px");
-  assert.equal(rootTokenValue("--topbar-height-tablet"), "64px");
-  assert.equal(rootTokenValue("--topbar-height-mobile"), "56px");
+  assert.equal(rootTokenValue("--topbar-height-desktop"), "4.5rem");
+  assert.equal(rootTokenValue("--topbar-height-tablet"), "4rem");
+  assert.equal(rootTokenValue("--topbar-height-mobile"), "3.5rem");
+  assert.equal(rootTokenValue("--topbar-padding-inline-desktop"), "var(--civitas-space-8)");
+  assert.equal(rootTokenValue("--topbar-padding-inline-tablet"), "var(--civitas-space-6)");
+  assert.equal(rootTokenValue("--topbar-padding-inline-mobile"), "var(--civitas-space-4)");
+  assert.equal(rootTokenValue("--topbar-gap"), "var(--civitas-space-4)");
+  assert.equal(rootTokenValue("--topbar-gap-tablet"), "var(--civitas-space-3)");
+  assert.equal(rootTokenValue("--topbar-gap-mobile"), "var(--civitas-space-2)");
   assert.equal(rootTokenValue("--civitas-content-max-width"), "var(--topbar-max-width)");
 
   const topbarBlock = selectorBlock(layoutCss, ".civitas-topbar-inner");

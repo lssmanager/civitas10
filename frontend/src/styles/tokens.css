@@ -19,12 +19,16 @@
   --civitas-space-12: 3rem;
 
   /* Dimensiones y Espaciado del Top Bar */
-  --topbar-height-desktop: 72px;
-  --topbar-height-tablet: 64px;
-  --topbar-height-mobile: 56px;
-  --topbar-padding-desktop: 0 32px;
-  --topbar-padding-tablet: 0 24px;
-  --topbar-padding-mobile: 0 16px;
+  --topbar-height-desktop: 4.5rem;
+  --topbar-height-tablet: 4rem;
+  --topbar-height-mobile: 3.5rem;
+  --topbar-padding-block: var(--civitas-space-0);
+  --topbar-padding-inline-desktop: var(--civitas-space-8);
+  --topbar-padding-inline-tablet: var(--civitas-space-6);
+  --topbar-padding-inline-mobile: var(--civitas-space-4);
+  --topbar-padding-desktop: var(--topbar-padding-block) var(--topbar-padding-inline-desktop);
+  --topbar-padding-tablet: var(--topbar-padding-block) var(--topbar-padding-inline-tablet);
+  --topbar-padding-mobile: var(--topbar-padding-block) var(--topbar-padding-inline-mobile);
   --topbar-max-width: 1440px;
 
   /* Colores y Estilos */
@@ -33,18 +37,18 @@
   --topbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
   /* Espaciado entre elementos */
-  --topbar-gap: 16px;
-  --topbar-gap-tablet: 12px;
-  --topbar-gap-mobile: 8px;
+  --topbar-gap: var(--civitas-space-4);
+  --topbar-gap-tablet: var(--civitas-space-3);
+  --topbar-gap-mobile: var(--civitas-space-2);
 
 
   /* Botones de acción adaptables */
   --action-button-height-desktop: var(--civitas-control-height-sm);
   --action-button-min-width-desktop: auto;
-  --action-button-icon-size-tablet: 40px;
-  --action-button-icon-size-mobile: 44px;
-  --action-button-icon-tablet: 20px;
-  --action-button-icon-mobile: 24px;
+  --action-button-icon-size-tablet: var(--civitas-space-10);
+  --action-button-icon-size-mobile: var(--civitas-control-height);
+  --action-button-icon-tablet: var(--civitas-space-5);
+  --action-button-icon-mobile: var(--civitas-space-6);
   --action-button-padding-desktop: 0 var(--civitas-space-4);
   --action-button-gap-desktop: var(--civitas-space-2);
   --action-button-radius: var(--civitas-radius-md);
