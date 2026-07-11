@@ -51,6 +51,8 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
   assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
   assert.match(appShell, /children: \[/);
+  assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
 test("authenticated shell has only sidebar and main scroll containers", () => {

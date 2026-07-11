@@ -51,7 +51,7 @@ const defaultOwnerNavItems: NavItem[] = [
     icon: IconBuilding,
     match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") || pathname.startsWith(appRoutes.ownerCreateOrganization.path),
     children: [
-      { label: "Organizations", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
+      { label: "Directory", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
       { label: "Create", path: appRoutes.ownerCreateOrganization.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerCreateOrganization.path) },
     ],
   },
@@ -89,6 +89,7 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const resolvedNavItems = resolveNavItems(area, organizationId, navItems);
+  const effectiveSidebarCollapsed = isMobile ? false : sidebarCollapsed;
   const homePath = area === "public" ? "/" : appRoutes.owner.path;
 
   useEffect(() => {
@@ -97,17 +98,17 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
 
   return (
     <div
-      className={`civitas-shell civitas-shell-${area} ${sidebarCollapsed ? "civitas-shell-sidebar-collapsed" : ""}`}
+      className={`civitas-shell civitas-shell-${area} ${effectiveSidebarCollapsed ? "civitas-shell-sidebar-collapsed" : ""}`}
       data-civitas-shell="true"
       data-civitas-area={area}
-      data-civitas-sidebar-collapsed={sidebarCollapsed}
+      data-civitas-sidebar-collapsed={effectiveSidebarCollapsed}
       data-civitas-sidebar-mobile-open={mobileOpen}
     >
       {isMobile && mobileOpen ? <button type="button" className="civitas-sidebar-backdrop" aria-label="Close Civitas navigation" onClick={() => setMobileOpen(false)} /> : null}
       <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`} data-mobile-open={mobileOpen}>
         <div className="civitas-sidebar-brand-row">
           <Link to={homePath} className="civitas-sidebar-brand" aria-label="Civitas home">
-            <img src={sidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={sidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
+            <img src={effectiveSidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={effectiveSidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
           </Link>
           <button
             type="button"
@@ -119,7 +120,7 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
             {sidebarCollapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
           </button>
         </div>
-        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={sidebarCollapsed} />
+        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={effectiveSidebarCollapsed} />
       </aside>
       <div className="civitas-shell-content">
         <header className="civitas-topbar">

@@ -318,16 +318,16 @@
   justify-content: center;
   border: var(--civitas-border-width) solid var(--civitas-border);
   border-radius: var(--civitas-radius-pill);
-  background: var(--civitas-neutral-soft);
-  color: var(--civitas-primary);
+  background: transparent;
+  color: var(--civitas-muted);
   cursor: pointer;
   transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
 .civitas-sidebar-toggle:hover {
-  border-color: var(--civitas-primary);
-  background: var(--civitas-primary);
-  color: var(--civitas-primary-contrast);
+  border-color: var(--civitas-primary-muted);
+  background: var(--civitas-primary-muted);
+  color: var(--civitas-primary-strong);
 }
 
 .civitas-sidebar .civitas-nav-row {
@@ -350,7 +350,7 @@
   gap: var(--civitas-space-3);
   border-radius: var(--civitas-radius-md);
   padding: var(--civitas-space-3);
-  color: var(--civitas-primary-contrast);
+  color: var(--civitas-muted-strong);
 }
 
 .civitas-nav-tree-group {
@@ -397,7 +397,7 @@
 }
 
 .civitas-sidebar .civitas-nav-link:hover {
-  background: var(--civitas-primary-soft);
+  background: var(--civitas-primary-muted);
   color: var(--civitas-primary-strong);
 }
 
@@ -500,6 +500,10 @@
 
   .civitas-mobile-menu-button {
     display: inline-flex;
+  }
+
+  .civitas-sidebar-toggle {
+    display: none;
   }
 
   .civitas-sidebar,
