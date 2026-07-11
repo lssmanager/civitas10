@@ -71,4 +71,6 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-main\s*\{[\s\S]*?overflow-y: auto;[\s\S]*?-webkit-overflow-scrolling: touch;/s);
   assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, 96rem\);/s);
   assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow: visible;/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?left: calc\(100% \+ var\(--civitas-popover-offset\)\);[\s\S]*?z-index: var\(--civitas-z-nav-flyout\);/s);
 });
