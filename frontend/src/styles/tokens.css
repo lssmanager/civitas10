@@ -53,6 +53,7 @@
   --civitas-nav-icon-size-sm: 1rem;
   --civitas-nav-icon-column: 1.5rem;
   --civitas-nav-chevron-column: 1rem;
+  --civitas-nav-item-padding-x: var(--civitas-space-3);
   --civitas-nav-padding-inline: var(--civitas-space-3);
   --civitas-nav-gutter-inline: var(--civitas-space-2);
   --civitas-nav-scroll-padding: var(--civitas-space-2);
