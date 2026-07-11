@@ -1,8 +1,9 @@
 :root {
   /* Dimensiones y Espaciado del Top Bar */
-  --topbar-height-desktop: 4.5rem;
-  --topbar-height-tablet: 4rem;
-  --topbar-height-mobile: 3.5rem;
+  --topbar-height: 4.5rem;
+  --topbar-height-desktop: var(--topbar-height);
+  --topbar-height-tablet: var(--topbar-height);
+  --topbar-height-mobile: var(--topbar-height);
   --topbar-padding-block: var(--civitas-space-0);
   --topbar-padding-inline-desktop: var(--civitas-space-8);
   --topbar-padding-inline-tablet: var(--civitas-space-6);

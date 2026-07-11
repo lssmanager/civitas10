@@ -109,10 +109,11 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
 });
 
 test("shell topbar uses the canonical flex-between layout tokens", () => {
-  assert.equal(rootTokenValue("--civitas-topbar-height"), "var(--topbar-height-desktop)");
-  assert.equal(rootTokenValue("--topbar-height-desktop"), "4.5rem");
-  assert.equal(rootTokenValue("--topbar-height-tablet"), "4rem");
-  assert.equal(rootTokenValue("--topbar-height-mobile"), "3.5rem");
+  assert.equal(rootTokenValue("--civitas-topbar-height"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height"), "4.5rem");
+  assert.equal(rootTokenValue("--topbar-height-desktop"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height-tablet"), "var(--topbar-height)");
+  assert.equal(rootTokenValue("--topbar-height-mobile"), "var(--topbar-height)");
   assert.equal(rootTokenValue("--topbar-padding-inline-desktop"), "var(--civitas-space-8)");
   assert.equal(rootTokenValue("--topbar-padding-inline-tablet"), "var(--civitas-space-6)");
   assert.equal(rootTokenValue("--topbar-padding-inline-mobile"), "var(--civitas-space-4)");
@@ -126,6 +127,7 @@ test("shell topbar uses the canonical flex-between layout tokens", () => {
   const centerBlock = selectorBlock(layoutCss, ".civitas-topbar-center");
   assert.equal(declarationValue(topbarBlock, "justify-content"), "space-between");
   assert.equal(declarationValue(topbarBlock, "padding"), "var(--topbar-padding-desktop)");
+  assert.doesNotMatch(layoutCss, /@media \(max-width: (?:1024|768)px\) \{[\s\S]*?\.civitas-topbar\s*\{[\s\S]*?height:/s);
   assert.equal(declarationValue(leftBlock, "gap"), "var(--topbar-gap)");
   assert.equal(declarationValue(centerBlock, "flex"), "1 1 auto");
   assert.equal(declarationValue(centerBlock, "justify-content"), "center");

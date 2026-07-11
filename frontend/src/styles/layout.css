@@ -196,10 +196,6 @@
 
 
 @media (max-width: 1024px) {
-  .civitas-topbar {
-    height: var(--civitas-topbar-height-tablet);
-  }
-
   .civitas-topbar-inner {
     padding: var(--topbar-padding-tablet);
     gap: var(--topbar-gap-tablet);
@@ -216,10 +212,6 @@
 }
 
 @media (max-width: 768px) {
-  .civitas-topbar {
-    height: var(--civitas-topbar-height-mobile);
-  }
-
   .civitas-topbar-inner {
     align-items: center;
     padding: var(--topbar-padding-mobile);

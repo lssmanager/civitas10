@@ -19,9 +19,10 @@
   --civitas-space-12: 3rem;
 
   /* Dimensiones y Espaciado del Top Bar */
-  --topbar-height-desktop: 4.5rem;
-  --topbar-height-tablet: 4rem;
-  --topbar-height-mobile: 3.5rem;
+  --topbar-height: 4.5rem;
+  --topbar-height-desktop: var(--topbar-height);
+  --topbar-height-tablet: var(--topbar-height);
+  --topbar-height-mobile: var(--topbar-height);
   --topbar-padding-block: var(--civitas-space-0);
   --topbar-padding-inline-desktop: var(--civitas-space-8);
   --topbar-padding-inline-tablet: var(--civitas-space-6);
@@ -94,7 +95,7 @@
   --civitas-readable-max: 48rem;
   --civitas-viewport-height: 100dvh;
   --civitas-shell-inline-padding: var(--civitas-space-6);
-  --civitas-topbar-height: var(--topbar-height-desktop);
+  --civitas-topbar-height: var(--topbar-height);
   --civitas-topbar-height-tablet: var(--topbar-height-tablet);
   --civitas-topbar-height-mobile: var(--topbar-height-mobile);
   --civitas-content-max-width: var(--topbar-max-width);
