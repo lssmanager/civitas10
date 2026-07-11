@@ -15,16 +15,24 @@ const cleanObject = (obj) =>
     ),
   );
 
-function buildLogtoUsername({ email }) {
-  const localPart = String(email || "").split("@")[0] || "";
-  return String(localPart)
+const LOGTO_USERNAME_MAX_LENGTH = 128;
+
+function normalizeLogtoUsername(value) {
+  const normalized = String(value || "")
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9_]/g, "_")
     .replace(/_+/g, "_")
     .replace(/^([^a-z_])/, "_$1")
-    .replace(/^_+$/, "") || null;
+    .replace(/^_+$/, "")
+    .slice(0, LOGTO_USERNAME_MAX_LENGTH);
+  return normalized || null;
+}
+
+function buildLogtoUsername({ email }) {
+  const localPart = String(email || "").split("@")[0] || "";
+  return normalizeLogtoUsername(localPart);
 }
 
 function buildAdministrativeContactsCustomData(contacts = []) {
@@ -142,6 +150,10 @@ function buildUserCreatePayload(person = {}) {
     .join(" ");
   const phoneExtension = trim(person.phoneExtension);
   const username = trim(person.username) || buildLogtoUsername({ email: person.email });
+  const roleTag = trim(person.segmentation?.roleTag) || trim(person.organizationRoleName);
+  const organizationTags = unique(person.segmentation?.organizationTags);
+  const organizationLists = unique(person.segmentation?.organizationLists);
+  const userTags = unique([roleTag, ...organizationTags]);
 
   return cleanObject({
     primaryEmail: trim(person.email)?.toLowerCase(),
@@ -161,6 +173,12 @@ function buildUserCreatePayload(person = {}) {
         position: trim(person.position),
         key: trim(person.key),
         organizationRoleName: trim(person.organizationRoleName),
+        segmentation: cleanObject({
+          roleTag,
+          organizationTags,
+          organizationLists,
+          userTags,
+        }),
         phoneExtension,
         fullName: fullName || null,
       }),
@@ -171,6 +189,7 @@ function buildUserCreatePayload(person = {}) {
 
 module.exports = {
   buildLogtoUsername,
+  normalizeLogtoUsername,
   buildAdministrativeContactsCustomData,
   buildOrganizationCustomData,
   buildOrganizationCreatePayload,

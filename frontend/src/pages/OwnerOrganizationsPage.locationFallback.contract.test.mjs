@@ -17,12 +17,14 @@ test('owner create wizard keeps manual city fallback for unavailable catalog or 
 });
 
 test('owner create wizard separates organization and admin phone prefix and number payloads', () => {
-  assert.match(source, /Organization phone prefix/);
-  assert.match(source, /Organization phone number/);
-  assert.match(source, /User phone prefix/);
-  assert.match(source, /User phone number/);
-  assert.match(source, /\[form\.business\.phonePrefix\.trim\(\), form\.business\.phoneNumber\.trim\(\)\]/);
-  assert.match(source, /\[contact\.phonePrefix\.trim\(\), contact\.phoneNumber\.trim\(\)\]/);
+  assert.match(source, /label="Organization phone"/);
+  assert.match(source, /aria-label="Organization phone prefix"/);
+  assert.match(source, /aria-label="Organization phone number"/);
+  assert.match(source, /label="User phone"/);
+  assert.match(source, /aria-label="User phone prefix"/);
+  assert.match(source, /aria-label="User phone number"/);
+  assert.match(source, /phone: buildPhoneFromParts\(form\.business\.phonePrefix, form\.business\.phoneNumber\)/);
+  assert.match(source, /phone: buildPhoneFromParts\(contact\.phonePrefix, contact\.phoneNumber\)/);
 });
 
 test('owner create wizard unifies canonical and business profile into one organization step', () => {

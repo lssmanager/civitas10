@@ -28,3 +28,23 @@ test("OwnerOrganizationsPage submits location metadata in the real create payloa
   assert.match(source, /manualCity: form\.business\.manualCity\.trim\(\) \|\| undefined/);
   assert.match(source, /source: selectedCountry \? LOCATION_CATALOG_SOURCE : undefined/);
 });
+
+
+test("OwnerOrganizationsPage review step summarizes real grouped data and edit shortcuts", () => {
+  assert.match(source, /const ReviewFields/);
+  assert.match(source, /title="Organization"/);
+  assert.match(source, /title="Business profile"/);
+  assert.match(source, /title="Administrative users"/);
+  assert.match(source, /title="Segmentation"/);
+  assert.match(source, /onClick=\{\(\) => onEditStep\(0\)\}/);
+  assert.match(source, /onClick=\{\(\) => onEditStep\(1\)\}/);
+  assert.match(source, /onClick=\{\(\) => onEditStep\(2\)\}/);
+  assert.doesNotMatch(source, /Completed provisioning groups/);
+});
+
+test("OwnerOrganizationsPage validates email format on blur before advancing", () => {
+  assert.match(source, /EMAIL_FORMAT_PATTERN = \/\^\[\^\\s@\]\+@\[\^\\s@\]\+\\\.\[\^\\s@\]\+\$\//);
+  assert.match(source, /onBlur=\{onContactEmailBlur\}/);
+  assert.match(source, /onBlur=\{\(\) => onEmailBlur\(contact\.id\)\}/);
+  assert.match(source, /disabled=\{hasInvalidCurrentStepEmail\}/);
+});

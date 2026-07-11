@@ -111,8 +111,8 @@
 
 .civitas-primary-button:hover,
 .btn-civitas.btn-primary:hover {
-  background: var(--civitas-primary-strong);
-  border-color: var(--civitas-primary-strong);
+  background: var(--civitas-hover-primary);
+  border-color: var(--civitas-hover-primary);
 }
 
 .civitas-secondary-button,
@@ -124,7 +124,7 @@
 
 .civitas-secondary-button:hover,
 .btn-civitas.btn-secondary:hover {
-  background: var(--civitas-surface-subtle);
+  background: var(--civitas-hover-surface);
   color: var(--civitas-body);
 }
 
@@ -399,12 +399,23 @@ textarea.owner-field {
 }
 
 .civitas-stepper-list {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(var(--civitas-stepper-count, 5), minmax(0, 1fr));
   gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.civitas-stepper-list::before {
+  position: absolute;
+  top: 0.875rem;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  background: var(--civitas-border);
+  content: "";
 }
 
 .civitas-stepper-current {
@@ -434,7 +445,6 @@ textarea.owner-field {
   height: 0.125rem;
   background: var(--civitas-border);
   content: "";
-  transform: translateX(50%);
 }
 
 .civitas-stepper-item[data-state="complete"]:not(:last-child)::after {
@@ -466,7 +476,12 @@ textarea.owner-field {
   line-height: 1;
 }
 
-.civitas-stepper-item[data-state="complete"] .civitas-stepper-marker,
+.civitas-stepper-item[data-state="complete"] .civitas-stepper-marker {
+  border-color: var(--civitas-success-strong);
+  background: var(--civitas-success-strong);
+  color: #ffffff;
+}
+
 .civitas-stepper-item[data-state="active"] .civitas-stepper-marker {
   border-color: var(--civitas-primary);
   background: var(--civitas-primary);
@@ -576,6 +591,7 @@ textarea.owner-field {
   height: 1.625rem;
 }
 
+.civitas-stepper-list::before,
 .civitas-stepper-item:not(:last-child)::after {
   top: 0.8125rem;
 }
@@ -640,4 +656,53 @@ textarea.owner-field {
   font-size: var(--civitas-font-sm);
   line-height: 1.35rem;
   overflow-wrap: anywhere;
+}
+
+.civitas-stack-sm {
+  display: grid;
+  gap: var(--civitas-space-4);
+}
+
+.civitas-summary-list {
+  display: grid;
+  gap: var(--civitas-space-2);
+}
+
+.civitas-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--civitas-space-2);
+  color: var(--civitas-muted-strong);
+}
+
+.civitas-review-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--civitas-space-3);
+  margin: 0;
+}
+
+.civitas-review-field {
+  display: grid;
+  gap: var(--civitas-space-1);
+}
+
+.civitas-review-field dt {
+  color: var(--civitas-muted);
+  font-size: var(--civitas-font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.civitas-review-field dd {
+  margin: 0;
+  color: var(--civitas-body);
+  font-size: var(--civitas-font-sm);
+  overflow-wrap: anywhere;
+}
+
+.civitas-review-field[data-missing="true"] dd {
+  color: var(--civitas-danger-strong);
+  font-weight: 700;
 }

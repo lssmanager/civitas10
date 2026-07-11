@@ -8,6 +8,37 @@ const APP_BASE_DOMAINS = ["didaxus.com"] as const;
 const LOCATION_CATALOG_SOURCE = "dr5hn/countries-states-cities-database" as const;
 const DEFAULT_COUNTRY_ISO2 = "CO";
 
+const LOGTO_USERNAME_MAX_LENGTH = 128;
+
+const normalizeLogtoUsername = (value: string) => {
+  const normalized = value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^([^a-z_])/, "_$1")
+    .replace(/^_+$/, "")
+    .slice(0, LOGTO_USERNAME_MAX_LENGTH);
+  return normalized || "";
+};
+
+const buildLogtoUsernameFromEmail = (email: string) => normalizeLogtoUsername(email.split("@")[0] || "");
+
+const buildPhoneFromParts = (prefix: string, localNumber: string) => {
+  const number = normalizePhoneValue(localNumber);
+  if (!number) return undefined;
+  const normalizedPrefix = normalizePhoneValue(prefix);
+  return [normalizedPrefix, number].filter(Boolean).join(" ");
+};
+
+const normalizeSegmentationLabel = (value: string) => value.replace(/\s+/g, " ").trim();
+
+const buildSegmentationDefaults = (organizationName: string) => {
+  const label = normalizeSegmentationLabel(organizationName);
+  return label ? { tags: [label], lists: [label] } : { tags: [], lists: [] };
+};
+
 const formatPhonePrefix = (phoneCode?: string | null) => phoneCode ? `+${phoneCode.replace(/^\+/, "")}` : "";
 
 type AdministrativeContact = {
@@ -162,6 +193,26 @@ const initialFormState = (defaultRoleName = ""): FormState => ({
 });
 
 const toSentence = (value: string) => value.trim();
+const EMAIL_FORMAT_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailFormatError = (value: string) => {
+  const trimmed = value.trim();
+  return trimmed && !EMAIL_FORMAT_PATTERN.test(trimmed) ? "Enter a valid email address." : "";
+};
+const emptyValue = "— vacío";
+const optionalValue = "no especificado";
+
+type EmailFieldErrors = {
+  businessContactEmail?: string;
+  administrativeContacts: Record<string, string | undefined>;
+};
+
+type ReviewField = {
+  label: string;
+  value: string;
+  required?: boolean;
+};
+
+const isMissingRequiredReviewField = (field: ReviewField) => Boolean(field.required && !toSentence(field.value));
 
 const parseDelimitedValues = (value: string) =>
   Array.from(
@@ -200,6 +251,8 @@ const OwnerOrganizationsPage = () => {
   const [states, setStates] = useState<StateOption[]>([]);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [locationsError, setLocationsError] = useState<string | null>(null);
+  const [segmentationEdited, setSegmentationEdited] = useState({ tags: false, lists: false });
+  const [emailErrors, setEmailErrors] = useState<EmailFieldErrors>({ administrativeContacts: {} });
 
   useEffect(() => {
     let cancelled = false;
@@ -298,13 +351,31 @@ const OwnerOrganizationsPage = () => {
     () => cities.find((city) => String(city.id) === form.business.cityId) ?? null,
     [cities, form.business.cityId],
   );
+  const hasInvalidBusinessEmail = Boolean(emailFormatError(form.business.contactEmail));
+  const hasInvalidAdministrativeEmail = form.administrativeContacts.some((contact) => Boolean(emailFormatError(contact.email)));
+  const hasInvalidCurrentStepEmail = activeStep === 0 ? hasInvalidBusinessEmail : activeStep === 1 ? hasInvalidAdministrativeEmail : false;
   const canSubmit = Boolean(template?.ready) && !submitting;
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      if (field !== "name" || typeof value !== "string") return { ...current, [field]: value };
+      const previousDefaults = buildSegmentationDefaults(current.name);
+      const nextDefaults = buildSegmentationDefaults(value);
+      return {
+        ...current,
+        [field]: value,
+        segmentation: {
+          tags: segmentationEdited.tags || current.segmentation.tags.join(",") !== previousDefaults.tags.join(",") ? current.segmentation.tags : nextDefaults.tags,
+          lists: segmentationEdited.lists || current.segmentation.lists.join(",") !== previousDefaults.lists.join(",") ? current.segmentation.lists : nextDefaults.lists,
+        },
+      };
+    });
   };
 
   const updateBusinessField = <K extends keyof FormState["business"]>(field: K, value: string) => {
+    if (field === "contactEmail") {
+      setEmailErrors((current) => ({ ...current, businessContactEmail: undefined }));
+    }
     setForm((current) => ({
       ...current,
       business: {
@@ -315,10 +386,10 @@ const OwnerOrganizationsPage = () => {
   };
 
   const updateCountryField = (countryId: string) => {
+    const nextCountry = countries.find((country) => String(country.id) === countryId) ?? null;
+    const nextPrefix = formatPhonePrefix(nextCountry?.phoneCode);
     setForm((current) => {
       const previousPrefix = current.business.phonePrefix || null;
-      const nextCountry = countries.find((country) => String(country.id) === countryId) ?? null;
-      const nextPrefix = formatPhonePrefix(nextCountry?.phoneCode);
       return {
         ...current,
         business: {
@@ -338,6 +409,27 @@ const OwnerOrganizationsPage = () => {
         })),
       };
     });
+    if (countryId && !nextPrefix) {
+      void locationsApi.getPhoneCode(Number(countryId)).then((phoneCode) => {
+        const fetchedPrefix = formatPhonePrefix(phoneCode);
+        if (!fetchedPrefix) return;
+        setForm((current) => {
+          if (current.business.countryId !== countryId) return current;
+          const previousPrefix = current.business.phonePrefix || null;
+          return {
+            ...current,
+            business: {
+              ...current.business,
+              phonePrefix: current.business.phonePrefix || fetchedPrefix,
+            },
+            administrativeContacts: current.administrativeContacts.map((contact) => ({
+              ...contact,
+              phonePrefix: propagatePhonePrefix(contact.phonePrefix, previousPrefix, fetchedPrefix),
+            })),
+          };
+        });
+      }).catch(() => undefined);
+    }
   };
 
   const updateStateField = (stateId: string) => {
@@ -369,11 +461,25 @@ const OwnerOrganizationsPage = () => {
   };
 
   const updateContact = (id: string, field: keyof AdministrativeContact, value: string) => {
+    if (field === "email") {
+      setEmailErrors((current) => ({
+        ...current,
+        administrativeContacts: { ...current.administrativeContacts, [id]: undefined },
+      }));
+    }
     setForm((current) => ({
       ...current,
-      administrativeContacts: current.administrativeContacts.map((contact) =>
-        contact.id === id ? { ...contact, [field]: value } : contact,
-      ),
+      administrativeContacts: current.administrativeContacts.map((contact) => {
+        if (contact.id !== id) return contact;
+        if (field === "email") {
+          const previousGeneratedUsername = buildLogtoUsernameFromEmail(contact.email);
+          const nextGeneratedUsername = buildLogtoUsernameFromEmail(value);
+          const shouldAutofillUsername = !contact.username || contact.username === previousGeneratedUsername;
+          return { ...contact, email: value, username: shouldAutofillUsername ? nextGeneratedUsername : contact.username };
+        }
+        if (field === "username") return { ...contact, username: normalizeLogtoUsername(value) };
+        return { ...contact, [field]: value };
+      }),
     }));
   };
 
@@ -391,6 +497,10 @@ const OwnerOrganizationsPage = () => {
   };
 
   const removeContact = (id: string) => {
+    setEmailErrors((current) => {
+      const { [id]: _removed, ...administrativeContacts } = current.administrativeContacts;
+      return { ...current, administrativeContacts };
+    });
     setForm((current) => {
       const next = current.administrativeContacts.filter((contact) => contact.id !== id);
       return {
@@ -401,12 +511,29 @@ const OwnerOrganizationsPage = () => {
     });
   };
 
+  const validateBusinessContactEmail = () => {
+    const error = emailFormatError(form.business.contactEmail);
+    setEmailErrors((current) => ({ ...current, businessContactEmail: error || undefined }));
+    return !error;
+  };
+
+  const validateContactEmail = (id: string) => {
+    const contact = form.administrativeContacts.find((entry) => entry.id === id);
+    const error = emailFormatError(contact?.email || "");
+    setEmailErrors((current) => ({
+      ...current,
+      administrativeContacts: { ...current.administrativeContacts, [id]: error || undefined },
+    }));
+    return !error;
+  };
+
   const validate = () => {
     const errors: string[] = [];
     if (!toSentence(form.name)) errors.push("Organization name is required.");
     if (!toSentence(form.appSubdomain)) errors.push("Application subdomain is required.");
     if (!toSentence(form.appBaseDomain)) errors.push("Application base domain is required.");
     if (!toSentence(form.adminDomain)) errors.push("Institutional provisioning domain is required.");
+    if (emailFormatError(form.business.contactEmail)) errors.push("Organization contact email has an invalid format.");
 
     const seenEmails = new Set<string>();
     form.administrativeContacts.forEach((contact, index) => {
@@ -424,6 +551,9 @@ const OwnerOrganizationsPage = () => {
       }
       const email = contact.email.trim().toLowerCase();
       if (email) {
+        if (emailFormatError(email)) {
+          errors.push(`Administrative contact ${index + 1}: email format is invalid.`);
+        }
         if (seenEmails.has(email)) {
           errors.push(`Administrative contact ${index + 1}: email ${email} is duplicated.`);
         }
@@ -458,7 +588,7 @@ const OwnerOrganizationsPage = () => {
       },
       contact: {
         email: form.business.contactEmail.trim().toLowerCase() || undefined,
-        phone: [form.business.phonePrefix.trim(), form.business.phoneNumber.trim()].filter(Boolean).join(" ") || undefined,
+        phone: buildPhoneFromParts(form.business.phonePrefix, form.business.phoneNumber),
         owner: primaryOwnerName || undefined,
       },
       business: {
@@ -499,7 +629,7 @@ const OwnerOrganizationsPage = () => {
         firstSurname: contact.firstSurname.trim(),
         secondSurname: contact.secondSurname.trim() || undefined,
         email: contact.email.trim().toLowerCase(),
-        phone: [contact.phonePrefix.trim(), contact.phoneNumber.trim()].filter(Boolean).join(" ") || undefined,
+        phone: buildPhoneFromParts(contact.phonePrefix, contact.phoneNumber),
         phoneExtension: contact.phoneExtension.trim() || undefined,
         position: contact.position.trim() || undefined,
         organizationRoleName: contact.organizationRoleName,
@@ -619,6 +749,8 @@ const OwnerOrganizationsPage = () => {
             updateStateField={updateStateField}
             updateCityField={updateCityField}
             locationsError={locationsError}
+            emailError={emailErrors.businessContactEmail}
+            onContactEmailBlur={validateBusinessContactEmail}
             inputClassName={inputClassName}
           />
         ) : null}
@@ -631,24 +763,26 @@ const OwnerOrganizationsPage = () => {
             updateContact={updateContact}
             addContact={addContact}
             removeContact={removeContact}
+            emailErrors={emailErrors.administrativeContacts}
+            onEmailBlur={validateContactEmail}
             inputClassName={inputClassName}
           />
         ) : null}
 
         {activeStep === 2 ? (
-          <StepSegmentation form={form} setForm={setForm} inputClassName={inputClassName} />
+          <StepSegmentation form={form} setForm={setForm} setSegmentationEdited={setSegmentationEdited} inputClassName={inputClassName} />
         ) : null}
 
         {activeStep === 3 ? (
-          <StepReview form={form} template={template} templateLoading={templateLoading} submitError={submitError} />
+          <StepReview form={form} template={template} templateLoading={templateLoading} submitError={submitError} selectedCountry={selectedCountry} selectedRegion={selectedRegion} selectedCity={selectedCity} onEditStep={setActiveStep} />
         ) : null}
 
         <ActionBar sticky>
           <StatusPill status={templateStatus} noDot>Template: {templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</StatusPill>
           <div className="civitas-action-bar">
             <button type="button" className={secondaryButtonClassName} onClick={goBack} disabled={activeStep === 0}>Back</button>
-            {!isLastStep ? <button type="button" className={primaryButtonClassName} onClick={goNext}>{draftSaving ? "Saving draft..." : "Save draft & next"}</button> : null}
-            {isLastStep ? <button type="submit" disabled={!canSubmit} className={primaryButtonClassName}>{submitting ? "Creating organization..." : "Create organization"}</button> : null}
+            {!isLastStep ? <button type="button" className={primaryButtonClassName} onClick={goNext} disabled={hasInvalidCurrentStepEmail}>{draftSaving ? "Saving draft..." : "Save draft & next"}</button> : null}
+            {isLastStep ? <button type="submit" disabled={!canSubmit || hasInvalidBusinessEmail || hasInvalidAdministrativeEmail} className={primaryButtonClassName}>{submitting ? "Creating organization..." : "Create organization"}</button> : null}
           </div>
         </ActionBar>
       </form>
@@ -661,10 +795,10 @@ type UpdateField = <K extends keyof FormState>(field: K, value: FormState[K]) =>
 type UpdateBusinessField = <K extends keyof FormState["business"]>(field: K, value: string) => void;
 
 
-const StepOrganization = (props: { form: FormState; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateField: UpdateField; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => (
+const StepOrganization = (props: { form: FormState; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateField: UpdateField; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; emailError?: string; onContactEmailBlur: () => void; inputClassName: string }) => (
   <div className="civitas-stack">
     <StepCanonicalOrganization form={props.form} adminRoleOptions={props.adminRoleOptions} templateLoading={props.templateLoading} updateField={props.updateField} inputClassName={props.inputClassName} />
-    <StepBusinessProfile form={props.form} countries={props.countries} regionOptions={props.regionOptions} cityOptions={props.cityOptions} updateBusinessField={props.updateBusinessField} updateCountryField={props.updateCountryField} updateStateField={props.updateStateField} updateCityField={props.updateCityField} locationsError={props.locationsError} inputClassName={props.inputClassName} />
+    <StepBusinessProfile form={props.form} countries={props.countries} regionOptions={props.regionOptions} cityOptions={props.cityOptions} updateBusinessField={props.updateBusinessField} updateCountryField={props.updateCountryField} updateStateField={props.updateStateField} updateCityField={props.updateCityField} locationsError={props.locationsError} emailError={props.emailError} onContactEmailBlur={props.onContactEmailBlur} inputClassName={props.inputClassName} />
   </div>
 );
 
@@ -682,21 +816,25 @@ const StepCanonicalOrganization = ({ form, adminRoleOptions, templateLoading, up
   </SectionCard>
 );
 
-const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, updateCityField, locationsError, inputClassName }: { form: FormState; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; inputClassName: string }) => {
+const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, updateBusinessField, updateCountryField, updateStateField, updateCityField, locationsError, emailError, onContactEmailBlur, inputClassName }: { form: FormState; countries: readonly CountryOption[]; regionOptions: readonly StateOption[]; cityOptions: readonly CityOption[]; updateBusinessField: UpdateBusinessField; updateCountryField: (countryId: string) => void; updateStateField: (stateId: string) => void; updateCityField: (cityId: string) => void; locationsError: string | null; emailError?: string; onContactEmailBlur: () => void; inputClassName: string }) => {
   const shouldShowManualCityFallback = Boolean(locationsError || (form.business.stateId && cityOptions.length === 0) || (!form.business.cityId && form.business.manualCity));
   return (
   <SectionCard title="Profile fields" description="Populate custom data attached to the canonical organization record.">
     <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists from the operational location catalog.</AlertStrip>
     {locationsError ? <AlertStrip variant="warning" title="Location catalog unavailable">The catalog could not be loaded. You can continue with manual city/address fields. {locationsError}</AlertStrip> : null}
     <div className="civitas-form-grid">
-      <FormField id="business-contact-email" label="Contact email"><input id="business-contact-email" className={inputClassName} type="email" value={form.business.contactEmail} onChange={(event) => updateBusinessField("contactEmail", event.target.value)} /></FormField>
+      <FormField id="business-contact-email" label="Contact email" error={emailError}><input id="business-contact-email" className={inputClassName} type="email" value={form.business.contactEmail} onChange={(event) => updateBusinessField("contactEmail", event.target.value)} onBlur={onContactEmailBlur} /></FormField>
       <FormField id="business-website" label="Website"><input id="business-website" className={inputClassName} value={form.business.website} onChange={(event) => updateBusinessField("website", event.target.value)} /></FormField>
       <FormField id="business-country" label="Country"><select id="business-country" className={inputClassName} value={form.business.countryId} onChange={(event) => updateCountryField(event.target.value)}><option value="">Select country</option>{countries.map((country) => <option key={country.id} value={country.id}>{country.emoji ? `${country.emoji} ` : ""}{country.name}</option>)}</select></FormField>
       <FormField id="business-state" label="State / region"><select id="business-state" className={inputClassName} value={form.business.stateId} onChange={(event) => updateStateField(event.target.value)} disabled={!form.business.countryId || regionOptions.length === 0}><option value="">Select state / region</option>{regionOptions.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}</select></FormField>
       <FormField id="business-city" label="City"><select id="business-city" className={inputClassName} value={form.business.cityId} onChange={(event) => updateCityField(event.target.value)} disabled={!form.business.stateId || cityOptions.length === 0}><option value="">Select city</option>{cityOptions.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}</select></FormField>
       {shouldShowManualCityFallback ? <FormField id="business-manual-city" label="Manual city fallback (optional)"><input id="business-manual-city" className={inputClassName} value={form.business.manualCity} onChange={(event) => updateBusinessField("manualCity", event.target.value)} placeholder="Use only when the city is missing from the catalog" /></FormField> : null}
-      <FormField id="business-phone-prefix" label="Organization phone prefix"><input id="business-phone-prefix" className={inputClassName} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" /></FormField>
-      <FormField id="business-phone-number" label="Organization phone number"><input id="business-phone-number" className={inputClassName} value={form.business.phoneNumber} onChange={(event) => updateBusinessField("phoneNumber", event.target.value)} placeholder="3001234567" /></FormField>
+      <FormField id="business-phone-prefix" label="Organization phone">
+        <div className="civitas-phone-row">
+          <input id="business-phone-prefix" className={`${inputClassName} civitas-phone-prefix-field`} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" aria-label="Organization phone prefix" />
+          <input id="business-phone-number" className={`${inputClassName} civitas-phone-number-field`} value={form.business.phoneNumber} onChange={(event) => updateBusinessField("phoneNumber", event.target.value)} placeholder="3001234567" aria-label="Organization phone number" />
+        </div>
+      </FormField>
       <FormField id="postal-code" label="Postal code"><input id="postal-code" className={inputClassName} value={form.business.postalCode} onChange={(event) => updateBusinessField("postalCode", event.target.value)} /></FormField>
       <FormField id="employee-count" label="Number of employees"><input id="employee-count" className={inputClassName} value={form.business.numberOfEmployees} onChange={(event) => updateBusinessField("numberOfEmployees", event.target.value)} /></FormField>
       <FormField id="industry" label="Industry"><input id="industry" className={inputClassName} value={form.business.industry} onChange={(event) => updateBusinessField("industry", event.target.value)} /></FormField>
@@ -712,7 +850,7 @@ const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, upda
 };
 
 
-const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateContact, addContact, removeContact, inputClassName }: { contacts: AdministrativeContact[]; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateContact: (id: string, field: keyof AdministrativeContact, value: string) => void; addContact: () => void; removeContact: (id: string) => void; inputClassName: string }) => (
+const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateContact, addContact, removeContact, emailErrors, onEmailBlur, inputClassName }: { contacts: AdministrativeContact[]; adminRoleOptions: OrganizationTemplateRole[]; templateLoading: boolean; updateContact: (id: string, field: keyof AdministrativeContact, value: string) => void; addContact: () => void; removeContact: (id: string) => void; emailErrors: Record<string, string | undefined>; onEmailBlur: (id: string) => void; inputClassName: string }) => (
   <SectionCard title="User bootstrap" description="Provision or resolve Logto users, add them to the organization and assign roles.">
     <div className="civitas-stack">
       {contacts.map((contact, index) => (
@@ -722,9 +860,13 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
             <FormField id={`${contact.id}-middle-name`} label="Middle name"><input id={`${contact.id}-middle-name`} className={inputClassName} value={contact.middleName} onChange={(event) => updateContact(contact.id, "middleName", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-first-surname`} label="First surname" required><input id={`${contact.id}-first-surname`} className={inputClassName} value={contact.firstSurname} onChange={(event) => updateContact(contact.id, "firstSurname", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-second-surname`} label="Second surname"><input id={`${contact.id}-second-surname`} className={inputClassName} value={contact.secondSurname} onChange={(event) => updateContact(contact.id, "secondSurname", event.target.value)} /></FormField>
-            <FormField id={`${contact.id}-email`} label="Email" required><input id={`${contact.id}-email`} className={inputClassName} type="email" value={contact.email} onChange={(event) => updateContact(contact.id, "email", event.target.value)} /></FormField>
-            <FormField id={`${contact.id}-phone-prefix`} label="User phone prefix"><input id={`${contact.id}-phone-prefix`} className={inputClassName} value={contact.phonePrefix} onChange={(event) => updateContact(contact.id, "phonePrefix", event.target.value)} placeholder="+57" /></FormField>
-            <FormField id={`${contact.id}-phone`} label="User phone number"><input id={`${contact.id}-phone`} className={inputClassName} value={contact.phoneNumber} onChange={(event) => updateContact(contact.id, "phoneNumber", event.target.value)} /></FormField>
+            <FormField id={`${contact.id}-email`} label="Email" required error={emailErrors[contact.id]}><input id={`${contact.id}-email`} className={inputClassName} type="email" value={contact.email} onChange={(event) => updateContact(contact.id, "email", event.target.value)} onBlur={() => onEmailBlur(contact.id)} /></FormField>
+            <FormField id={`${contact.id}-phone-prefix`} label="User phone">
+              <div className="civitas-phone-row">
+                <input id={`${contact.id}-phone-prefix`} className={`${inputClassName} civitas-phone-prefix-field`} value={contact.phonePrefix} onChange={(event) => updateContact(contact.id, "phonePrefix", event.target.value)} placeholder="+57" aria-label="User phone prefix" />
+                <input id={`${contact.id}-phone`} className={`${inputClassName} civitas-phone-number-field`} value={contact.phoneNumber} onChange={(event) => updateContact(contact.id, "phoneNumber", event.target.value)} aria-label="User phone number" />
+              </div>
+            </FormField>
             <FormField id={`${contact.id}-extension`} label="Extension"><input id={`${contact.id}-extension`} className={inputClassName} value={contact.phoneExtension} onChange={(event) => updateContact(contact.id, "phoneExtension", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-position`} label="Position"><input id={`${contact.id}-position`} className={inputClassName} value={contact.position} onChange={(event) => updateContact(contact.id, "position", event.target.value)} /></FormField>
             <FormField id={`${contact.id}-role`} label="Organization role" required><select id={`${contact.id}-role`} className={inputClassName} value={contact.organizationRoleName} onChange={(event) => updateContact(contact.id, "organizationRoleName", event.target.value)} disabled={templateLoading || adminRoleOptions.length === 0}><option value="">Select Logto organization role</option>{adminRoleOptions.map((role) => <option key={`${contact.id}-${role.id}`} value={role.name}>{role.name}</option>)}</select></FormField>
@@ -737,25 +879,96 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
   </SectionCard>
 );
 
-const StepSegmentation = ({ form, setForm, inputClassName }: { form: FormState; setForm: Dispatch<SetStateAction<FormState>>; inputClassName: string }) => (
-  <SectionCard title="Tags and lists" description="Store clean segmentation metadata for later connector orchestration.">
+const StepSegmentation = ({ form, setForm, setSegmentationEdited, inputClassName }: { form: FormState; setForm: Dispatch<SetStateAction<FormState>>; setSegmentationEdited: Dispatch<SetStateAction<{ tags: boolean; lists: boolean }>>; inputClassName: string }) => (
+  <SectionCard title="Tags and lists" description="Store clean segmentation metadata for later connector orchestration. Civitas auto-builds onboarding defaults from the organization name; you can edit or remove them before submit.">
     <div className="civitas-form-grid">
-      <FormField id="segmentation-tags" label="Tags"><input id="segmentation-tags" className={inputClassName} value={form.segmentation.tags.join(", ")} onChange={(event) => setForm((current) => ({ ...current, segmentation: { ...current.segmentation, tags: parseDelimitedValues(event.target.value) } }))} placeholder="school, k12, premium" /></FormField>
-      <FormField id="segmentation-lists" label="Lists"><input id="segmentation-lists" className={inputClassName} value={form.segmentation.lists.join(", ")} onChange={(event) => setForm((current) => ({ ...current, segmentation: { ...current.segmentation, lists: parseDelimitedValues(event.target.value) } }))} placeholder="north-region, onboarding" /></FormField>
+      <FormField id="segmentation-tags" label="Tags"><input id="segmentation-tags" className={inputClassName} value={form.segmentation.tags.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, tags: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, tags: parseDelimitedValues(event.target.value) } })); }} placeholder="La W" /></FormField>
+      <FormField id="segmentation-lists" label="Lists"><input id="segmentation-lists" className={inputClassName} value={form.segmentation.lists.join(", ")} onChange={(event) => { setSegmentationEdited((current) => ({ ...current, lists: true })); setForm((current) => ({ ...current, segmentation: { ...current.segmentation, lists: parseDelimitedValues(event.target.value) } })); }} placeholder="La W" /></FormField>
     </div>
   </SectionCard>
 );
 
-const StepReview = ({ form, template, templateLoading, submitError }: { form: FormState; template: OrganizationTemplateResponse | null; templateLoading: boolean; submitError: string | null }) => (
-  <SectionCard title="Final confirmation" description="Review canonical organization, users, segmentation and template readiness before provisioning.">
-    <div className="civitas-grid-2">
-      <div><strong>Organization</strong><p>{form.name || "Unnamed organization"}</p><p>{form.appSubdomain && form.appBaseDomain ? `${form.appSubdomain}.${form.appBaseDomain}` : "Entry URL pending"}</p></div>
-      <div><strong>Template</strong><p>{templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</p>{!templateLoading && template && (template.missingRoleNames || []).length > 0 ? <p>Missing roles: {(template.missingRoleNames || []).join(", ")}</p> : null}</div>
-      <div><strong>Administrative users</strong><p>{form.administrativeContacts.length} contact(s)</p></div>
-      <div><strong>Segmentation</strong><p>Tags: {form.segmentation.tags.join(", ") || "-"}</p><p>Lists: {form.segmentation.lists.join(", ") || "-"}</p></div>
-    </div>
-    {submitError ? <AlertStrip variant="danger" title="Cannot submit organization">{submitError}</AlertStrip> : null}
-  </SectionCard>
+const ReviewFields = ({ fields }: { fields: ReviewField[] }) => (
+  <dl className="civitas-review-fields">
+    {fields.map((field) => {
+      const missing = isMissingRequiredReviewField(field);
+      const value = toSentence(field.value) || (field.required ? emptyValue : optionalValue);
+      return (
+        <div key={field.label} className="civitas-review-field" data-missing={missing}>
+          <dt>{field.label}</dt>
+          <dd>{value}</dd>
+        </div>
+      );
+    })}
+  </dl>
+);
+
+const fullName = (contact: AdministrativeContact) =>
+  [contact.firstName, contact.middleName, contact.firstSurname, contact.secondSurname].map(toSentence).filter(Boolean).join(" ");
+
+const StepReview = ({ form, template, templateLoading, submitError, selectedCountry, selectedRegion, selectedCity, onEditStep }: { form: FormState; template: OrganizationTemplateResponse | null; templateLoading: boolean; submitError: string | null; selectedCountry: CountryOption | null; selectedRegion: StateOption | null; selectedCity: CityOption | null; onEditStep: (step: number) => void }) => (
+  <div className="civitas-stack">
+    <SectionCard title="Final confirmation" description="Review the exact data that will be submitted. Empty required fields are highlighted." actions={<StatusPill status={templateLoading ? "unknown" : template?.ready ? "success" : "warning"} noDot>Template: {templateLoading ? "loading" : template?.ready ? "ready" : "not ready"}</StatusPill>}>
+      {template && (template.missingRoleNames || []).length > 0 ? <AlertStrip variant="warning" title="Template roles missing">Missing roles: {(template.missingRoleNames || []).join(", ")}</AlertStrip> : null}
+      {submitError ? <AlertStrip variant="danger" title="Cannot submit organization">{submitError}</AlertStrip> : null}
+    </SectionCard>
+
+    <SectionCard title="Organization" description="Canonical identity, routing and provisioning defaults." actions={<button type="button" className={secondaryButtonClassName} onClick={() => onEditStep(0)}>Editar</button>}>
+      <ReviewFields fields={[
+        { label: "Organization name", value: form.name, required: true },
+        { label: "Application subdomain", value: form.appSubdomain, required: true },
+        { label: "Application base domain", value: form.appBaseDomain, required: true },
+        { label: "Institutional provisioning domain", value: form.adminDomain, required: true },
+        { label: "JIT default role", value: form.jitDefaultRoleName },
+        { label: "Description", value: form.description },
+      ]} />
+    </SectionCard>
+
+    <SectionCard title="Business profile" description="Operational custom data attached to the organization." actions={<button type="button" className={secondaryButtonClassName} onClick={() => onEditStep(0)}>Editar</button>}>
+      <ReviewFields fields={[
+        { label: "Website", value: form.business.website },
+        { label: "Country", value: selectedCountry?.name || form.business.country },
+        { label: "State / region", value: selectedRegion?.name || form.business.state },
+        { label: "City", value: selectedCity?.name || form.business.manualCity || form.business.city },
+        { label: "NIT", value: form.business.nit },
+        { label: "Verification digit", value: form.business.verificationDigit },
+        { label: "Phone", value: buildPhoneFromParts(form.business.phonePrefix, form.business.phoneNumber) || "" },
+        { label: "Contact email", value: form.business.contactEmail },
+        { label: "Postal code", value: form.business.postalCode },
+        { label: "Industry", value: form.business.industry },
+        { label: "Organization type", value: form.business.type },
+        { label: "Number of employees", value: form.business.numberOfEmployees },
+        { label: "Address line 1", value: form.business.addressLine1 },
+        { label: "Address line 2", value: form.business.addressLine2 },
+        { label: "About", value: form.business.about },
+      ]} />
+    </SectionCard>
+
+    <SectionCard title="Administrative users" description="Every user that will be provisioned or resolved and attached to the organization." actions={<button type="button" className={secondaryButtonClassName} onClick={() => onEditStep(1)}>Editar</button>}>
+      <div className="civitas-stack-sm">
+        {form.administrativeContacts.map((contact, index) => (
+          <SectionCard key={contact.id} title={`Administrative contact ${index + 1}`}>
+            <ReviewFields fields={[
+              { label: "Full name", value: fullName(contact), required: true },
+              { label: "Email", value: contact.email, required: true },
+              { label: "Phone", value: buildPhoneFromParts(contact.phonePrefix, contact.phoneNumber) || "" },
+              { label: "Extension", value: contact.phoneExtension },
+              { label: "Position", value: contact.position },
+              { label: "Role", value: contact.organizationRoleName, required: true },
+              { label: "Username", value: contact.username },
+            ]} />
+          </SectionCard>
+        ))}
+      </div>
+    </SectionCard>
+
+    <SectionCard title="Segmentation" description="Tags and lists that will seed connector and onboarding segmentation." actions={<button type="button" className={secondaryButtonClassName} onClick={() => onEditStep(2)}>Editar</button>}>
+      <ReviewFields fields={[
+        { label: "Tags", value: form.segmentation.tags.join(", ") },
+        { label: "Lists", value: form.segmentation.lists.join(", ") },
+      ]} />
+    </SectionCard>
+  </div>
 );
 
 export default OwnerOrganizationsPage;
