@@ -13,6 +13,9 @@
   z-index: var(--civitas-z-topbar);
   border-bottom: var(--civitas-border-width) solid var(--civitas-border);
   height: var(--civitas-topbar-height);
+  min-height: var(--civitas-topbar-height);
+  max-height: var(--civitas-topbar-height);
+  flex: 0 0 var(--civitas-topbar-height);
   background: var(--topbar-bg);
   box-shadow: var(--topbar-shadow);
 }

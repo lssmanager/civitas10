@@ -122,9 +122,14 @@ test("shell topbar uses the canonical flex-between layout tokens", () => {
   assert.equal(rootTokenValue("--topbar-gap-mobile"), "var(--civitas-space-2)");
   assert.equal(rootTokenValue("--civitas-content-max-width"), "var(--topbar-max-width)");
 
+  const shellTopbarBlock = selectorBlock(layoutCss, ".civitas-topbar");
   const topbarBlock = selectorBlock(layoutCss, ".civitas-topbar-inner");
   const leftBlock = selectorBlock(layoutCss, ".civitas-topbar-left,\n.civitas-topbar-center,\n.civitas-topbar-right");
   const centerBlock = selectorBlock(layoutCss, ".civitas-topbar-center");
+  assert.equal(declarationValue(shellTopbarBlock, "height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "min-height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "max-height"), "var(--civitas-topbar-height)");
+  assert.equal(declarationValue(shellTopbarBlock, "flex"), "0 0 var(--civitas-topbar-height)");
   assert.equal(declarationValue(topbarBlock, "justify-content"), "space-between");
   assert.equal(declarationValue(topbarBlock, "padding"), "var(--topbar-padding-desktop)");
   assert.doesNotMatch(layoutCss, /@media \(max-width: (?:1024|768)px\) \{[\s\S]*?\.civitas-topbar\s*\{[\s\S]*?height:/s);
