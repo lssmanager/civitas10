@@ -125,22 +125,18 @@
   --civitas-breakpoint-xl: 1280px;
 
 
+  /* Civitas structural state component tokens: page alerts, empty states, loading and field errors. */
   --civitas-layout-padding-x: var(--civitas-shell-inline-padding);
-  --spacing-inset-lg: var(--civitas-space-6);
-  --motion-duration-slow: 1.2s;
-
-  /* Structural state component tokens: page alerts, empty states, loading and field errors. */
-  --color-feedback-error: var(--civitas-danger-strong);
-  --border-feedback-error: var(--civitas-danger-strong);
-  --color-feedback-error-surface: var(--civitas-danger-soft);
-  --border-error-strong: var(--border-feedback-error);
-  --text-feedback-error: var(--color-feedback-error);
-  --icon-feedback-error: var(--color-feedback-error);
-  --border-color-error: var(--civitas-danger-strong);
-  --text-field-helper-error: var(--civitas-danger-strong);
-  --color-foreground-subtle: var(--civitas-muted);
-  --action-link-primary: var(--civitas-primary);
-  --color-background-skeleton: var(--civitas-surface-subtle);
+  --civitas-state-inset-lg: var(--civitas-space-6);
+  --civitas-state-motion-duration-slow: 1.2s;
+  --civitas-feedback-error: var(--civitas-danger-strong);
+  --civitas-feedback-error-surface: var(--civitas-danger-soft);
+  --civitas-feedback-error-border: var(--civitas-danger-strong);
+  --civitas-field-error-border: var(--civitas-danger-strong);
+  --civitas-field-helper-error: var(--civitas-danger-strong);
+  --civitas-state-foreground-subtle: var(--civitas-muted);
+  --civitas-state-action-link: var(--civitas-primary);
+  --civitas-loading-skeleton-bg: var(--civitas-surface-subtle);
 
   --civitas-z-topbar: 20;
   --civitas-z-sticky-action: 30;

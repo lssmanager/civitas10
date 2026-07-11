@@ -190,7 +190,7 @@ textarea.owner-field {
 
 .civitas-form-field-required,
 .civitas-form-field-error {
-  color: var(--text-field-helper-error);
+  color: var(--civitas-field-helper-error);
 }
 
 .civitas-form-field-hint,
@@ -208,7 +208,7 @@ textarea.owner-field {
 
 .civitas-field[aria-invalid="true"],
 .civitas-field[data-invalid="true"] {
-  border-color: var(--border-color-error);
+  border-color: var(--civitas-field-error-border);
 }
 
 .civitas-alert,
@@ -256,7 +256,7 @@ textarea.owner-field {
 }
 
 .civitas-state-actions :is(a, button:not([class])) {
-  color: var(--action-link-primary);
+  color: var(--civitas-state-action-link);
 }
 
 .civitas-alert-info,
@@ -285,10 +285,10 @@ textarea.owner-field {
 
 .civitas-alert-danger,
 .owner-banner-critical {
-  --civitas-alert-bg: var(--color-feedback-error-surface);
-  --civitas-alert-border: var(--border-error-strong);
-  --civitas-alert-text: var(--text-feedback-error);
-  --civitas-alert-title: var(--text-feedback-error);
+  --civitas-alert-bg: var(--civitas-feedback-error-surface);
+  --civitas-alert-border: var(--civitas-feedback-error-border);
+  --civitas-alert-text: var(--civitas-feedback-error);
+  --civitas-alert-title: var(--civitas-feedback-error);
 }
 
 .civitas-alert-neutral,
@@ -318,7 +318,7 @@ textarea.owner-field {
 @media (min-width: 1024px) {
   .civitas-alert,
   .owner-banner {
-    padding: var(--spacing-inset-lg);
+    padding: var(--civitas-state-inset-lg);
     font-size: var(--civitas-font-sm);
   }
 }
@@ -401,7 +401,7 @@ textarea.owner-field {
   border-radius: var(--civitas-radius-md);
   background: var(--civitas-surface-subtle);
   padding: var(--civitas-space-3);
-  color: var(--color-foreground-subtle);
+  color: var(--civitas-state-foreground-subtle);
   font-size: max(0.85rem, var(--civitas-font-xs));
   line-height: 1.25rem;
   text-align: center;
@@ -798,16 +798,16 @@ textarea.owner-field {
   justify-content: center;
   align-items: center;
   padding: var(--civitas-space-3);
-  color: var(--color-foreground-subtle);
+  color: var(--civitas-state-foreground-subtle);
 }
 
 .civitas-loading-spinner {
   width: var(--civitas-space-8);
   height: var(--civitas-space-8);
-  border: var(--civitas-border-width) solid var(--color-background-skeleton);
+  border: var(--civitas-border-width) solid var(--civitas-loading-skeleton-bg);
   border-bottom-color: var(--civitas-primary);
   border-radius: var(--civitas-radius-pill);
-  animation: civitas-loading-spin var(--motion-duration-slow) linear infinite;
+  animation: civitas-loading-spin var(--civitas-state-motion-duration-slow) linear infinite;
 }
 
 @keyframes civitas-loading-spin {
@@ -832,7 +832,17 @@ textarea.owner-field {
   .civitas-state,
   .owner-state,
   .civitas-loading-state {
-    padding: var(--spacing-inset-lg);
+    padding: var(--civitas-state-inset-lg);
     font-size: var(--civitas-font-sm);
   }
+}
+
+
+.civitas-state-region {
+  width: 100%;
+  max-width: 100%;
+}
+
+.civitas-state-region .civitas-alert {
+  margin: 0;
 }
