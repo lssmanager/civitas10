@@ -172,6 +172,7 @@ test("sidebar nav geometry computes from one canonical token family", () => {
 
   const header = readDeclarations(".civitas-sidebar-header");
   const collapsedHeader = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-header");
+  const sidebarNav = readDeclarations(".civitas-sidebar .civitas-primary-nav");
   const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
   const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
   const collapsedParent = { ...parent, ...readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link") };
@@ -187,6 +188,8 @@ test("sidebar nav geometry computes from one canonical token family", () => {
 
   const collapsedHeaderPadding = toRemNumber(collapsedHeader["padding-left"]);
 
+  assert.equal(sidebarNav["align-items"], "stretch", "sidebar nav must override the generic top-nav center alignment");
+  assert.equal(parent.width, "100%", "sidebar nav rows must fill the nav column before padding is computed");
   assert.equal(headerPadding, basePadding);
   assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);

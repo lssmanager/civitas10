@@ -339,6 +339,7 @@
   display: flex;
   min-height: 0;
   flex-direction: column;
+  align-items: stretch;
   gap: var(--civitas-nav-item-gap);
   overflow: visible;
 }
@@ -347,6 +348,7 @@
   --civitas-nav-depth-offset: 0rem;
 
   display: grid;
+  width: 100%;
   min-height: var(--civitas-nav-item-height);
   grid-template-columns: var(--civitas-nav-icon-column) minmax(0, 1fr) var(--civitas-nav-chevron-column);
   align-items: center;
