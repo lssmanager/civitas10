@@ -290,8 +290,13 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 
 #### Sidebar navigation
 
-- `--civitas-nav-bg` (canonical)
-- `--civitas-nav-border` (canonical)
+- `--civitas-nav-shell-bg` (canonical)
+- `--civitas-nav-shell-border` (canonical)
+- `--civitas-nav-shell-text` (canonical)
+- `--civitas-nav-shell-muted` (canonical)
+- `--civitas-nav-shell-brand-bg` (canonical)
+- `--civitas-nav-bg` (alias to `--civitas-nav-shell-bg`)
+- `--civitas-nav-border` (alias to `--civitas-nav-shell-border`)
 - `--civitas-nav-item-bg` (canonical)
 - `--civitas-nav-item-bg-hover` (canonical)
 - `--civitas-nav-item-bg-active` (canonical)
@@ -305,6 +310,9 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-nav-collapse-bg-hover` (canonical)
 - `--civitas-nav-collapse-icon` (canonical)
 - `--civitas-nav-focus-ring` (canonical)
+- `--civitas-nav-flyout-bg` (canonical)
+- `--civitas-nav-flyout-border` (canonical)
+- `--civitas-nav-flyout-shadow` (canonical)
 
 
 ### 4.3 Floating layer: popover, flyout, tooltip
@@ -505,7 +513,7 @@ Esto queda documentado para que la library no derive con el tiempo.
 
 El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/layout.css` y wrapper React en `frontend/src/shared/ui/NavCollapse.tsx`.
 
-- Fondo del sidebar: `--civitas-nav-bg`; separación: `--civitas-nav-border`. No se permiten gradientes, glassmorphism ni sombras ornamentales en el shell.
+- Fondo del sidebar: `--civitas-nav-shell-bg`; separación: `--civitas-nav-shell-border`; texto base: `--civitas-nav-shell-text`; texto/iconografía secundaria: `--civitas-nav-shell-muted`; marca/header lateral: `--civitas-nav-shell-brand-bg`. En light theme esta superficie mantiene identidad lateral propia y no hereda el blanco genérico de `--civitas-surface`. No se permiten gradientes, glassmorphism ni sombras ornamentales en el shell.
 - Item base: `--civitas-nav-item-bg`, `--civitas-nav-item-text`, `--civitas-nav-item-icon`, `--civitas-nav-item-height`, `--civitas-nav-icon-size`, `--civitas-nav-icon-column`, `--civitas-nav-chevron-column`, `--civitas-nav-item-gap`, `--civitas-nav-padding-inline`, `--civitas-nav-gutter-inline` y `--civitas-radius-md`.
 - Retícula interna: cada item usa columnas fijas `icon / label / trailing`; el inicio del label queda gobernado por `--civitas-nav-gutter-inline + --civitas-nav-icon-column + --civitas-nav-item-gap`, y el chevron por `--civitas-nav-chevron-column`.
 - Jerarquía: `NavCollapse` emite `data-depth`, `data-active`, `data-expanded` y `data-has-children`; depth 0 no suma indent, depth 1 suma `--civitas-nav-indent-step`, y depth 2 suma dos veces ese token. La indentación mueve la retícula completa del item, no solo el texto.
@@ -516,7 +524,17 @@ El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/la
 - Scroll desktop: `civitas-sidebar` es el shell visual con altura `100vh` + `--civitas-viewport-height` y `overflow: hidden`; la región que scrollea es `civitas-sidebar .civitas-nav-row`, con `min-height: 0`, `overflow-y: auto` y `--civitas-nav-scroll-padding`.
 - Scroll tablet/mobile: el drawer fixed usa `--civitas-sidebar-mobile-width`, `100vh` + `--civitas-nav-mobile-max-height`, `overflow: hidden` y conserva `civitas-nav-row` como única región vertical scrolleable del menú. Esto evita que un body/root lock bloquee el scroll interno del panel.
 - Focus-visible: `--civitas-nav-focus-ring`; disabled: `--civitas-disabled`.
-- Flyout collapsed: `--civitas-popover-bg`, `--civitas-popover-border`, `--civitas-popover-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset`, `--civitas-z-nav-flyout`, `--civitas-nav-flyout-min-width` y `--civitas-nav-flyout-max-width`; es opaco, no usa `surface-translucent`, y no puede mostrarse junto con tooltip en el mismo trigger.
+- Flyout collapsed: `--civitas-nav-flyout-bg`, `--civitas-nav-flyout-border`, `--civitas-nav-flyout-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset`, `--civitas-z-nav-flyout`, `--civitas-nav-flyout-min-width` y `--civitas-nav-flyout-max-width`; es opaco, no usa `surface-translucent`, y no puede mostrarse junto con tooltip en el mismo trigger.
+
+
+#### Máquina de estados del sidebar
+
+- `expanded`: `data-civitas-sidebar-state="expanded"`; el shell usa `--civitas-sidebar-width`, labels visibles y navegación inline.
+- `collapsed`: `data-civitas-sidebar-state="collapsed"`; el shell usa `--civitas-sidebar-collapsed-width`, labels ocultos en el rail principal y navegación mínima por iconos.
+- `flyout-open`: estado efímero CSS (`:hover` / `:focus-within`) disponible solo bajo `.civitas-shell-sidebar-collapsed`; abre un panel contextual del item, no cambia `data-civitas-sidebar-state`, no modifica la preferencia persistida y no empuja el layout principal.
+- `mobile-open`: `data-civitas-sidebar-mobile-state="mobile-open"`; drawer visible en mobile/tablet, independiente de la preferencia desktop `expanded/collapsed`.
+
+Regla de transición: solo `civitas-sidebar-toggle` puede persistir el cambio `expanded <-> collapsed`. Abrir un flyout o abrir/cerrar el drawer mobile no escribe la preferencia desktop y no puede reexpandir el shell colapsado.
 
 Este contrato aplica en light y dark theme. Cualquier cambio futuro del menú debe ajustar primero estos tokens o primitives; no se aceptan estilos locales ni inline styles para identidad visual.
 

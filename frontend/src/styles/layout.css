@@ -258,9 +258,9 @@
   overflow: hidden;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  border-right: var(--civitas-border-width) solid var(--civitas-nav-border);
-  background: var(--civitas-nav-bg);
-  color: var(--civitas-nav-item-text);
+  border-right: var(--civitas-border-width) solid var(--civitas-nav-shell-border);
+  background: var(--civitas-nav-shell-bg);
+  color: var(--civitas-nav-shell-text);
   transition: width 180ms ease, flex-basis 180ms ease;
 }
 
@@ -287,6 +287,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--civitas-space-3);
+  background: var(--civitas-nav-shell-brand-bg);
   padding: var(--civitas-space-4);
 }
 
@@ -534,12 +535,12 @@
   overflow-y: auto;
   clip: auto;
   gap: var(--civitas-space-1);
-  border: var(--civitas-border-width) solid var(--civitas-popover-border);
+  border: var(--civitas-border-width) solid var(--civitas-nav-flyout-border);
   border-radius: var(--civitas-popover-radius);
-  background: var(--civitas-popover-bg);
+  background: var(--civitas-nav-flyout-bg);
   padding: var(--civitas-space-2);
   color: var(--civitas-popover-text);
-  box-shadow: var(--civitas-popover-shadow);
+  box-shadow: var(--civitas-nav-flyout-shadow);
   transform: translateY(-50%);
   white-space: normal;
 }
@@ -592,7 +593,7 @@
     flex-basis: auto;
     overflow: hidden;
     transform: translateX(-100%);
-    border-right: var(--civitas-border-width) solid var(--civitas-nav-border);
+    border-right: var(--civitas-border-width) solid var(--civitas-nav-shell-border);
     border-bottom: 0;
     transition: transform 180ms ease;
   }

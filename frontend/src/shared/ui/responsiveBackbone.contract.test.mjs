@@ -51,7 +51,10 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
   assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
   assert.match(appShell, /children: \[/);
+  assert.match(appShell, /SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state"/);
   assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
+  assert.match(appShell, /data-civitas-sidebar-state=\{sidebarState\}/);
+  assert.match(appShell, /data-civitas-sidebar-mobile-state=\{mobileState\}/);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
