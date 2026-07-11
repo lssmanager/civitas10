@@ -1,0 +1,50 @@
+:root {
+  /* Dimensiones y Espaciado del Top Bar */
+  --topbar-height-desktop: 72px;
+  --topbar-height-tablet: 64px;
+  --topbar-height-mobile: 56px;
+  --topbar-padding-desktop: 0 32px;
+  --topbar-padding-tablet: 0 24px;
+  --topbar-padding-mobile: 0 16px;
+  --topbar-max-width: 1440px;
+
+  /* Colores y Estilos */
+  --topbar-bg: var(--color-surface-primary, #FFFFFF);
+  --topbar-border: var(--color-border-light, #E5E7EB);
+  --topbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  /* Espaciado entre elementos */
+  --topbar-gap: 16px;
+  --topbar-gap-tablet: 12px;
+  --topbar-gap-mobile: 8px;
+
+  /* Botones de acción adaptables */
+  --action-button-height-desktop: var(--civitas-control-height-sm);
+  --action-button-min-width-desktop: auto;
+  --action-button-icon-size-tablet: 40px;
+  --action-button-icon-size-mobile: 44px;
+  --action-button-icon-tablet: 20px;
+  --action-button-icon-mobile: 24px;
+  --action-button-padding-desktop: 0 var(--civitas-space-4);
+  --action-button-gap-desktop: var(--civitas-space-2);
+  --action-button-radius: var(--civitas-radius-md);
+  --action-button-border-width: var(--civitas-border-width);
+  --action-button-font-size: var(--civitas-font-sm);
+  --action-button-font-weight: 700;
+  --action-button-disabled-opacity: 0.55;
+  --action-button-focus-outline: 2px solid var(--civitas-primary);
+  --action-button-focus-offset: 2px;
+  --action-button-primary-bg: var(--civitas-primary);
+  --action-button-primary-bg-hover: var(--civitas-primary-strong);
+  --action-button-primary-border: var(--civitas-primary);
+  --action-button-primary-color: var(--civitas-primary-contrast);
+  --action-button-secondary-bg: var(--civitas-surface);
+  --action-button-secondary-bg-hover: var(--civitas-surface-subtle);
+  --action-button-secondary-border: var(--civitas-border);
+  --action-button-secondary-color: var(--civitas-muted-strong);
+  --action-button-secondary-color-hover: var(--civitas-text);
+  --action-button-outline-bg: transparent;
+  --action-button-outline-bg-hover: var(--civitas-surface-subtle);
+  --action-button-outline-border: var(--civitas-border-strong);
+  --action-button-outline-color: var(--civitas-muted-strong);
+}

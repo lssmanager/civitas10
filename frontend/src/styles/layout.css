@@ -12,21 +12,45 @@
   top: 0;
   z-index: var(--civitas-z-topbar);
   border-bottom: var(--civitas-border-width) solid var(--civitas-border);
-  background: var(--civitas-surface-translucent);
-  backdrop-filter: blur(0.5rem);
+  height: var(--civitas-topbar-height);
+  background: var(--topbar-bg);
+  box-shadow: var(--topbar-shadow);
 }
 
 .civitas-topbar-inner {
   width: 100%;
   max-width: var(--civitas-content-max-width);
-  min-height: var(--civitas-topbar-height);
+  height: 100%;
   margin: 0 auto;
-  padding-block: 0;
-  padding-inline: var(--civitas-shell-inline-padding);
+  padding: var(--topbar-padding-desktop);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--civitas-space-4);
+  gap: var(--topbar-gap);
+}
+
+.civitas-topbar-left,
+.civitas-topbar-center,
+.civitas-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--topbar-gap);
+  min-width: 0;
+}
+
+.civitas-topbar-left,
+.civitas-topbar-right {
+  flex-shrink: 0;
+}
+
+.civitas-topbar-center {
+  flex: 1 1 auto;
+  justify-content: center;
+  padding-inline: var(--topbar-gap);
+}
+
+.civitas-topbar-right {
+  margin-left: auto;
 }
 
 .civitas-brand {
@@ -171,9 +195,40 @@
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .civitas-topbar {
+    height: var(--civitas-topbar-height-tablet);
+  }
+
   .civitas-topbar-inner {
-    align-items: flex-start;
+    padding: var(--topbar-padding-tablet);
+    gap: var(--topbar-gap-tablet);
+  }
+
+  .civitas-topbar-left,
+  .civitas-topbar-right {
+    gap: var(--topbar-gap-tablet);
+  }
+
+  .civitas-topbar-center {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .civitas-topbar {
+    height: var(--civitas-topbar-height-mobile);
+  }
+
+  .civitas-topbar-inner {
+    align-items: center;
+    padding: var(--topbar-padding-mobile);
+    gap: var(--topbar-gap-mobile);
+  }
+
+  .civitas-topbar-left,
+  .civitas-topbar-right {
+    gap: var(--topbar-gap-mobile);
   }
 
   .civitas-cluster {

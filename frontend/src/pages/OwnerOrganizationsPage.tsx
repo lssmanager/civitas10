@@ -498,7 +498,8 @@ const OwnerOrganizationsPage = () => {
 
   const removeContact = (id: string) => {
     setEmailErrors((current) => {
-      const { [id]: _removed, ...administrativeContacts } = current.administrativeContacts;
+      const administrativeContacts = { ...current.administrativeContacts };
+      delete administrativeContacts[id];
       return { ...current, administrativeContacts };
     });
     setForm((current) => {
