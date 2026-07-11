@@ -24,5 +24,6 @@ test("owner navigation separates organizations from create", () => {
   assert.match(routes, /ownerCreateOrganization/);
   assert.match(routes, /path: "\/owner\/create"/);
   assert.match(shell, /label: "Organizations"/);
+  assert.match(shell, /label: "Directory"/);
   assert.match(shell, /label: "Create"/);
 });

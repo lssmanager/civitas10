@@ -48,15 +48,21 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /children\?: NavCollapseItem\[\]/);
   assert.match(navCollapse, /NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded"/);
   assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
-  assert.match(navCollapse, /hidden=\{!expanded\}/);
+  assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
+  assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
   assert.match(appShell, /children: \[/);
+  assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
 test("authenticated shell has only sidebar and main scroll containers", () => {
   assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar,[\s\S]*?height: 100vh;[\s\S]*?min-height: 0;/s);
   assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
-  assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;[^}]*scrollbar-width: thin;/s);
+  assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, 96rem\);/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
   assert.doesNotMatch(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow-y: auto;/s);
 });

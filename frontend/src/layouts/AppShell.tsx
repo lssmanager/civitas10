@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogto } from "@logto/react";
 import type { Icon } from "@tabler/icons-react";
@@ -11,6 +11,7 @@ import {
   IconFiles,
   IconLayoutDashboard,
   IconLogout,
+  IconMenu2,
   IconServer,
   IconSettings,
   IconWorld,
@@ -19,6 +20,7 @@ import civitasIcon from "../assets/brand/civitas-icon.svg";
 import civitasLogoFullDark from "../assets/brand/civitas-logo-full-dark.svg";
 import { APP_ENV } from "../env";
 import { appRoutes } from "../navigation/routes";
+import { useBreakpoint } from "../shared/hooks";
 import { NavCollapse } from "../shared/ui";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
@@ -49,7 +51,7 @@ const defaultOwnerNavItems: NavItem[] = [
     icon: IconBuilding,
     match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") || pathname.startsWith(appRoutes.ownerCreateOrganization.path),
     children: [
-      { label: "Organizations", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
+      { label: "Directory", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
       { label: "Create", path: appRoutes.ownerCreateOrganization.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerCreateOrganization.path) },
     ],
   },
@@ -83,21 +85,30 @@ const resolveNavItems = (area: ShellArea, organizationId?: string, navItems?: Na
 export const AppShell = ({ area, children, navItems, organizationId, showBackButton = false, actions }: AppShellProps) => {
   const navigate = useNavigate();
   const { signOut } = useLogto();
+  const isMobile = useBreakpoint("md");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const resolvedNavItems = resolveNavItems(area, organizationId, navItems);
+  const effectiveSidebarCollapsed = isMobile ? false : sidebarCollapsed;
   const homePath = area === "public" ? "/" : appRoutes.owner.path;
+
+  useEffect(() => {
+    if (!isMobile) setMobileOpen(false);
+  }, [isMobile]);
 
   return (
     <div
-      className={`civitas-shell civitas-shell-${area} ${sidebarCollapsed ? "civitas-shell-sidebar-collapsed" : ""}`}
+      className={`civitas-shell civitas-shell-${area} ${effectiveSidebarCollapsed ? "civitas-shell-sidebar-collapsed" : ""}`}
       data-civitas-shell="true"
       data-civitas-area={area}
-      data-civitas-sidebar-collapsed={sidebarCollapsed}
+      data-civitas-sidebar-collapsed={effectiveSidebarCollapsed}
+      data-civitas-sidebar-mobile-open={mobileOpen}
     >
-      <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`}>
+      {isMobile && mobileOpen ? <button type="button" className="civitas-sidebar-backdrop" aria-label="Close Civitas navigation" onClick={() => setMobileOpen(false)} /> : null}
+      <aside className="civitas-sidebar" aria-label={`${areaLabel[area]} sidebar`} data-mobile-open={mobileOpen}>
         <div className="civitas-sidebar-brand-row">
           <Link to={homePath} className="civitas-sidebar-brand" aria-label="Civitas home">
-            <img src={sidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={sidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
+            <img src={effectiveSidebarCollapsed ? civitasIcon : civitasLogoFullDark} alt="Civitas" className={effectiveSidebarCollapsed ? "civitas-brand-icon" : "civitas-brand-logo"} />
           </Link>
           <button
             type="button"
@@ -109,12 +120,13 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
             {sidebarCollapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
           </button>
         </div>
-        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={sidebarCollapsed} />
+        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={effectiveSidebarCollapsed} />
       </aside>
       <div className="civitas-shell-content">
         <header className="civitas-topbar">
           <div className="civitas-topbar-inner">
             <div className="civitas-cluster">
+              {isMobile ? <button type="button" className="civitas-secondary-button civitas-mobile-menu-button" aria-label="Open Civitas navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><IconMenu2 size={18} />Menu</button> : null}
               {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button"><IconArrowLeft size={18} />Back</button> : null}
               <span className="civitas-role-badge">{areaLabel[area]}</span>
               {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
