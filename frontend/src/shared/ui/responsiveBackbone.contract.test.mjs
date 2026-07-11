@@ -13,6 +13,33 @@ const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.
 const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
 const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
 
+const rootTokenValue = (name) => {
+  const match = tokensCss.match(new RegExp(`${name}:\\s*([^;]+);`));
+  assert.ok(match, `${name} token must exist`);
+  return match[1].trim();
+};
+
+const selectorBlock = (css, selector) => {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escaped}\\s*\\{([^}]+)\\}`, "s"));
+  assert.ok(match, `${selector} block must exist`);
+  return match[1];
+};
+
+const declarationValue = (block, property) => {
+  const match = block.match(new RegExp(`${property}:\\s*([^;]+);`));
+  assert.ok(match, `${property} declaration must exist`);
+  return match[1].trim();
+};
+
+const resolveRootVar = (value) => {
+  let resolved = value;
+  for (let index = 0; index < 8 && resolved.includes("var("); index += 1) {
+    resolved = resolved.replace(/var\((--[a-z0-9-]+)\)/gi, (_match, name) => rootTokenValue(name));
+  }
+  return resolved;
+};
+
 test("responsive breakpoints are canonical and centralized", () => {
   for (const value of ["480px", "768px", "1024px", "1280px"]) {
     assert.match(tokensCss, new RegExp(value));
@@ -58,6 +85,20 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
+test("shell topbar and main content share one semantic inline padding token", () => {
+  assert.equal(rootTokenValue("--civitas-shell-inline-padding"), "var(--civitas-space-6)");
+  assert.equal(rootTokenValue("--civitas-topbar-height"), "4rem");
+  assert.equal(rootTokenValue("--civitas-content-max-width"), "var(--civitas-breakpoint-xl)");
+
+  const topbarPadding = declarationValue(selectorBlock(layoutCss, ".civitas-topbar-inner"), "padding-inline");
+  const mainPadding = declarationValue(selectorBlock(layoutCss, ".civitas-main"), "padding-inline");
+
+  assert.equal(topbarPadding, "var(--civitas-shell-inline-padding)");
+  assert.equal(mainPadding, "var(--civitas-shell-inline-padding)");
+  assert.equal(resolveRootVar(topbarPadding), resolveRootVar(mainPadding));
+  assert.doesNotMatch(layoutCss, /\.civitas-topbar-inner,\s*\.civitas-main\s*\{[^}]*padding-(?:left|right):\s*var\(--civitas-space-/s);
+});
+
 test("authenticated shell has explicit desktop and mobile scroll containers", () => {
   assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
@@ -69,6 +110,6 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-shell\s*\{[\s\S]*?height: var\(--civitas-viewport-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-shell-content\s*\{[\s\S]*?height: var\(--civitas-viewport-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-main\s*\{[\s\S]*?overflow-y: auto;[\s\S]*?-webkit-overflow-scrolling: touch;/s);
-  assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, 96rem\);/s);
+  assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, var\(--civitas-content-max-width\)\);/s);
   assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
 });

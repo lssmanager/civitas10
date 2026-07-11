@@ -39,6 +39,9 @@
   --civitas-container-max: 80rem;
   --civitas-readable-max: 48rem;
   --civitas-viewport-height: 100dvh;
+  --civitas-shell-inline-padding: var(--civitas-space-6);
+  --civitas-topbar-height: 4rem;
+  --civitas-content-max-width: var(--civitas-breakpoint-xl);
   --civitas-sidebar-width: 16.5rem;
   --civitas-sidebar-collapsed-width: 5.25rem;
   --civitas-sidebar-mobile-width: min(85vw, 20rem);
