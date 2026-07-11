@@ -194,9 +194,9 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);
   assert.equal(collapsedParentPadding, basePadding);
-  assert.equal(childIndent, 0, "child nav icons must share the same left edge as parent icons");
+  assert.ok(childIndent > 0, "child nav items must be visually dependent on their parent with one tokenized indent");
   assert.equal(childPadding, basePadding + childIndent);
-  assert.equal(childPadding, parentPadding);
+  assert.equal(childPadding > parentPadding, true);
   assert.equal(toRemNumber(parent.height, parent), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(child["min-height"], child), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(icon.width), toRemNumber("var(--civitas-nav-icon-size)"));

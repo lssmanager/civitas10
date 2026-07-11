@@ -45,9 +45,9 @@
   --civitas-sidebar-width: 16.5rem;
   --civitas-sidebar-collapsed-width: 5.25rem;
   --civitas-sidebar-mobile-width: min(85vw, 20rem);
-  /* Sidebar nav geometry contract: role-filtered menus must keep parent and child icons on the same left rail. */
+  /* Sidebar nav geometry contract: role-filtered child menus add only this indent to the parent rail. */
   --civitas-nav-item-padding-x: var(--civitas-space-3);
-  --civitas-nav-child-indent: 0rem;
+  --civitas-nav-child-indent: var(--civitas-space-5);
   --civitas-nav-item-height: 2.75rem;
   --civitas-nav-item-gap: var(--civitas-space-2);
   --civitas-nav-icon-size: 1.25rem;
