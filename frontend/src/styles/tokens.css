@@ -45,7 +45,8 @@
   --civitas-sidebar-width: 16.5rem;
   --civitas-sidebar-collapsed-width: 5.25rem;
   --civitas-sidebar-mobile-width: min(85vw, 20rem);
-  --civitas-nav-item-padding-x: var(--civitas-space-4);
+  /* Sidebar nav geometry contract: role-filtered child menus add only this indent to the parent rail. */
+  --civitas-nav-item-padding-x: var(--civitas-space-3);
   --civitas-nav-child-indent: var(--civitas-space-5);
   --civitas-nav-item-height: 2.75rem;
   --civitas-nav-item-gap: var(--civitas-space-2);
@@ -54,7 +55,6 @@
   --civitas-nav-icon-label-gap: var(--civitas-space-2);
   --civitas-nav-chevron-column: 1rem;
   --civitas-nav-collapse-button-size: var(--civitas-control-height-sm);
-  --civitas-nav-item-padding-x: var(--civitas-space-3);
   --civitas-nav-padding-inline: var(--civitas-space-3);
   --civitas-nav-gutter-inline: var(--civitas-space-2);
   --civitas-nav-scroll-padding: var(--civitas-space-2);

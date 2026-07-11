@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const tokensCss = readFileSync(new URL("../../styles/tokens.css", import.meta.url), "utf8");
 const primitivesCss = readFileSync(new URL("../../styles/primitives.css", import.meta.url), "utf8");
 const layoutCss = readFileSync(new URL("../../styles/layout.css", import.meta.url), "utf8");
+const themeCss = readFileSync(new URL("../../styles/theme.css", import.meta.url), "utf8");
 const hookSource = readFileSync(new URL("../hooks/useBreakpoint.ts", import.meta.url), "utf8");
 const barrel = readFileSync(new URL("./index.ts", import.meta.url), "utf8");
 const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), "utf8");
@@ -90,6 +91,9 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
   assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
   assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
+  assert.match(navCollapse, /itemCanBeSelfActive = \(item: NavCollapseItem, pathname: string\) => Boolean\(item\.path\) && itemIsActive\(item, pathname\)/);
+  assert.match(navCollapse, /data-branch-active=\{branchActive\}/);
+  assert.match(navCollapse, /selfActive \? "civitas-nav-link-active"/);
   assert.match(appShell, /children: \[/);
   assert.match(appShell, /SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state"/);
   assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
@@ -131,10 +135,10 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
 
 test("sidebar nav geometry computes from one canonical token family", () => {
   const readDeclarations = (selector) => {
-    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const matches = [...layoutCss.matchAll(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, "g"))];
-    assert.ok(matches.length, `Missing CSS selector: ${selector}`);
-    return Object.fromEntries(matches[0][1].split(";").map((entry) => entry.trim()).filter(Boolean).map((entry) => {
+    const blocks = [...layoutCss.matchAll(/([^{}]+)\{([^}]*)\}/g)];
+    const match = blocks.find(([, selectorList]) => selectorList.split(",").map((entry) => entry.trim()).includes(selector));
+    assert.ok(match, `Missing CSS selector: ${selector}`);
+    return Object.fromEntries(match[2].split(";").map((entry) => entry.trim()).filter(Boolean).map((entry) => {
       const [property, ...value] = entry.split(":");
       return [property.trim(), value.join(":").trim()];
     }));
@@ -153,7 +157,24 @@ test("sidebar nav geometry computes from one canonical token family", () => {
     }).reduce((sum, number) => sum + number, 0);
   };
 
-  const header = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-brand-row");
+  const tokenNames = [
+    "--civitas-nav-item-padding-x",
+    "--civitas-nav-child-indent",
+    "--civitas-nav-item-height",
+    "--civitas-nav-item-gap",
+    "--civitas-nav-icon-size",
+    "--civitas-nav-icon-label-gap",
+    "--civitas-nav-collapse-button-size",
+  ];
+  for (const tokenName of tokenNames) {
+    assert.equal([...tokensCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 1, `${tokenName} must have exactly one canonical definition`);
+  }
+
+  const header = readDeclarations(".civitas-sidebar-header");
+  const collapsedHeader = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-header");
+  const genericNav = readDeclarations(".civitas-primary-nav");
+  const topbarNav = readDeclarations(".civitas-topbar .civitas-primary-nav");
+  const sidebarNav = readDeclarations(".civitas-sidebar .civitas-primary-nav");
   const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
   const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
   const collapsedParent = { ...parent, ...readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link") };
@@ -167,10 +188,19 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   const basePadding = toRemNumber("var(--civitas-nav-item-padding-x)");
   const childIndent = toRemNumber("var(--civitas-nav-child-indent)");
 
+  const collapsedHeaderPadding = toRemNumber(collapsedHeader["padding-left"]);
+
+  assert.equal(genericNav["align-items"], undefined, "generic nav must not carry legacy centered alignment into the sidebar");
+  assert.equal(topbarNav["align-items"], "center", "topbar nav owns its horizontal centering explicitly");
+  assert.equal(sidebarNav["align-items"], "stretch", "sidebar nav must own left-aligned row stretching");
+  assert.equal(parent.width, "100%", "sidebar nav rows must fill the nav column before padding is computed");
   assert.equal(headerPadding, basePadding);
+  assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);
   assert.equal(collapsedParentPadding, basePadding);
+  assert.ok(childIndent > 0, "child nav items must be visually dependent on their parent with one tokenized indent");
   assert.equal(childPadding, basePadding + childIndent);
+  assert.equal(childPadding > parentPadding, true);
   assert.equal(toRemNumber(parent.height, parent), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(child["min-height"], child), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(icon.width), toRemNumber("var(--civitas-nav-icon-size)"));
@@ -178,6 +208,24 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   assert.equal(toRemNumber(button.width), toRemNumber("var(--civitas-nav-collapse-button-size)"));
   assert.equal(toRemNumber(button.height), toRemNumber("var(--civitas-nav-collapse-button-size)"));
   const collapsedIcon = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link-icon");
-  assert.equal(collapsedIcon.width, undefined);
-  assert.equal(collapsedIcon.height, undefined);
+  assert.equal(collapsedIcon.width, undefined, "collapsed nav icon must inherit canonical icon width");
+  assert.equal(collapsedIcon.height, undefined, "collapsed nav icon must inherit canonical icon height");
+
+  const collapsedSizeOverrides = /civitas-shell-sidebar-collapsed[^{}]*(?:civitas-nav-link-icon|civitas-sidebar-toggle)[^{}]*\{[^}]*?(?:width|height|font-size):\s*(?!var\(--civitas-nav-collapse-button-size\)|var\(--civitas-nav-icon-size\))/s;
+  assert.doesNotMatch(layoutCss, collapsedSizeOverrides, "collapsed icon/toggle rules must not introduce smaller icon or toggle sizes");
+});
+
+test("sidebar flyout contrast uses dedicated theme tokens", () => {
+  for (const tokenName of [
+    "--civitas-nav-flyout-bg",
+    "--civitas-nav-flyout-border",
+    "--civitas-nav-flyout-text",
+    "--civitas-nav-flyout-icon",
+  ]) {
+    assert.equal([...themeCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 2, `${tokenName} must be defined for light and dark themes`);
+  }
+
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?background: var\(--civitas-nav-flyout-bg\);[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link,[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
+  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link-icon,[\s\S]*?color: var\(--civitas-nav-flyout-icon\);/s);
 });
