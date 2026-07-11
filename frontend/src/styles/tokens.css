@@ -38,6 +38,14 @@
   --civitas-control-height-lg: 3.25rem;
   --civitas-container-max: 80rem;
   --civitas-readable-max: 48rem;
+  --civitas-sidebar-width: 16.5rem;
+  --civitas-sidebar-collapsed-width: 5.25rem;
+  --civitas-nav-item-height: 2.75rem;
+  --civitas-nav-item-height-sm: 2.35rem;
+  --civitas-nav-icon-size: 1.25rem;
+  --civitas-nav-icon-size-sm: 1rem;
+  --civitas-nav-flyout-min-width: 13rem;
+  --civitas-nav-flyout-max-width: 18rem;
   /* Canonical responsive breakpoints: sm 480px, md 768px, lg 1024px, xl 1280px. */
   --civitas-breakpoint-sm: 480px;
   --civitas-breakpoint-md: 768px;

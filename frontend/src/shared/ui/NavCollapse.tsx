@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { Icon } from "@tabler/icons-react";
-import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
+import { IconChevronRight } from "@tabler/icons-react";
 
 const NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded";
 
@@ -54,7 +54,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     const Icon = item.icon;
     return (
       <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={level} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
-        {Icon ? <Icon className="civitas-nav-link-icon" size={level > 0 ? 18 : 20} /> : null}
+        {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
       </Link>
     );
@@ -70,9 +70,9 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     return (
       <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded}>
         <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={0} aria-expanded={expanded} onClick={() => toggleExpanded(key)} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
-          {Icon ? <Icon className="civitas-nav-link-icon" size={20} /> : null}
+          {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
           <span className="civitas-nav-link-label">{item.label}</span>
-          <span className="civitas-nav-tree-caret" aria-hidden="true">{expanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}</span>
+          <span className="civitas-nav-tree-caret" aria-hidden="true"><IconChevronRight className="civitas-nav-tree-caret-icon" /></span>
         </button>
         <div className="civitas-nav-tree-children" hidden={!expanded && !collapsed}>
           {item.children.map((child) => renderLink(child, 1))}
