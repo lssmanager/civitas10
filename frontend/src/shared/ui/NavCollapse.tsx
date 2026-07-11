@@ -18,6 +18,12 @@ const itemKey = (item: NavCollapseItem) => `${item.label}-${item.path || "group"
 const itemIsActive = (item: NavCollapseItem, pathname: string) => item.match ? item.match(pathname) : item.path === pathname;
 const itemOrChildIsActive = (item: NavCollapseItem, pathname: string): boolean => itemIsActive(item, pathname) || Boolean(item.children?.some((child) => itemOrChildIsActive(child, pathname)));
 
+const collectActiveParentKeys = (items: NavCollapseItem[], pathname: string): string[] => items.flatMap((item) => {
+  if (!item.children?.length) return [];
+  const childKeys = collectActiveParentKeys(item.children, pathname);
+  return itemOrChildIsActive(item, pathname) ? [itemKey(item), ...childKeys] : childKeys;
+});
+
 const readStoredExpanded = () => {
   if (typeof window === "undefined") return null;
   try {
@@ -31,7 +37,7 @@ const readStoredExpanded = () => {
 export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCollapseItem[]; label: string; collapsed?: boolean }) => {
   const location = useLocation();
   const activeParentKeys = useMemo(
-    () => items.filter((item) => item.children?.length && itemOrChildIsActive(item, location.pathname)).map(itemKey),
+    () => collectActiveParentKeys(items, location.pathname),
     [items, location.pathname],
   );
   const [expandedKeys, setExpandedKeys] = useState<string[]>(() => readStoredExpanded() ?? activeParentKeys.slice(0, 1));
@@ -49,33 +55,33 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     setExpandedKeys((current) => current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]);
   };
 
-  const renderLink = (item: NavCollapseItem, level = 0) => {
+  const renderLink = (item: NavCollapseItem, depth = 0) => {
     const active = itemIsActive(item, location.pathname);
     const Icon = item.icon;
     return (
-      <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={level} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+      <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-has-children="false" title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
         {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
       </Link>
     );
   };
 
-  const renderItem = (item: NavCollapseItem) => {
-    if (!item.children?.length) return renderLink(item, item.level ?? 0);
+  const renderItem = (item: NavCollapseItem, depth = item.level ?? 0) => {
+    if (!item.children?.length) return renderLink(item, depth);
 
     const key = itemKey(item);
     const expanded = !collapsed && expandedKeys.includes(key);
     const active = itemOrChildIsActive(item, location.pathname);
     const Icon = item.icon;
     return (
-      <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded}>
-        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-civitas-nav-level={0} aria-expanded={expanded} onClick={() => toggleExpanded(key)} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+      <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded} data-depth={depth}>
+        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)} title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
           {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
           <span className="civitas-nav-link-label">{item.label}</span>
           <span className="civitas-nav-tree-caret" aria-hidden="true"><IconChevronRight className="civitas-nav-tree-caret-icon" /></span>
         </button>
         <div className="civitas-nav-tree-children" hidden={!expanded && !collapsed}>
-          {item.children.map((child) => renderLink(child, 1))}
+          {item.children.map((child) => renderItem(child, depth + 1))}
         </div>
       </div>
     );
@@ -84,7 +90,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
   return (
     <div className="civitas-nav-row" data-civitas-nav="true" data-civitas-nav-collapsed={collapsed} data-civitas-nav-tree="true">
       <nav className="civitas-primary-nav" aria-label={`${label} navigation`}>
-        {items.map(renderItem)}
+        {items.map((item) => renderItem(item, item.level ?? 0))}
       </nav>
     </div>
   );

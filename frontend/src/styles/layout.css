@@ -1,5 +1,6 @@
 .civitas-shell {
   height: 100vh;
+  height: var(--civitas-viewport-height);
   min-height: 0;
   overflow: hidden;
   background: var(--civitas-bg);
@@ -250,11 +251,11 @@
   display: flex;
   width: var(--civitas-sidebar-width);
   height: 100vh;
+  height: var(--civitas-viewport-height);
   min-height: 0;
   flex: 0 0 var(--civitas-sidebar-width);
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   border-right: var(--civitas-border-width) solid var(--civitas-nav-border);
@@ -273,6 +274,7 @@
   display: flex;
   min-width: 0;
   height: 100vh;
+  height: var(--civitas-viewport-height);
   min-height: 0;
   flex: 1 1 auto;
   flex-direction: column;
@@ -333,30 +335,49 @@
 .civitas-sidebar .civitas-nav-row {
   display: block;
   min-height: 0;
-  padding: var(--civitas-space-2) var(--civitas-space-3) var(--civitas-space-4);
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--civitas-nav-scroll-padding);
+  scrollbar-width: thin;
 }
 
 .civitas-sidebar .civitas-primary-nav {
   display: flex;
+  min-height: 0;
   flex-direction: column;
   gap: var(--civitas-space-2);
   overflow: visible;
 }
 
 .civitas-sidebar .civitas-nav-link {
-  display: flex;
+  --civitas-nav-depth-offset: 0rem;
+
+  display: grid;
   min-height: var(--civitas-nav-item-height);
+  grid-template-columns: var(--civitas-nav-icon-column) minmax(0, 1fr) var(--civitas-nav-chevron-column);
   align-items: center;
-  gap: var(--civitas-space-3);
+  column-gap: var(--civitas-nav-item-gap);
   border-radius: var(--civitas-radius-md);
   background: var(--civitas-nav-item-bg);
-  padding: var(--civitas-space-3);
+  padding-block: var(--civitas-space-3);
+  padding-left: calc(var(--civitas-nav-gutter-inline) + var(--civitas-nav-depth-offset));
+  padding-right: var(--civitas-nav-padding-inline);
   color: var(--civitas-nav-item-text);
 }
 
 .civitas-nav-tree-group {
   display: grid;
   gap: var(--civitas-space-1);
+}
+
+.civitas-sidebar .civitas-nav-link[data-depth="1"] {
+  --civitas-nav-depth-offset: var(--civitas-nav-indent-step);
+}
+
+.civitas-sidebar .civitas-nav-link[data-depth="2"] {
+  --civitas-nav-depth-offset: calc(var(--civitas-nav-indent-step) * 2);
 }
 
 .civitas-nav-tree-parent {
@@ -368,12 +389,13 @@
 }
 
 .civitas-nav-tree-caret {
-  margin-left: auto;
   display: inline-flex;
   width: var(--civitas-nav-icon-size-sm);
   height: var(--civitas-nav-icon-size-sm);
   align-items: center;
   justify-content: center;
+  grid-column: 3;
+  justify-self: center;
   color: var(--civitas-nav-chevron);
   transition: transform 150ms ease, color 150ms ease;
 }
@@ -392,15 +414,15 @@
   gap: var(--civitas-space-1);
 }
 
-.civitas-sidebar .civitas-nav-link[data-civitas-nav-level="1"] {
+.civitas-sidebar .civitas-nav-link[data-depth="1"],
+.civitas-sidebar .civitas-nav-link[data-depth="2"] {
   min-height: var(--civitas-nav-item-height-sm);
   padding-block: var(--civitas-space-2);
-  padding-left: calc(var(--civitas-space-3) + var(--civitas-space-5));
-  background: transparent;
   font-size: var(--civitas-font-sm);
 }
 
-.civitas-sidebar .civitas-nav-link[data-civitas-nav-level="1"] .civitas-nav-link-icon {
+.civitas-sidebar .civitas-nav-link[data-depth="1"] .civitas-nav-link-icon,
+.civitas-sidebar .civitas-nav-link[data-depth="2"] .civitas-nav-link-icon {
   width: var(--civitas-nav-icon-size-sm);
   height: var(--civitas-nav-icon-size-sm);
 }
@@ -424,8 +446,17 @@
 .civitas-nav-link-icon {
   width: var(--civitas-nav-icon-size);
   height: var(--civitas-nav-icon-size);
-  flex: 0 0 auto;
+  grid-column: 1;
+  justify-self: center;
   color: var(--civitas-nav-item-icon);
+}
+
+.civitas-nav-link-label {
+  min-width: 0;
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .civitas-nav-link-active .civitas-nav-link-icon {
@@ -454,9 +485,8 @@
 }
 
 .civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link {
-  justify-content: flex-start;
-  padding-left: var(--civitas-space-3);
-  padding-right: var(--civitas-space-3);
+  padding-left: var(--civitas-nav-gutter-inline);
+  padding-right: var(--civitas-nav-padding-inline);
 }
 
 .civitas-shell-sidebar-collapsed .civitas-nav-link-label,
@@ -498,8 +528,10 @@
   min-width: var(--civitas-nav-flyout-min-width);
   width: max-content;
   max-width: var(--civitas-nav-flyout-max-width);
+  max-height: var(--civitas-nav-mobile-max-height);
   height: auto;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
   clip: auto;
   gap: var(--civitas-space-1);
   border: var(--civitas-border-width) solid var(--civitas-border-strong);
@@ -511,8 +543,9 @@
 
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:hover .civitas-nav-tree-children .civitas-nav-link,
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:focus-within .civitas-nav-tree-children .civitas-nav-link {
-  justify-content: flex-start;
-  padding: var(--civitas-space-2) var(--civitas-space-3);
+  padding-block: var(--civitas-space-2);
+  padding-left: calc(var(--civitas-nav-gutter-inline) + var(--civitas-nav-depth-offset));
+  padding-right: var(--civitas-nav-padding-inline);
 }
 
 .civitas-shell-sidebar-collapsed .civitas-nav-tree-group:hover .civitas-nav-tree-children .civitas-nav-link-label,
@@ -530,6 +563,7 @@
     display: block;
     height: auto;
     min-height: 100vh;
+    min-height: var(--civitas-viewport-height);
     overflow: visible;
   }
 
@@ -547,10 +581,13 @@
     top: 0;
     left: 0;
     z-index: var(--civitas-z-sidebar-mobile);
-    width: min(85vw, 20rem);
+    width: var(--civitas-sidebar-mobile-width);
     height: 100vh;
+    height: var(--civitas-nav-mobile-max-height);
+    max-height: var(--civitas-nav-mobile-max-height);
     min-height: 0;
     flex-basis: auto;
+    overflow: hidden;
     transform: translateX(-100%);
     border-right: var(--civitas-border-width) solid var(--civitas-nav-border);
     border-bottom: 0;
@@ -587,12 +624,12 @@
   }
 
   .civitas-sidebar .civitas-nav-row {
-    padding: 0 var(--civitas-space-4) var(--civitas-space-3);
+    padding: var(--civitas-nav-scroll-padding);
   }
 
   .civitas-sidebar .civitas-primary-nav {
     flex-direction: column;
-    overflow-x: visible;
+    overflow: visible;
   }
 
   .civitas-shell-sidebar-collapsed .civitas-nav-link-label {

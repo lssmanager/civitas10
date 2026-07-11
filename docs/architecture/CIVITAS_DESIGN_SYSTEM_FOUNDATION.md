@@ -171,12 +171,22 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-control-height-lg`
 - `--civitas-container-max`
 - `--civitas-readable-max`
+- `--civitas-viewport-height`
 - `--civitas-sidebar-width`
 - `--civitas-sidebar-collapsed-width`
+- `--civitas-sidebar-mobile-width`
 - `--civitas-nav-item-height`
 - `--civitas-nav-item-height-sm`
+- `--civitas-nav-item-gap`
+- `--civitas-nav-indent-step`
 - `--civitas-nav-icon-size`
 - `--civitas-nav-icon-size-sm`
+- `--civitas-nav-icon-column`
+- `--civitas-nav-chevron-column`
+- `--civitas-nav-padding-inline`
+- `--civitas-nav-gutter-inline`
+- `--civitas-nav-scroll-padding`
+- `--civitas-nav-mobile-max-height`
 - `--civitas-nav-flyout-min-width`
 - `--civitas-nav-flyout-max-width`
 
@@ -458,11 +468,15 @@ Esto queda documentado para que la library no derive con el tiempo.
 El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/layout.css` y wrapper React en `frontend/src/shared/ui/NavCollapse.tsx`.
 
 - Fondo del sidebar: `--civitas-nav-bg`; separación: `--civitas-nav-border`. No se permiten gradientes, glassmorphism ni sombras ornamentales en el shell.
-- Item base: `--civitas-nav-item-bg`, `--civitas-nav-item-text`, `--civitas-nav-item-icon`, `--civitas-nav-item-height`, `--civitas-nav-icon-size`, `--civitas-space-3` y `--civitas-radius-md`.
+- Item base: `--civitas-nav-item-bg`, `--civitas-nav-item-text`, `--civitas-nav-item-icon`, `--civitas-nav-item-height`, `--civitas-nav-icon-size`, `--civitas-nav-icon-column`, `--civitas-nav-chevron-column`, `--civitas-nav-item-gap`, `--civitas-nav-padding-inline`, `--civitas-nav-gutter-inline` y `--civitas-radius-md`.
+- Retícula interna: cada item usa columnas fijas `icon / label / trailing`; el inicio del label queda gobernado por `--civitas-nav-gutter-inline + --civitas-nav-icon-column + --civitas-nav-item-gap`, y el chevron por `--civitas-nav-chevron-column`.
+- Jerarquía: `NavCollapse` emite `data-depth`, `data-active`, `data-expanded` y `data-has-children`; depth 0 no suma indent, depth 1 suma `--civitas-nav-indent-step`, y depth 2 suma dos veces ese token. La indentación mueve la retícula completa del item, no solo el texto.
 - Hover: `--civitas-nav-item-bg-hover`; debe ser sutil y no puede parecer estado activo.
-- Active: `--civitas-nav-item-bg-active`, `--civitas-nav-item-text-active`, `--civitas-nav-item-icon-active`; usa una sola lógica tonal basada en el primary oficial, sin degradado, doble borde ni shadow flotante.
-- Expanded/collapsed: el grupo usa `civitas-nav-tree-group` y `data-civitas-nav-expanded`; el chevron usa `--civitas-nav-chevron` / `--civitas-nav-chevron-active` y rota con transición mínima, sin cápsula ni borde decorativo.
+- Active: `--civitas-nav-item-bg-active`, `--civitas-nav-item-text-active`, `--civitas-nav-item-icon-active`; usa una sola lógica tonal basada en el primary oficial, sin degradado, doble borde ni shadow flotante, y no altera columnas, padding ni ancho del item.
+- Expanded/collapsed: el grupo usa `civitas-nav-tree-group` y `data-civitas-nav-expanded`; el chevron usa `--civitas-nav-chevron` / `--civitas-nav-chevron-active`, ocupa la columna trailing fija y rota con transición mínima, sin cápsula ni borde decorativo.
 - Collapse button: `civitas-sidebar-toggle` consume `--civitas-nav-collapse-bg`, `--civitas-nav-collapse-bg-hover`, `--civitas-nav-collapse-icon`, `--civitas-control-height-sm` y `--civitas-radius-md`; queda definido como icon button de sistema integrado al shell, sin borde blanco brillante ni glow.
+- Scroll desktop: `civitas-sidebar` es el shell visual con altura `100vh` + `--civitas-viewport-height` y `overflow: hidden`; la región que scrollea es `civitas-sidebar .civitas-nav-row`, con `min-height: 0`, `overflow-y: auto` y `--civitas-nav-scroll-padding`.
+- Scroll tablet/mobile: el drawer fixed usa `--civitas-sidebar-mobile-width`, `100vh` + `--civitas-nav-mobile-max-height`, `overflow: hidden` y conserva `civitas-nav-row` como única región vertical scrolleable del menú. Esto evita que un body/root lock bloquee el scroll interno del panel.
 - Focus-visible: `--civitas-nav-focus-ring`; disabled: `--civitas-disabled`.
 - Flyout collapsed: `--civitas-nav-bg`, `--civitas-nav-border`, `--civitas-nav-flyout-min-width`, `--civitas-nav-flyout-max-width`; no usa sombras como recurso ornamental.
 

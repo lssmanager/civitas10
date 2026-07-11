@@ -55,14 +55,14 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
 });
 
-test("authenticated shell has only sidebar and main scroll containers", () => {
+test("authenticated shell has explicit desktop and mobile scroll containers", () => {
   assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
-  assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*overflow: hidden;/s);
-  assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*overflow-y: auto;/s);
-  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar,[\s\S]*?height: 100vh;[\s\S]*?min-height: 0;/s);
+  assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
+  assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
+  assert.match(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*min-height: 0;[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar,[\s\S]*?height: var\(--civitas-nav-mobile-max-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;[^}]*scrollbar-width: thin;/s);
   assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, 96rem\);/s);
   assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
-  assert.doesNotMatch(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow-y: auto;/s);
 });
