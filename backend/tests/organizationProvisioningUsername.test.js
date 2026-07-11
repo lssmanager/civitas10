@@ -58,17 +58,13 @@ test("organization customData uses required Logto profile structure", () => {
   const { customData } = buildOrganizationCreatePayload(normalized.value);
 
   assert.equal(customData.provisioning.jitDefaultRoleNames, undefined);
-  assert.equal(customData.civitasProfile.administrativeContacts, undefined);
-  assert.equal(customData.civitasProfile.downstream, undefined);
-  assert.deepEqual(customData.civitasProfile.segmentation, {
+  assert.equal(customData.civitasProfile, undefined);
+  assert.equal(customData.mainContactOfCivitas.administrativeContacts, undefined);
+  assert.equal(customData.mainContactOfCivitas.downstream, undefined);
+  assert.equal(customData.mainContactOfCivitas.userData, undefined);
+  assert.equal(customData.mainContactOfCivitas.secondFamilyName, undefined);
+  assert.deepEqual(customData.mainContactOfCivitas.segmentation, {
     organizationTags: ["org-colegio-demo"],
     organizationLists: ["onboarding-colegio-demo"],
   });
-  assert.deepEqual(customData.civitasProfile.userData.segmentation, {
-    roleTag: "organization_payroll",
-    userTags: ["organization_payroll", "org-colegio-demo"],
-    organizationTags: ["org-colegio-demo"],
-    organizationLists: ["onboarding-colegio-demo"],
-  });
-  assert.equal(customData.civitasProfile.secondFamilyName, "Perez");
 });

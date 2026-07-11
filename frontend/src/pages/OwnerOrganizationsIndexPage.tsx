@@ -14,7 +14,7 @@ const asText = (value: unknown): string | null => (typeof value === "string" && 
 const getCivitasProfile = (organization: OwnerOrganization) => {
   const logto = asObject(organization.logtoOrganization);
   const customData = asObject(logto.customData ?? logto.custom_data);
-  return asObject(customData.civitasProfile);
+  return asObject(customData.mainContactOfCivitas ?? customData.civitasProfile);
 };
 
 const getBusinessProfile = (organization: OwnerOrganization) => asObject(getCivitasProfile(organization).business);

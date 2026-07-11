@@ -57,10 +57,10 @@ test("organization payload keeps only required business customData fields", () =
   });
 
   const payload = buildOrganizationCreatePayload(normalized.value);
-  assert.equal(payload.customData.civitasProfile.business.country, "Colombia");
-  assert.equal(payload.customData.civitasProfile.business.city, "Medellín");
-  assert.equal(payload.customData.civitasProfile.business.location, undefined);
-  assert.equal(payload.customData.civitasProfile.business.phonePrefix, undefined);
+  assert.equal(payload.customData.mainContactOfCivitas.business.country, "Colombia");
+  assert.equal(payload.customData.mainContactOfCivitas.business.city, "Medellín");
+  assert.equal(payload.customData.mainContactOfCivitas.business.location, undefined);
+  assert.equal(payload.customData.mainContactOfCivitas.business.phonePrefix, undefined);
 });
 
 test("organization institutional contact does not copy administrative user personal contact data", () => {
@@ -71,8 +71,8 @@ test("organization institutional contact does not copy administrative user perso
     business: { phonePrefix: "+593", phoneNumber: "987654321" },
     administrativeContacts: [{ name: "Admin User", email: "admin@example.test", phone: "+573001112233" }],
   });
-  assert.equal(payload.customData.civitasProfile.contact.email, "");
-  assert.equal(payload.customData.civitasProfile.contact.phone, "");
-  assert.equal(payload.customData.civitasProfile.business.phonePrefix, undefined);
-  assert.equal(payload.customData.civitasProfile.business.phoneNumber, undefined);
+  assert.equal(payload.customData.mainContactOfCivitas.contact.email, "");
+  assert.equal(payload.customData.mainContactOfCivitas.contact.phone, "");
+  assert.equal(payload.customData.mainContactOfCivitas.business.phonePrefix, undefined);
+  assert.equal(payload.customData.mainContactOfCivitas.business.phoneNumber, undefined);
 });

@@ -56,39 +56,7 @@ function buildAdministrativeContactsCustomData(contacts = []) {
     .filter((contact) => Object.keys(contact).length > 0);
 }
 
-function buildUserDataCustomData(person = {}) {
-  const firstName = trim(person.firstName);
-  const middleName = trim(person.middleName);
-  const firstSurname = trim(person.firstSurname);
-  const secondSurname = trim(person.secondSurname);
-  const fullName = [firstName, middleName, firstSurname, secondSurname]
-    .filter(Boolean)
-    .join(" ");
-  const roleTag = trim(person.segmentation?.roleTag) || trim(person.organizationRoleName) || "";
-  const organizationTags = unique(person.segmentation?.organizationTags);
-  const organizationLists = unique(person.segmentation?.organizationLists);
-  const userTags = unique(person.segmentation?.userTags || [roleTag, ...organizationTags]);
-
-  return {
-    key: trim(person.key) || "",
-    phone: trim(person.phone) || "",
-    source: trim(person.source) || "owner_organization_provisioning",
-    fullName: trim(person.name) || fullName || "",
-    position: trim(person.position) || "",
-    segmentation: {
-      roleTag,
-      userTags,
-      organizationTags,
-      organizationLists,
-    },
-    phoneExtension: trim(person.phoneExtension) || "",
-    organizationRoleName: trim(person.organizationRoleName) || "",
-  };
-}
-
 function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = {}, business = {}, segmentation = {} } = {}) {
-  const administrativeContacts = Array.isArray(canonical.administrativeContacts) ? canonical.administrativeContacts : [];
-  const primaryContact = administrativeContacts[0] || {};
   const organizationTags = unique(segmentation.tags || segmentation.organizationTags);
   const organizationLists = unique(segmentation.lists || segmentation.organizationLists);
 
@@ -99,7 +67,7 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = 
       appBaseDomain: trim(settings.appBaseDomain) || "",
       institutionalDomain: trim(settings.adminDomain) || trim(settings.institutionalDomain) || "",
     },
-    civitasProfile: {
+    mainContactOfCivitas: {
       contact: {
         email: trim(contact.email) || "",
         owner: trim(contact.owner) || "",
@@ -129,16 +97,6 @@ function buildOrganizationCustomData({ canonical = {}, settings = {}, contact = 
         organizationTags,
         organizationLists,
       },
-      userData: buildUserDataCustomData({
-        ...primaryContact,
-        segmentation: {
-          roleTag: primaryContact.segmentation?.roleTag || primaryContact.organizationRoleName,
-          userTags: primaryContact.segmentation?.userTags,
-          organizationTags,
-          organizationLists,
-        },
-      }),
-      secondFamilyName: trim(primaryContact.secondSurname) || "",
     },
     oidcRedirectUri: trim(settings.oidcRedirectUri) || "",
   };
