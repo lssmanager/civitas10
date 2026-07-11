@@ -16,6 +16,7 @@ export type NavCollapseItem = {
 
 const itemKey = (item: NavCollapseItem) => `${item.label}-${item.path || "group"}`;
 const itemIsActive = (item: NavCollapseItem, pathname: string) => item.match ? item.match(pathname) : item.path === pathname;
+// Keep self-active separate from branch-active so future role-filtered menus only highlight the actual screen route.
 const itemCanBeSelfActive = (item: NavCollapseItem, pathname: string) => Boolean(item.path) && itemIsActive(item, pathname);
 const itemOrChildIsActive = (item: NavCollapseItem, pathname: string): boolean => itemCanBeSelfActive(item, pathname) || Boolean(item.children?.some((child) => itemOrChildIsActive(child, pathname)));
 
