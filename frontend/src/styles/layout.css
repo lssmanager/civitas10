@@ -70,9 +70,7 @@
 
 .civitas-main {
   width: 100%;
-  max-width: min(100%, 96rem);
   min-height: 0;
-  margin: 0 auto;
   padding: var(--civitas-space-6) var(--civitas-space-4);
   display: flex;
   flex: 1 1 auto;
@@ -81,6 +79,30 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-color: var(--civitas-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.civitas-main::-webkit-scrollbar {
+  width: var(--civitas-space-2);
+}
+
+.civitas-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.civitas-main::-webkit-scrollbar-thumb {
+  border: var(--civitas-border-width) solid transparent;
+  border-radius: var(--civitas-radius-pill);
+  background: var(--civitas-border-strong);
+  background-clip: content-box;
+}
+
+.civitas-main > * {
+  width: 100%;
+  max-width: min(100%, 96rem);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .civitas-cluster {
@@ -244,6 +266,7 @@
 .civitas-shell-sidebar-collapsed .civitas-sidebar {
   width: 5.25rem;
   flex-basis: 5.25rem;
+  overflow: visible;
 }
 
 .civitas-shell-content {
@@ -395,9 +418,9 @@
 }
 
 .civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link {
-  justify-content: center;
-  padding-left: var(--civitas-space-2);
-  padding-right: var(--civitas-space-2);
+  justify-content: flex-start;
+  padding-left: var(--civitas-space-3);
+  padding-right: var(--civitas-space-3);
 }
 
 .civitas-shell-sidebar-collapsed .civitas-nav-link-label,
@@ -436,7 +459,9 @@
   left: calc(100% + var(--civitas-space-2));
   z-index: var(--civitas-z-overlay);
   display: grid;
-  width: 13rem;
+  min-width: 13rem;
+  width: max-content;
+  max-width: 18rem;
   height: auto;
   overflow: visible;
   clip: auto;
