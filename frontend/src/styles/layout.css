@@ -50,7 +50,7 @@
 .civitas-nav-link {
   flex: 0 0 auto;
   border-radius: var(--civitas-radius-sm);
-  padding: var(--civitas-space-2) var(--civitas-space-3);
+  padding: var(--civitas-space-2) var(--civitas-nav-item-padding-x);
   color: var(--civitas-muted);
   font-size: var(--civitas-font-sm);
   font-weight: 500;

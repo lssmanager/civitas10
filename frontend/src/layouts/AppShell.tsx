@@ -143,12 +143,12 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
         <header className="civitas-topbar">
           <div className="civitas-topbar-inner">
             <div className="civitas-cluster">
-              {isMobile ? <button type="button" className="civitas-secondary-button civitas-mobile-menu-button" aria-label="Open Civitas navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><IconMenu2 size={18} />Menu</button> : null}
+              {isMobile ? <button type="button" className="civitas-secondary-button civitas-icon-button civitas-mobile-menu-button" aria-label="Abrir menú" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)}><IconMenu2 size={18} /><span className="civitas-icon-button-label">Menu</span></button> : null}
               {showBackButton ? <button type="button" onClick={() => navigate(-1)} className="civitas-secondary-button"><IconArrowLeft size={18} />Back</button> : null}
               <span className="civitas-role-badge">{areaLabel[area]}</span>
               {organizationId ? <span className="civitas-context-badge">{organizationId}</span> : null}
             </div>
-            {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button"><IconLogout size={18} />Sign out</button>)}
+            {actions ?? (area === "public" ? null : <button onClick={() => signOut(APP_ENV.app.signOutRedirectUri)} className="civitas-secondary-button civitas-icon-button" aria-label="Cerrar sesión"><IconLogout size={18} /><span className="civitas-icon-button-label">Sign out</span></button>)}
           </div>
         </header>
         <main className="civitas-main">{children}</main>

@@ -32,15 +32,28 @@ test("responsive hook is the only viewport JS contract", () => {
 test("base primitives inherit responsive utilities", () => {
   assert.match(primitivesCss, /\.civitas-scroll-x\s*{[^}]*overflow-x: auto/s);
   assert.match(primitivesCss, /\.civitas-nowrap-children > \*\s*{\s*flex: 0 0 auto;/s);
+  assert.match(primitivesCss, /\.civitas-visually-hidden\s*{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0, 0, 0, 0\);/s);
   assert.match(primitivesCss, /\.civitas-stack-md\s*{\s*grid-template-columns: 1fr !important;/s);
   assert.match(primitivesCss, /\.civitas-kpi-grid\s*{[^}]*repeat\(auto-fit, minmax\(min\(100%, 10rem\), 1fr\)\)/s);
   assert.match(sectionCard, /civitas-pad-tight-md/);
   assert.match(dataTable, /civitas-table-wrap civitas-scroll-x/);
 });
 
+test("mobile topbar icon actions keep accessible labels while hiding visual text", () => {
+  assert.match(appShell, /className="civitas-secondary-button civitas-icon-button civitas-mobile-menu-button"/);
+  assert.match(appShell, /aria-label="Abrir menú"/);
+  assert.match(appShell, /<span className="civitas-icon-button-label">Menu<\/span>/);
+  assert.match(appShell, /className="civitas-secondary-button civitas-icon-button"/);
+  assert.match(appShell, /aria-label="Cerrar sesión"/);
+  assert.match(appShell, /<span className="civitas-icon-button-label">Sign out<\/span>/);
+  assert.match(primitivesCss, /@media \(max-width: 480px\) \{[\s\S]*?\.civitas-icon-button-label\s*{[^}]*position: absolute;[^}]*width: 1px;[^}]*height: 1px;[^}]*overflow: hidden;[^}]*clip: rect\(0, 0, 0, 0\);/s);
+});
+
 test("navigation is provided by the shared NavCollapse primitive", () => {
   assert.match(barrel, /NavCollapse/);
   assert.match(appShell, /<NavCollapse/);
+  assert.match(tokensCss, /--civitas-nav-item-padding-x: var\(--civitas-space-3\);/);
+  assert.match(layoutCss, /\.civitas-nav-link\s*{[^}]*padding: var\(--civitas-space-2\) var\(--civitas-nav-item-padding-x\);/s);
   assert.doesNotMatch(appShell, /<nav className="civitas-primary-nav"/);
 });
 
