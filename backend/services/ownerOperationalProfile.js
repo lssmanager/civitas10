@@ -43,7 +43,8 @@ function deriveLegacyCrmCompany(customData = {}) {
 
 function deriveOperationalProfile(organization = {}, { runtimeStateRows = [] } = {}) {
   const customData = getLogtoOrganizationCustomData(organization);
-  const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : {};
+  const mainContactOfCivitas = customData.mainContactOfCivitas && typeof customData.mainContactOfCivitas === "object" ? customData.mainContactOfCivitas : {};
+  const civitasProfile = customData.civitasProfile && typeof customData.civitasProfile === "object" ? customData.civitasProfile : mainContactOfCivitas;
   const business = civitasProfile.business && typeof civitasProfile.business === "object" ? civitasProfile.business : {};
   const state = runtimeStateMap(runtimeStateRows);
   const crmCompany = runtimeRowToProfileValue(state["crm:crm.company_id"]) || deriveLegacyCrmCompany(customData);
@@ -66,7 +67,7 @@ function deriveOperationalProfile(organization = {}, { runtimeStateRows = [] } =
       },
     },
     legacy: { customDataRuntimeStateFallback },
-    settings: { civitasProfile },
+    settings: { mainContactOfCivitas: civitasProfile },
   };
 }
 
