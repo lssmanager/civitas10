@@ -10,7 +10,13 @@ test("owner create autoloads editable phone prefixes and treats prefix-only as n
   assert.match(source, /onChange=\{\(event\) => updateBusinessField\("phonePrefix", event\.target\.value\)\}/);
   assert.match(source, /onChange=\{\(event\) => updateContact\(contact\.id, "phonePrefix", event\.target\.value\)\}/);
   assert.match(source, /const buildPhoneFromParts = \(prefix: string, localNumber: string\) => \{/);
-  assert.match(source, /if \(!number\) return undefined;/);
+  assert.match(source, /if \(!hasDialableLocalNumber\(number\)\) return undefined;/);
+  assert.match(source, /if \(!normalizedPrefix\) return undefined;/);
+  assert.match(source, /const includePhoneParts = \(prefix: string, localNumber: string\)/);
+  assert.match(source, /locationsApi\.getPhoneCode\(Number\(countryId\)\)/);
+  assert.doesNotMatch(source, /placeholder="\+57"/);
+  assert.doesNotMatch(source, /placeholder="Prefix"/);
+  assert.match(source, /Country loads the editable phone prefix value/);
   assert.match(source, /phone: buildPhoneFromParts\(form\.business\.phonePrefix, form\.business\.phoneNumber\)/);
   assert.match(source, /phone: buildPhoneFromParts\(contact\.phonePrefix, contact\.phoneNumber\)/);
 });

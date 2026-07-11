@@ -25,12 +25,19 @@ const normalizeLogtoUsername = (value: string) => {
 
 const buildLogtoUsernameFromEmail = (email: string) => normalizeLogtoUsername(email.split("@")[0] || "");
 
+const phoneDigits = (value: string) => value.replace(/\D/g, "");
+const hasDialableLocalNumber = (value: string) => phoneDigits(value).length > 0;
+const MIN_LOCAL_PHONE_DIGITS = 4;
+
 const buildPhoneFromParts = (prefix: string, localNumber: string) => {
   const number = normalizePhoneValue(localNumber);
-  if (!number) return undefined;
+  if (!hasDialableLocalNumber(number)) return undefined;
   const normalizedPrefix = normalizePhoneValue(prefix);
-  return [normalizedPrefix, number].filter(Boolean).join(" ");
+  if (!normalizedPrefix) return undefined;
+  return [normalizedPrefix, number].join(" ");
 };
+
+const includePhoneParts = (prefix: string, localNumber: string) => Boolean(normalizePhoneValue(prefix) && hasDialableLocalNumber(localNumber));
 
 const normalizeSegmentationLabel = (value: string) => value.replace(/\s+/g, " ").trim();
 
@@ -409,18 +416,20 @@ const OwnerOrganizationsPage = () => {
         })),
       };
     });
-    if (countryId && !nextPrefix) {
+    if (countryId) {
       void locationsApi.getPhoneCode(Number(countryId)).then((phoneCode) => {
         const fetchedPrefix = formatPhonePrefix(phoneCode);
         if (!fetchedPrefix) return;
         setForm((current) => {
           if (current.business.countryId !== countryId) return current;
           const previousPrefix = current.business.phonePrefix || null;
+          const prefixStillInherited = !current.business.phonePrefix || current.business.phonePrefix === nextPrefix;
+          if (!prefixStillInherited) return current;
           return {
             ...current,
             business: {
               ...current.business,
-              phonePrefix: current.business.phonePrefix || fetchedPrefix,
+              phonePrefix: fetchedPrefix,
             },
             administrativeContacts: current.administrativeContacts.map((contact) => ({
               ...contact,
@@ -534,6 +543,10 @@ const OwnerOrganizationsPage = () => {
     if (!toSentence(form.appBaseDomain)) errors.push("Application base domain is required.");
     if (!toSentence(form.adminDomain)) errors.push("Institutional provisioning domain is required.");
     if (emailFormatError(form.business.contactEmail)) errors.push("Organization contact email has an invalid format.");
+    if (hasDialableLocalNumber(form.business.phoneNumber)) {
+      if (!toSentence(form.business.phonePrefix)) errors.push("Organization phone prefix is required when an organization phone number is provided.");
+      if (phoneDigits(form.business.phoneNumber).length < MIN_LOCAL_PHONE_DIGITS) errors.push(`Organization phone number must include at least ${MIN_LOCAL_PHONE_DIGITS} digits after the country code.`);
+    }
 
     const seenEmails = new Set<string>();
     form.administrativeContacts.forEach((contact, index) => {
@@ -548,6 +561,10 @@ const OwnerOrganizationsPage = () => {
       }
       if (!toSentence(contact.organizationRoleName)) {
         errors.push(`Administrative contact ${index + 1}: organization role is required.`);
+      }
+      if (hasDialableLocalNumber(contact.phoneNumber)) {
+        if (!toSentence(contact.phonePrefix)) errors.push(`Administrative contact ${index + 1}: phone prefix is required when a phone number is provided.`);
+        if (phoneDigits(contact.phoneNumber).length < MIN_LOCAL_PHONE_DIGITS) errors.push(`Administrative contact ${index + 1}: phone number must include at least ${MIN_LOCAL_PHONE_DIGITS} digits after the country code.`);
       }
       const email = contact.email.trim().toLowerCase();
       if (email) {
@@ -599,8 +616,8 @@ const OwnerOrganizationsPage = () => {
         state: selectedRegion?.name || undefined,
         postalCode: form.business.postalCode.trim() || undefined,
         country: selectedCountry?.name || undefined,
-        phonePrefix: form.business.phonePrefix || undefined,
-        phoneNumber: form.business.phoneNumber.trim() || undefined,
+        phonePrefix: includePhoneParts(form.business.phonePrefix, form.business.phoneNumber) ? form.business.phonePrefix : undefined,
+        phoneNumber: includePhoneParts(form.business.phonePrefix, form.business.phoneNumber) ? form.business.phoneNumber.trim() : undefined,
         location: {
           countryId: selectedCountry?.id,
           stateId: selectedRegion?.id,
@@ -820,7 +837,7 @@ const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, upda
   const shouldShowManualCityFallback = Boolean(locationsError || (form.business.stateId && cityOptions.length === 0) || (!form.business.cityId && form.business.manualCity));
   return (
   <SectionCard title="Profile fields" description="Populate custom data attached to the canonical organization record.">
-    <AlertStrip variant="info">Country drives the phone prefix suggestion plus dependent region and city lists from the operational location catalog.</AlertStrip>
+    <AlertStrip variant="info">Country loads the editable phone prefix value plus dependent region and city lists from the operational location catalog.</AlertStrip>
     {locationsError ? <AlertStrip variant="warning" title="Location catalog unavailable">The catalog could not be loaded. You can continue with manual city/address fields. {locationsError}</AlertStrip> : null}
     <div className="civitas-form-grid">
       <FormField id="business-contact-email" label="Contact email" error={emailError}><input id="business-contact-email" className={inputClassName} type="email" value={form.business.contactEmail} onChange={(event) => updateBusinessField("contactEmail", event.target.value)} onBlur={onContactEmailBlur} /></FormField>
@@ -831,7 +848,7 @@ const StepBusinessProfile = ({ form, countries, regionOptions, cityOptions, upda
       {shouldShowManualCityFallback ? <FormField id="business-manual-city" label="Manual city fallback (optional)"><input id="business-manual-city" className={inputClassName} value={form.business.manualCity} onChange={(event) => updateBusinessField("manualCity", event.target.value)} placeholder="Use only when the city is missing from the catalog" /></FormField> : null}
       <FormField id="business-phone-prefix" label="Organization phone">
         <div className="civitas-phone-row">
-          <input id="business-phone-prefix" className={`${inputClassName} civitas-phone-prefix-field`} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} placeholder="+57" aria-label="Organization phone prefix" />
+          <input id="business-phone-prefix" className={`${inputClassName} civitas-phone-prefix-field`} value={form.business.phonePrefix} onChange={(event) => updateBusinessField("phonePrefix", event.target.value)} aria-label="Organization phone prefix" />
           <input id="business-phone-number" className={`${inputClassName} civitas-phone-number-field`} value={form.business.phoneNumber} onChange={(event) => updateBusinessField("phoneNumber", event.target.value)} placeholder="3001234567" aria-label="Organization phone number" />
         </div>
       </FormField>
@@ -863,7 +880,7 @@ const StepAdminUsers = ({ contacts, adminRoleOptions, templateLoading, updateCon
             <FormField id={`${contact.id}-email`} label="Email" required error={emailErrors[contact.id]}><input id={`${contact.id}-email`} className={inputClassName} type="email" value={contact.email} onChange={(event) => updateContact(contact.id, "email", event.target.value)} onBlur={() => onEmailBlur(contact.id)} /></FormField>
             <FormField id={`${contact.id}-phone-prefix`} label="User phone">
               <div className="civitas-phone-row">
-                <input id={`${contact.id}-phone-prefix`} className={`${inputClassName} civitas-phone-prefix-field`} value={contact.phonePrefix} onChange={(event) => updateContact(contact.id, "phonePrefix", event.target.value)} placeholder="+57" aria-label="User phone prefix" />
+                <input id={`${contact.id}-phone-prefix`} className={`${inputClassName} civitas-phone-prefix-field`} value={contact.phonePrefix} onChange={(event) => updateContact(contact.id, "phonePrefix", event.target.value)} aria-label="User phone prefix" />
                 <input id={`${contact.id}-phone`} className={`${inputClassName} civitas-phone-number-field`} value={contact.phoneNumber} onChange={(event) => updateContact(contact.id, "phoneNumber", event.target.value)} aria-label="User phone number" />
               </div>
             </FormField>
