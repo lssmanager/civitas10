@@ -20,7 +20,6 @@ test("owner create autoloads controlled phone prefixes and treats prefix-only as
   assert.doesNotMatch(source, /placeholder="\+57/);
   assert.doesNotMatch(source, /placeholder="\+57 3001234567"/);
   assert.doesNotMatch(source, /placeholder="3001234567"/);
-  assert.match(source, /Country loads the editable phone prefix value/);
   assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?form\.business\.phonePrefix,[\s\S]*?form\.business\.phoneNumber,[\s\S]*?\)/);
   assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?contact\.phonePrefix,[\s\S]*?contact\.phoneNumber[\s\S]*?\)/);
 });

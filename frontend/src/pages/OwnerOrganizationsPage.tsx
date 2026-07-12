@@ -1369,10 +1369,6 @@ const StepBusinessProfile = ({
       title="Profile fields"
       description="Populate custom data attached to the canonical organization record."
     >
-      <AlertStrip variant="info">
-        Country loads the editable phone prefix value plus dependent region and
-        city lists from the operational location catalog.
-      </AlertStrip>
       {locationsError ? (
         <AlertStrip variant="warning" title="Location catalog unavailable">
           The catalog could not be loaded. You can continue with manual
