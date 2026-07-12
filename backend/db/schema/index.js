@@ -285,5 +285,6 @@ const { orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPol
 const taxonomySchema = require("./authz-taxonomy");
 const unitsSchema = require("./authz-units");
 const dataScopeSchema = require("./authz-data-scopes");
+const authorizationRuntimeSchema = require("./authorization-runtime");
 
-module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema };
+module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema, ...authorizationRuntimeSchema };

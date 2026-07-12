@@ -17,7 +17,7 @@ const orgRoleEntitlementLimits = pgTable("org_role_entitlement_limits", {
   locked: boolean("locked").notNull().default(false),
   policyVersion: bigint("policy_version", { mode: "number" }).notNull(),
   setByLogtoUserId: varchar("set_by_logto_user_id", { length: 128 }).notNull(),
-  reason: text("reason"),
+  reason: text("reason").notNull().default("provisioned"),
   ...entitlementTimestamps,
 }, (table) => ({
   uniqueOrgRolePermission: uniqueIndex("org_role_entitlement_limits_org_role_perm_uidx").on(table.logtoOrganizationId, table.logtoRoleId, table.permissionKey),
@@ -50,11 +50,12 @@ const orgRolePermissionActivations = pgTable("org_role_permission_activations", 
 
 const authorizationPolicyVersions = pgTable("authorization_policy_versions", {
   logtoOrganizationId: varchar("logto_organization_id", { length: 128 }).primaryKey(),
-  version: bigint("version", { mode: "number" }).notNull().default(sql`1`),
-  catalogVersion: varchar("catalog_version", { length: 80 }),
+  version: bigint("version", { mode: "bigint" }).notNull().default(sql`1`),
+  catalogVersion: varchar("catalog_version", { length: 80 }).notNull().default("1"),
+  visualVersion: bigint("visual_version", { mode: "bigint" }).notNull().default(sql`1`),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedByLogtoUserId: varchar("updated_by_logto_user_id", { length: 128 }),
-  reason: text("reason"),
+  reason: text("reason").notNull().default("provisioned"),
 });
 
 module.exports = { orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions };
