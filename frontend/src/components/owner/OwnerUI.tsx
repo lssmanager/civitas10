@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
-import { AlertStrip, ActionBar as SharedActionBar, EmptyState as SharedEmptyState, MetricCard as SharedMetricCard, PageHeader as SharedPageHeader, SectionCard as SharedSectionCard, StatusPill as SharedStatusPill } from "../../shared/ui";
+import { AlertStrip, ActionBar as SharedActionBar, EmptyState as SharedEmptyState, MetricCard as SharedMetricCard, PageHeader as SharedPageHeader, SectionCard as SharedSectionCard, StateRegion, StatusPill as SharedStatusPill } from "../../shared/ui";
 
 type Tone = "info" | "success" | "warning" | "critical" | "neutral";
 
@@ -29,11 +29,11 @@ export const OwnerShell = ({ children, organizationId }: { children: ReactNode; 
 );
 
 export const StatusBanner = ({ children, tone = "info" }: { children: ReactNode; tone?: Tone }) => (
-  <AlertStrip variant={tone === "critical" ? "danger" : tone}>{children}</AlertStrip>
+  <StateRegion><AlertStrip variant={tone === "critical" ? "danger" : tone}>{children}</AlertStrip></StateRegion>
 );
 
 export const LoadingState = ({ message = "Loading..." }: { message?: ReactNode }) => <SharedEmptyState message={message} />;
-export const ErrorState = ({ message }: { message: ReactNode }) => <AlertStrip variant="danger">{message}</AlertStrip>;
+export const ErrorState = ({ message }: { message: ReactNode }) => <StateRegion><AlertStrip variant="danger">{message}</AlertStrip></StateRegion>;
 
 export const ActionBar = SharedActionBar;
 export const EmptyState = SharedEmptyState;

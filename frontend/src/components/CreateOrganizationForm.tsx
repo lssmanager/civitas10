@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useResourceApi } from '../api/resource';
+import { AlertStrip } from '../shared/ui';
 
 interface CreateOrganizationFormProps {
   onSuccess: (orgId: string, name?: string, description?: string) => void;
@@ -78,9 +79,9 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
           />
         </div>
         {error && (
-          <div className="text-red-600 text-sm bg-red-50 px-4 py-2.5 rounded-lg">
+          <AlertStrip variant="danger" title="Could not create organization">
             {error}
-          </div>
+          </AlertStrip>
         )}
         <button
           type="submit"

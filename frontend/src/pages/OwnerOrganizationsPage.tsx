@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { OwnerShell, PageHeader, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
-import { AlertStrip, ActionBar, FormField, SectionCard, StatusPill, Stepper } from "../shared/ui";
+import { AlertStrip, ActionBar, FormField, SectionCard, StateRegion, StatusPill, Stepper } from "../shared/ui";
 import { useOwnerApi, type CreateOwnerOrganizationInput } from "../api/owner";
 import { useLocationsApi, type CountryOption, type StateOption, type CityOption } from "../api/locations";
 
@@ -722,33 +722,36 @@ const OwnerOrganizationsPage = () => {
         description="Workspace enfocado en provisioning: template status, organización canónica, custom data, usuarios administrativos, segmentación y submit. La navegación primaria permanece en el shell owner."
       />
 
-      {templateError ? <AlertStrip variant="danger" title="Organization template unavailable">Could not load the organization template from the API. {templateError}</AlertStrip> : null}
-      {draftError ? <AlertStrip variant="warning" title="Draft not saved">{draftError}</AlertStrip> : null}
-      {idempotencyKey ? <AlertStrip variant="info" title="Wizard request identifier">Idempotency key: <code>{idempotencyKey}</code>. Civitas stores this as operational draft/resume state; Logto remains canonical for the organization.</AlertStrip> : null}
-
-      {created ? (
-        <AlertStrip variant="success" title="Organization created in Logto">
-          <p><strong>{created.organizationName}</strong> exists in Logto. Civitas keeps the idempotency key and operation history for traceability only.</p>
-          <p>Request identifier: <code>{created.idempotencyKey}</code></p>
-          <div className="civitas-grid-2">
-            <div>
-              <strong>Bootstrap</strong>
-              <p>First admin user id: {created.firstAdminUserId || "-"}</p>
-              <p>Assigned organization role: {created.assignedOrganizationRole || "-"}</p>
-            </div>
-            <div>
-              <strong>Administrative assignments</strong>
-              <ul>
-                {created.administrativeContactAssignments.map((assignment) => (
-                  <li key={`${assignment.email}-${assignment.logtoUserId}`}>{assignment.email} · {assignment.roleName} · {assignment.userCreated ? "new user" : assignment.userSource}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </AlertStrip>
-      ) : null}
-
       <form onSubmit={handleSubmit} className="civitas-stack" data-civitas-create-organization-wizard="true">
+        {templateError || draftError || idempotencyKey || created ? (
+          <StateRegion>
+            {templateError ? <AlertStrip variant="danger" title="Organization template unavailable">Could not load the organization template from the API. {templateError}</AlertStrip> : null}
+            {draftError ? <AlertStrip variant="warning" title="Draft not saved">{draftError}</AlertStrip> : null}
+            {idempotencyKey ? <AlertStrip variant="info" title="Wizard request identifier">Idempotency key: <code>{idempotencyKey}</code>. Civitas stores this as operational draft/resume state; Logto remains canonical for the organization.</AlertStrip> : null}
+
+            {created ? (
+              <AlertStrip variant="success" title="Organization created in Logto">
+                <p><strong>{created.organizationName}</strong> exists in Logto. Civitas keeps the idempotency key and operation history for traceability only.</p>
+                <p>Request identifier: <code>{created.idempotencyKey}</code></p>
+                <div className="civitas-grid-2">
+                  <div>
+                    <strong>Bootstrap</strong>
+                    <p>First admin user id: {created.firstAdminUserId || "-"}</p>
+                    <p>Assigned organization role: {created.assignedOrganizationRole || "-"}</p>
+                  </div>
+                  <div>
+                    <strong>Administrative assignments</strong>
+                    <ul>
+                      {created.administrativeContactAssignments.map((assignment) => (
+                        <li key={`${assignment.email}-${assignment.logtoUserId}`}>{assignment.email} · {assignment.roleName} · {assignment.userCreated ? "new user" : assignment.userSource}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </AlertStrip>
+            ) : null}
+          </StateRegion>
+        ) : null}
         <SectionCard className="civitas-wizard-progress-card">
           <Stepper steps={wizardSteps.map((step) => ({ id: step.id, label: step.label }))} activeStep={activeStep} />
         </SectionCard>

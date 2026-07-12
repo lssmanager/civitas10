@@ -124,6 +124,20 @@
   --civitas-breakpoint-lg: 1024px;
   --civitas-breakpoint-xl: 1280px;
 
+
+  /* Civitas structural state component tokens: page alerts, empty states, loading and field errors. */
+  --civitas-layout-padding-x: var(--civitas-shell-inline-padding);
+  --civitas-state-inset-lg: var(--civitas-space-6);
+  --civitas-state-motion-duration-slow: 1.2s;
+  --civitas-feedback-error: var(--civitas-danger-strong);
+  --civitas-feedback-error-surface: var(--civitas-danger-soft);
+  --civitas-feedback-error-border: var(--civitas-danger-strong);
+  --civitas-field-error-border: var(--civitas-danger-strong);
+  --civitas-field-helper-error: var(--civitas-danger-strong);
+  --civitas-state-foreground-subtle: var(--civitas-muted);
+  --civitas-state-action-link: var(--civitas-primary);
+  --civitas-loading-skeleton-bg: var(--civitas-surface-subtle);
+
   --civitas-z-topbar: 20;
   --civitas-z-sticky-action: 30;
   --civitas-z-overlay: 50;
