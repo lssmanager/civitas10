@@ -36,6 +36,11 @@ jobs:
       - name: Validate Logto authorization bootstrap contract
         run: npm run logto:authz:contract-check
 
+      - name: Validate backend scope-only and delegation contracts
+        run: |
+          npm run authz:scope-contract-check
+          npm run authz:delegation-contract-check
+
       - name: Install ESLint
         run: |
           npm install eslint@8.10.0

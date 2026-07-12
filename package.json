@@ -7,6 +7,8 @@
     "test:authz:naming": "node --test backend/test/authorization-naming-contract.test.js",
     "logto:authz": "node scripts/logto/cli.js",
     "logto:authz:contract-check": "node scripts/logto/contract-check.js",
-    "test:logto:authz": "node --test backend/test/logto-authz-bootstrap.test.js"
+    "test:logto:authz": "node --test backend/test/logto-authz-bootstrap.test.js",
+    "authz:scope-contract-check": "node scripts/authorization/check-scope-only.js && node --test backend/test/foundation-authorization-middleware.test.js backend/test/authz-scope-delegation-contract.test.js",
+    "authz:delegation-contract-check": "node --test backend/test/authz-scope-delegation-contract.test.js"
   }
 }

@@ -39,10 +39,8 @@ const getJwks = () => {
 };
 
 const normalizeAudience = (audience) => (Array.isArray(audience) ? audience[0] : audience);
-const hasAudience = (payloadOrAudience, expectedAudience) => {
-  const audiences = Array.isArray(payloadOrAudience) ? payloadOrAudience : [payloadOrAudience];
-  return audiences.includes(expectedAudience);
-};
+const normalizeAudiences = (audience) => (Array.isArray(audience) ? audience : [audience]).filter(Boolean);
+const hasAudience = (payloadOrAudience, expectedAudience) => normalizeAudiences(payloadOrAudience).includes(expectedAudience);
 
 const getTokenFromHeader = (headers) => {
   const authorization = headers.authorization;
@@ -144,12 +142,57 @@ const extractRoleNames = (payload = {}) => {
 };
 
 const hasRequiredScopes = (tokenScopes, requiredScopes = []) => {
-  if (!requiredScopes || requiredScopes.length === 0) {
-    return true;
-  }
-
-  const scopeSet = new Set(tokenScopes);
+  if (!requiredScopes || requiredScopes.length === 0) return true;
+  const scopeSet = tokenScopes instanceof Set ? tokenScopes : new Set(tokenScopes || []);
   return requiredScopes.every((scope) => scopeSet.has(scope));
+};
+
+const hasAnyRequiredScope = (tokenScopes, requiredScopes = []) => {
+  if (!requiredScopes || requiredScopes.length === 0) return true;
+  const scopeSet = tokenScopes instanceof Set ? tokenScopes : new Set(tokenScopes || []);
+  return requiredScopes.some((scope) => scopeSet.has(scope));
+};
+
+const normalizeScopeRequirements = ({ requiredScopes, requiredAllScopes, requiredAnyScopes, allowAuthOnly = false } = {}) => {
+  const all = requiredAllScopes || requiredScopes || [];
+  const any = requiredAnyScopes || [];
+  if (!Array.isArray(all) || !Array.isArray(any)) throw new Error("Scope requirements must be arrays");
+  if (!allowAuthOnly && all.length === 0 && any.length === 0) throw new Error("Authorization guard requires at least one required scope; use requireAuth for auth-only routes.");
+  return { requiredAllScopes: [...all], requiredAnyScopes: [...any] };
+};
+
+const buildAuthContext = ({ payload, tokenType, organizationId }) => {
+  const scopeSet = new Set(parseScopes(payload.scope));
+  const globalRoles = extractGlobalRoleNames(payload);
+  const organizationRoles = extractOrganizationRoleNames(payload);
+  return {
+    subject: payload.sub,
+    tokenType,
+    audience: normalizeAudiences(payload.aud),
+    organizationId: organizationId || null,
+    scopes: scopeSet,
+    globalRoles,
+    organizationRoles,
+    roles: [...new Set([...globalRoles, ...organizationRoles])],
+    claims: payload,
+    tokenId: payload.jti,
+    issuedAt: payload.iat,
+    expiresAt: payload.exp,
+  };
+};
+
+const attachAuthContext = (req, authContext) => {
+  req.auth = authContext;
+  req.user = {
+    id: authContext.subject,
+    sub: authContext.subject,
+    scopes: [...authContext.scopes],
+    organizationId: authContext.organizationId,
+    roles: authContext.roles,
+    globalRoles: authContext.globalRoles,
+    organizationRoles: authContext.organizationRoles,
+    claims: authContext.claims,
+  };
 };
 
 const verifyJwt = async (token, audience) => {
@@ -198,46 +241,35 @@ const buildAuthFailure = (error, expiredMessage, invalidMessage) => {
   };
 };
 
-const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [] } = {}) => {
-  if (!resource) {
-    throw new Error("Resource parameter is required for authentication");
-  }
+const buildScopeFailure = (requiredAllScopes, requiredAnyScopes, message) => ({
+  error: "Forbidden",
+  code: "permission_missing",
+  message,
+  ...(requiredAllScopes.length === 1 && requiredAnyScopes.length === 0 ? { requiredPermission: requiredAllScopes[0] } : {}),
+  decisionId: `authz_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+});
+
+const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes, requiredAllScopes, requiredAnyScopes, allowAuthOnly = false } = {}) => {
+  if (!resource) throw new Error("Resource parameter is required for authentication");
   assertUrlResource(resource);
+  const requirements = normalizeScopeRequirements({ requiredScopes, requiredAllScopes, requiredAnyScopes, allowAuthOnly });
 
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);
       const payload = await verifyJwt(token, resource);
-      const scopes = parseScopes(payload.scope);
       const organizationId = extractOrganizationId(payload);
 
       if (organizationId) {
-        return res.status(401).json({
-          error: "Unauthorized",
-          message: "Global API routes require a Logto global API access token, not an organization token.",
-          code: "GLOBAL_TOKEN_REQUIRED",
-        });
+        return res.status(401).json({ error: "Unauthorized", message: "Global API routes require a Logto global API access token, not an organization token.", code: "GLOBAL_TOKEN_REQUIRED" });
       }
 
-      if (!hasRequiredScopes(scopes, requiredScopes)) {
-        return res.status(403).json({
-          error: "Forbidden",
-          message: "Insufficient global API permissions",
-          requiredScopes,
-        });
+      const authContext = buildAuthContext({ payload, tokenType: "global", organizationId: null });
+      if (!hasRequiredScopes(authContext.scopes, requirements.requiredAllScopes) || !hasAnyRequiredScope(authContext.scopes, requirements.requiredAnyScopes)) {
+        return res.status(403).json(buildScopeFailure(requirements.requiredAllScopes, requirements.requiredAnyScopes, "Insufficient global API permissions"));
       }
 
-      req.user = {
-        id: payload.sub,
-        sub: payload.sub,
-        scopes,
-        organizationId,
-        roles: extractRoleNames(payload),
-        globalRoles: extractGlobalRoleNames(payload),
-        organizationRoles: extractOrganizationRoleNames(payload),
-        claims: payload,
-      };
-
+      attachAuthContext(req, authContext);
       return next();
     } catch (error) {
       const failure = buildAuthFailure(error, "Access token expired", "Invalid or missing access token");
@@ -246,118 +278,57 @@ const requireGlobalAccess = ({ resource = deploymentConfig.logtoResource, requir
   };
 };
 
-const requireAuth = (resource = deploymentConfig.logtoResource) => requireGlobalAccess({ resource });
+const requireAuth = (resource = deploymentConfig.logtoResource) => requireGlobalAccess({ resource, allowAuthOnly: true });
+
+const getRequestScopeSet = (req) => req.auth?.scopes instanceof Set ? req.auth.scopes : new Set(Array.isArray(req.user?.scopes) ? req.user.scopes : []);
 
 const requireScope = (requiredScope) => {
+  if (!requiredScope || typeof requiredScope !== "string") throw new Error("requiredScope must be a permission string");
   return (req, res, next) => {
-    const scopes = Array.isArray(req.user?.scopes) ? req.user.scopes : [];
-
-    if (!hasRequiredScopes(scopes, [requiredScope])) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: `Missing required Logto scope: ${requiredScope}`,
-        requiredScope,
-      });
+    if (!req.user && !req.auth) return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
+    if (!hasRequiredScopes(getRequestScopeSet(req), [requiredScope])) {
+      return res.status(403).json({ error: "Forbidden", code: "permission_missing", requiredPermission: requiredScope, decisionId: `authz_${Date.now().toString(36)}` });
     }
-
     return next();
   };
 };
 
 const requireOrganizationRole = (requiredRoleName) => {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
-    }
-
-    const organizationId = req.user.organizationId || extractOrganizationId(req.user.claims || {});
+    if (!req.user && !req.auth) return res.status(401).json({ error: "Unauthorized", message: "Authentication is required." });
+    const organizationId = req.auth?.organizationId || req.user?.organizationId || extractOrganizationId(req.user?.claims || req.auth?.claims || {});
     if (!organizationId) {
-      return res.status(403).json({
-        error: "OrganizationContextRequired",
-        message: "Organization authorization requires an organization-scoped token and membership context.",
-      });
+      return res.status(403).json({ error: "OrganizationContextRequired", message: "Organization authorization requires an organization-scoped token and membership context." });
     }
-
-    const roles = Array.isArray(req.user.organizationRoles)
-      ? req.user.organizationRoles
-      : extractOrganizationRoleNames(req.user.claims || {});
+    const roles = Array.isArray(req.auth?.organizationRoles) ? req.auth.organizationRoles : (Array.isArray(req.user?.organizationRoles) ? req.user.organizationRoles : extractOrganizationRoleNames(req.user?.claims || {}));
     if (!roles.includes(requiredRoleName)) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: `Missing required Logto organization role: ${requiredRoleName}`,
-        requiredRole: requiredRoleName,
-        organizationId,
-      });
+      return res.status(403).json({ error: "Forbidden", message: `Missing required Logto organization role: ${requiredRoleName}`, requiredRole: requiredRoleName, organizationId });
     }
     return next();
   };
 };
 
-const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes = [], requiredRoleName = null } = {}) => {
+const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, requiredScopes, requiredAllScopes, requiredAnyScopes, requiredRoleName = null, requireOrganizationContext = true, allowAuthOnly = false } = {}) => {
+  assertUrlResource(resource);
+  const requirements = normalizeScopeRequirements({ requiredScopes, requiredAllScopes, requiredAnyScopes, allowAuthOnly });
   return async (req, res, next) => {
     try {
       const token = getTokenFromHeader(req.headers);
-      const decodedPayload = decodeJwtPayload(token);
-      const audience = normalizeAudience(decodedPayload.aud);
-      const organizationId = extractOrganizationId(decodedPayload);
-      assertUrlResource(resource);
-
-      if (!hasAudience(decodedPayload.aud, resource)) {
-        const error = new Error("Invalid organization token audience");
-        error.status = 401;
-        throw error;
-      }
-
-      if (!audience || !organizationId) {
-        const error = new Error("Invalid organization token");
-        error.status = 401;
-        throw error;
-      }
-
       const payload = await verifyJwt(token, resource);
+      if (!hasAudience(payload.aud, resource)) { const error = new Error("Invalid organization token audience"); error.status = 401; throw error; }
       const verifiedOrganizationId = extractOrganizationId(payload);
-      const scopes = parseScopes(payload.scope);
-
-      if (!verifiedOrganizationId) {
-        const error = new Error("Organization token is missing organization context");
-        error.status = 401;
-        throw error;
+      if (requireOrganizationContext && !verifiedOrganizationId) { const error = new Error("Organization token is missing organization context"); error.status = 401; throw error; }
+      if (req.params?.organizationId && verifiedOrganizationId && req.params.organizationId !== verifiedOrganizationId) {
+        return res.status(403).json({ error: "Forbidden", message: "Organization token does not match requested organization" });
       }
-
-      if (req.params?.organizationId && req.params.organizationId !== verifiedOrganizationId) {
-        return res.status(403).json({
-          error: "Forbidden",
-          message: "Organization token does not match requested organization",
-        });
+      const authContext = buildAuthContext({ payload, tokenType: "organization", organizationId: verifiedOrganizationId });
+      if (!hasRequiredScopes(authContext.scopes, requirements.requiredAllScopes) || !hasAnyRequiredScope(authContext.scopes, requirements.requiredAnyScopes)) {
+        return res.status(403).json(buildScopeFailure(requirements.requiredAllScopes, requirements.requiredAnyScopes, "Insufficient organization permissions"));
       }
-
-      if (!hasRequiredScopes(scopes, requiredScopes)) {
-        return res.status(403).json({
-          error: "Forbidden",
-          message: "Insufficient organization permissions",
-          requiredScopes,
-        });
+      attachAuthContext(req, authContext);
+      if (requiredRoleName && !authContext.organizationRoles.includes(requiredRoleName)) {
+        return res.status(403).json({ error: "Forbidden", message: `Missing required Logto organization role: ${requiredRoleName}`, requiredRole: requiredRoleName });
       }
-
-      req.user = {
-        id: payload.sub,
-        sub: payload.sub,
-        scopes,
-        organizationId: verifiedOrganizationId,
-        roles: extractRoleNames(payload),
-        globalRoles: extractGlobalRoleNames(payload),
-        organizationRoles: extractOrganizationRoleNames(payload),
-        claims: payload,
-      };
-
-      if (requiredRoleName && !req.user.organizationRoles.includes(requiredRoleName)) {
-        return res.status(403).json({
-          error: "Forbidden",
-          message: `Missing required Logto organization role: ${requiredRoleName}`,
-          requiredRole: requiredRoleName,
-        });
-      }
-
       return next();
     } catch (error) {
       const failure = buildAuthFailure(error, "Organization token expired", "Invalid organization access token");

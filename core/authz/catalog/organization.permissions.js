@@ -9,7 +9,7 @@ module.exports = Object.freeze([
     "status": "active",
     "resource": "https://civitas.didaxus.com/api",
     "consumers": [
-      "backend/index.js:GET /api/documents guarded by read:documents and legacy lms:read"
+      "backend/index.js:GET /api/documents guarded by org.documents.read"
     ],
     "policyRequirements": [],
     "overlayMode": "restrictable",
@@ -23,7 +23,7 @@ module.exports = Object.freeze([
     "status": "active",
     "resource": "https://civitas.didaxus.com/api",
     "consumers": [
-      "backend/index.js:POST /api/documents guarded by create:documents and legacy members:write"
+      "backend/index.js:POST /api/documents guarded by org.documents.create"
     ],
     "policyRequirements": [],
     "overlayMode": "restrictable",

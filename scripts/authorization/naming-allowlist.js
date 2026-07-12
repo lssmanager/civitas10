@@ -73,7 +73,7 @@ function entry(kind, legacyValue, canonicalReplacement, allowedFiles, reason, ow
 }
 const AUTHORIZATION_NAMING_ALLOWLIST = Object.freeze([
   ...Object.entries(ownerLegacyReplacements).map(([legacy, replacement]) => entry('permission', legacy, replacement, legacyScopeFiles, 'Legacy owner/API OAuth scopes remain until #90/#75 migrate producers and consumers.')),
-  ...Object.entries(tenantLegacyReplacements).map(([legacy, replacement]) => entry('permission', legacy, replacement, legacyScopeFiles, 'Legacy role-permission and document scopes remain until #75 replaces ROLE_PERMISSIONS.')),
+  ...Object.entries(tenantLegacyReplacements).map(([legacy, replacement]) => entry('permission', legacy, replacement, legacyScopeFiles, 'Legacy role-permission and document scopes remain in documented migration files only after #75 scope-only enforcement.')),
   entry('role', 'org_admin', 'organization_admin', ['auth/permissions.js'], 'Legacy sample auth role key remains until old auth helper is retired.'),
   entry('role', 'org_roles', 'organization_roles', ['auth/permissions.js'], 'Legacy JWT claim reader name, not a canonical Logto role.'),
   entry('role', 'organization_roles', null, ['auth/permissions.js'], 'External JWT claim field name, not a local RBAC table.'),

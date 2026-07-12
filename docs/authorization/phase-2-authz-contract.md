@@ -7,7 +7,7 @@ This document records the repository evidence used to build the canonical author
 - The existing canonical API resource is `https://civitas.didaxus.com/api` in `core/shared/civitas-shared.contract.cjs`.
 - Legacy global scopes are still present in the shared contract: `owner:read`, `owner:write`, `runtime:read`, `runtime:write`, `worker-queues:read`, `worker-queues:write`, `organization:create`, `organization:read`, `organization:write`, and `impersonation:write`.
 - Legacy organization document scopes are still present as `read:documents` and `create:documents`.
-- `backend/authorization/roles.js` currently defines the 12 `organization_*` roles, plus a legacy local `ROLE_PERMISSIONS` matrix that still includes wildcard owner behavior and colon-delimited permissions.
+- `backend/authorization/roles.js` now contains only canonical role-name constants; backend functional authorization is scope-only after #75.
 - Current production consumers of legacy permissions remain in `backend/index.js`, `backend/middleware/requirePermission.js`, `backend/middleware/auth.js`, `frontend/src/authz/rbacMatrix.ts`, and `frontend/src/authz/ownerScopes.ts`.
 - Connector/capability contracts exist in `backend/contracts/foundation.js`, `backend/connectors/adapters/contracts/index.js`, and operational connector services; adapter names are not used as canonical permission names.
 - No repository-owned `scripts/logto` directory or `seed-logto-roles` script exists. Existing Logto files are identity adapters/configuration, not provisioning for #87.
