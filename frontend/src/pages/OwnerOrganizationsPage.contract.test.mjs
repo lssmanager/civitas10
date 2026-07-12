@@ -14,9 +14,9 @@ test("OwnerOrganizationsPage is scoped to provisioning and not secondary navigat
 
 test("OwnerOrganizationsPage uses the operational location catalog on the real owner create route", () => {
   assert.match(source, /useLocationsApi/);
-  assert.match(source, /locationsApi\.listCountries\(\)/);
-  assert.match(source, /locationsApi\.listStates\(countryId\)/);
-  assert.match(source, /locationsApi\.listCities\(stateId\)/);
+  assert.match(source, /locationsApi\s*\.listCountries\(\)/);
+  assert.match(source, /locationsApi\s*\.listStates\(countryId\)/);
+  assert.match(source, /locationsApi\s*\.listCities\(stateId\)/);
   assert.doesNotMatch(source, /COUNTRY_OPTIONS/);
 });
 

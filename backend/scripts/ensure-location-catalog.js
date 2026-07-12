@@ -33,6 +33,7 @@ async function loadCatalogStatus({ queryPostgres = loadRuntime().queryPostgres }
        (select count(*)::int from location_countries where is_active = true) as countries,
        (select count(*)::int from location_states where is_active = true) as states,
        (select count(*)::int from location_cities where is_active = true) as cities,
+       (select count(*)::int from location_countries where is_active = true and nullif(trim(phone_code), '') is null) as "countriesMissingPhoneCode",
        (select json_build_object('id', id, 'sourceVersion', source_version, 'completedAt', completed_at, 'countries', countries_count, 'states', states_count, 'cities', cities_count)
           from location_import_runs
          where status = 'completed'
@@ -44,18 +45,19 @@ async function loadCatalogStatus({ queryPostgres = loadRuntime().queryPostgres }
     countries: Number(status.countries || 0),
     states: Number(status.states || 0),
     cities: Number(status.cities || 0),
+    countriesMissingPhoneCode: Number(status.countriesMissingPhoneCode || 0),
     lastCompletedImport: status.lastCompletedImport || null,
   };
 }
 
 function isCatalogReady(status) {
-  return Boolean(status && status.countries > 0 && status.lastCompletedImport);
+  return Boolean(status && status.countries > 0 && status.countriesMissingPhoneCode === 0 && status.lastCompletedImport);
 }
 
 async function ensureLocationCatalog({ queryPostgres = loadRuntime().queryPostgres, runImport, logger = console } = {}) {
   const before = await loadCatalogStatus({ queryPostgres });
   if (isCatalogReady(before)) {
-    const result = { component: "location-catalog", status: "ok", action: "skipped", counts: { countries: before.countries, states: before.states, cities: before.cities }, lastCompletedImport: before.lastCompletedImport };
+    const result = { component: "location-catalog", status: "ok", action: "skipped", counts: { countries: before.countries, states: before.states, cities: before.cities, countriesMissingPhoneCode: before.countriesMissingPhoneCode }, lastCompletedImport: before.lastCompletedImport };
     logger.log(JSON.stringify(result));
     return result;
   }
@@ -69,7 +71,7 @@ async function ensureLocationCatalog({ queryPostgres = loadRuntime().queryPostgr
     error.details = after;
     throw error;
   }
-  const result = { component: "location-catalog", status: "ok", action: "imported", counts: { countries: after.countries, states: after.states, cities: after.cities }, lastCompletedImport: after.lastCompletedImport };
+  const result = { component: "location-catalog", status: "ok", action: "imported", counts: { countries: after.countries, states: after.states, cities: after.cities, countriesMissingPhoneCode: after.countriesMissingPhoneCode }, lastCompletedImport: after.lastCompletedImport };
   logger.log(JSON.stringify(result));
   return result;
 }

@@ -4,29 +4,32 @@ import { readFileSync } from "node:fs";
 
 const source = readFileSync(new URL("./OwnerOrganizationsPage.tsx", import.meta.url), "utf8");
 
-test("owner create autoloads editable phone prefixes and treats prefix-only as no phone", () => {
-  assert.match(source, /phonePrefix: nextPrefix/);
-  assert.match(source, /className=\{`\$\{inputClassName\} civitas-phone-prefix-field`\}/);
-  assert.match(source, /onChange=\{\(event\) => updateBusinessField\("phonePrefix", event\.target\.value\)\}/);
-  assert.match(source, /onChange=\{\(event\) => updateContact\(contact\.id, "phonePrefix", event\.target\.value\)\}/);
+test("owner create autoloads controlled phone prefixes and treats prefix-only as no phone", () => {
+  assert.match(source, /const getCountryDialCode = \(country: CountryOption \| null\)/);
+  assert.match(source, /useState<WizardGlobalState>/);
+  assert.match(source, /companyPrefix: prefix/);
+  assert.match(source, /locationsApi\s*\.getPhoneCode\(selectedCountry\.id\)/);
+  assert.match(source, /business: \{ \.\.\.current\.business, phonePrefix: prefix \}/);
+  assert.match(source, /<PhonePrefixInput/);
+  assert.match(source, /list=\{`\$\{id\}-country-prefixes`\}/);
+  assert.match(source, /autoComplete="tel-country-code"/);
   assert.match(source, /const buildPhoneFromParts = \(prefix: string, localNumber: string\) => \{/);
   assert.match(source, /if \(!hasDialableLocalNumber\(number\)\) return undefined;/);
   assert.match(source, /if \(!normalizedPrefix\) return undefined;/);
   assert.match(source, /const includePhoneParts = \(prefix: string, localNumber: string\)/);
-  assert.match(source, /locationsApi\.getPhoneCode\(Number\(countryId\)\)/);
-  assert.doesNotMatch(source, /placeholder="\+57"/);
-  assert.doesNotMatch(source, /placeholder="Prefix"/);
-  assert.match(source, /Country loads the editable phone prefix value/);
-  assert.match(source, /phone: buildPhoneFromParts\(form\.business\.phonePrefix, form\.business\.phoneNumber\)/);
-  assert.match(source, /phone: buildPhoneFromParts\(contact\.phonePrefix, contact\.phoneNumber\)/);
+  assert.doesNotMatch(source, /placeholder="\+57/);
+  assert.doesNotMatch(source, /placeholder="\+57 3001234567"/);
+  assert.doesNotMatch(source, /placeholder="3001234567"/);
+  assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?form\.business\.phonePrefix,[\s\S]*?form\.business\.phoneNumber,[\s\S]*?\)/);
+  assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?contact\.phonePrefix,[\s\S]*?contact\.phoneNumber[\s\S]*?\)/);
 });
 
 test("owner create autogenerates Logto-safe usernames from email local-part", () => {
   assert.match(source, /const normalizeLogtoUsername = \(value: string\) => \{/);
   assert.match(source, /replace\(\/\[\^a-z0-9_\]\/g, "_"\)/);
-  assert.match(source, /const buildLogtoUsernameFromEmail = \(email: string\) => normalizeLogtoUsername\(email\.split\("@"\)\[0\] \|\| ""\)/);
+  assert.match(source, /const buildLogtoUsernameFromEmail = \(email: string\) =>\s+normalizeLogtoUsername\(email\.split\("@"\)\[0\] \|\| ""\)/);
   assert.match(source, /field === "email"/);
-  assert.match(source, /username: shouldAutofillUsername \? nextGeneratedUsername : contact\.username/);
+  assert.match(source, /username:\s+shouldAutofillUsername\s+\? nextGeneratedUsername\s+: contact\.username/s);
 });
 
 test("owner create autogenerates editable segmentation defaults from organization name", () => {

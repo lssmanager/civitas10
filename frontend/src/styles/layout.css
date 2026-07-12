@@ -719,27 +719,48 @@
 }
 
 .civitas-phone-row {
-  display: grid;
-  grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: var(--civitas-space-3);
   align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.civitas-phone-prefix-field,
+.civitas-phone-number-field {
+  box-sizing: border-box;
 }
 
 .civitas-phone-prefix-field {
+  flex: 0 0 auto;
+  width: clamp(5.25rem, 28%, 7rem);
   max-width: 7rem;
 }
 
 .civitas-phone-number-field {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
 @media (max-width: 480px) {
   .civitas-phone-row {
-    grid-template-columns: 1fr;
+    flex-wrap: nowrap;
+    gap: var(--civitas-space-2);
   }
 
   .civitas-phone-prefix-field {
-    max-width: 100%;
+    width: 5rem;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .civitas-phone-number-field {
+    min-width: 0;
+    padding-inline: 8px;
+    font-size: 16px;
   }
 }
 
