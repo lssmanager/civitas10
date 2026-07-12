@@ -1,0 +1,4 @@
+"use strict";
+const { ORGANIZATION_STRUCTURE_REASON_CODES, structureError } = require("./organizationStructureReasonCodes");
+async function bumpVersion({ repository, organizationId, kind, actorLogtoUserId, expectedVersion, reason }) { const current=await repository.getVersions(organizationId); const field={graph:"unitGraphVersion",membership:"membershipVersion",audience:"audienceVersion"}[kind]; if(!field) throw new Error("version_kind_unknown"); if(expectedVersion!=null&&Number(expectedVersion)!==Number(current[field])) throw structureError(ORGANIZATION_STRUCTURE_REASON_CODES.STRUCTURE_VERSION_CONFLICT); const next={...current,[field]:Number(current[field]||0)+1,updatedByLogtoUserId:actorLogtoUserId,reason,updatedAt:new Date().toISOString()}; return repository.saveVersions(next); }
+module.exports={ bumpVersion };

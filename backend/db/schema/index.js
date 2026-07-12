@@ -282,5 +282,8 @@ const idempotencyRecords = pgTable("idempotency_records", {
 
 const { roleDelegationRules, orgDelegationRestrictions } = require("./authz-delegation");
 const { orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions } = require("./authz-entitlements");
+const taxonomySchema = require("./authz-taxonomy");
+const unitsSchema = require("./authz-units");
+const dataScopeSchema = require("./authz-data-scopes");
 
-module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions };
+module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema };

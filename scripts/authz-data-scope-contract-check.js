@@ -1,0 +1,5 @@
+"use strict";
+const fs=require("node:fs"), path=require("node:path"); const migration=fs.readFileSync(path.join(__dirname,"../backend/db/migrations/0010_authz_data_scopes.sql"),"utf8");
+for(const req of ["authorization_scope_assignments","authorization_scope_assignments_exactly_one_target_ck","num_nonnulls","authorization_scope_assignments_semantic_target_ck","authorization_scope_assignments_active_dimension_uidx","authorization_scope_assignments_active_unit_uidx","authorization_scope_assignments_active_resource_uidx","authorization_scope_assignments_dimension_org_fk","authorization_scope_assignments_unit_org_fk"]) if(!migration.includes(req)){console.error(`missing data scope contract: ${req}`); process.exit(1)}
+for(const bad of [/identity\.self.*dimension_value/i,/academic\.assigned_group.*taxonomy_dimension/i,/moodle|buddyboss|listmonk|freescout/i]) if(bad.test(migration)){console.error(`forbidden data scope pattern: ${bad}`); process.exit(1)}
+console.log("data scope contract check passed");

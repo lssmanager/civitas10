@@ -18,7 +18,15 @@
     "locations:import": "node scripts/import-location-catalog.js",
     "test:runtime-boundary": "node scripts/validate-runtime-boundary.js",
     "locations:ensure": "node scripts/ensure-location-catalog.js",
-    "db:bootstrap": "npm run db:migrate:sql && npm run locations:ensure"
+    "db:bootstrap": "npm run db:migrate:sql && npm run locations:ensure",
+    "taxonomy:contract-check": "node ../scripts/taxonomy/contract-check.js && node --test test/authz-taxonomy-contract.test.js",
+    "taxonomy:migration-check": "node ../scripts/taxonomy/migration-check.js",
+    "organization-structure:contract-check": "node ../scripts/organization-structure-contract-check.js && node --test test/authz-organization-structure-contract.test.js",
+    "organization-structure:migration-check": "node ../scripts/organization-structure-migration-check.js",
+    "authz:data-scope-contract-check": "node ../scripts/authz-data-scope-contract-check.js && node --test test/authz-data-scope-contract.test.js",
+    "authz:data-scope-migration-check": "node ../scripts/authz-data-scope-migration-check.js",
+    "organization-structure:data-scope-integration-check": "node ../scripts/organization-structure-data-scope-integration-check.js && node --test test/authz-organization-structure-data-scope-integration.test.js",
+    "organization-structure:reconciliation-check": "node ../scripts/organization-structure-reconciliation-check.js"
   },
   "keywords": [],
   "author": "",
