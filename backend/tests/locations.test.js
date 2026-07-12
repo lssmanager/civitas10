@@ -86,6 +86,16 @@ test("location ensure fails clearly when required location tables are missing", 
   );
 });
 
+
+test("backend API and worker run location ensure after startup migrations", () => {
+  const apiSource = readFileSync(join(__dirname, "..", "index.js"), "utf8");
+  const workerSource = readFileSync(join(__dirname, "..", "worker", "index.js"), "utf8");
+  const startupEnsurePattern = new RegExp("\\.then\\(\\(\\) => prepareOperationalDatabase\\(\\)\\)\\s*\\.then\\(\\(\\) => ensureLocationCatalog\\(\\)\\)");
+  assert.match(apiSource, startupEnsurePattern);
+  assert.match(workerSource, startupEnsurePattern);
+  assert.doesNotMatch(apiSource, /BOOTSTRAP_LOCATION_CATALOG_ON_STARTUP/);
+});
+
 test("location ensure CLI closes database connections", () => {
   const source = readFileSync(join(__dirname, "..", "scripts", "ensure-location-catalog.js"), "utf8");
   assert.match(source, /finally \{\s*await runtime\.closeDatabase\(\);\s*\}/);

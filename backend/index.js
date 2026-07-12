@@ -449,10 +449,7 @@ if (require.main === module) {
     .then(() => validateRuntimeEnv({ requireRedis: true }))
     .then(() => waitForDatabase({ ping: pingDatabase }))
     .then(() => prepareOperationalDatabase())
-    .then(() => {
-      if (String(process.env.BOOTSTRAP_LOCATION_CATALOG_ON_STARTUP || "false").toLowerCase() !== "true") return null;
-      return ensureLocationCatalog();
-    })
+    .then(() => ensureLocationCatalog())
     .then(() => app.listen(port, () => { console.log(`Server is running on port ${port}`); }))
     .catch((error) => { console.error(`Backend startup failed: ${error.message}`); process.exit(1); });
 }

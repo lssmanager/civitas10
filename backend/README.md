@@ -99,7 +99,7 @@ Use `npm run locations:import` only when you intentionally want to refresh the f
 
 Recommended Coolify flow: keep `npm start` as the backend start command and add a post-deploy command that runs `cd backend && npm run db:bootstrap` once per deploy/environment. In production, prefer an explicit release/job step for `npm run db:bootstrap` so only one process downloads and imports the ~250 countries, ~5,308 states, and ~152,967 cities.
 
-`BOOTSTRAP_LOCATION_CATALOG_ON_STARTUP=true` is available as a controlled escape hatch after startup migrations. It is disabled by default and should not be used as the normal routine in multi-replica deployments because every starting replica would be allowed to evaluate the import path and compete for database/network work.
+The backend API and worker run the idempotent `locations:ensure` check after startup migrations. The ensure step skips when active countries already have `phone_code` values, and re-imports only when the catalog is empty/incomplete or active countries are missing dialing codes.
 
 ### Verification
 
@@ -122,4 +122,4 @@ select count(*) from location_cities;
 select * from location_import_runs order by started_at desc limit 1;
 ```
 
-`locations:import` intentionally does not run automatically on every deploy or every `npm start`: it is network-dependent, large, unnecessary after the first successful import, and unsafe to trigger blindly from multiple containers. Use `locations:ensure` or `db:bootstrap` for idempotent readiness instead. When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.
+`locations:import` remains the manual full refresh command, while startup uses the safer `locations:ensure` gate to skip complete catalogs and backfill missing country `phone_code` values. When deployed behind the public `/api` prefix, the frontend consumes the same routes as `/api/locations/...` through `VITE_API_URL` / `APP_ENV.api.url` rather than duplicating `/api` inside Express.
