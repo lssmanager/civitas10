@@ -6,6 +6,7 @@ const { validateDeploymentConfig } = require("../core/deployment/deployment-kern
 const { requireAuth, requireGlobalAccess, requireOrganizationAccess, requireOrganizationRole } = require("./middleware/auth");
 const { requireOrg } = require("./middleware/requireOrg");
 const { requirePermission } = require("./middleware/requirePermission");
+const { requireAuthorization } = require("./authorization/policies");
 const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies");
 const {
   listLogtoOrganizations,
@@ -439,14 +440,14 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
   }
 });
 
-secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), async (_req, res) => {
+secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), requireAuthorization({ permission: ORG_AUTHZ.documentsRead, actionId: "documents.read", surface: "organization", operation: "read", policies: ["same-organization", "membership-required"] }), async (_req, res) => {
   res.json([
     { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
     { id: "2", title: "Operational Contract Notes", updatedAt: "2024-03-14", updatedBy: "Alice Smith", preview: "The owner backbone now prefers operational-state over legacy logs..." },
   ]);
 });
 
-secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), async (_req, res) => {
+secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), requireAuthorization({ permission: ORG_AUTHZ.documentsCreate, actionId: "documents.create", surface: "organization", operation: "create", policies: ["same-organization", "membership-required", "critical-operation-audited"], auditIntentResolver: (req) => ({ decisionId: req.authorizationDecision?.decisionId, action: "documents.create", actorSubject: req.auth?.subject || req.user?.sub || req.user?.id, organizationId: req.user?.organizationId || req.auth?.organizationId, targetType: "document", reason: req.body?.reason || "document_create", reasonRequired: false, idempotencyRequired: false }) }), async (_req, res) => {
   res.json({ data: "Document created" });
 });
 
