@@ -13,6 +13,15 @@
     "authz:policy-contract-check": "node scripts/authorization/check-policy-runtime.js && node --test backend/test/authz-policy-contract.test.js",
     "authz:tenant-contract-check": "node scripts/authorization/check-tenant-routes.js && node --test backend/test/authz-tenant-entitlement-contract.test.js",
     "authz:entitlement-contract-check": "node scripts/authorization/check-entitlement-overlay.js && node --test backend/test/authz-tenant-entitlement-contract.test.js",
-    "test": "npm run authz:naming:check && npm run logto:authz:contract-check && npm run authz:scope-contract-check && npm run authz:delegation-contract-check && npm run authz:policy-contract-check && npm run authz:tenant-contract-check && npm run authz:entitlement-contract-check"
+    "test": "npm run authz:naming:check && npm run logto:authz:contract-check && npm run authz:scope-contract-check && npm run authz:delegation-contract-check && npm run authz:policy-contract-check && npm run authz:tenant-contract-check && npm run authz:entitlement-contract-check",
+    "taxonomy:contract-check": "node scripts/taxonomy/contract-check.js && node --test backend/test/authz-taxonomy-contract.test.js",
+    "taxonomy:migration-check": "node scripts/taxonomy/migration-check.js",
+    "organization-structure:contract-check": "node scripts/organization-structure-contract-check.js && node --test backend/test/authz-organization-structure-contract.test.js",
+    "organization-structure:migration-check": "node scripts/organization-structure-migration-check.js",
+    "authz:data-scope-contract-check": "node scripts/authz-data-scope-contract-check.js && node --test backend/test/authz-data-scope-contract.test.js",
+    "authz:data-scope-migration-check": "node scripts/authz-data-scope-migration-check.js",
+    "organization-structure:data-scope-integration-check": "node scripts/organization-structure-data-scope-integration-check.js && node --test backend/test/authz-organization-structure-data-scope-integration.test.js",
+    "organization-structure:reconciliation-check": "node scripts/organization-structure-reconciliation-check.js",
+    "authz:runtime-contract-check": "node scripts/authorization/check-runtime-contract.js && node --test backend/test/authz-runtime-consistency-contract.test.js"
   }
 }

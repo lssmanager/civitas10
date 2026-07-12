@@ -1,0 +1,5 @@
+"use strict";
+const { validateAudienceDefinition } = require("./audienceDefinitionValidator");
+const { evaluateAudienceAst } = require("./audienceEvaluator");
+function createAudiencePreviewService({ repository }={}){ return { async preview({organizationId,audienceId,limit=25}={}){ const audience=await repository.getAudience(audienceId); validateAudienceDefinition(audience.definitionJson); const versions=await repository.getVersions(organizationId); const memberships=await repository.listMemberships({organizationId}); const sample=[]; for(const m of memberships){ const unit=await repository.getUnit(m.unitId); if(unit&&evaluateAudienceAst(audience.definitionJson,{membership:m,unit})){ sample.push({subjectRef:"redacted", matchedPredicates:["derived"], membershipId:m.id}); if(sample.length>=limit) break; } } return { audienceId, definitionVersion:audience.definitionVersion, structureVersions:{unitGraph:versions.unitGraphVersion,memberships:versions.membershipVersion,audience:versions.audienceVersion,taxonomy:null}, estimatedCount:sample.length, sample, truncated:sample.length>=limit }; } }; }
+module.exports={ createAudiencePreviewService };

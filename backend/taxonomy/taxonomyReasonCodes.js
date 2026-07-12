@@ -1,0 +1,27 @@
+"use strict";
+const TAXONOMY_REASON_CODES = Object.freeze({
+  DIMENSION_UNKNOWN: "taxonomy_dimension_unknown",
+  DIMENSION_DISABLED: "taxonomy_dimension_disabled",
+  VALUE_NOT_FOUND: "taxonomy_value_not_found",
+  VALUE_WRONG_ORGANIZATION: "taxonomy_value_wrong_organization",
+  VALUE_WRONG_DIMENSION: "taxonomy_value_wrong_dimension",
+  VALUE_NOT_PUBLISHED: "taxonomy_value_not_published",
+  VALUE_DEPRECATING: "taxonomy_value_deprecating",
+  VALUE_ARCHIVED: "taxonomy_value_archived",
+  PARENT_INVALID: "taxonomy_parent_invalid",
+  PARENT_CROSS_TENANT: "taxonomy_parent_cross_tenant",
+  PARENT_WRONG_DIMENSION: "taxonomy_parent_wrong_dimension",
+  HIERARCHY_NOT_ALLOWED: "taxonomy_hierarchy_not_allowed",
+  CYCLE_DETECTED: "taxonomy_cycle_detected",
+  STABLE_KEY_INVALID: "taxonomy_stable_key_invalid",
+  STABLE_KEY_IMMUTABLE: "taxonomy_stable_key_immutable",
+  EXTERNAL_REF_INVALID: "taxonomy_external_ref_invalid",
+  ARCHIVE_REQUIRES_MIGRATION: "taxonomy_archive_requires_migration",
+  ARCHIVE_BLOCKED: "taxonomy_archive_blocked",
+  IMPACT_UNKNOWN: "taxonomy_impact_unknown",
+  CATALOG_VERSION_CONFLICT: "taxonomy_catalog_version_conflict",
+  PUBLISH_VALIDATION_FAILED: "taxonomy_publish_validation_failed",
+  PROVIDER_UNAVAILABLE: "taxonomy_provider_unavailable",
+  PERMISSIONS_PLANNED: "taxonomy_permissions_planned_in_74",
+});
+module.exports = { TAXONOMY_REASON_CODES };
