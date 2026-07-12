@@ -8,6 +8,7 @@ test("owner create autoloads controlled phone prefixes and treats prefix-only as
   assert.match(source, /const getCountryDialCode = \(country: CountryOption \| null\)/);
   assert.match(source, /useState<WizardGlobalState>/);
   assert.match(source, /companyPrefix: prefix/);
+  assert.match(source, /locationsApi\s*\.getPhoneCode\(selectedCountry\.id\)/);
   assert.match(source, /business: \{ \.\.\.current\.business, phonePrefix: prefix \}/);
   assert.match(source, /<PhonePrefixInput/);
   assert.match(source, /list=\{`\$\{id\}-country-prefixes`\}/);
@@ -18,6 +19,7 @@ test("owner create autoloads controlled phone prefixes and treats prefix-only as
   assert.match(source, /const includePhoneParts = \(prefix: string, localNumber: string\)/);
   assert.doesNotMatch(source, /placeholder="\+57/);
   assert.doesNotMatch(source, /placeholder="\+57 3001234567"/);
+  assert.doesNotMatch(source, /placeholder="3001234567"/);
   assert.match(source, /Country loads the editable phone prefix value/);
   assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?form\.business\.phonePrefix,[\s\S]*?form\.business\.phoneNumber,[\s\S]*?\)/);
   assert.match(source, /phone:\s+buildPhoneFromParts\([\s\S]*?contact\.phonePrefix,[\s\S]*?contact\.phoneNumber[\s\S]*?\)/);

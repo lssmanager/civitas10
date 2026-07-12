@@ -315,10 +315,7 @@ const OwnerOrganizationsPage = () => {
               (contact, index) => ({
                 ...contact,
                 organizationRoleName: contact.organizationRoleName,
-                phonePrefix:
-                  normalizePhoneValue(contact.phonePrefix) ||
-                  current.business.phonePrefix ||
-                  "",
+                phonePrefix: normalizePhoneValue(contact.phonePrefix),
                 id: `contact-${index + 1}`,
               }),
             ),
@@ -431,32 +428,47 @@ const OwnerOrganizationsPage = () => {
   );
 
   useEffect(() => {
-    if (!selectedCountry) {
+    let cancelled = false;
+    const applyCompanyPrefix = (prefix: string) => {
+      if (cancelled) return;
       setGlobalWizardState((globalState) => ({
         ...globalState,
-        companyPrefix: "",
+        companyPrefix: prefix,
       }));
       setForm((current) =>
-        current.business.phonePrefix
-          ? { ...current, business: { ...current.business, phonePrefix: "" } }
-          : current,
+        current.business.phonePrefix === prefix
+          ? current
+          : {
+              ...current,
+              business: { ...current.business, phonePrefix: prefix },
+            },
       );
-      return;
+    };
+
+    if (!selectedCountry) {
+      applyCompanyPrefix("");
+      return () => {
+        cancelled = true;
+      };
     }
-    const prefix = getCountryDialCode(selectedCountry);
-    setGlobalWizardState((globalState) => ({
-      ...globalState,
-      companyPrefix: prefix,
-    }));
-    setForm((current) =>
-      current.business.phonePrefix === prefix
-        ? current
-        : {
-            ...current,
-            business: { ...current.business, phonePrefix: prefix },
-          },
-    );
-  }, [selectedCountry]);
+
+    const countryListPrefix = getCountryDialCode(selectedCountry);
+    if (countryListPrefix) applyCompanyPrefix(countryListPrefix);
+
+    void locationsApi
+      .getPhoneCode(selectedCountry.id)
+      .then((phoneCode) => {
+        const fetchedPrefix = formatPhonePrefix(phoneCode) || countryListPrefix;
+        applyCompanyPrefix(fetchedPrefix);
+      })
+      .catch(() => {
+        applyCompanyPrefix(countryListPrefix);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [locationsApi, selectedCountry]);
   const regionOptions = states;
   const selectedRegion = useMemo(
     () =>
@@ -1475,7 +1487,6 @@ const StepBusinessProfile = ({
               onChange={(event) =>
                 updateBusinessField("phoneNumber", event.target.value)
               }
-              placeholder="3001234567"
               aria-label="Organization phone number"
             />
           </div>
