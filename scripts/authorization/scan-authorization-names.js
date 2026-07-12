@@ -32,7 +32,7 @@ function repoFiles(root = process.cwd()) {
   const out = childProcess.execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
   return out.split('\n').filter(Boolean).filter((file) => !DEFAULT_EXCLUDES.some((re) => re.test(file))).filter((file) => TEXT_EXTENSIONS.has(path.extname(file)) || file.includes('.env'))
 }
-function isNegativeFixture(file, lineText) { return file.includes('contract-tests/') || file === 'core/authz/validation/validate-authz-contract.js' || file === 'docs/authorization/phase-2-authz-contract.md' || file === 'docs/authorization/naming-contract.md' || file === 'scripts/authorization/naming-contract.js' || file === 'scripts/authorization/scan-authorization-names.js' || lineText.includes('negative fixture') || lineText.includes('formas prohibidas') || lineText.includes('Formas prohibidas') || lineText.includes('Debe rechazar') }
+function isNegativeFixture(file, lineText) { return file.includes('contract-tests/') || file === 'core/authz/validation/validate-authz-contract.js' || file === 'docs/authorization/phase-2-authz-contract.md' || file === 'docs/authorization/naming-contract.md' || file === 'scripts/authorization/naming-contract.js' || file === 'scripts/authorization/scan-authorization-names.js' || file === 'scripts/logto/authorization-validator.js' || file === 'backend/test/logto-authz-bootstrap.test.js' || lineText.includes('negative fixture') || lineText.includes('formas prohibidas') || lineText.includes('Formas prohibidas') || lineText.includes('Debe rechazar') }
 function allowlistEntry(kind, value, file) {
   return AUTHORIZATION_NAMING_ALLOWLIST.find((entry) => entry.kind === kind && entry.legacyValue === value && entry.allowedFiles.includes(file)) || null
 }

@@ -4,6 +4,9 @@
   "scripts": {
     "authz:naming:report": "node scripts/authorization/validate-authz-naming.js --report",
     "authz:naming:check": "node scripts/authorization/validate-authz-naming.js --check",
-    "test:authz:naming": "node --test backend/test/authorization-naming-contract.test.js"
+    "test:authz:naming": "node --test backend/test/authorization-naming-contract.test.js",
+    "logto:authz": "node scripts/logto/cli.js",
+    "logto:authz:contract-check": "node scripts/logto/contract-check.js",
+    "test:logto:authz": "node --test backend/test/logto-authz-bootstrap.test.js"
   }
 }

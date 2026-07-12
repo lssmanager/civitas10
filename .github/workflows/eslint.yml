@@ -33,6 +33,9 @@ jobs:
       - name: Validate authorization naming contract
         run: npm run authz:naming:check
 
+      - name: Validate Logto authorization bootstrap contract
+        run: npm run logto:authz:contract-check
+
       - name: Install ESLint
         run: |
           npm install eslint@8.10.0
