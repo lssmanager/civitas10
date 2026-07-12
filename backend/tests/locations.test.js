@@ -15,7 +15,8 @@ test("location importer maps dr5hn JSON fields for idempotent catalog tables", (
   assert.equal(CITY_BATCH_SIZE, 1000);
   assert.match(SOURCE_LICENSE, /ODbL/);
   assert.match(CITIES_JSON_URL, /json-cities\.json\.gz$/);
-  assert.deepEqual(mapCountry({ id: "48", name: "Colombia", iso2: "CO", iso3: "COL", numeric_code: "170", phone_code: "57", latitude: "4.000000", longitude: "-72.000000" }), [48, "dr5hn-master-json", "Colombia", "CO", "COL", "170", "57", null, null, null, null, null, null, "4.000000", "-72.000000"]);
+  assert.deepEqual(mapCountry({ id: "48", name: "Colombia", iso2: "CO", iso3: "COL", numeric_code: "170", phonecode: "57", latitude: "4.000000", longitude: "-72.000000" }), [48, "dr5hn-master-json", "Colombia", "CO", "COL", "170", "57", null, null, null, null, null, null, "4.000000", "-72.000000"]);
+  assert.deepEqual(mapCountry({ id: "53", name: "Costa Rica", iso2: "CR", phone_code: "506" }).slice(0, 7), [53, "dr5hn-master-json", "Costa Rica", "CR", null, null, "506"]);
   assert.equal(mapState({ id: "2890", name: "Antioquia", country_id: "48", country_code: "CO" }, new Map([[48, 10]]))[2], 10);
   assert.equal(mapCity({ id: "21160", name: "Medellín", state_id: "2890", country_id: "48", country_code: "CO" }, new Map([[48, 10]]), new Map([[2890, 20]]))[3], 20);
 });
@@ -33,7 +34,7 @@ const { ensureLocationCatalog, isCatalogReady, loadCatalogStatus, REQUIRED_TABLE
 
 test("location ensure skips import when active countries and a completed import exist", async () => {
   let imported = false;
-  const status = { countries: 250, states: 5308, cities: 152967, lastCompletedImport: { id: 1 } };
+  const status = { countries: 250, states: 5308, cities: 152967, countriesMissingPhoneCode: 0, lastCompletedImport: { id: 1 } };
   const result = await ensureLocationCatalog({
     queryPostgres: async (sql) => sql.includes("information_schema.tables")
       ? { rows: REQUIRED_TABLES.map((table_name) => ({ table_name })) }
@@ -52,13 +53,30 @@ test("location ensure imports when catalog is empty or incomplete", async () => 
     queryPostgres: async (sql) => {
       if (sql.includes("information_schema.tables")) return { rows: REQUIRED_TABLES.map((table_name) => ({ table_name })) };
       calls += 1;
-      return { rows: [calls === 1 ? { countries: 0, states: 0, cities: 0, lastCompletedImport: null } : { countries: 250, states: 5308, cities: 152967, lastCompletedImport: { id: 2 } }] };
+      return { rows: [calls === 1 ? { countries: 0, states: 0, cities: 0, lastCompletedImport: null } : { countries: 250, states: 5308, cities: 152967, countriesMissingPhoneCode: 0, lastCompletedImport: { id: 2 } }] };
     },
     runImport: async () => { imported = true; },
     logger: { log() {} },
   });
   assert.equal(imported, true);
   assert.equal(result.action, "imported");
+});
+
+test("location ensure reimports when active countries are missing phone codes", async () => {
+  let imported = false;
+  let calls = 0;
+  const result = await ensureLocationCatalog({
+    queryPostgres: async (sql) => {
+      if (sql.includes("information_schema.tables")) return { rows: REQUIRED_TABLES.map((table_name) => ({ table_name })) };
+      calls += 1;
+      return { rows: [calls === 1 ? { countries: 250, states: 5308, cities: 152967, countriesMissingPhoneCode: 250, lastCompletedImport: { id: 1 } } : { countries: 250, states: 5308, cities: 152967, countriesMissingPhoneCode: 0, lastCompletedImport: { id: 2 } }] };
+    },
+    runImport: async () => { imported = true; },
+    logger: { log() {} },
+  });
+  assert.equal(imported, true);
+  assert.equal(result.action, "imported");
+  assert.equal(result.counts.countriesMissingPhoneCode, 0);
 });
 
 test("location ensure fails clearly when required location tables are missing", async () => {
@@ -71,5 +89,6 @@ test("location ensure fails clearly when required location tables are missing", 
 test("location ensure CLI closes database connections", () => {
   const source = readFileSync(join(__dirname, "..", "scripts", "ensure-location-catalog.js"), "utf8");
   assert.match(source, /finally \{\s*await runtime\.closeDatabase\(\);\s*\}/);
-  assert.equal(isCatalogReady({ countries: 1, lastCompletedImport: { id: 1 } }), true);
+  assert.equal(isCatalogReady({ countries: 1, countriesMissingPhoneCode: 0, lastCompletedImport: { id: 1 } }), true);
+  assert.equal(isCatalogReady({ countries: 1, countriesMissingPhoneCode: 1, lastCompletedImport: { id: 1 } }), false);
 });

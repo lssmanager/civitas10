@@ -22,6 +22,7 @@ const CITY_BATCH_SIZE = Number(process.env.LOCATION_IMPORT_CITY_BATCH_SIZE || 10
 const toText = (value) => (value === null || value === undefined || value === "" ? null : String(value));
 const toDecimal = toText;
 const toSourceId = (value) => Number(value);
+const toPhoneCode = (row) => toText(row.phonecode ?? row.phone_code);
 
 async function downloadJson(url, label) {
   const response = await fetch(url);
@@ -35,7 +36,7 @@ async function downloadJson(url, label) {
 }
 
 const mapCountry = (row) => [
-  toSourceId(row.id), SOURCE_VERSION, row.name, row.iso2, toText(row.iso3), toText(row.numeric_code), toText(row.phone_code),
+  toSourceId(row.id), SOURCE_VERSION, row.name, row.iso2, toText(row.iso3), toText(row.numeric_code), toPhoneCode(row),
   toText(row.capital), toText(row.currency), toText(row.native), toText(row.emoji), toText(row.region), toText(row.subregion),
   toDecimal(row.latitude), toDecimal(row.longitude),
 ];
