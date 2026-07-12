@@ -722,8 +722,9 @@ const OwnerOrganizationsPage = () => {
         description="Workspace enfocado en provisioning: template status, organización canónica, custom data, usuarios administrativos, segmentación y submit. La navegación primaria permanece en el shell owner."
       />
 
-      {templateError || draftError || idempotencyKey || created ? (
-        <StateRegion>
+      <form onSubmit={handleSubmit} className="civitas-stack" data-civitas-create-organization-wizard="true">
+        {templateError || draftError || idempotencyKey || created ? (
+          <StateRegion>
             {templateError ? <AlertStrip variant="danger" title="Organization template unavailable">Could not load the organization template from the API. {templateError}</AlertStrip> : null}
             {draftError ? <AlertStrip variant="warning" title="Draft not saved">{draftError}</AlertStrip> : null}
             {idempotencyKey ? <AlertStrip variant="info" title="Wizard request identifier">Idempotency key: <code>{idempotencyKey}</code>. Civitas stores this as operational draft/resume state; Logto remains canonical for the organization.</AlertStrip> : null}
@@ -749,10 +750,8 @@ const OwnerOrganizationsPage = () => {
                 </div>
               </AlertStrip>
             ) : null}
-        </StateRegion>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className="civitas-stack" data-civitas-create-organization-wizard="true">
+          </StateRegion>
+        ) : null}
         <SectionCard className="civitas-wizard-progress-card">
           <Stepper steps={wizardSteps.map((step) => ({ id: step.id, label: step.label }))} activeStep={activeStep} />
         </SectionCard>
