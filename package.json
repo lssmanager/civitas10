@@ -1,0 +1,9 @@
+{
+  "name": "civitas10-workspace",
+  "private": true,
+  "scripts": {
+    "authz:naming:report": "node scripts/authorization/validate-authz-naming.js --report",
+    "authz:naming:check": "node scripts/authorization/validate-authz-naming.js --check",
+    "test:authz:naming": "node --test backend/test/authorization-naming-contract.test.js"
+  }
+}

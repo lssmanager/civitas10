@@ -30,6 +30,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate authorization naming contract
+        run: npm run authz:naming:check
+
       - name: Install ESLint
         run: |
           npm install eslint@8.10.0

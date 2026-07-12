@@ -1,0 +1,6281 @@
+{
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "contractVersion": "2026-07-v1",
+  "records": [
+    {
+      "file": "auth/permissions.js",
+      "line": 11,
+      "value": "org_admin",
+      "kind": "role",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_admin",
+      "allowlistEntry": "role:org_admin"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 12,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 13,
+      "value": "organization:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.settings.manage",
+      "allowlistEntry": "permission:organization:manage"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 14,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 15,
+      "value": "members:remove",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.remove",
+      "allowlistEntry": "permission:members:remove"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 16,
+      "value": "billing:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.manage",
+      "allowlistEntry": "permission:billing:manage"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 19,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 20,
+      "value": "profile:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:profile:read"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 29,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:organization_roles"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 31,
+      "value": "org_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:org_roles"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 5,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 6,
+      "value": "owner:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:owner:manage"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 7,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 8,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "auth/permissions.js",
+      "line": 9,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/guards.js",
+      "line": 18,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/guards.js",
+      "line": 18,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/authorization/guards.js",
+      "line": 19,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/authorization/guards.js",
+      "line": 24,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 100,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 101,
+      "value": "lms:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.courses.manage",
+      "allowlistEntry": "permission:lms:manage"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 102,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 103,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 104,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 105,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 106,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 110,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 111,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 112,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 113,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 114,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 115,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 119,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 120,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 121,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 122,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 123,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 124,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 128,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 129,
+      "value": "payments:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.write",
+      "allowlistEntry": "permission:payments:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 130,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 134,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 135,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 139,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 140,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 144,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 145,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 146,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 147,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 151,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 152,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 153,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 21,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 26,
+      "value": "organization_accountant",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 27,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 28,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 29,
+      "value": "organization_director",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 30,
+      "value": "organization_headdirector",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 31,
+      "value": "organization_headteacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 32,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 33,
+      "value": "organization_parent",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 34,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 35,
+      "value": "organization_secretary",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 36,
+      "value": "organization_student",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 37,
+      "value": "organization_teacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 44,
+      "value": "organizations:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organizations:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 45,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 46,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 47,
+      "value": "operations:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:operations:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 48,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 52,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 53,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 54,
+      "value": "members:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:members:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 55,
+      "value": "members:remove",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.remove",
+      "allowlistEntry": "permission:members:remove"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 56,
+      "value": "seats:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.read",
+      "allowlistEntry": "permission:seats:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 57,
+      "value": "seats:assign",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.assign",
+      "allowlistEntry": "permission:seats:assign"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 58,
+      "value": "seats:release",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.release",
+      "allowlistEntry": "permission:seats:release"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 59,
+      "value": "connectors:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.read",
+      "allowlistEntry": "permission:connectors:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 60,
+      "value": "connectors:configure",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.configure",
+      "allowlistEntry": "permission:connectors:configure"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 61,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 62,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 63,
+      "value": "lms:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.courses.manage",
+      "allowlistEntry": "permission:lms:manage"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 64,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 65,
+      "value": "crm:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.write",
+      "allowlistEntry": "permission:crm:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 66,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 67,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 68,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 69,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 70,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 71,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 75,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 76,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 77,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 78,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 79,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 80,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 84,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 85,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 86,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 87,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 91,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 92,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 93,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 94,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 98,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/authorization/roles.js",
+      "line": 99,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/connectors/adapters/contracts/index.js",
+      "line": 164,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/connectors/adapters/contracts/index.js",
+      "line": 165,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/connectors/adapters/contracts/index.js",
+      "line": 168,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 19,
+      "value": "crm.company.upsert",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.company.find",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.company.upsert",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.company.verify",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.contact.upsert",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.lists.ensure",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/crm/fluentcrm/adapter.js",
+      "line": 5,
+      "value": "crm.tags.ensure",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/connectors/identity/logto/adapter.js",
+      "line": 17,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/connectors/identity/logto/adapter.js",
+      "line": 19,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/connectors/registry.js",
+      "line": 10,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/connectors/registry.js",
+      "line": 13,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/connectors/registry.js",
+      "line": 16,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 48,
+      "value": "identity:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.identity.read",
+      "allowlistEntry": "permission:identity:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 49,
+      "value": "identity:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.identity.write",
+      "allowlistEntry": "permission:identity:write"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 50,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 51,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 52,
+      "value": "members:remove",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.remove",
+      "allowlistEntry": "permission:members:remove"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 53,
+      "value": "seats:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.read",
+      "allowlistEntry": "permission:seats:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 54,
+      "value": "seats:assign",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.assign",
+      "allowlistEntry": "permission:seats:assign"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 55,
+      "value": "seats:release",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.release",
+      "allowlistEntry": "permission:seats:release"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 56,
+      "value": "connectors:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.read",
+      "allowlistEntry": "permission:connectors:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 57,
+      "value": "connectors:configure",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.configure",
+      "allowlistEntry": "permission:connectors:configure"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 58,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 59,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 60,
+      "value": "lms:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.courses.manage",
+      "allowlistEntry": "permission:lms:manage"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 61,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 62,
+      "value": "crm:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.write",
+      "allowlistEntry": "permission:crm:write"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 63,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 64,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 65,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 66,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 67,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 68,
+      "value": "payments:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.manage",
+      "allowlistEntry": "permission:payments:manage"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 69,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/contracts/foundation.js",
+      "line": 70,
+      "value": "impersonate:user",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.impersonation.execute",
+      "allowlistEntry": "permission:impersonate:user"
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 144,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 158,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 183,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 21,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 31,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 46,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/db/schema/index.js",
+      "line": 85,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 270,
+      "value": "/owner/me",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 287,
+      "value": "/owner/organization-template",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 300,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 310,
+      "value": "/owner/organization-drafts",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 312,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 329,
+      "value": "/owner/organization-drafts/:idempotencyKey",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 339,
+      "value": "/owner/organizations/:organizationId/operational-state",
+      "kind": "route",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 365,
+      "value": "/owner/system/worker-queues",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 377,
+      "value": "/owner/system/registry",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 385,
+      "value": "/owner/system/operations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 394,
+      "value": "/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 394,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 401,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/index.js",
+      "line": 430,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/index.js",
+      "line": 430,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:read:documents"
+    },
+    {
+      "file": "backend/index.js",
+      "line": 437,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "backend/index.js",
+      "line": 437,
+      "value": "members:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:members:write"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 138,
+      "value": "org_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:org_roles"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 138,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:organization_roles"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 212,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 214,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 234,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 273,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 274,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 289,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 302,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 311,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 327,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 346,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 83,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 84,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 87,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/auth.js",
+      "line": 88,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 11,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 13,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 14,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:org_id"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 17,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 23,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 40,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 46,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 59,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/middleware/requireOrg.js",
+      "line": 85,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 10,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 11,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 12,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 13,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 14,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 15,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 18,
+      "value": "identity:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.identity.read",
+      "allowlistEntry": "permission:identity:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 19,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 20,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 21,
+      "value": "members:remove",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.remove",
+      "allowlistEntry": "permission:members:remove"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 22,
+      "value": "seats:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.read",
+      "allowlistEntry": "permission:seats:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 23,
+      "value": "seats:assign",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.assign",
+      "allowlistEntry": "permission:seats:assign"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 24,
+      "value": "seats:release",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.release",
+      "allowlistEntry": "permission:seats:release"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 25,
+      "value": "connectors:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.read",
+      "allowlistEntry": "permission:connectors:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 26,
+      "value": "connectors:configure",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.configure",
+      "allowlistEntry": "permission:connectors:configure"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 27,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 28,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 29,
+      "value": "crm:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "crm.contacts.read",
+      "allowlistEntry": "permission:crm:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 30,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 31,
+      "value": "support:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.write",
+      "allowlistEntry": "permission:support:write"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 32,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 33,
+      "value": "scheduling:book",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.create",
+      "allowlistEntry": "permission:scheduling:book"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 34,
+      "value": "payments:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.read",
+      "allowlistEntry": "permission:payments:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 35,
+      "value": "audit:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.audit.logs.read",
+      "allowlistEntry": "permission:audit:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 37,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 37,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 37,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 37,
+      "value": "seats:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.seats.read",
+      "allowlistEntry": "permission:seats:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 37,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 38,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 38,
+      "value": "scheduling:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "scheduling.bookings.read",
+      "allowlistEntry": "permission:scheduling:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 38,
+      "value": "support:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "support.tickets.read",
+      "allowlistEntry": "permission:support:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 7,
+      "value": "identity:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.identity.read",
+      "allowlistEntry": "permission:identity:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 73,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 76,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 76,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 8,
+      "value": "members:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.read",
+      "allowlistEntry": "permission:members:read"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 82,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 82,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "organization_id",
+      "allowlistEntry": "claim:organizationId"
+    },
+    {
+      "file": "backend/rbac/matrix.js",
+      "line": 9,
+      "value": "connectors:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "connectors.registry.read",
+      "allowlistEntry": "permission:connectors:read"
+    },
+    {
+      "file": "backend/runtime/migrations.js",
+      "line": 12,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/runtime/migrations.js",
+      "line": 56,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/runtime/migrations.js",
+      "line": 62,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 130,
+      "value": "/oidc",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 337,
+      "value": "/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 344,
+      "value": "/organizations/${encodePathSegment(organizationId)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 351,
+      "value": "/organizations/${encodePathSegment(organizationId)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 358,
+      "value": "/organizations/${encodePathSegment(organizationId)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 362,
+      "value": "/organizations/${encodePathSegment(organizationId)}/users",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 369,
+      "value": "/organizations/${encodePathSegment(organizationId)}/jit/email-domains",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 376,
+      "value": "/organizations/${encodePathSegment(organizationId)}/jit/roles",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 383,
+      "value": "/organization-roles",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 454,
+      "value": "/organizations/${encodePathSegment(organizationId)}/users/${encodePathSegment(userId)}/roles",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 503,
+      "value": "/organizations/${encodeURIComponent(organizationId)}/users",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 508,
+      "value": "/organizations/${encodeURIComponent(organizationId)}/users/${encodeURIComponent(userId)}/roles",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 513,
+      "value": "/organizations/${encodeURIComponent(organizationId)}/users/${encodeURIComponent(userId)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/logtoManagement.js",
+      "line": 691,
+      "value": "/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/operationalOperations.js",
+      "line": 121,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningCore.js",
+      "line": 282,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningCore.js",
+      "line": 289,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:organization_roles"
+    },
+    {
+      "file": "backend/services/organizationProvisioningRecorder.js",
+      "line": 24,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningRecorder.js",
+      "line": 29,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningRecorder.js",
+      "line": 34,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningRecorder.js",
+      "line": 74,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/services/organizationProvisioningRecorder.js",
+      "line": 85,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/database-migrations-runtime.test.js",
+      "line": 12,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/deploymentKernelZeroDrift.test.js",
+      "line": 16,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 101,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 11,
+      "value": "organization_accountant",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 117,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 12,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 13,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 138,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 14,
+      "value": "organization_director",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 15,
+      "value": "organization_headdirector",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 16,
+      "value": "organization_headteacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 17,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 18,
+      "value": "organization_parent",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 19,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 20,
+      "value": "organization_secretary",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 21,
+      "value": "organization_student",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 22,
+      "value": "organization_teacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 26,
+      "value": "billing:manage",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "billing.payments.manage",
+      "allowlistEntry": "permission:billing:manage"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 27,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 28,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 28,
+      "value": "lms:enroll",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "lms.enrollments.create",
+      "allowlistEntry": "permission:lms:enroll"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 29,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 30,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 30,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 44,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 60,
+      "value": "members:invite",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.members.invite",
+      "allowlistEntry": "permission:members:invite"
+    },
+    {
+      "file": "backend/test/foundation-authorization-middleware.test.js",
+      "line": 92,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 11,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 18,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 20,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 25,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 25,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 33,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/global-organization-authorization.test.js",
+      "line": 34,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/test/root-capabilities-contract.test.js",
+      "line": 9,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/authorizationSeparation.test.js",
+      "line": 24,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "backend/tests/authorizationSeparation.test.js",
+      "line": 24,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:read:documents"
+    },
+    {
+      "file": "backend/tests/authorizationSeparation.test.js",
+      "line": 25,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "backend/tests/authorizationSeparation.test.js",
+      "line": 25,
+      "value": "members:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:members:write"
+    },
+    {
+      "file": "backend/tests/foundationWorkerEngine.test.js",
+      "line": 21,
+      "value": "lms.enroll_user:org-uuid:${input.user_email}:${input.course_id}",
+      "kind": "permission",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "permission:lms.enroll_user:org-uuid:${input.user_email}:${input.course_id}"
+    },
+    {
+      "file": "backend/tests/organizationProvisioningLocations.test.js",
+      "line": 12,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 17,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 18,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 32,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 32,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 51,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 57,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 69,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 76,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 79,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningResume.test.js",
+      "line": 80,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 10,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 18,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 22,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 22,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 46,
+      "value": "organization_director",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 48,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 48,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 55,
+      "value": "organization_director",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 56,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 56,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 64,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 66,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 66,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 71,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 77,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 77,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 79,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningRoles.test.js",
+      "line": 83,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:organization_roles"
+    },
+    {
+      "file": "backend/tests/organizationProvisioningUsername.test.js",
+      "line": 19,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningUsername.test.js",
+      "line": 25,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningUsername.test.js",
+      "line": 36,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningUsername.test.js",
+      "line": 37,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/organizationProvisioningUsername.test.js",
+      "line": 93,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "backend/tests/securityPolicies.test.js",
+      "line": 66,
+      "value": "/organizations/${organizationId}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/analytics.permissions.js",
+      "line": 5,
+      "value": "analytics.reports.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/billing.permissions.js",
+      "line": 16,
+      "value": "billing.seat_change_requests.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/billing.permissions.js",
+      "line": 27,
+      "value": "billing.seat_change_requests.cancel",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/billing.permissions.js",
+      "line": 5,
+      "value": "billing.seat_change_requests.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/communications.permissions.js",
+      "line": 16,
+      "value": "communications.messages.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/communications.permissions.js",
+      "line": 5,
+      "value": "communications.messages.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/connectors.permissions.js",
+      "line": 5,
+      "value": "connectors.registry.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/crm.permissions.js",
+      "line": 5,
+      "value": "crm.contacts.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/lms.permissions.js",
+      "line": 5,
+      "value": "lms.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/organization.permissions.js",
+      "line": 19,
+      "value": "org.documents.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/organization.permissions.js",
+      "line": 33,
+      "value": "org.members.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/organization.permissions.js",
+      "line": 44,
+      "value": "org.members.invite",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/organization.permissions.js",
+      "line": 5,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/organization.permissions.js",
+      "line": 55,
+      "value": "org.impersonation.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 105,
+      "value": "owner.worker_queues.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 109,
+      "value": "owner.audit.logs.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 120,
+      "value": "owner.analytics.reports.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 131,
+      "value": "owner.impersonation.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 145,
+      "value": "owner.seat_change_requests.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 156,
+      "value": "owner.seat_change_requests.approve",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 167,
+      "value": "owner.seat_change_requests.reject",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 18,
+      "value": "owner.me.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 22,
+      "value": "owner.organizations.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 36,
+      "value": "owner.organizations.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 40,
+      "value": "owner.organizations.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 5,
+      "value": "owner.profile.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 54,
+      "value": "owner.organization.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 58,
+      "value": "owner.runtime.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 71,
+      "value": "owner.runtime.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 75,
+      "value": "owner.runtime.operations.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 88,
+      "value": "owner.system.refresh",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/owner.permissions.js",
+      "line": 92,
+      "value": "owner.worker_queues.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/scheduling.permissions.js",
+      "line": 16,
+      "value": "scheduling.availability.manage",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/scheduling.permissions.js",
+      "line": 5,
+      "value": "scheduling.bookings.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/catalog/support.permissions.js",
+      "line": 5,
+      "value": "support.tickets.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 5,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_accountant",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_billing",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_director",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_headdirector",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_headteacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_parent",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_payroll",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_secretary",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_student",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/constants.js",
+      "line": 7,
+      "value": "organization_teacher",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 39,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 47,
+      "value": "org.old_permission.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 49,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 55,
+      "value": "org.audit.logs.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 55,
+      "value": "org.audit.logs.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 56,
+      "value": "analytics.reports.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 56,
+      "value": "analytics.reports.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 57,
+      "value": "owner.platform.settings.write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 57,
+      "value": "owner.platform.settings.write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 59,
+      "value": "billing.seats.request_modify",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "billing.seats.request_modify is not a canonical active permission"
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 59,
+      "value": "billing.seats.request_modify",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "billing.seats.request_modify is not a canonical active permission"
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 60,
+      "value": "lms.*",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "wildcards are forbidden"
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 61,
+      "value": "billing.seat_change_requests.read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 62,
+      "value": "org.orphan.execute",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 63,
+      "value": "organization.members.write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use org. for tenant core permissions; organization.* is forbidden"
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 63,
+      "value": "organization.members.write as new permission",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use org. for tenant core permissions; organization.* is forbidden"
+    },
+    {
+      "file": "core/authz/contract-tests/authz-contract.test.js",
+      "line": 64,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 10,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 10,
+      "value": "owner.organizations.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 11,
+      "value": "organization:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:write"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 11,
+      "value": "owner.organizations.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 12,
+      "value": "impersonation:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.impersonation.execute",
+      "allowlistEntry": "permission:impersonation:write"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 12,
+      "value": "owner.impersonation.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 13,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 13,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:read:documents"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 14,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 14,
+      "value": "org.documents.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 15,
+      "value": "lms:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:lms:read"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 15,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 16,
+      "value": "members:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:members:write"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 16,
+      "value": "org.documents.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 4,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 4,
+      "value": "owner.profile.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 5,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:owner:write"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 5,
+      "value": "owner.runtime.operations.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 6,
+      "value": "owner.runtime.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 6,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 7,
+      "value": "owner.runtime.operations.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 7,
+      "value": "runtime:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:runtime:write"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 8,
+      "value": "owner.worker_queues.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 8,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 9,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "core/authz/legacy/legacy-permission-map.js",
+      "line": 9,
+      "value": "owner.organizations.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 4,
+      "value": "owner.organizations.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 5,
+      "value": "owner.organizations.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 6,
+      "value": "owner.profile.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 7,
+      "value": "owner.runtime.operations.execute",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 8,
+      "value": "owner.runtime.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/global-role-permissions.js",
+      "line": 9,
+      "value": "owner.worker_queues.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 10,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 14,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 3,
+      "value": "org.documents.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 3,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 4,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 5,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 6,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 7,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 8,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/roles/organization-role-permissions.js",
+      "line": 9,
+      "value": "org.documents.read",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/validation/validate-authz-contract.js",
+      "line": 37,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/authz/validation/validate-authz-contract.js",
+      "line": 5,
+      "value": "billing.seats.request_modify",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "billing.seats.request_modify is not a canonical active permission"
+    },
+    {
+      "file": "core/deployment/deployment-kernel.cjs",
+      "line": 51,
+      "value": "/oidc",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 16,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 17,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 19,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 20,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:owner:write"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 21,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 22,
+      "value": "runtime:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:runtime:write"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 23,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 24,
+      "value": "worker-queues:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.write",
+      "allowlistEntry": "permission:worker-queues:write"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 25,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 26,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 27,
+      "value": "organization:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:write"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 28,
+      "value": "impersonation:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.impersonation.execute",
+      "allowlistEntry": "permission:impersonation:write"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 33,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 33,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:read:documents"
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 34,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "core/shared/civitas-shared.contract.cjs",
+      "line": 34,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 36,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "impersonation:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.impersonation.execute",
+      "allowlistEntry": "permission:impersonation:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "organization:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:owner:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "runtime:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:runtime:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 37,
+      "value": "worker-queues:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.write",
+      "allowlistEntry": "permission:worker-queues:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 43,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 43,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 44,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 44,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 45,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 45,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 46,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 46,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 47,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 47,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 48,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 48,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 48,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 49,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 49,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 50,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 50,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 51,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 51,
+      "value": "runtime:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:runtime:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 55,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 55,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 56,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 67,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 67,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.read",
+      "allowlistEntry": "permission:read:documents"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 7,
+      "value": "/owner/*",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 74,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 78,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 78,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 78,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 78,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 78,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 8,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 86,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 9,
+      "value": "/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 9,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 92,
+      "value": "impersonation:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.impersonation.execute",
+      "allowlistEntry": "permission:impersonation:write"
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 96,
+      "value": "/owner|/api/owner|ownerApiFetch|organizationApiFetch|requireGlobalAccess|requireOrganizationAccess",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/authorization-global-vs-organization.md",
+      "line": 97,
+      "value": "/owner/*",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 39,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 42,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 59,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 61,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 86,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 87,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/canonical-sources.md",
+      "line": 88,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/operational-contract-phase-1.md",
+      "line": 7,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning-wizard.md",
+      "line": 33,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "table:organization_roles"
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 10,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 11,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 11,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 3,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 8,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/organization-provisioning.md",
+      "line": 9,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/review-checklist.md",
+      "line": 10,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/review-checklist.md",
+      "line": 21,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/review-checklist.md",
+      "line": 22,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/review-checklist.md",
+      "line": 23,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/architecture/review-checklist.md",
+      "line": 23,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 10,
+      "value": "org.*",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "wildcards are forbidden"
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 11,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 12,
+      "value": "/o/:organizationId/*",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 16,
+      "value": "organization.*",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "wildcards are forbidden"
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 41,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/naming-contract.md",
+      "line": 42,
+      "value": "/o/:organizationId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 28,
+      "value": "organization.*",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "wildcards are forbidden"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 33,
+      "value": "communications.messages.*",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "wildcards are forbidden"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 33,
+      "value": "org.impersonation.execute",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 33,
+      "value": "scheduling.availability.manage",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "impersonation:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "organization:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "runtime:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 8,
+      "value": "worker-queues:write",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 9,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "docs/authorization/phase-2-authz-contract.md",
+      "line": 9,
+      "value": "read:documents",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "use dot-separated <domain>.<resource>.<action>, not colon scopes"
+    },
+    {
+      "file": "frontend/docs/CIVITAS_OWNER_AUTH.md",
+      "line": 3,
+      "value": "/owner/*",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/base.ts",
+      "line": 148,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 10,
+      "value": "owner:write",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.operations.execute",
+      "allowlistEntry": "permission:owner:write"
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 166,
+      "value": "/owner/me",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 167,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 168,
+      "value": "/owner/organization-template",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 170,
+      "value": "/owner/organization-drafts",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 171,
+      "value": "/owner/organization-drafts/${encodeURIComponent(idempotencyKey)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 172,
+      "value": "/owner/organizations/${encodeURIComponent(organizationId)}/operational-state",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 173,
+      "value": "/owner/system/worker-queues",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 175,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/api/owner.ts",
+      "line": 9,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "frontend/src/api/resource.ts",
+      "line": 39,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "line": 21,
+      "value": "owner:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.profile.read",
+      "allowlistEntry": "permission:owner:read"
+    },
+    {
+      "file": "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "line": 22,
+      "value": "organization:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.read",
+      "allowlistEntry": "permission:organization:read"
+    },
+    {
+      "file": "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "line": 23,
+      "value": "organization:create",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.organizations.create",
+      "allowlistEntry": "permission:organization:create"
+    },
+    {
+      "file": "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "line": 24,
+      "value": "runtime:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.runtime.read",
+      "allowlistEntry": "permission:runtime:read"
+    },
+    {
+      "file": "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "line": 25,
+      "value": "worker-queues:read",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "owner.worker_queues.read",
+      "allowlistEntry": "permission:worker-queues:read"
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 25,
+      "value": "owner.organization.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 26,
+      "value": "owner.organization.profile.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 27,
+      "value": "owner.organization.settings.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 28,
+      "value": "owner.organization.member.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 29,
+      "value": "owner.organization.member.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 30,
+      "value": "owner.organization.member.password.reset",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 31,
+      "value": "owner.organization.member.deprovision",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 32,
+      "value": "owner.organization.sync.retry",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 33,
+      "value": "owner.organization.commercial.sync",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 34,
+      "value": "owner.integrations.manage",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 35,
+      "value": "owner.branding.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 36,
+      "value": "owner.roleMappings.update",
+      "kind": "permission",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "permission:owner.roleMappings.update"
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 37,
+      "value": "owner.roleMappings.reset",
+      "kind": "permission",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "permission:owner.roleMappings.reset"
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 38,
+      "value": "owner.system.refresh",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 92,
+      "value": "owner.organization.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "/owner/organizations/:organizationId",
+      "kind": "route",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.member.create",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.member.deprovision",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.member.password.reset",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.member.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.profile.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 93,
+      "value": "owner.organization.sync.retry",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 94,
+      "value": "/owner/organizations/:organizationId/settings",
+      "kind": "route",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 94,
+      "value": "owner.integrations.manage",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 94,
+      "value": "owner.organization.commercial.sync",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 94,
+      "value": "owner.organization.settings.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 96,
+      "value": "owner.system.refresh",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 97,
+      "value": "owner.system.refresh",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 98,
+      "value": "owner.branding.update",
+      "kind": "permission",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 99,
+      "value": "owner.roleMappings.reset",
+      "kind": "permission",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "permission:owner.roleMappings.reset"
+    },
+    {
+      "file": "frontend/src/authz/rbacMatrix.ts",
+      "line": 99,
+      "value": "owner.roleMappings.update",
+      "kind": "permission",
+      "category": "external",
+      "severity": "warning",
+      "expected": null,
+      "allowlistEntry": "permission:owner.roleMappings.update"
+    },
+    {
+      "file": "frontend/src/layouts/AppShell.tsx",
+      "line": 52,
+      "value": "/owner/organizations/",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/layouts/AppShell.tsx",
+      "line": 54,
+      "value": "/owner/organizations/",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 13,
+      "value": "/owner",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 18,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 23,
+      "value": "/owner/create",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 28,
+      "value": "/owner/organizations/:organizationId",
+      "kind": "route",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 33,
+      "value": "/owner/logs",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 38,
+      "value": "/owner/system",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 43,
+      "value": "/owner/system/worker-queues",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 48,
+      "value": "/owner/branding",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 53,
+      "value": "/owner/role-mapping",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 73,
+      "value": "/owner/organizations-section",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 74,
+      "value": "/owner/runtime-section",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 75,
+      "value": "/owner/configuration-section",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 83,
+      "value": "/owner",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 84,
+      "value": "/owner/organizations",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 85,
+      "value": "/owner/create",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 86,
+      "value": "/owner/logs",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 87,
+      "value": "/owner/system",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 88,
+      "value": "/owner/system/worker-queues",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 89,
+      "value": "/owner/branding",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/navigation/routes.ts",
+      "line": 90,
+      "value": "/owner/role-mapping",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/pages/App/index.tsx",
+      "line": 39,
+      "value": "/:orgId",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "frontend/src/pages/CivitasVisualLayer.contract.test.mjs",
+      "line": 36,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "frontend/src/pages/OrganizationPage/index.tsx",
+      "line": 55,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "frontend/src/pages/OrganizationPage/index.tsx",
+      "line": 57,
+      "value": "create:documents",
+      "kind": "permission",
+      "category": "legacy",
+      "severity": "warning",
+      "expected": "org.documents.create",
+      "allowlistEntry": "permission:create:documents"
+    },
+    {
+      "file": "frontend/src/pages/OwnerOrganizationsIndexPage.tsx",
+      "line": 49,
+      "value": "/owner/organizations/${encodeURIComponent(summary.id)}",
+      "kind": "route",
+      "category": "external",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 10,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 10,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 10,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 41,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 68,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 69,
+      "value": "organization_admin",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "README.md",
+      "line": 70,
+      "value": "organization_member",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 21,
+      "value": "billing.seats.request_modify",
+      "kind": "permission",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "billing.seats.request_modify is not a canonical active permission"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 23,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 23,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 23,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 25,
+      "value": "/o/:organizationId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 26,
+      "value": "/owner/organizations/:organizationId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 27,
+      "value": "/o/:orgId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "/o/:organizationId"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 27,
+      "value": "/org/:organizationId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "/o/:organizationId"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 27,
+      "value": "/organization/:id",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "/o/:organizationId"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 27,
+      "value": "/organizations/:organizationId",
+      "kind": "route",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "/o/:organizationId"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 31,
+      "value": "org_permissions",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 31,
+      "value": "org_roles",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 31,
+      "value": "organization_permissions",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/naming-contract.js",
+      "line": 31,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 17,
+      "value": "org_permissions",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 17,
+      "value": "org_roles",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 17,
+      "value": "organization_permissions",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 17,
+      "value": "organization_roles",
+      "kind": "table",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "do not create local RBAC source-of-truth tables duplicating Logto"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 76,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 76,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 76,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 77,
+      "value": "org_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 77,
+      "value": "organization_id",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": null
+    },
+    {
+      "file": "scripts/authorization/scan-authorization-names.js",
+      "line": 77,
+      "value": "organizationId",
+      "kind": "claim",
+      "category": "false-positive",
+      "severity": "info",
+      "expected": "organization_id"
+    },
+    {
+      "file": "scripts/authorization/validate-permission-prefixes.js",
+      "line": 26,
+      "value": "owner_global",
+      "kind": "role",
+      "category": "canonical",
+      "severity": "info",
+      "expected": null
+    }
+  ],
+  "summary": {
+    "counts": {
+      "canonical": 263,
+      "legacy": 246,
+      "migration-only": 0,
+      "external": 84,
+      "false-positive": 65,
+      "violation": 0
+    },
+    "violations": [],
+    "allowlistErrors": [],
+    "expiringAllowlistEntries": [],
+    "filesAffected": [
+      "README.md",
+      "auth/permissions.js",
+      "backend/authorization/guards.js",
+      "backend/authorization/roles.js",
+      "backend/connectors/adapters/contracts/index.js",
+      "backend/connectors/crm/fluentcrm/adapter.js",
+      "backend/connectors/identity/logto/adapter.js",
+      "backend/connectors/registry.js",
+      "backend/contracts/foundation.js",
+      "backend/db/schema/index.js",
+      "backend/index.js",
+      "backend/middleware/auth.js",
+      "backend/middleware/requireOrg.js",
+      "backend/rbac/matrix.js",
+      "backend/runtime/migrations.js",
+      "backend/services/logtoManagement.js",
+      "backend/services/operationalOperations.js",
+      "backend/services/organizationProvisioningCore.js",
+      "backend/services/organizationProvisioningRecorder.js",
+      "backend/test/database-migrations-runtime.test.js",
+      "backend/test/deploymentKernelZeroDrift.test.js",
+      "backend/test/foundation-authorization-middleware.test.js",
+      "backend/test/global-organization-authorization.test.js",
+      "backend/test/root-capabilities-contract.test.js",
+      "backend/tests/authorizationSeparation.test.js",
+      "backend/tests/foundationWorkerEngine.test.js",
+      "backend/tests/organizationProvisioningLocations.test.js",
+      "backend/tests/organizationProvisioningResume.test.js",
+      "backend/tests/organizationProvisioningRoles.test.js",
+      "backend/tests/organizationProvisioningUsername.test.js",
+      "backend/tests/securityPolicies.test.js",
+      "core/authz/catalog/analytics.permissions.js",
+      "core/authz/catalog/billing.permissions.js",
+      "core/authz/catalog/communications.permissions.js",
+      "core/authz/catalog/connectors.permissions.js",
+      "core/authz/catalog/crm.permissions.js",
+      "core/authz/catalog/lms.permissions.js",
+      "core/authz/catalog/organization.permissions.js",
+      "core/authz/catalog/owner.permissions.js",
+      "core/authz/catalog/scheduling.permissions.js",
+      "core/authz/catalog/support.permissions.js",
+      "core/authz/constants.js",
+      "core/authz/contract-tests/authz-contract.test.js",
+      "core/authz/legacy/legacy-permission-map.js",
+      "core/authz/roles/global-role-permissions.js",
+      "core/authz/roles/organization-role-permissions.js",
+      "core/authz/validation/validate-authz-contract.js",
+      "core/deployment/deployment-kernel.cjs",
+      "core/shared/civitas-shared.contract.cjs",
+      "docs/architecture/authorization-global-vs-organization.md",
+      "docs/architecture/canonical-sources.md",
+      "docs/architecture/operational-contract-phase-1.md",
+      "docs/architecture/organization-provisioning-wizard.md",
+      "docs/architecture/organization-provisioning.md",
+      "docs/architecture/review-checklist.md",
+      "docs/authorization/naming-contract.md",
+      "docs/authorization/phase-2-authz-contract.md",
+      "frontend/docs/CIVITAS_OWNER_AUTH.md",
+      "frontend/src/api/base.ts",
+      "frontend/src/api/owner.ts",
+      "frontend/src/api/resource.ts",
+      "frontend/src/authz/ownerScopes.data.contract.test.mjs",
+      "frontend/src/authz/rbacMatrix.ts",
+      "frontend/src/layouts/AppShell.tsx",
+      "frontend/src/navigation/routes.ts",
+      "frontend/src/pages/App/index.tsx",
+      "frontend/src/pages/CivitasVisualLayer.contract.test.mjs",
+      "frontend/src/pages/OrganizationPage/index.tsx",
+      "frontend/src/pages/OwnerOrganizationsIndexPage.tsx",
+      "scripts/authorization/naming-contract.js",
+      "scripts/authorization/scan-authorization-names.js",
+      "scripts/authorization/validate-permission-prefixes.js"
+    ]
+  }
+}
