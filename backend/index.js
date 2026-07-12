@@ -34,6 +34,7 @@ const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganization
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { requireGlobalOwner } = require("./authorization/guards");
+const { organizationPath } = require("./routes/tenantRoutes");
 const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
 
 const app = express();
@@ -440,15 +441,30 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
   }
 });
 
-secureRoute.get("/documents", "organizationMemberRead", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), requireAuthorization({ permission: ORG_AUTHZ.documentsRead, actionId: "documents.read", surface: "organization", operation: "read", policies: ["same-organization", "membership-required"] }), async (_req, res) => {
+const documentListHandler = async (_req, res) => {
   res.json([
     { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
     { id: "2", title: "Operational Contract Notes", updatedAt: "2024-03-14", updatedBy: "Alice Smith", preview: "The owner backbone now prefers operational-state over legacy logs..." },
   ]);
+};
+const documentCreateHandler = async (_req, res) => { res.json({ data: "Document created" }); };
+const documentReadPolicies = ["same-organization", "membership-required"];
+const documentCreatePolicies = ["same-organization", "membership-required", "critical-operation-audited"];
+
+secureRoute.get("/o/:organizationId/documents", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), requireAuthorization({ permission: ORG_AUTHZ.documentsRead, actionId: "documents.read", surface: "organization", operation: "read", policies: documentReadPolicies }), documentListHandler);
+
+secureRoute.post("/o/:organizationId/documents", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), requireAuthorization({ permission: ORG_AUTHZ.documentsCreate, actionId: "documents.create", surface: "organization", operation: "create", policies: documentCreatePolicies, auditIntentResolver: (req) => ({ decisionId: req.authorizationDecision?.decisionId, action: "documents.create", actorSubject: req.auth?.subject || req.user?.sub || req.user?.id, organizationId: req.params.organizationId, targetType: "document", reason: req.body?.reason || "document_create", reasonRequired: false, idempotencyRequired: false }) }), documentCreateHandler);
+
+secureRoute.get("/documents", "organizationMemberReadLegacyRedirect", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), (req, res) => {
+  const canonicalPath = organizationPath(req.auth?.organizationId || req.user?.organizationId, "documents");
+  res.set("Deprecation", "true");
+  res.set("Link", `<${canonicalPath}>; rel="canonical"`);
+  return res.redirect(308, canonicalPath);
 });
 
-secureRoute.post("/documents", "organizationAdminWrite", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), requireAuthorization({ permission: ORG_AUTHZ.documentsCreate, actionId: "documents.create", surface: "organization", operation: "create", policies: ["same-organization", "membership-required", "critical-operation-audited"], auditIntentResolver: (req) => ({ decisionId: req.authorizationDecision?.decisionId, action: "documents.create", actorSubject: req.auth?.subject || req.user?.sub || req.user?.id, organizationId: req.user?.organizationId || req.auth?.organizationId, targetType: "document", reason: req.body?.reason || "document_create", reasonRequired: false, idempotencyRequired: false }) }), async (_req, res) => {
-  res.json({ data: "Document created" });
+secureRoute.post("/documents", "organizationAdminWriteLegacyRejected", requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), (req, res) => {
+  const canonicalPath = organizationPath(req.auth?.organizationId || req.user?.organizationId, "documents");
+  return res.status(410).json({ error: "EndpointDeprecated", code: "tenant_route_deprecated", canonicalPath });
 });
 
 secureRoute.get("/", "public", (_req, res) => {

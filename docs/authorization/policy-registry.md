@@ -72,7 +72,7 @@ Each decision preserves role paths with `rolePathId`, `logtoRoleId`, scope prese
 
 ## Impersonation status
 
-Tenant impersonation remains disabled: legacy `org.impersonate` and `impersonation:write` remain invalid, and `org.impersonation.execute` is still planned in #74. Owner impersonation policies are registered as fail-closed interfaces until #90 completes TTL, reason, revocation, actor/effective, audit, and rate-limit contracts.
+Tenant impersonation remains disabled: legacy `org.impersonate` and `impersonation` colon-form write scope remain invalid, and `org.impersonation.execute` is still planned in #74. Owner impersonation policies are registered as fail-closed interfaces until #90 completes TTL, reason, revocation, actor/effective, audit, and rate-limit contracts.
 
 ## Diagnostics
 

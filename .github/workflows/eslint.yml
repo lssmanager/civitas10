@@ -41,6 +41,8 @@ jobs:
           npm run authz:scope-contract-check
           npm run authz:delegation-contract-check
           npm run authz:policy-contract-check
+          npm run authz:tenant-contract-check
+          npm run authz:entitlement-contract-check
 
       - name: Install ESLint
         run: |

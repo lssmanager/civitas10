@@ -319,7 +319,7 @@ const requireOrganizationAccess = ({ resource = deploymentConfig.logtoResource, 
       const verifiedOrganizationId = extractOrganizationId(payload);
       if (requireOrganizationContext && !verifiedOrganizationId) { const error = new Error("Organization token is missing organization context"); error.status = 401; throw error; }
       if (req.params?.organizationId && verifiedOrganizationId && req.params.organizationId !== verifiedOrganizationId) {
-        return res.status(403).json({ error: "Forbidden", message: "Organization token does not match requested organization" });
+        return res.status(403).json({ error: "Forbidden", code: "organization_route_mismatch", message: "Organization token does not match requested organization" });
       }
       const authContext = buildAuthContext({ payload, tokenType: "organization", organizationId: verifiedOrganizationId });
       if (!hasRequiredScopes(authContext.scopes, requirements.requiredAllScopes) || !hasAnyRequiredScope(authContext.scopes, requirements.requiredAnyScopes)) {

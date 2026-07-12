@@ -1,3 +1,4 @@
 "use strict";
-function createUnavailableEntitlementProvider() { return { async evaluate() { return { status: "unavailable" }; } }; }
-module.exports = { createUnavailableEntitlementProvider };
+const { createEntitlementPolicyProvider } = require("../../entitlements");
+function createUnavailableEntitlementProvider() { return { async evaluate() { return { status: "unavailable" }; }, async evaluateSnapshot() { return { status: "unavailable" }; } }; }
+module.exports = { createUnavailableEntitlementProvider, createEntitlementPolicyProvider };
