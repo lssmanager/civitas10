@@ -869,3 +869,45 @@ Relación con issues relacionados:
 - #112 define la dirección normativa del sistema visual; #113 materializa únicamente el bridge Tailwind semántico.
 - #115 Stage A se activa aquí como gate mínimo; Stage B de duplicación visual queda fuera de este cambio.
 - #116 sigue siendo el lugar para endurecer `shared/ui` y migraciones profundas de primitives/componentes; #113 no rediseña `civitas-card`, `civitas-topbar`, `civitas-primary-nav`, `NavCollapse`, `DataTable`, `StatusPill`, `EmptyState`, `SectionCard` ni `PageHeader`.
+
+### 12.11 Intake licenciado Tailwind Plus y provenance de #114
+
+El repositorio `lssmanager/civitas10` es público. Tailwind Plus solo puede intervenir cuando el titular autorizado de la licencia suministra localmente un bloque para ser adaptado dentro del producto final Civitas; no se accede, descarga, scrapea ni reconstruye código de Tailwind Plus desde este repositorio. La frontera normativa se mantiene enlazada a la licencia oficial de Tailwind Plus: https://tailwindcss.com/plus/license.
+
+El intake autorizado para #114 es local, gitignored y nunca importable:
+
+```text
+frontend/.design-intake/                  # local, no versionado
+frontend/scripts/design-system/           # scripts versionados
+frontend/scripts/design-system/fixtures/  # fixtures sintéticos, no licenciados
+docs/design-system/provenance.json        # metadata, no source
+frontend/src/shared/ui/index.ts           # único entrypoint reusable
+```
+
+El pipeline permitido es:
+
+```text
+snippet local licenciado en frontend/.design-intake/
+        ↓
+map-tailwind-plus-palette.mjs con semantic-utility-map.json
+        ↓
+reporte JSON local con mapped / unchanged / unresolved / forbidden / requiresHumanReview
+        ↓
+revisión humana de semántica, accesibilidad, keyboard y responsive
+        ↓
+#116 decide si extiende o crea primitive en shared/ui con consumidor real
+        ↓
+entrada provenance metadata, sin source licenciado
+```
+
+El mapper de #114 no promueve componentes automáticamente, no escribe en `src/`, no modifica `features/`, no crea `Tabs`, `Toggle`, `Badge`, `Sidebar` ni ningún componente productivo, y falla cerrado si existe una clase unresolved, forbidden o pendiente de revisión humana. El mapping es por utility completa y significado (`bg-indigo-600` → `bg-primary`, `hover:bg-indigo-700` → `hover:bg-primary-strong`), no por hue o número aislado. Utilities arbitrarias como `text-[rgb(...)]` y variantes dark ambiguas como `dark:bg-gray-900` quedan unresolved hasta una revisión explícita; nunca se genera `dark:bg-*` por reflejo si el token semántico ya resuelve light/dark mediante `theme.css`.
+
+`docs/design-system/provenance.json` contiene solo metadata de componentes ya aprobados y promovidos. El archivo inicial vacío `{ "version": 1, "entries": [] }` es válido. Una entrada real debe afirmar `licenseVerified: true`, `sourceCommitted: false`, `redistributionBoundary: "civitas10-end-product"`, SHA completa de promoción y reviews semántica/accesibilidad/responsive completas. El validador prohíbe emails, license keys, facturas, URLs privadas y source code. No se debe crear una entrada ficticia solo para demostrar el schema.
+
+Gates añadidos por #114:
+
+- `npm run design:intake:check`: valida que `.design-intake/` esté ignorado, no haya intake tracked, no existan imports desde intake, no haya raíces paralelas de UI kit, no se declaren Catalyst/Tailwind Plus Elements y `shared/ui/index.ts` siga siendo el entrypoint reusable.
+- `npm run design:provenance:check`: valida provenance vacío o entradas reales sin secretos/source y con boundary correcto.
+- `npm run design:intake:map`: CLI explícito para operar únicamente sobre archivos locales dentro de `frontend/.design-intake/`.
+
+#114 complementa #115 Stage A con barreras de intake/provenance. #116 sigue siendo el único issue autorizado para construir primitives reales con consumidores reales, tests y una entrada provenance de promoción. Se prohíbe extraer componentes derivados de Tailwind Plus a un paquete público reusable, colección de snippets, `packages/design-system`, `tailwind-plus-components` o cualquier segunda librería visual.
