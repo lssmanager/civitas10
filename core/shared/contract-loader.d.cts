@@ -3,7 +3,7 @@ export type CivitasSharedContract = {
   logto: { issuer: string; apiResource: string; managementApi: string; organizationAudiencePrefix: string };
   api: { publicUrl: string };
   auth: {
-    global: { ownerRole: string; scopes: Record<string, string> };
+    global: { ownerRole: string; globalRoles: readonly string[]; permissions: Record<string, string> };
     organization: { reservedResource: string; documentPermissions: Record<string, string>; roles: Record<string, string> };
     invariants: readonly string[];
   };

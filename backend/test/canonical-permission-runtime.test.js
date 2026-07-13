@@ -22,8 +22,8 @@ test('legacy scopes are absent from shared contract, frontend, and runtime backe
   const shared = fs.readFileSync(path.join(root, 'core/shared/civitas-shared.contract.cjs'), 'utf8')
   const ownerScopes = fs.readFileSync(path.join(root, 'frontend/src/authz/ownerScopes.ts'), 'utf8')
   const requirePermission = fs.readFileSync(path.join(root, 'backend/middleware/requirePermission.js'), 'utf8')
-  assert.equal(shared.includes('owner:read'), false)
-  assert.equal(ownerScopes.includes('worker-queues:read'), false)
+  assert.equal(shared.includes('owner:read'), false) // negative fixture
+  assert.equal(ownerScopes.includes('worker-queues:read'), false) // negative fixture
   assert.equal(requirePermission.includes('scripts/authorization'), false)
 })
 

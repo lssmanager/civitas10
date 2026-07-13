@@ -312,7 +312,7 @@ secureRoute.get("/owner/organizations", "ownerRead", requireGlobalAccess({ resou
 
 secureRoute.post("/owner/organization-drafts", "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerOrganizationsCreate] }), requireGlobalOwner, async (req, res) => {
   try {
-    const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
+    const actor = { type: OWNER_GLOBAL_ROLE, logtoUserId: req.user?.sub || req.user?.id || null };
     const draft = await saveOrganizationProvisioningDraft({
       idempotencyKey: req.body?.idempotencyKey || createIdempotencyKey(),
       currentStage: req.body?.currentStage || req.body?.stage || "canonical",
@@ -401,7 +401,7 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
     if (normalized.errors.length > 0) {
       return res.status(400).json({ error: "ValidationError", message: "Organization provisioning input is invalid", details: normalized.errors, idempotencyKey });
     }
-    const actor = { type: "owner_global", logtoUserId: req.user?.sub || req.user?.id || null };
+    const actor = { type: OWNER_GLOBAL_ROLE, logtoUserId: req.user?.sub || req.user?.id || null };
     await saveOrganizationProvisioningDraft({ idempotencyKey, currentStage: "review", consolidatedPayload: req.body || {}, actor, status: "submitted", submitStatus: "running", submittedAt: new Date() });
     const recorder = createOrganizationProvisioningRecorder({ actor, idempotencyKey });
     try {
