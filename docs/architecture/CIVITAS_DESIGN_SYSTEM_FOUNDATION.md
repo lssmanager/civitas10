@@ -786,3 +786,45 @@ La deuda existente usa una allowlist finita con owner, motivo y fecha de elimina
 5. #111 valida la integración final entre topología y representación visual.
 
 Nuevas pantallas Phase 2 no deben convertirse en patrón hasta que #111 y #112 estén cerrados.
+
+
+### 12.9 Correcciones P0 y secuencia de gates
+
+La validación ejecutable confirmó que el estado anterior era un falso verde: con las directivas v3, el build terminaba correctamente y el validator visual pasaba, pero el CSS emitido omitía utilities usadas como `.text-sm`, `.gap-2` y `.mt-3`.
+
+#117 corrigió de forma aislada:
+
+- entrada v4 mediante `@import "tailwindcss"`;
+- workflow de `master` a `main`;
+- verificación de utilities estructurales, tipográficas y de spacing en CSS emitido.
+
+Secuencia corregida:
+
+```text
+#117 P0
+   ↓
+#113 bridge + #115 Stage A minimum gates (parallel)
+   ↓
+#114 intake
+   ↓
+#116 shared/ui migrations
+   ↓
+#115 Stage B full enforcement
+   ↓
+#111 final AppShell integration
+```
+
+Stage A debe bloquear desde el primer commit:
+
+- paleta raw nueva;
+- imports desde intake;
+- segunda raíz de UI kit;
+- desaparición de utilities representativas del CSS compilado.
+
+#### Ownership de AppShell
+
+- #111 es dueño de la estructura de navegación, rutas, required/fallback behavior y fallo ante navegación ausente.
+- #116 es dueño de la presentación, tokens y adapters hacia `shared/ui/NavCollapse`.
+- #116 no cambia topología/autorización.
+- #111 no introduce estilos locales ni otro Sidebar.
+- La integración se realiza en un único PR o en orden #111 estructural → #116 visual.
