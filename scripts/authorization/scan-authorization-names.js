@@ -32,7 +32,7 @@ function repoFiles(root = process.cwd()) {
   const out = childProcess.execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
   return out.split('\n').filter(Boolean).filter((file) => !DEFAULT_EXCLUDES.some((re) => re.test(file))).filter((file) => TEXT_EXTENSIONS.has(path.extname(file)) || file.includes('.env'))
 }
-function isNegativeFixture(file, lineText) { return file.includes('contract-tests/') || file === 'core/authz/validation/validate-authz-contract.js' || file === 'docs/authorization/phase-2-authz-contract.md' || file === 'docs/authorization/naming-contract.md' || file === 'scripts/authorization/naming-contract.js' || file === 'scripts/authorization/scan-authorization-names.js' || file === 'scripts/logto/authorization-validator.js' || file === 'backend/test/logto-authz-bootstrap.test.js' || file === 'backend/test/foundation-authorization-middleware.test.js' || file === 'backend/test/authz-scope-delegation-contract.test.js' || file === 'backend/test/authz-policy-contract.test.js' || lineText.includes('negative fixture') || lineText.includes('formas prohibidas') || lineText.includes('Formas prohibidas') || lineText.includes('Debe rechazar') }
+function isNegativeFixture(file, lineText) { return file.includes('contract-tests/') || file === 'core/authz/validation/validate-authz-contract.js' || file === 'docs/authorization/phase-2-authz-contract.md' || file === 'docs/authorization/naming-contract.md' || file === 'scripts/authorization/naming-contract.js' || file === 'scripts/authorization/scan-authorization-names.js' || file === 'scripts/logto/authorization-validator.js' || file === 'backend/test/logto-authz-bootstrap.test.js' || file === 'backend/test/foundation-authorization-middleware.test.js' || file === 'backend/test/authz-scope-delegation-contract.test.js' || file === 'backend/test/authz-policy-contract.test.js' || lineText.includes('negative fixture') || lineText.includes('formas prohibidas') || lineText.includes('Formas prohibidas') || lineText.includes('Debe rechazar') || /^Archived note:/i.test(lineText) }
 function allowlistEntry(kind, value, file) {
   return AUTHORIZATION_NAMING_ALLOWLIST.find((entry) => entry.kind === kind && entry.legacyValue === value && entry.allowedFiles.includes(file)) || null
 }
@@ -57,7 +57,12 @@ function classify(kind, value, file, line, lineText, result) {
 }
 function scanFile(file, root = process.cwd()) {
   const abs = path.join(root, file)
-  const text = fs.readFileSync(abs, 'utf8')
+  let text
+  try {
+    text = fs.readFileSync(abs, 'utf8')
+  } catch (error) {
+    return [{ file, line: 0, value: file, kind: 'file', category: 'scan-error', severity: 'warning', expected: error.message }]
+  }
   const records = []
   let documentationProhibitedBlock = false
   text.split(/\r?\n/).forEach((lineText, index) => {
@@ -82,7 +87,7 @@ function scanFile(file, root = process.cwd()) {
   return records
 }
 function summarize(records, allowlistErrors = []) {
-  const counts = { canonical: 0, legacy: 0, 'migration-only': 0, external: 0, 'false-positive': 0, violation: 0 }
+  const counts = { canonical: 0, legacy: 0, 'migration-only': 0, external: 0, 'false-positive': 0, 'scan-error': 0, violation: 0 }
   for (const record of records) counts[record.category] = (counts[record.category] || 0) + 1
   const filesAffected = [...new Set(records.map((r) => r.file))].sort()
   return { counts, violations: records.filter((r) => r.category === 'violation'), allowlistErrors, expiringAllowlistEntries: [], filesAffected }

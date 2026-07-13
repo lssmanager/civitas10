@@ -31,7 +31,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate authorization naming contract
-        run: npm run authz:naming:check
+        run: |
+          npm run authz:naming:report
+          git diff --exit-code artifacts/authorization-naming-report.json
+          npm run authz:naming:check
 
       - name: Validate Logto authorization bootstrap contract
         run: npm run logto:authz:contract-check

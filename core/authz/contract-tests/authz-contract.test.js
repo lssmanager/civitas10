@@ -35,7 +35,7 @@ test('role matrix separates global and organization roles and only assigns activ
   const byName = new Map(manifest.permissions.map((p) => [p.name, p]))
   for (const [role, permissions] of Object.entries(manifest.rolePermissionAssignments)) {
     for (const permission of permissions) {
-      assert.equal(byName.get(permission)?.status, 'active')
+      assert.equal(byName.get(permission)?.status, 'active', `role ${role} references non-active or missing permission ${permission}`)
       if (role === 'owner_global') assert.match(permission, /^owner\./)
       if (role.startsWith('organization_')) assert.ok(!permission.startsWith('owner.'))
     }

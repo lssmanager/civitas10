@@ -14,8 +14,6 @@ function validatePermissionName(value, options = {}) {
   if (parts.length < 3) return invalid('permission must be <domain>.<resource>.<action>')
   if (parts.some((part) => part.length === 0)) return invalid('permission segments must not be empty')
   if (!parts.every((part) => SEGMENT.test(part))) return invalid('segments must be lowercase snake_case without spaces')
-  if (c.genericPermissionsForbidden && parts.length === 1 && ['read','write'].includes(value)) return invalid('generic read/write permissions are forbidden')
-  if (['read','write'].includes(value)) return invalid('generic read/write permissions are forbidden')
   const action = parts[parts.length - 1]
   if (!ACTIONS.has(action) && !options.allowUnknownAction) return invalid(`action must be explicit; received ${action}`)
   return { valid: true, category: 'canonical', kind: 'permission', value }
