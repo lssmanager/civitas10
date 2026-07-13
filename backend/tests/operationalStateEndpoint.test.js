@@ -7,8 +7,8 @@ test("clean backend exposes owner operational-state and worker-queues routes", (
   const source = readFileSync(join(__dirname, "..", "index.js"), "utf8");
   assert.match(source, /require\("\.\/services\/operationalStateAssembler"\)/);
   assert.match(source, /require\("\.\/services\/operationalObservability"\)/);
-  assert.match(source, /secureRoute\.get\("\/owner\/organizations\/:organizationId\/operational-state", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.profileRead, OWNER_AUTHZ.runtimeRead\] \}\), requireGlobalOwner/);
-  assert.match(source, /secureRoute\.get\("\/owner\/system\/worker-queues", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.workerQueuesRead\] \}\), requireGlobalOwner/);
+  assert.match(source, /secureRoute\.get\("\/owner\/organizations\/:organizationId\/operational-state", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.ownerProfileRead, OWNER_AUTHZ.ownerRuntimeRead\] \}\), requireGlobalOwner/);
+  assert.match(source, /secureRoute\.get\("\/owner\/system\/worker-queues", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.ownerWorkerQueuesRead\] \}\), requireGlobalOwner/);
   assert.match(source, /buildConsolidatedOperationalResponse\(/);
   assert.match(source, /loadWorkerQueuesObservability\(/);
   assert.match(source, /if \(require\.main === module\)/);

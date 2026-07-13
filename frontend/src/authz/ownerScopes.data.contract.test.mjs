@@ -4,11 +4,11 @@ import sharedContract from "../../../dist/shared.contract.json" with { type: "js
 
 const oidcLoginScopes = ["openid", "profile", "email", "offline_access"];
 const ownerShellRequiredScopes = [
-  sharedContract.auth.global.scopes.ownerRead,
-  sharedContract.auth.global.scopes.organizationRead,
-  sharedContract.auth.global.scopes.organizationCreate,
-  sharedContract.auth.global.scopes.runtimeRead,
-  sharedContract.auth.global.scopes.workerQueuesRead,
+  sharedContract.auth.global.permissions.ownerProfileRead,
+  sharedContract.auth.global.permissions.ownerOrganizationsRead,
+  sharedContract.auth.global.permissions.ownerOrganizationsCreate,
+  sharedContract.auth.global.permissions.ownerRuntimeRead,
+  sharedContract.auth.global.permissions.ownerWorkerQueuesRead,
 ];
 const logtoOwnerShellScopes = [...oidcLoginScopes, ...ownerShellRequiredScopes];
 
@@ -18,11 +18,11 @@ test("owner shell scope data matches the compiled shared contract", () => {
     "profile",
     "email",
     "offline_access",
-    "owner:read",
-    "organization:read",
-    "organization:create",
-    "runtime:read",
-    "worker-queues:read",
+    "owner.profile.read",
+    "owner.organizations.read",
+    "owner.organizations.create",
+    "owner.runtime.read",
+    "owner.worker_queues.read",
   ]);
 });
 

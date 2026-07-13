@@ -89,5 +89,12 @@ const AUTHORIZATION_NAMING_ALLOWLIST = Object.freeze([
   entry('claim', 'org_id', 'organization_id', ['backend/middleware/requireOrg.js'], 'Legacy request parameter compatibility only; canonical token claim remains organization_id.'),
   entry('claim', 'org_id', null, ['backend/connectors/adapters/contracts/index.js','backend/connectors/registry.js','backend/worker/foundationStore.js'], 'External/downstream connector field not controlled as Civitas token claim.'),
   entry('route', '/:orgId', '/o/:organizationId', ['frontend/src/navigation/routes.ts','frontend/src/pages/OrganizationPage/index.tsx','frontend/src/layouts/AppShell.tsx'], 'Legacy frontend tenant route remains until #78 migrates routing.'),
+  entry('claim', 'organizationId', 'organization_id', ['backend/authorization/entitlements/entitlementService.js'], 'Service API still accepts camelCase organizationId DTO fields while token claim remains organization_id.'),
+  entry('claim', 'organizationId', 'organization_id', ['backend/authorization/runtime/authorizationVersionService.js'], 'Runtime repository API uses camelCase domain field names outside token claims.'),
+  entry('claim', 'organizationId', 'organization_id', ['docs/authorization/tenant-isolation-and-entitlements.md'], 'Documentation names route-builder parameters, not token claims.'),
+  entry('permission', 'owner.organizations.operational-state', 'owner.organizations.operational_state', ['backend/routes/tenantRoutes.js'], 'Route inventory id predates snake_case action-id cleanup and is not an OAuth permission.'),
+  entry('permission', 'owner.organizations.operational-state', 'owner.organizations.operational_state', ['docs/authorization/tenant-isolation-and-entitlements.md'], 'Documentation route inventory id predates snake_case action-id cleanup and is not an OAuth permission.'),
+  entry('permission', 'owner.runtime.workerQueues', 'owner.runtime.worker_queues', ['frontend/src/features/owner/runtime/runtime.screen.ts'], 'Frontend menu/action id is not an OAuth permission.'),
+  entry('permission', 'owner.system.workerQueues', 'owner.system.worker_queues', ['frontend/src/navigation/route-catalog.ts'], 'Frontend route id is not an OAuth permission.'),
 ])
 module.exports = { AUTHORIZATION_NAMING_ALLOWLIST }

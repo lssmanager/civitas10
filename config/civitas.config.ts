@@ -16,7 +16,7 @@ export const civitasConfig = {
   auth: sharedContract.auth,
   isOwnerGlobal: {
     role: sharedContract.auth.global.ownerRole,
-    requiredScopes: [sharedContract.auth.global.scopes.ownerRead],
+    requiredScopes: [sharedContract.auth.global.permissions.ownerProfileRead],
   },
   runtimeFlags: {
     usePublicApiUrlOnly: true,

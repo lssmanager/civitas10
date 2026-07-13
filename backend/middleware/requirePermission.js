@@ -1,7 +1,7 @@
 'use strict'
 
 const { permissionsByName } = require('../../core/authz')
-const { validatePermissionName } = require('../../scripts/authorization/validate-permission-prefixes')
+const { validatePermissionName } = require('../../core/authz/validation/validate-permission-name')
 
 function normalizeScopes(req) {
   const scopes = req.auth?.scopes ?? req.user?.scopes ?? []

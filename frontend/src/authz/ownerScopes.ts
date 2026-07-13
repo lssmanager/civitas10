@@ -3,16 +3,16 @@ import { civitasConfig } from "../../../config/civitas.config";
 
 export const OWNER_GLOBAL_ROLE = civitasConfig.auth.global.ownerRole;
 export const OWNER_SCOPES = {
-  read: civitasConfig.auth.global.scopes.ownerRead,
-  write: civitasConfig.auth.global.scopes.ownerWrite,
-  runtimeRead: civitasConfig.auth.global.scopes.runtimeRead,
-  runtimeWrite: civitasConfig.auth.global.scopes.runtimeWrite,
-  workerQueuesRead: civitasConfig.auth.global.scopes.workerQueuesRead,
-  workerQueuesWrite: civitasConfig.auth.global.scopes.workerQueuesWrite,
-  organizationsCreate: civitasConfig.auth.global.scopes.organizationCreate,
-  organizationsRead: civitasConfig.auth.global.scopes.organizationRead,
-  organizationsWrite: civitasConfig.auth.global.scopes.organizationWrite,
-  impersonationWrite: civitasConfig.auth.global.scopes.impersonationWrite,
+  read: civitasConfig.auth.global.permissions.ownerProfileRead,
+  write: civitasConfig.auth.global.permissions.ownerRuntimeOperationsExecute,
+  runtimeRead: civitasConfig.auth.global.permissions.ownerRuntimeRead,
+  runtimeWrite: civitasConfig.auth.global.permissions.ownerRuntimeOperationsExecute,
+  workerQueuesRead: civitasConfig.auth.global.permissions.ownerWorkerQueuesRead,
+  workerQueuesWrite: civitasConfig.auth.global.permissions.ownerRuntimeOperationsExecute,
+  organizationsCreate: civitasConfig.auth.global.permissions.ownerOrganizationsCreate,
+  organizationsRead: civitasConfig.auth.global.permissions.ownerOrganizationsRead,
+  organizationsWrite: civitasConfig.auth.global.permissions.ownerOrganizationsCreate,
+  impersonationWrite: civitasConfig.auth.global.permissions.ownerRuntimeOperationsExecute,
 } as const;
 
 export const OWNER_SHELL_REQUIRED_SCOPES = Object.freeze([
