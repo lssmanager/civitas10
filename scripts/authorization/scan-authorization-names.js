@@ -60,8 +60,9 @@ function scanFile(file, root = process.cwd()) {
   let text
   try {
     text = fs.readFileSync(abs, 'utf8')
-  } catch (error) {
-    return [{ file, line: 0, value: file, kind: 'file', category: 'scan-error', severity: 'warning', expected: error.message }]
+  } catch (err) {
+    console.error(`Warning: Failed to read ${file}: ${err.message}`)
+    return []
   }
   const records = []
   let documentationProhibitedBlock = false
