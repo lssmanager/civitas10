@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "test": "node --test \"src/**/*.contract.test.mjs\"",
     "preview": "vite preview",
-    "validate:visual-backbone": "node scripts/validate-civitas-backbone.mjs"
+    "validate:visual-backbone": "node scripts/validate-civitas-backbone.mjs",
+    "validate:visual-contract": "node ../scripts/authorization/validate-visual-contract.js",
+    "validate:frontend-authz": "node ../scripts/authorization/validate-frontend-authz.js"
   },
   "dependencies": {
     "@logto/react": "^4.0.3",

@@ -4,6 +4,7 @@ import { getMe, type MeResponse } from "../api/me";
 import { APP_ENV } from "../env";
 import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, ownerHasGlobalRole } from "./ownerScopes";
 import { getAccessTokenDiagnostics } from "../api/base";
+import { VisualAuthorizationProvider, visualAuthorizationContextFromOwnerMe } from "../authorization/components/VisualAuthorizationProvider";
 
 type OwnerTokenDiagnostics = ReturnType<typeof getAccessTokenDiagnostics>;
 
@@ -64,5 +65,5 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
       {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-slate-500">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
     </div>
   );
-  return <>{children}</>;
+  return <VisualAuthorizationProvider value={visualAuthorizationContextFromOwnerMe(state.me)}>{children}</VisualAuthorizationProvider>;
 }

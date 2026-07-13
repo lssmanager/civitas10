@@ -12,6 +12,7 @@ const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), 
 const dataTable = readFileSync(new URL("./DataTable.tsx", import.meta.url), "utf8");
 const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.url), "utf8");
 const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
+const ownerRegistry = readFileSync(new URL("../../features/owner/organizations/organizations.screen.ts", import.meta.url), "utf8");
 const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
 const actionButtons = readFileSync(new URL("../../components/layout/TopBar/ActionButtons.tsx", import.meta.url), "utf8");
 const actionButtonCss = readFileSync(new URL("../../components/common/ActionButton/ActionButton.module.css", import.meta.url), "utf8");
@@ -100,7 +101,7 @@ test("owner sidebar navigation is a persisted multi-expand tree", () => {
   assert.match(navCollapse, /itemCanBeSelfActive = \(item: NavCollapseItem, pathname: string\) => Boolean\(item\.path\) && itemIsActive\(item, pathname\)/);
   assert.match(navCollapse, /data-branch-active=\{branchActive\}/);
   assert.match(navCollapse, /selfActive \? "civitas-nav-link-active"/);
-  assert.match(appShell, /children: \[/);
+  assert.match(ownerRegistry, /parentMenuKey: "owner\.organizations"/);
   assert.match(appShell, /SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state"/);
   assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
   assert.match(appShell, /data-civitas-sidebar-state=\{sidebarState\}/);

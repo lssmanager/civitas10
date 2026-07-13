@@ -29,6 +29,16 @@ export const appRoutes = {
     label: "Organization state",
     description: "Estado operacional consolidado por organización.",
   },
+  ownerOrganizationGovernance: {
+    path: "/owner/organizations/:organizationId/governance",
+    label: "Governance",
+    description: "Studio owner para permisos, ceilings, data scope y contrato visual por organización.",
+  },
+  tenantGovernance: {
+    path: "/o/:organizationId/settings/governance",
+    label: "Governance",
+    description: "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización.",
+  },
   ownerLogs: {
     path: "/owner/logs",
     label: "Audit logs",
@@ -90,4 +100,6 @@ export const routeMetadata: Record<string, RouteMetadata> = {
   "/owner/role-mapping": { label: appRoutes.ownerRoleMapping.label, parentPath: appRoutes.owner.path },
   "/select-organization": { label: appRoutes.selectOrganization.label, parentPath: appRoutes.owner.path },
   "/account": { label: appRoutes.account.label },
+  "/owner/organizations/:organizationId/governance": { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerOrganizationState.path },
+  "/o/:organizationId/settings/governance": { label: appRoutes.tenantGovernance.label },
 };

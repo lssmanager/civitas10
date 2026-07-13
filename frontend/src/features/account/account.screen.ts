@@ -1,0 +1,3 @@
+import { routeCatalog } from "../../navigation/route-catalog";
+import { defineScreen } from "../../authorization/registry/define-screen";
+export const accountScreen = defineScreen({ screenId: "account-profile", capability: "account", route: routeCatalog.account, navigation: { menuKey: "account.profile", labelKey: "navigation.account.profile", breadcrumbKey: "breadcrumbs.account.profile", iconKey: "user", responsiveGroup: "account", order: 100 }, access: { requiredAllPermissions: ["account.profile.read"], requiresOrganizationContext: false }, organizationCustomization: { visibility: "hideable", order: "customizable" }, actions: ["account.profile.load"] });
