@@ -59,13 +59,13 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [getAccessToken, isAuthenticated]);
 
-  if (state.status === "loading") return <div className="p-6 text-sm text-slate-600">Validando permisos...</div>;
+  if (state.status === "loading") return <div className="p-6 text-sm text-muted-strong">Validando permisos...</div>;
   if (state.status === "denied") return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-slate-900">403 / Access denied</h1>
-      <p className="mt-2 text-sm text-slate-600">{state.message}</p>
-      {state.reason === "global-scopes" && state.missingScopes?.length ? <p className="mt-2 text-sm text-slate-600">Missing global scopes: {state.missingScopes.join(", ")}</p> : null}
-      {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-slate-500">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
+      <h1 className="text-2xl font-semibold text-text">403 / Access denied</h1>
+      <p className="mt-2 text-sm text-muted-strong">{state.message}</p>
+      {state.reason === "global-scopes" && state.missingScopes?.length ? <p className="mt-2 text-sm text-muted-strong">Missing global scopes: {state.missingScopes.join(", ")}</p> : null}
+      {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-muted">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
     </div>
   );
   return <VisualAuthorizationProvider value={visualAuthorizationContextFromOwnerMe(state.me)}>{children}</VisualAuthorizationProvider>;

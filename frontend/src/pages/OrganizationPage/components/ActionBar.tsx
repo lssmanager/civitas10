@@ -6,7 +6,7 @@ export const ActionBar = ({ canCreateDocuments }: ActionBarProps) => {
   return (
     <div className="mb-6 flex justify-between items-center">
       {canCreateDocuments && (
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-contrast bg-primary hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5 mr-2"
@@ -29,11 +29,11 @@ export const ActionBar = ({ canCreateDocuments }: ActionBarProps) => {
           <input
             type="text"
             placeholder="Search documents..."
-            className="w-64 px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-64 px-4 py-2 border border-border-strong rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-focus focus:border-primary"
           />
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-gray-400 absolute right-3 top-2.5"
+            className="h-5 w-5 text-muted absolute right-3 top-2.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

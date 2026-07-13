@@ -11,20 +11,20 @@ function BlockCard({ title, block }: { title: string; block: OperationalBlock })
     <article className="owner-card">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{title}</p>
-          <h3 className="mt-2 text-lg font-semibold text-slate-950">{block.humanMessage || block.status}</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{title}</p>
+          <h3 className="mt-2 text-lg font-semibold text-text">{block.humanMessage || block.status}</h3>
         </div>
         <OwnerBadge tone={ownerToneFromSeverity(block.severity)}>{block.severity}</OwnerBadge>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <OwnerBadge tone={ownerToneFromSeverity(block.status === "ok" || block.status === "healthy" ? "success" : block.severity)}>{block.status}</OwnerBadge>
-        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{block.freshness.source}</span>
+        <span className="inline-flex rounded-full bg-neutral-soft px-2.5 py-1 text-xs font-medium text-muted-strong">{block.freshness.source}</span>
       </div>
-      <dl className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-        <div><dt className="font-medium text-slate-900">Provider code</dt><dd className="mt-1 break-all">{block.providerCode || "-"}</dd></div>
-        <div><dt className="font-medium text-slate-900">Provider status</dt><dd className="mt-1 break-all">{String(block.providerStatus || "-")}</dd></div>
-        <div><dt className="font-medium text-slate-900">Checked at</dt><dd className="mt-1">{block.freshness.checkedAt || "-"}</dd></div>
-        <div><dt className="font-medium text-slate-900">Next action</dt><dd className="mt-1">{actionLabel[String(block.nextAction)] || String(block.nextAction)}</dd></div>
+      <dl className="mt-5 grid gap-3 text-sm text-muted-strong sm:grid-cols-2">
+        <div><dt className="font-medium text-text">Provider code</dt><dd className="mt-1 break-all">{block.providerCode || "-"}</dd></div>
+        <div><dt className="font-medium text-text">Provider status</dt><dd className="mt-1 break-all">{String(block.providerStatus || "-")}</dd></div>
+        <div><dt className="font-medium text-text">Checked at</dt><dd className="mt-1">{block.freshness.checkedAt || "-"}</dd></div>
+        <div><dt className="font-medium text-text">Next action</dt><dd className="mt-1">{actionLabel[String(block.nextAction)] || String(block.nextAction)}</dd></div>
       </dl>
     </article>
   );

@@ -80,8 +80,8 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
       <PageHeader eyebrow={surface === "owner" ? "Owner governance" : "Tenant governance"} title={title} description="Composes permissions, owner ceilings, tenant activations, data scope, taxonomy, units, aliases and visual navigation without becoming a new authorization authority." actions={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} />
       <SectionCard title="Governance boundary" description="Feature writes stay in their owning services (#94/#95/#97/#98/#76/#77). This page consumes the aggregate read model and preview endpoints only.">
         <div className="flex flex-wrap gap-2 text-sm"><StatusPill status="neutral">{routeContext}</StatusPill><StatusPill status="neutral">no wildcards</StatusPill><StatusPill status="neutral">no client Logto Management API</StatusPill><StatusPill status="neutral">visual preferences only subtract</StatusPill></div>
-        {error ? <p className="mt-3 text-sm text-amber-700">{error}</p> : null}
-        {loading ? <p className="mt-3 text-sm text-slate-600">Loading governance read model...</p> : null}
+        {error ? <p className="mt-3 text-sm text-warning-strong">{error}</p> : null}
+        {loading ? <p className="mt-3 text-sm text-muted-strong">Loading governance read model...</p> : null}
       </SectionCard>
       <nav className="civitas-card civitas-pad-tight" aria-label="Governance modules" data-governance-studio-tabs="true">
         <div className="flex flex-wrap gap-2">
@@ -89,7 +89,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
         </div>
       </nav>
       <GovernanceModules activeModule={activeModule} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} />
-      <p className="text-xs text-slate-500">Need operational context? <Link className="text-blue-700" to={surface === "owner" ? `/owner/organizations/${encodeURIComponent(organizationId)}` : `/o/${encodeURIComponent(organizationId)}`}>Open organization surface</Link>.</p>
+      <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={surface === "owner" ? `/owner/organizations/${encodeURIComponent(organizationId)}` : `/o/${encodeURIComponent(organizationId)}`}>Open organization surface</Link>.</p>
     </Layout>
   );
 };

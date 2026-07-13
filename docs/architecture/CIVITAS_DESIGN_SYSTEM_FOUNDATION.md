@@ -828,3 +828,44 @@ Stage A debe bloquear desde el primer commit:
 - #116 no cambia topología/autorización.
 - #111 no introduce estilos locales ni otro Sidebar.
 - La integración se realiza en un único PR o en orden #111 estructural → #116 visual.
+
+### 12.10 Bridge semántico Tailwind v4 de #113
+
+#113 introduce un único bridge CSS-first en `frontend/src/styles/tailwind-theme.css`. El archivo usa exclusivamente `@theme inline` para mapear namespaces Tailwind a variables canónicas `--civitas-*`; no contiene valores `hex`, `rgb()`, `hsl()` u `oklch()`, ni duplica variantes light/dark. La resolución cromática sigue siendo responsabilidad de `frontend/src/styles/theme.css` mediante `:root[data-theme="light"]` y `:root[data-theme="dark"]`.
+
+Ownership por capa:
+
+- `frontend/src/styles/tokens.css`: escala canónica de spacing, typography, radius y geometría estructural.
+- `frontend/src/styles/theme.css`: valores light/dark y aliases semánticos Civitas.
+- `frontend/src/styles/tailwind-theme.css`: bridge contractual `--civitas-* → @theme inline → utilities Tailwind`.
+- `frontend/src/styles/layout.css`, `frontend/src/styles/primitives.css` y `frontend/src/styles/dashboard.css`: primitives existentes y compatibilidad visual; no son una segunda librería.
+- `frontend/src/shared/ui/`: único entrypoint reusable de componentes compartidos.
+- `features/`: consumidores; no declaran paleta Tailwind raw ni imports desde `.design-intake`.
+
+Namespaces Tailwind expuestos por el bridge de #113:
+
+- color semántico: `bg-bg`, `bg-surface`, `bg-surface-raised`, `bg-surface-subtle`, `border-border`, `border-border-strong`, `text-text`, `text-body`, `text-muted`, `text-muted-strong`, `bg-primary`, `text-primary`, `text-primary-strong`, `text-primary-contrast`, estados `info`, `success`, `warning`, `danger`, `neutral`, `disabled` y `focus`;
+- spacing canónico usado: `0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, además de `sidebar` y `sidebar-collapsed`;
+- typography usada: `xs`, `sm`, `base`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`;
+- radius usado: `sm`, `md`, `lg`, `xl`, `full`, `card` y `control`.
+
+El namespace default de colores de Tailwind queda desactivado con `--color-*: initial` dentro del bridge. No se desactiva globalmente `--spacing-*` porque el inventario debe mantener compatibilidad con consumidores legítimos mientras se migra de forma segura; las claves usadas se conectan explícitamente a la escala Civitas.
+
+Para añadir un mapping nuevo:
+
+1. demostrar un consumidor real y su función semántica;
+2. añadir primero o reutilizar el token `--civitas-*` en la capa dueña correspondiente;
+3. mapear en `frontend/src/styles/tailwind-theme.css` solo con `var(--civitas-*)`;
+4. añadir/mantener un sentinel si la utility protege una regresión relevante;
+5. ejecutar `npm run build` y `npm run validate:tailwind-contract` desde `frontend`.
+
+La migración de `@tailwindcss/postcss` a `@tailwindcss/vite` queda explícitamente fuera de #113 y no fue iniciada. #113 se valida sobre el pipeline existente `@tailwindcss/postcss`.
+
+Stage A de #115 queda cubierto por `frontend/scripts/validate-tailwind-semantic-contract.mjs`, invocado por `npm run validate:tailwind-contract` y por el build frontend. Sus sentinels compilados mínimos son `.flex-wrap`, `.text-sm`, `.gap-2`, `.mt-3`, `.bg-surface`, `.text-muted` y `.border-border`. Este gate también bloquea directivas v3, otro `@theme` visual fuera del bridge aprobado, colores hardcodeados dentro del bridge, paleta Tailwind raw nombrada, valores arbitrarios de color, estilos inline con color hardcodeado, `frontend/src/design-system/` e imports de features desde `.design-intake`.
+
+Relación con issues relacionados:
+
+- #111 mantiene ownership de navegación, rutas y AppShell estructural; el bridge no cambia autorización ni topología.
+- #112 define la dirección normativa del sistema visual; #113 materializa únicamente el bridge Tailwind semántico.
+- #115 Stage A se activa aquí como gate mínimo; Stage B de duplicación visual queda fuera de este cambio.
+- #116 sigue siendo el lugar para endurecer `shared/ui` y migraciones profundas de primitives/componentes; #113 no rediseña `civitas-card`, `civitas-topbar`, `civitas-primary-nav`, `NavCollapse`, `DataTable`, `StatusPill`, `EmptyState`, `SectionCard` ni `PageHeader`.

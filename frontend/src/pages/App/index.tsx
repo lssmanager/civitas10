@@ -18,7 +18,7 @@ import { civitasLogtoConfig } from "../../auth/logtoConfig";
 function App() {
   return (
     <LogtoProvider config={civitasLogtoConfig}>
-      <div className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="min-h-screen bg-bg text-text">
         <Routes>
           <Route path="/callback" element={<Callback />} />
           <Route path="/*" element={<AppContent />} />

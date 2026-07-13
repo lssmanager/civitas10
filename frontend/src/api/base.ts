@@ -130,6 +130,7 @@ const readBodyPreview = async (response: Response) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const readJsonResponse = async <T = any>(response: Response): Promise<T> => {
   const contentType = response.headers.get("content-type") || "";
   if (!isJsonContentType(contentType)) {

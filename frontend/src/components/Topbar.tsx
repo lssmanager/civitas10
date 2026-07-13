@@ -26,13 +26,13 @@ const Topbar = ({ organizationId, showBackButton = false }: TopbarProps) => {
               Back
             </button>
           ) : null}
-          <Link to={appRoutes.owner.path} className="text-xl font-semibold text-slate-900">Civitas</Link>
+          <Link to={appRoutes.owner.path} className="text-xl font-semibold text-text">Civitas</Link>
           <nav className="civitas-primary-nav">
             <Link to={appRoutes.owner.path} className={navLinkClass(location.pathname === appRoutes.owner.path)}>Overview</Link>
             <Link to={appRoutes.ownerOrganizations.path} className={navLinkClass(location.pathname.startsWith(appRoutes.ownerOrganizations.path) && location.pathname !== appRoutes.owner.path)}>Create</Link>
             <Link to={appRoutes.ownerWorkerQueues.path} className={navLinkClass(location.pathname.startsWith(appRoutes.ownerWorkerQueues.path))}>Runtime</Link>
           </nav>
-          {organizationId ? <span className="civitas-badge bg-slate-100 text-slate-700">{organizationId}</span> : null}
+          {organizationId ? <span className="civitas-badge bg-neutral-soft text-muted-strong">{organizationId}</span> : null}
         </div>
         <div className="civitas-topbar-right"><SignOutActionButton onAction={() => signOut(APP_ENV.app.signOutRedirectUri)} /></div>
       </div>

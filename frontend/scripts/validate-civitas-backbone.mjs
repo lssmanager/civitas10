@@ -7,6 +7,7 @@ const requiredFiles = [
   "src/styles/layout.css",
   "src/styles/index.css",
   "src/styles/dashboard.css",
+  "src/styles/tailwind-theme.css",
   "src/shared/ui/FormField.tsx",
   "src/shared/ui/AlertStrip.tsx",
   "src/shared/ui/Stepper.tsx",
@@ -43,8 +44,17 @@ for (const primitive of ["FormField", "AlertStrip", "Stepper", "SectionCard", "S
 }
 
 const main = readFileSync(new URL("../src/main.tsx", import.meta.url), "utf8");
-for (const importPath of ["./index.css", "./styles/index.css", "./styles/dashboard.css"]) {
-  if (!main.includes(importPath)) fail(`main.tsx does not import ${importPath}`);
+if (!main.includes("./index.css")) fail("main.tsx does not import ./index.css");
+for (const disconnectedImport of ["./styles/index.css", "./styles/dashboard.css"]) {
+  if (main.includes(disconnectedImport)) fail(`main.tsx must not import disconnected CSS graph ${disconnectedImport}`);
+}
+const cssEntry = readFileSync(new URL("../src/index.css", import.meta.url), "utf8");
+for (const importPath of ['@import "tailwindcss"', '@import "./styles/index.css"', '@import "./styles/dashboard.css"']) {
+  if (!cssEntry.includes(importPath)) fail(`index.css does not import ${importPath}`);
+}
+const stylesIndex = readFileSync(new URL("../src/styles/index.css", import.meta.url), "utf8");
+for (const importPath of ["./tokens.css", "./tokens/layout.css", "./theme.css", "./tailwind-theme.css", "./layout.css", "./primitives.css"]) {
+  if (!stylesIndex.includes(importPath)) fail(`styles/index.css does not import ${importPath}`);
 }
 
 const theme = readFileSync(new URL("../src/styles/theme.css", import.meta.url), "utf8");
