@@ -592,3 +592,197 @@ Estado actual:
 Conclusión:
 
 **Civitas no necesita reinventar su sistema visual. Necesita cerrar el contrato del que ya existe, endurecer su taxonomía y documentar cómo debe consumirse y reutilizarse.**
+
+## 12. Tailwind v4, bloques externos y capa reusable — contrato Phase 2
+
+Issues rectores:
+
+- [#111 — hardening contractual de navegación](https://github.com/lssmanager/civitas10/issues/111)
+- [#112 — Design Token Standardization & Reusable Component Layer](https://github.com/lssmanager/civitas10/issues/112)
+- [#113 — bridge semántico Tailwind v4](https://github.com/lssmanager/civitas10/issues/113)
+- [#114 — intake licenciado y provenance](https://github.com/lssmanager/civitas10/issues/114)
+- [#115 — visual contract CI](https://github.com/lssmanager/civitas10/issues/115)
+- [#116 — hardening de shared/ui](https://github.com/lssmanager/civitas10/issues/116)
+
+### 12.1 Baseline ejecutable
+
+A 2026-07-13 el frontend ya instala `tailwindcss@4.3.1` y `@tailwindcss/postcss@4.3.1`. Sin embargo, `frontend/src/index.css` conserva las directivas v3 `@tailwind base`, `@tailwind components` y `@tailwind utilities`. La adopción de Tailwind v4 no está cerrada hasta migrar la entrada CSS, escoger una sola integración de build y verificar el CSS emitido.
+
+Tailwind v4 no autoriza crear una segunda fuente de tokens. Permanecen canónicos:
+
+```text
+frontend/src/styles/tokens.css
+frontend/src/styles/theme.css
+frontend/src/styles/primitives.css
+frontend/src/styles/layout.css
+frontend/src/shared/ui/
+```
+
+Queda prohibido crear en paralelo:
+
+```text
+frontend/src/design-system/tokens.css
+frontend/src/design-system/components/
+otro UI kit root
+```
+
+### 12.2 Bridge CSS-first
+
+El bridge de Tailwind vive en:
+
+```text
+frontend/src/styles/tailwind-theme.css
+```
+
+Su única responsabilidad es exponer tokens existentes como namespaces semánticos de Tailwind:
+
+```text
+--civitas-* → @theme inline → utilities semánticas
+```
+
+Ejemplo normativo:
+
+```css
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--civitas-bg);
+  --color-surface: var(--civitas-surface);
+  --color-surface-raised: var(--civitas-surface-raised);
+  --color-border: var(--civitas-border);
+  --color-border-strong: var(--civitas-border-strong);
+  --color-text: var(--civitas-text);
+  --color-body: var(--civitas-body);
+  --color-muted: var(--civitas-muted);
+  --color-primary: var(--civitas-primary);
+  --color-primary-strong: var(--civitas-primary-strong);
+  --color-success: var(--civitas-success);
+  --color-warning: var(--civitas-warning);
+  --color-danger: var(--civitas-danger);
+  --radius-card: var(--civitas-radius-lg);
+  --radius-control: var(--civitas-radius-md);
+  --spacing-sidebar: var(--civitas-sidebar-width);
+  --spacing-sidebar-collapsed: var(--civitas-sidebar-collapsed-width);
+}
+```
+
+Reglas:
+
+- `theme.css` conserva los valores light/dark;
+- el bridge no contiene hex, rgb o hsl;
+- no se crea una familia `brand` competidora: la familia canónica es `primary`;
+- la paleta default de Tailwind no gobierna identidad visual;
+- una nueva utility semántica exige primero un token Civitas aprobado;
+- se usa `@import "tailwindcss"` según el contrato v4;
+- Vite debe usar una sola integración Tailwind; la migración preferida es `@tailwindcss/vite`, con prueba de paridad antes de retirar PostCSS.
+
+Referencias oficiales:
+
+- https://tailwindcss.com/docs/upgrade-guide
+- https://tailwindcss.com/docs/installation/using-vite
+
+### 12.3 Frontera con #111
+
+```text
+#111: Screen/Action/Route/Nav eligibility
+#112: token/primitive visual representation
+```
+
+AppShell puede consumir ambos resultados, pero no define permisos, topología, labels canónicos, colores, spacing o componentes de negocio.
+
+El bloque Sidebar Layout de Tailwind Plus puede servir como referencia visual. No reemplaza la máquina de estados, rutas, responsive, collapsed state o Navigation Registry de AppShell/NavCollapse.
+
+### 12.4 Capa React reusable
+
+El único entrypoint reusable es:
+
+```text
+frontend/src/shared/ui/index.ts
+```
+
+Estado de primitives prioritarias:
+
+| Necesidad | Decisión |
+|---|---|
+| Sidebar | Extender `NavCollapse` y layout existente; no crear otro Sidebar |
+| Tables | Extender `DataTable` |
+| Tabs | Crear `Tabs` con API controlada y keyboard model |
+| Badges | Extender `StatusPill` antes de crear `Badge` |
+| Toggles | Crear `Toggle` solo con consumidor real |
+| Empty states | Reusar `EmptyState` / `StateRegion` |
+| Description lists | Añadir solo al migrar detail/profile |
+| Command palette | Fuera de Phase 2 |
+
+Una feature no copia markup de un bloque externo si la necesidad ya está cubierta por `shared/ui`. Governance debe migrar sus tabs, matriz, badges y estados unavailable a primitives compartidas.
+
+### 12.5 Intake de Tailwind Plus
+
+El repositorio es público. La licencia de Tailwind Plus permite usar componentes en una aplicación open source que sea un producto final, pero prohíbe publicar una colección o UI library derivada separada.
+
+Referencia: https://tailwindcss.com/plus/license
+
+Por tanto:
+
+```text
+frontend/.design-intake/   local y gitignored
+shared/ui/                 implementación Civitas promovida
+docs/design-system/provenance.json   metadata, nunca source licenciado
+```
+
+No se versiona `_intake/` dentro de `src`.
+
+Pipeline:
+
+```text
+licencia verificada
+→ snippet local
+→ mapper semántico
+→ unresolved report = 0
+→ revisión ARIA/keyboard/responsive
+→ extender/crear primitive en shared/ui
+→ agregar consumidor real y tests
+→ borrar intake local
+```
+
+El mapper trabaja con clases completas y contexto. No reemplaza solo `gray-500` o `indigo-600` sin distinguir background, text, border, focus, hover y dark mode.
+
+Toda implementación derivada registra provenance y queda limitada al producto Civitas. No puede trasladarse a un paquete público redistribuible sin revisión de licencia.
+
+### 12.6 Enforcement
+
+CI debe validar:
+
+1. ninguna paleta Tailwind raw en producción;
+2. ningún color/radius/shadow/z-index hardcodeado fuera de tokens/theme;
+3. ningún import desde intake;
+4. ninguna segunda raíz de UI kit;
+5. cada utility semántica resuelve a un bridge token;
+6. cada bridge token resuelve a un `--civitas-*`;
+7. cada token nuevo tiene consumidor y documentación;
+8. aliases deprecated no ganan consumidores;
+9. build visual, light/dark y responsive permanecen operables.
+
+Los validadores deben parsear clases/AST/CSS cuando corresponda; un grep global no es suficiente para clases dinámicas ni para distinguir valores de layout legítimos.
+
+La deuda existente usa una allowlist finita con owner, motivo y fecha de eliminación. No se aceptan excepciones permanentes sin responsable.
+
+### 12.7 Matriz mínima de QA
+
+- owner y tenant;
+- light y dark;
+- desktop, tablet y mobile;
+- sidebar expanded, collapsed y drawer;
+- keyboard y focus-visible;
+- reduced motion;
+- empty, loading, error y planned;
+- labels largos, overflow y zoom;
+- deep links y refresh cuando interviene navegación.
+
+### 12.8 Secuencia de implementación
+
+1. #113 cierra el pipeline v4 y el bridge semántico.
+2. #114 implementa intake local, mapper y provenance.
+3. #116 endurece `shared/ui` y migra Governance/AppShell consumers.
+4. #115 convierte el contrato en required checks de `main`.
+5. #111 valida la integración final entre topología y representación visual.
+
+Nuevas pantallas Phase 2 no deben convertirse en patrón hasta que #111 y #112 estén cerrados.
