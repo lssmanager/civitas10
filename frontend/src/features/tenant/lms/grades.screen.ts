@@ -1,0 +1,3 @@
+import { routeCatalog } from "../../../navigation/route-catalog";
+import { defineScreen } from "../../../authorization/registry/define-screen";
+export const lmsGradesScreen = defineScreen({ screenId: "lms-grades", capability: "lms", route: routeCatalog.lmsGrades, navigation: { menuKey: "lms.grades", labelKey: "navigation.lms.grades", breadcrumbKey: "breadcrumbs.lms.grades", iconKey: "grades", responsiveGroup: "academics", order: 10 }, access: { requiredAllPermissions: ["lms.grades.read"], policies: ["same-organization"], requiresOrganizationContext: true, requiresDataScope: true }, featureFlag: "lms-grades", organizationCustomization: { visibility: "hideable", order: "customizable" }, actions: ["lms.grades.edit", "lms.grades.export"] });

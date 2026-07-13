@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { getMe, type MeResponse } from "../../api/me";
 import { useOwnerApi, type OwnerOrganization } from "../../api/owner";
 import { APP_ENV } from "../../env";
-import { evaluateCapabilityRule, RBACMatrix } from "../../authz/rbacMatrix";
 import Topbar from "../../components/Topbar";
 import { appRoutes } from "../../navigation/routes";
 import { AlertStrip, StateRegion } from "../../shared/ui";
@@ -55,10 +54,7 @@ const Dashboard = () => {
       const meResponse = await getMe(accessToken);
       setMe(meResponse);
 
-      const canCreateOrganizations = evaluateCapabilityRule(
-        RBACMatrix.capabilities.canCreateOrganizations,
-        meResponse,
-      );
+      const canCreateOrganizations = Boolean(meResponse.auth.owner?.canWriteOwner);
 
       if (canCreateOrganizations) {
         const organizationsResponse = await ownerApi.getOrganizations();
@@ -78,10 +74,7 @@ const Dashboard = () => {
     void loadDashboardState();
   }, [loadDashboardState]);
 
-  const canCreateOrganizations = evaluateCapabilityRule(
-    RBACMatrix.capabilities.canCreateOrganizations,
-    me ?? undefined,
-  );
+  const canCreateOrganizations = Boolean(me?.auth.owner?.canWriteOwner);
 
   const summary = useMemo(
     () => ({

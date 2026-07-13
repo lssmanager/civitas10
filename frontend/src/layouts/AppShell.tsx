@@ -5,15 +5,9 @@ import { useLogto } from "@logto/react";
 import type { Icon } from "@tabler/icons-react";
 import {
   IconArrowLeft,
-  IconBuilding,
   IconChevronLeft,
   IconChevronRight,
-  IconFiles,
-  IconLayoutDashboard,
   IconMenu2,
-  IconServer,
-  IconSettings,
-  IconWorld,
 } from "@tabler/icons-react";
 import civitasIcon from "../assets/brand/civitas-icon.svg";
 import civitasLogoFullDark from "../assets/brand/civitas-logo-full-dark.svg";
@@ -36,37 +30,8 @@ type AppShellProps = {
   actions?: ReactNode;
 };
 
-const defaultOwnerNavItems: NavItem[] = [
-  {
-    label: "Overview",
-    icon: IconLayoutDashboard,
-    match: (pathname) => pathname === appRoutes.owner.path || pathname.startsWith(appRoutes.ownerWorkerQueues.path),
-    children: [
-      { label: "Overview", path: appRoutes.owner.path, icon: IconLayoutDashboard, match: (pathname) => pathname === appRoutes.owner.path },
-      { label: "Runtime", path: appRoutes.ownerWorkerQueues.path, icon: IconServer, match: (pathname) => pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
-    ],
-  },
-  {
-    label: "Organizations",
-    icon: IconBuilding,
-    match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") || pathname.startsWith(appRoutes.ownerCreateOrganization.path),
-    children: [
-      { label: "Directory", path: appRoutes.ownerOrganizations.path, icon: IconBuilding, match: (pathname) => pathname === appRoutes.ownerOrganizations.path || pathname.startsWith("/owner/organizations/") },
-      { label: "Create", path: appRoutes.ownerCreateOrganization.path, icon: IconBuilding, match: (pathname) => pathname.startsWith(appRoutes.ownerCreateOrganization.path) },
-    ],
-  },
-  { label: "Setup", path: appRoutes.ownerSystem.path, icon: IconSettings, match: (pathname) => pathname.startsWith(appRoutes.ownerSystem.path) && !pathname.startsWith(appRoutes.ownerWorkerQueues.path) },
-];
+const emptyNavItems: NavItem[] = [];
 
-const publicNavItems: NavItem[] = [{ label: "Public", path: "/", icon: IconWorld, match: (pathname) => pathname === "/" }];
-
-const organizationNavItems = (organizationId?: string): NavItem[] => {
-  const basePath = organizationId ? `/${encodeURIComponent(organizationId)}` : "/";
-  return [
-    { label: "Workspace", path: basePath, icon: IconBuilding, match: (pathname) => pathname === basePath },
-    { label: "Documents", path: basePath, icon: IconFiles, match: (pathname) => pathname === basePath },
-  ];
-};
 
 const SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state";
 
@@ -86,9 +51,9 @@ const areaLabel: Record<ShellArea, string> = {
 
 const resolveNavItems = (area: ShellArea, organizationId?: string, navItems?: NavItem[]) => {
   if (navItems) return navItems;
-  if (area === "owner") return defaultOwnerNavItems;
-  if (area === "public") return publicNavItems;
-  return organizationNavItems(organizationId);
+  void area;
+  void organizationId;
+  return emptyNavItems;
 };
 
 export const AppShell = ({ area, children, navItems, organizationId, showBackButton = false, actions }: AppShellProps) => {
