@@ -57,7 +57,13 @@ function classify(kind, value, file, line, lineText, result) {
 }
 function scanFile(file, root = process.cwd()) {
   const abs = path.join(root, file)
-  const text = fs.readFileSync(abs, 'utf8')
+  let text
+  try {
+    text = fs.readFileSync(abs, 'utf8')
+  } catch (err) {
+    console.error(`Warning: Failed to read ${file}: ${err.message}`)
+    return []
+  }
   const records = []
   let documentationProhibitedBlock = false
   text.split(/\r?\n/).forEach((lineText, index) => {

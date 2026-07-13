@@ -38,7 +38,8 @@ module.exports = Object.freeze([
     "resource": "https://civitas.didaxus.com/api",
     "consumers": [],
     "policyRequirements": [],
-    "overlayMode": "restrictable"
+    "overlayMode": "restrictable",
+    "dataScopeStrategy": "organization"
   },
   {
     "name": "org.members.invite",
@@ -49,7 +50,8 @@ module.exports = Object.freeze([
     "resource": "https://civitas.didaxus.com/api",
     "consumers": [],
     "policyRequirements": [],
-    "overlayMode": "restrictable"
+    "overlayMode": "restrictable",
+    "dataScopeStrategy": "organization"
   },
   {
     "name": "org.impersonation.execute",
@@ -63,6 +65,7 @@ module.exports = Object.freeze([
       "policy-layer#89",
       "hardening#83"
     ],
-    "overlayMode": "restrictable"
+    "overlayMode": "restrictable",
+    "dataScopeStrategy": "organization"
   },
 ]);
