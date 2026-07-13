@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `documents.read` | GET | `/documents` | `/o/:organizationId/documents` | organization | `requireOrganizationAccess` → `requireOrg` → `requirePermission` → `requireAuthorization` | `org.documents.read` | `same-organization`, `membership-required` | authenticated 308 redirect | canonical mounted |
 | `documents.create` | POST | `/documents` | `/o/:organizationId/documents` | organization | `requireOrganizationAccess` → `requireOrg` → `requirePermission` → `requireAuthorization` | `org.documents.create` | `same-organization`, `membership-required`, `critical-operation-audited` | 410 rejection | canonical mounted |
-| `owner.organizations.operational-state` | GET | `/owner/organizations/:organizationId/operational-state` | unchanged | owner | `requireGlobalAccess` → `requireGlobalOwner` | `owner.runtime.read` | owner surface contracts | none | valid owner route |
+| `owner.organizations.operational_state` | GET | `/owner/organizations/:organizationId/operational-state` | unchanged | owner | `requireGlobalAccess` → `requireGlobalOwner` | `owner.runtime.read` | owner surface contracts | none | valid owner route |
 
 The canonical tenant surface is `/o/:organizationId/*`. The route `organizationId` is compared only with the verified token `organization_id`; body, query, and custom header organization identifiers are not authorities.
 

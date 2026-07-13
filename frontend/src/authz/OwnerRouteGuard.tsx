@@ -2,7 +2,7 @@ import { useLogto } from "@logto/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { getMe, type MeResponse } from "../api/me";
 import { APP_ENV } from "../env";
-import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, ownerHasGlobalRole } from "./ownerScopes";
+import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, OWNER_SHELL_REQUIRED_SCOPES, ownerHasGlobalRole } from "./ownerScopes";
 import { getAccessTokenDiagnostics } from "../api/base";
 import { VisualAuthorizationProvider, visualAuthorizationContextFromOwnerMe } from "../authorization/components/VisualAuthorizationProvider";
 
@@ -37,10 +37,13 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
         }
         const missingScopes = getMissingOwnerShellScopes(me);
         if (missingScopes.length > 0) {
+          const receivedCanonicalApiPermission = (me.auth?.scopes ?? []).some((scope) => OWNER_SHELL_REQUIRED_SCOPES.includes(scope));
           setState({
             status: "denied",
             reason: "global-scopes",
-            message: "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated.",
+            message: receivedCanonicalApiPermission
+              ? "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated."
+              : "No se recibió un permiso API canónico en el token. Cierra sesión e inicia sesión después de asignar los permisos canónicos al rol.",
             missingScopes,
             tokenDiagnostics,
           });

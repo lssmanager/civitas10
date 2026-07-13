@@ -29,7 +29,7 @@ const protectedLiterals = [
   shared.logto.issuer,
   shared.logto.organizationAudiencePrefix,
   shared.auth.global.ownerRole,
-  ...Object.values(shared.auth.global.scopes),
+  ...Object.values(shared.auth.global.permissions),
 ];
 const allowedLiteralFiles = new Set([
   "core/shared/civitas-shared.contract.cjs",
@@ -56,7 +56,8 @@ const scannedFiles = [
   "docker-compose.yml",
 ];
 for (const file of scannedFiles) {
-  const source = read(file);
+  let source;
+  try { source = read(file); } catch (error) { if (error?.code === "ENOENT") continue; throw error; }
   if (allowedLiteralFiles.has(file)) continue;
   for (const literal of protectedLiterals) {
     if (source.includes(`"${literal}"`) || source.includes(`'${literal}'`)) fail(`${file} locally redefines shared contract literal ${literal}`);

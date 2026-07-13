@@ -11,7 +11,7 @@ export const routeCatalog = {
   ownerOrganizationState: route("owner.organizations.state", appRoutes.ownerOrganizationState.path, "owner"),
   ownerOrganizationGovernance: route("owner.organizations.governance", appRoutes.ownerOrganizationGovernance.path, "owner"),
   ownerSystem: route("owner.system", appRoutes.ownerSystem.path, "owner"),
-  ownerWorkerQueues: route("owner.system.workerQueues", appRoutes.ownerWorkerQueues.path, "owner"),
+  ownerWorkerQueues: route("owner.system.worker_queues", appRoutes.ownerWorkerQueues.path, "owner"),
   account: route("account.profile", appRoutes.account.path, "account"),
   tenantGovernance: route("tenant.settings.governance", appRoutes.tenantGovernance.path, "tenant"),
   lmsGrades: route("tenant.lms.grades", "/o/:organizationId/lms/grades", "tenant"),

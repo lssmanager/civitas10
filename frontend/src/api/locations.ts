@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { APP_ENV } from '../env';
+import { ApiRequestError, readJsonResponse } from './base';
 
 export type CountryOption = { id: number; name: string; iso2: string; phoneCode: string | null; emoji: string | null };
 export type StateOption = { id: number; name: string; countryId: number; countryCode: string; stateCode: string | null; type: string | null };
@@ -14,12 +15,12 @@ const joinApiUrl = (endpoint: string) => `${APP_ENV.api.url.replace(/\/$/, '')}/
 
 const publicLocationFetch = async <T>(endpoint: string): Promise<T> => {
   const response = await fetch(joinApiUrl(endpoint), { headers: { Accept: 'application/json' } });
-  const data = await response.json().catch(() => null);
   if (!response.ok) {
+    const data = await readJsonResponse(response).catch((error) => error instanceof ApiRequestError ? error.details : null);
     const message = typeof data?.message === 'string' ? data.message : `Location catalog request failed: ${response.status} ${response.statusText}`.trim();
     throw new Error(message);
   }
-  return data as T;
+  return readJsonResponse<T>(response);
 };
 
 const unwrapCountries = (response: CountriesResponse) => Array.isArray(response) ? response : response.countries ?? [];
