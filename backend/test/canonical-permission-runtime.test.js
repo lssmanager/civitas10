@@ -36,3 +36,11 @@ test('Logto role assignments stay inside active canonical role surfaces', () => 
     }
   }
 })
+
+
+test('shared contract exposes organization document permission keys consumed by backend routes', () => {
+  const { loadCivitasSharedContract } = require('../../core/shared/contract-loader.cjs')
+  const shared = loadCivitasSharedContract()
+  assert.equal(shared.auth.organization.documentPermissions.documentsRead, ORGANIZATION_PERMISSIONS.documentsRead)
+  assert.equal(shared.auth.organization.documentPermissions.documentsCreate, ORGANIZATION_PERMISSIONS.documentsCreate)
+})

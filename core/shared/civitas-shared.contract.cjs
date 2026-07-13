@@ -28,7 +28,7 @@ const CivitasSharedContract = Object.freeze({
     }),
     organization: Object.freeze({
       reservedResource: "organization",
-      documentPermissions: Object.freeze({ read: ORGANIZATION_PERMISSIONS.documentsRead, create: ORGANIZATION_PERMISSIONS.documentsCreate }),
+      documentPermissions: Object.freeze({ documentsRead: ORGANIZATION_PERMISSIONS.documentsRead, documentsCreate: ORGANIZATION_PERMISSIONS.documentsCreate }),
       roles: Object.freeze({ admin: "organization_admin", member: "organization_member" }),
     }),
     invariants: Object.freeze([

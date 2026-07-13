@@ -52,6 +52,8 @@ const POLICY_PROFILES = Object.freeze({
   ownerSensitiveWrite: { rateLimit: "ownerSensitiveWrite", defaultJson: true },
   organizationMemberRead: { rateLimit: "organizationMemberRead", defaultJson: true },
   organizationAdminWrite: { rateLimit: "organizationAdminWrite", defaultJson: true },
+  organizationMemberReadLegacyRedirect: { rateLimit: "organizationMemberRead", defaultJson: false },
+  organizationAdminWriteLegacyRejected: { rateLimit: "organizationAdminWrite", defaultJson: true },
   webhook: { rateLimit: "webhook", rawBody: true },
   operationalTrigger: { rateLimit: "operationalTrigger", defaultJson: true },
 });

@@ -26,8 +26,8 @@
     "organization": {
       "reservedResource": "organization",
       "documentPermissions": {
-        "read": "org.documents.read",
-        "create": "org.documents.create"
+        "documentsRead": "org.documents.read",
+        "documentsCreate": "org.documents.create"
       },
       "roles": {
         "admin": "organization_admin",
