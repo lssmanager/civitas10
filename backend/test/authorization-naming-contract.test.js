@@ -69,9 +69,10 @@ test('documentation scanner tolerates prohibited examples but fails normative co
   fs.writeFileSync(path.join(root, 'docs/bad.md'), 'Normative: use `organization.members.write` for new tenant permissions.\n')
   fs.writeFileSync(path.join(root, 'docs/prohibited.md'), '## Formas prohibidas\n`organization.members.write`\n')
   fs.writeFileSync(path.join(root, 'docs/archived.md'), 'Archived note: `organization.members.write`\n')
-  const report = scanRepository({ root, files: ['docs/bad.md', 'docs/prohibited.md'], now: new Date('2026-07-12T00:00:00Z') })
+  const report = scanRepository({ root, files: ['docs/bad.md', 'docs/prohibited.md', 'docs/archived.md'], now: new Date('2026-07-12T00:00:00Z') })
   assert.ok(report.summary.violations.some((r) => r.file === 'docs/bad.md'))
   assert.equal(report.summary.violations.some((r) => r.file === 'docs/prohibited.md'), false)
+  assert.equal(report.summary.violations.some((r) => r.file === 'docs/archived.md'), false)
 })
 
 test('#74 registry integrates with naming without treating planned/deprecated as active', () => {
