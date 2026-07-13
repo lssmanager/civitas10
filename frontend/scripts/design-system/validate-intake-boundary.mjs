@@ -33,12 +33,24 @@ for (const dep of Object.keys(deps)) {
 const sourceFiles = runGit(["ls-files", "frontend/src", "frontend/scripts", "docs"])
   .split("\n")
   .filter((file) => /\.(ts|tsx|js|jsx|mjs|css|md|json)$/.test(file));
-const importPattern = /(?:from\s+['"][^'"]*\.design-intake|import\s*\([^)]*\.design-intake|require\s*\([^)]*\.design-intake|\.design-intake)/;
+const importPattern = /(?:from\s+['"][^'"]*\.design-intake|import\s*\([^)]*\.design-intake|require\s*\([^)]*\.design-intake)/;
+const intakeReferencePattern = /\.design-intake/;
 const licensedSourcePattern = /(tailwind\s*plus\s*(?:source|snippet|component)|@tailwindplus\/elements|@tailwindui|catalyst\s+ui\s+kit)/i;
+const documentationFiles = new Set([
+  "docs/architecture/CIVITAS_DESIGN_SYSTEM_FOUNDATION.md",
+]);
+const boundaryToolFiles = new Set([
+  "frontend/scripts/validate-tailwind-semantic-contract.mjs",
+  "frontend/scripts/design-system/map-tailwind-plus-palette.mjs",
+  "frontend/scripts/design-system/validate-intake-boundary.mjs",
+  "frontend/src/design-system-pipeline.contract.test.mjs",
+]);
 for (const file of sourceFiles) {
   const text = readFileSync(join(repoRoot, file), "utf8");
   const rel = relative(repoRoot, join(repoRoot, file));
-  if (importPattern.test(text) && !rel.endsWith("validate-intake-boundary.mjs") && !rel.endsWith("validate-tailwind-semantic-contract.mjs") && !rel.endsWith("design-system-pipeline.contract.test.mjs") && !rel.endsWith("CIVITAS_DESIGN_SYSTEM_FOUNDATION.md")) fail(`forbidden .design-intake reference in tracked file: ${rel}`);
+  const isDocumentedBoundary = documentationFiles.has(rel) || boundaryToolFiles.has(rel);
+  if (importPattern.test(text) && !isDocumentedBoundary) fail(`forbidden .design-intake import in tracked file: ${rel}`);
+  if (intakeReferencePattern.test(text) && rel.startsWith("frontend/src/") && !isDocumentedBoundary) fail(`forbidden .design-intake reference in product source: ${rel}`);
   if (licensedSourcePattern.test(text) && !rel.includes("scripts/design-system") && !rel.endsWith("CIVITAS_DESIGN_SYSTEM_FOUNDATION.md")) fail(`possible licensed Tailwind Plus source/reference committed: ${rel}`);
 }
 

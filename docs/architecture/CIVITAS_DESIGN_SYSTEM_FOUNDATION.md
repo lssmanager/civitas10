@@ -606,7 +606,7 @@ Issues rectores:
 
 ### 12.1 Baseline ejecutable
 
-A 2026-07-13 el frontend ya instala `tailwindcss@4.3.1` y `@tailwindcss/postcss@4.3.1`. Sin embargo, `frontend/src/index.css` conserva las directivas v3 `@tailwind base`, `@tailwind components` y `@tailwind utilities`. La adopción de Tailwind v4 no está cerrada hasta migrar la entrada CSS, escoger una sola integración de build y verificar el CSS emitido.
+A 2026-07-13 el frontend instala `tailwindcss@4.3.1` y `@tailwindcss/postcss@4.3.1`. El P0 #117 ya reemplazó las directivas v3 por `@import "tailwindcss"` en `frontend/src/index.css` y verificó utilities representativas del CSS emitido (`.text-sm`, `.gap-2`, `.mt-3`, `.flex-wrap`). La adopción completa del sistema visual no se considera cerrada hasta que los workstreams hijos del epic #112 estén implementados, validados en la rama que se mergeará a `main` y conectados a CI.
 
 Tailwind v4 no autoriza crear una segunda fuente de tokens. Permanecen canónicos:
 
@@ -673,7 +673,7 @@ Reglas:
 - la paleta default de Tailwind no gobierna identidad visual;
 - una nueva utility semántica exige primero un token Civitas aprobado;
 - se usa `@import "tailwindcss"` según el contrato v4;
-- Vite debe usar una sola integración Tailwind; la migración preferida es `@tailwindcss/vite`, con prueba de paridad antes de retirar PostCSS.
+- Vite debe usar una sola integración Tailwind; para #113 la integración vigente y soportada es `@tailwindcss/postcss`. La migración a `@tailwindcss/vite` queda fuera del cierre de #113 y requiere issue/PR separado con prueba de paridad antes de retirar PostCSS.
 
 Referencias oficiales:
 
@@ -779,11 +779,25 @@ La deuda existente usa una allowlist finita con owner, motivo y fecha de elimina
 
 ### 12.8 Secuencia de implementación
 
-1. #113 cierra el pipeline v4 y el bridge semántico.
-2. #114 implementa intake local, mapper y provenance.
-3. #116 endurece `shared/ui` y migra Governance/AppShell consumers.
-4. #115 convierte el contrato en required checks de `main`.
-5. #111 valida la integración final entre topología y representación visual.
+La secuencia gobernable de #112 es:
+
+```text
+#117 P0
+  ↓
+#113 semantic bridge + #115 Stage A en paralelo
+  ↓
+#114 intake/provenance
+  ↓
+#116 primitives y migraciones
+  ↓
+#115 Stage B enforcement/QA
+```
+
+Condiciones de promoción:
+
+- #114 no puede promover bloques: solo prepara intake local, mapper, reporte y provenance. Cualquier promoción real requiere licencia verificada, revisión humana y un consumidor de producto.
+- #116 no puede migrar producto antes de que existan el bridge semántico de #113 y los gates mínimos de #115 Stage A.
+- #111 valida la integración estructural de AppShell, Router, Breadcrumbs, rutas, topología y datos resueltos; #112 no absorbe ese ownership.
 
 Nuevas pantallas Phase 2 no deben convertirse en patrón hasta que #111 y #112 estén cerrados.
 
@@ -911,3 +925,26 @@ Gates añadidos por #114:
 - `npm run design:intake:map`: CLI explícito para operar únicamente sobre archivos locales dentro de `frontend/.design-intake/`.
 
 #114 complementa #115 Stage A con barreras de intake/provenance. #116 sigue siendo el único issue autorizado para construir primitives reales con consumidores reales, tests y una entrada provenance de promoción. Se prohíbe extraer componentes derivados de Tailwind Plus a un paquete público reusable, colección de snippets, `packages/design-system`, `tailwind-plus-components` o cualquier segunda librería visual.
+
+### 12.12 Estado gobernable del epic #112 — verificación local 2026-07-13
+
+Esta tabla documenta el estado verificable en la rama local de PR #102 usada para preparar la actualización del epic. No sustituye la edición del body de GitHub; si no hay permisos de API, debe copiarse como comentario/actualización de #112.
+
+| Workstream | Estado verificable | Evidencia local | Bloqueo / próxima acción |
+|---|---|---|---|
+| #117 P0 | Completed en GitHub; presente en la rama | commits `6f546fc` y `6f3ab57`; `frontend/src/index.css` usa `@import "tailwindcss"`; `validate-civitas-visual` valida `.text-sm`, `.gap-2`, `.mt-3`, `.flex-wrap` | Cerrar solo si los workflows residuales del repo apuntan a `main`; los workflows de seguridad heredados que sigan en `master` deben corregirse o documentarse fuera del P0. |
+| #113 bridge semántico | In progress en PR #102 local; issue GitHub sigue open | `frontend/src/styles/tailwind-theme.css`; `npm run validate:tailwind-contract`; build ejecuta el gate | Requiere merge/validación de PR #102 y cierre explícito de #113. |
+| #115 Stage A | In progress en PR #102 local | `frontend/scripts/validate-tailwind-semantic-contract.mjs` bloquea directivas v3, bridge inválido, paleta raw, arbitrary colors, inline hardcoded colors e imports de `.design-intake`; build lo invoca | Debe corregirse cualquier falso positivo que impida `npm run build` y conectarse al workflow que corre contra `main`. |
+| #114 intake/provenance | In progress en PR #102 local | `.design-intake/` gitignored; `map-tailwind-plus-palette.mjs`; `semantic-utility-map.json`; `docs/design-system/provenance.json`; `design:intake:check`; `design:provenance:check` | No promueve componentes. Debe mantener validadores sin bloquear sus propios scripts versionados. |
+| #116 shared/ui migrations | Not started en esta rama local | No existe `frontend/src/shared/ui/Tabs.tsx`; `DataTable`, `EmptyState`, `StatusPill` mantienen APIs mínimas; Governance aún no consume `Tabs` | Siguiente workstream después de #113 + #115 Stage A + #114. |
+| #115 Stage B | Not started en esta rama local | No existen `visual:check`, `validate-token-graph.mjs`, `validate-ui-import-boundaries.mjs`, `validate-responsive-a11y.mjs`, baseline finita ni matriz QA dedicada | Ejecutar después de #116; no declarar cierre del epic antes de este gate. |
+
+#### Body recomendado para actualizar #112
+
+#112 debe permanecer **abierto** hasta que los hijos #113, #114, #115 y #116 estén cerrados o resueltos con evidencia en la rama que se mergeará a `main`. El body del epic debe incluir:
+
+- estado real por workstream con fecha y evidencia;
+- orden corregido `#117 → #113 + #115 Stage A → #114 → #116 → #115 Stage B`;
+- contrato AppShell: #111 posee rutas/topología/fallback/datos resueltos; #116 posee primitives visuales/tokens/presentación; authorization registry posee elegibilidad; `shared/ui/NavCollapse` posee interacción de sidebar;
+- criterios de cierre ligados a comandos: `npm run build`, `npm run lint`, `npm run validate:tailwind-contract`, `npm run design:intake:check`, `npm run design:provenance:check` y, cuando exista Stage B, `npm run visual:check`;
+- sección “No hacer”: no `frontend/src/design-system/`, no `packages/design-system/`, no tokens light/dark duplicados, no intake versionado, no Catalyst/Tailwind Plus sin revisión y no UI feature-local duplicada cuando exista primitive en `shared/ui`.
