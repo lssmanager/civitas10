@@ -5,7 +5,7 @@ export const ownerGovernanceScreen = defineScreen({
   screenId: "owner-organization-governance",
   capability: "owner",
   route: routeCatalog.ownerOrganizationGovernance,
-  navigation: { menuKey: "owner.organizations.governance", parentMenuKey: "owner.organizations", labelKey: "navigation.owner.organizations.governance", breadcrumbKey: "breadcrumbs.owner.organizations.governance", iconKey: "settings", responsiveGroup: "organizations", order: 22 },
+  navigation: { menuKey: "owner.organizations.governance", parentMenuKey: "owner.overview", labelKey: "navigation.owner.organizations.governance", breadcrumbKey: "breadcrumbs.owner.organizations.governance", iconKey: "settings", responsiveGroup: "organizations", order: 22 },
   access: { requiredAllPermissions: ["governance.owner.read"], policies: ["authorization-snapshot-current"], requiresOrganizationContext: false },
   organizationCustomization: { visibility: "locked", order: "locked" },
   actions: ["governance.access.preview"],

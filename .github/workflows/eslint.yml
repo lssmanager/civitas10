@@ -47,6 +47,16 @@ jobs:
           npm run authz:tenant-contract-check
           npm run authz:entitlement-contract-check
 
+
+      - name: Validate frontend navigation contract
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          npm run lint
+          npm run test
+          npm run validate:navigation-contract
+
       - name: Install ESLint
         run: |
           npm install eslint@8.10.0

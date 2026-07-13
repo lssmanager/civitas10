@@ -4,6 +4,8 @@ import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
 import { PageHeader, SectionCard, StatusPill } from "../../shared/ui";
 import { useGovernanceApi } from "./api";
+import { appRoutes } from "../../navigation/routes";
+import { governanceModuleStatus, isGovernanceOperationActive } from "./governance-capabilities";
 import type { GovernanceModuleKey, GovernanceReadModel, GovernanceSurface } from "./contracts";
 import { OverviewModule } from "./modules/overview/OverviewModule";
 import { PermissionMatrixModule } from "./modules/permission-matrix/PermissionMatrixModule";
@@ -20,12 +22,20 @@ const tenantGovernanceTabs: GovernanceModuleKey[] = ["permissions", "members", "
 const moduleLabels: Record<GovernanceModuleKey, string> = { overview: "Overview and drift status", permissions: "Roles and permission ceilings", members: "Members and role assignments", taxonomy: "Organization taxonomy", units: "Units and groups", "data-scope": "Data-scope assignments", "aliases-navigation": "Aliases and navigation", "access-preview": "Access preview", audit: "Audit and diagnostics" };
 const tenantModuleLabels: Partial<Record<GovernanceModuleKey, string>> = { permissions: "Active permissions", "data-scope": "Data assignments" };
 const tabsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceTabs : tenantGovernanceTabs;
+const buildGovernancePath = (surface: GovernanceSurface, organizationId: string) => {
+  if (!organizationId) return "";
+  return surface === "owner" ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? "" : appRoutes.tenantGovernance.build?.({ organizationId }) ?? "";
+};
+const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId: string) => {
+  if (!organizationId) return appRoutes.ownerOrganizations.path;
+  return surface === "owner" ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : `/o/${encodeURIComponent(organizationId)}`;
+};
 
 const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface): GovernanceReadModel => ({
   organizationId,
   surface,
   versions: { catalogVersion: "unavailable", runtimeStatus: "pending" },
-  modules: Object.fromEntries(tabsForSurface(surface).map((key) => [key, { status: "pending", reason: "governance aggregate endpoint unavailable" }])) as GovernanceReadModel["modules"],
+  modules: governanceModuleStatus(surface),
   permissionMatrix: [],
   taxonomy: [],
   units: [],
@@ -45,7 +55,10 @@ const GovernanceModules = ({ activeModule, model, previewOwnerAccess, previewTen
   if (activeModule === "units") return <UnitsModule units={model.units} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;
   if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} />;
-  if (activeModule === "access-preview") return <AccessPreviewModule organizationId={model.organizationId} surface={model.surface} previews={model.accessPreviews} onPreview={previewModel.surface === "owner" ? previewOwnerAccess : previewTenantAccess} />;
+  if (activeModule === "access-preview") {
+    if (!isGovernanceOperationActive(model.surface, "governance.accessPreview")) return <SectionCard title="Access preview unavailable" description="No active backend access-preview operation is mounted for this governance surface yet."><p className="text-sm text-muted-strong">The UI stays read-only and does not fetch an endpoint until the operation registry marks it active.</p></SectionCard>;
+    return <AccessPreviewModule organizationId={model.organizationId} surface={model.surface} previews={model.accessPreviews} onPreview={previewModel.surface === "owner" ? previewOwnerAccess : previewTenantAccess} />;
+  }
   return <AuditDiagnosticsModule events={model.auditEvents} />;
 };
 
@@ -62,6 +75,12 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     let active = true;
     setLoading(true);
     setError(null);
+    if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) {
+      setModel(emptyGovernanceModel(organizationId, surface));
+      setError(!organizationId ? "Governance requires a selected organization." : null);
+      setLoading(false);
+      return () => { active = false; };
+    }
     const load = surface === "owner" ? governanceApi.getOwnerGovernance : governanceApi.getTenantGovernance;
     void load(organizationId)
       .then((response) => { if (active) setModel(response); })
@@ -73,7 +92,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
   const Layout = surface === "owner" ? OwnerLayout : OrganizationLayout;
   const title = surface === "owner" ? "Authorization Governance Studio" : "Organization Governance Studio";
   const tabs = tabsForSurface(surface);
-  const routeContext = useMemo(() => surface === "owner" ? `/owner/organizations/${encodeURIComponent(organizationId)}/governance` : `/o/${encodeURIComponent(organizationId)}/settings/governance`, [organizationId, surface]);
+  const routeContext = useMemo(() => buildGovernancePath(surface, organizationId), [organizationId, surface]);
 
   return (
     <Layout organizationId={organizationId} isAdmin={surface === "tenant"}>
@@ -89,7 +108,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
         </div>
       </nav>
       <GovernanceModules activeModule={activeModule} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} />
-      <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={surface === "owner" ? `/owner/organizations/${encodeURIComponent(organizationId)}` : `/o/${encodeURIComponent(organizationId)}`}>Open organization surface</Link>.</p>
+      <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={buildOrganizationSurfacePath(surface, organizationId)}>Open organization surface</Link>.</p>
     </Layout>
   );
 };

@@ -948,3 +948,39 @@ Esta tabla documenta el estado verificable en la rama local de PR #102 usada par
 - contrato AppShell: #111 posee rutas/topología/fallback/datos resueltos; #116 posee primitives visuales/tokens/presentación; authorization registry posee elegibilidad; `shared/ui/NavCollapse` posee interacción de sidebar;
 - criterios de cierre ligados a comandos: `npm run build`, `npm run lint`, `npm run validate:tailwind-contract`, `npm run design:intake:check`, `npm run design:provenance:check` y, cuando exista Stage B, `npm run visual:check`;
 - sección “No hacer”: no `frontend/src/design-system/`, no `packages/design-system/`, no tokens light/dark duplicados, no intake versionado, no Catalyst/Tailwind Plus sin revisión y no UI feature-local duplicada cuando exista primitive en `shared/ui`.
+
+### 13. #111 Navigation topology contract
+
+#111 owns the structural navigation chain and remains separate from the visual-system ownership of #112/#116. The executable chain is:
+
+```text
+permission catalog / backend operation contract
+→ Authorization Context
+→ Screen / Action Registry
+→ Navigation Topology
+→ route builders
+→ Router + Sidebar + Breadcrumbs + AppShell
+```
+
+Contract files and ownership:
+
+- `frontend/src/navigation/routes.ts` declares the canonical owner and tenant navigation trees. Owner topology keeps `Governance` under `Overview`, `Worker runtime` as a child group of `Overview`, visual label `Directory` for `/owner/organizations`, stable `Settings`, and `Profile` as the account surface.
+- `frontend/src/navigation/route-builders.ts` is the only frontend builder for parameterized route patterns. It rejects missing, empty, or literal placeholder params so `%3AorganizationId` cannot be produced by navigation code.
+- `frontend/src/layouts/AppShell.tsx` receives already-resolved navigation and exposes an explicit `navigation-required-but-empty` failure state instead of silently falling back to `emptyNavItems`.
+- `frontend/src/layouts/OwnerLayout.tsx` and `frontend/src/layouts/OrganizationLayout.tsx` materialize the canonical owner/tenant trees for the shell; they do not define an alternate topology.
+- `frontend/src/features/governance/governance-capabilities.ts` records unavailable Governance backend operations. Governance pages must render planned/unavailable states and must not fetch an aggregate or preview endpoint until the operation registry marks it active.
+
+Enforcement:
+
+- `npm run validate:navigation-contract` blocks `frontend/src/platform/**`, raw `:organizationId` placeholders outside route contracts/tests, `navigate`/`Link`/`fetch` usage with literal route params, `%3AorganizationId`, missing owner/tenant trees, and silent AppShell empty navigation fallback.
+- `npm run build` runs the navigation contract after the visual and intake validators.
+- Human protection is represented in `.github/CODEOWNERS` for navigation, authorization, AppShell, Router entrypoint, and the navigation validator. Repository rulesets / required review must still be enabled in GitHub settings if not already active; the repo file alone cannot force branch protection.
+
+Governance matrix for the current branch:
+
+| Surface | Screen | Action | Permission | Backend operation | Effective state |
+|---|---|---|---|---|---|
+| Owner | `owner-organization-governance` | `governance.access.preview` | `governance.owner.read` + `governance.preview.read` | `governance.readModel` / `governance.accessPreview` | `unavailable` until handlers are mounted |
+| Tenant | `tenant-governance` | `governance.access.preview` | `governance.tenant.read` + `governance.preview.read` | `governance.readModel` / `governance.accessPreview` | `unavailable` until handlers are mounted |
+
+This status means #111 is prepared for closure only after PR #102 is updated with these contracts, CI is green against `main`, and the GitHub-side required-review/ruleset status is verified.

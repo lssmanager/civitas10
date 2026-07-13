@@ -19,7 +19,7 @@ import { SignOutActionButton } from "../components/layout/TopBar/ActionButtons";
 
 export type ShellArea = "public" | "owner" | "organization-admin" | "organization-member";
 
-type NavItem = { label: string; path?: string; icon: Icon; match?: (pathname: string) => boolean; level?: number; children?: NavItem[] };
+export type NavItem = { label: string; path?: string; icon: Icon; match?: (pathname: string) => boolean; level?: number; children?: NavItem[] };
 
 type AppShellProps = {
   area: ShellArea;
@@ -29,9 +29,6 @@ type AppShellProps = {
   showBackButton?: boolean;
   actions?: ReactNode;
 };
-
-const emptyNavItems: NavItem[] = [];
-
 
 const SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state";
 
@@ -50,10 +47,15 @@ const areaLabel: Record<ShellArea, string> = {
 };
 
 const resolveNavItems = (area: ShellArea, organizationId?: string, navItems?: NavItem[]) => {
-  if (navItems) return navItems;
-  void area;
-  void organizationId;
-  return emptyNavItems;
+  if (navItems?.length) return navItems;
+  if (area === "public") return [];
+  return [{
+    label: "Resolved navigation is required",
+    path: undefined,
+    icon: IconMenu2,
+    match: () => false,
+    children: organizationId ? [{ label: `Context: ${organizationId}`, icon: IconMenu2 }] : undefined,
+  }];
 };
 
 export const AppShell = ({ area, children, navItems, organizationId, showBackButton = false, actions }: AppShellProps) => {
@@ -102,7 +104,7 @@ export const AppShell = ({ area, children, navItems, organizationId, showBackBut
             {sidebarCollapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
           </button>
         </div>
-        <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={effectiveSidebarCollapsed} />
+        {resolvedNavItems[0]?.label === "Resolved navigation is required" ? <div className="civitas-nav-link" data-navigation-contract="navigation-required-but-empty">Resolved navigation is required for this shell area.</div> : <NavCollapse items={resolvedNavItems} label={areaLabel[area]} collapsed={effectiveSidebarCollapsed} />}
       </aside>
       <div className="civitas-shell-content">
         <header className="civitas-topbar">

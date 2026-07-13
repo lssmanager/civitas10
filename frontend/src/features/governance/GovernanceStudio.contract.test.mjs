@@ -69,3 +69,13 @@ test("governance modules are feature-owned and responsive-neutral", () => {
   }
   assert.doesNotMatch(page, /innerWidth|matchMedia|role ===|roles\.includes/);
 });
+
+
+test("governance unavailable operations prevent blind fetches", () => {
+  const capabilities = readFileSync(new URL("./governance-capabilities.ts", import.meta.url), "utf8");
+  assert.match(capabilities, /governanceOperationRegistry/);
+  assert.match(capabilities, /operation: "governance.readModel"[\s\S]*status: "unavailable"/);
+  assert.match(capabilities, /operation: "governance.accessPreview"[\s\S]*status: "unavailable"/);
+  assert.match(page, /!isGovernanceOperationActive\(surface, "governance.readModel"\)/);
+  assert.match(page, /!isGovernanceOperationActive\(model.surface, "governance.accessPreview"\)/);
+});

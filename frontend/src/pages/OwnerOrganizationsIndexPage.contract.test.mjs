@@ -22,7 +22,7 @@ test("OwnerOrganizationsIndexPage has loading, empty, and error states", () => {
 
 test("owner navigation separates organizations from create", () => {
   assert.match(routes, /ownerCreateOrganization/);
-  assert.match(routes, /path: "\/owner\/create"/);
+  assert.match(routes, /ownerCreateOrganizationRoute = staticRoute\("\/owner\/create"\)/);
   assert.match(registry, /menuKey: "owner\.organizations"/);
   assert.match(registry, /menuKey: "owner\.organizations\.create"/);
   assert.match(registry, /parentMenuKey: "owner\.organizations"/);
