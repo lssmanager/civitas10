@@ -18,6 +18,7 @@ RUN npm install --include=dev
 COPY frontend/ ./
 COPY config/ /config/
 COPY core/ /core/
+COPY docs/design-system/ /docs/design-system/
 RUN npm run build
 RUN npm install -g serve
 

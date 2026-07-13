@@ -1,17 +1,53 @@
 #!/usr/bin/env node
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const repoRoot = resolve(new URL("../../../", import.meta.url).pathname);
+const scriptDir = dirname(fileURLToPath(import.meta.url));
 const argFileIndex = process.argv.indexOf("--file");
-const provenancePath = argFileIndex === -1 ? resolve(repoRoot, "docs/design-system/provenance.json") : resolve(process.cwd(), process.argv[argFileIndex + 1]);
+
+const provenanceCandidates = () => {
+  if (argFileIndex !== -1) return [resolve(process.cwd(), process.argv[argFileIndex + 1] ?? "")];
+  if (process.env.CIVITAS_PROVENANCE_FILE) return [resolve(process.cwd(), process.env.CIVITAS_PROVENANCE_FILE)];
+
+  return [
+    // Repository checkout: command is usually run from frontend/.
+    resolve(process.cwd(), "../docs/design-system/provenance.json"),
+    // Repository root: supports direct invocation from the root.
+    resolve(process.cwd(), "docs/design-system/provenance.json"),
+    // Docker frontend image: frontend is copied to /app and docs/design-system to /docs/design-system.
+    resolve("/docs/design-system/provenance.json"),
+    // Script-relative fallback for unusual local invocations.
+    resolve(scriptDir, "../../../docs/design-system/provenance.json"),
+  ];
+};
+
+const candidates = provenanceCandidates();
+const provenancePath = candidates.find((candidate) => existsSync(candidate));
 const failures = [];
 const fail = (message) => failures.push(message);
 const shaPattern = /^[0-9a-f]{40}$/i;
 const secretKeyPattern = /(licenseKey|license_key|invoice|receipt|privateUrl|private_url|sourceCode|source_code|email)/i;
 const emailValuePattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
 
-const data = JSON.parse(readFileSync(provenancePath, "utf8"));
+if (!provenancePath) {
+  console.error("[design-provenance] Provenance validation failed:");
+  console.error("- docs/design-system/provenance.json was not found.");
+  console.error("- The provenance metadata is required by the #114 design-intake contract and must be available during build.");
+  console.error("- Checked paths:");
+  for (const candidate of candidates) console.error(`  - ${candidate}`);
+  console.error("- In Docker builds, copy docs/design-system/ into /docs/design-system/ before running npm run build.");
+  process.exit(1);
+}
+
+let data;
+try {
+  data = JSON.parse(readFileSync(provenancePath, "utf8"));
+} catch (error) {
+  console.error("[design-provenance] Provenance validation failed:");
+  console.error(`- Unable to read or parse ${provenancePath}: ${error.message}`);
+  process.exit(1);
+}
 if (data.version !== 1) fail("provenance.version must be 1");
 if (!Array.isArray(data.entries)) fail("provenance.entries must be an array");
 
@@ -48,4 +84,4 @@ if (failures.length) {
   for (const message of failures) console.error(`- ${message}`);
   process.exit(1);
 }
-console.log("[design-provenance] Provenance metadata is valid and contains no licensed source or secrets.");
+console.log(`[design-provenance] Provenance metadata is valid and contains no licensed source or secrets (${provenancePath}).`);
