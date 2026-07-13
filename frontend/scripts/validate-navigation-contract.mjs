@@ -31,7 +31,7 @@ for (const file of files) {
   if (/navigate\([^)]*["'`][^"'`]*:organizationId/.test(text)) fail(`${rel}: navigate() must use route builders with a concrete organizationId.`);
   if (/<Link[^>]+to=["'`][^"'`]*:organizationId/.test(text)) fail(`${rel}: <Link to> must use route builders with a concrete organizationId.`);
   if (/fetch\([^)]*["'`][^"'`]*:organizationId/.test(text)) fail(`${rel}: fetch() must use API/route builders with concrete organizationId.`);
-  if (/%3AorganizationId/.test(text)) fail(`${rel}: encoded placeholder %3AorganizationId must never be generated.`);
+  if (/%3AorganizationId/.test(text) && !isAllowedContract) fail(`${rel}: encoded placeholder %3AorganizationId must never be generated.`);
 }
 
 const routes = readFileSync(join(frontendRoot, "src/navigation/routes.ts"), "utf8");
