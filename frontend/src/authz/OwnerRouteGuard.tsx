@@ -42,7 +42,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
             status: "denied",
             reason: "global-scopes",
             message: receivedCanonicalApiPermission
-              ? "403 / Access denied: missing required canonical API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated."
+              ? "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated."
               : "No se recibió un permiso API canónico en el token. Cierra sesión e inicia sesión después de asignar los permisos canónicos al rol.",
             missingScopes,
             tokenDiagnostics,

@@ -117,9 +117,57 @@ const warnIfOwnerTokenLooksInsufficient = (token: string) => {
   });
 };
 
-const parseApiErrorBody = async (response: Response) => {
+const isJsonContentType = (contentType: string | null) => {
+  const normalized = (contentType || "").toLowerCase();
+  return normalized.includes("application/json") || normalized.includes("+json");
+};
+
+const readBodyPreview = async (response: Response) => {
   try {
-    return await response.json();
+    return (await response.text()).slice(0, 200);
+  } catch {
+    return "";
+  }
+};
+
+export const readJsonResponse = async <T = any>(response: Response): Promise<T> => {
+  const contentType = response.headers.get("content-type") || "";
+  if (!isJsonContentType(contentType)) {
+    const bodyPreview = await readBodyPreview(response);
+    const responseUrl = response.url ? ` from ${response.url}` : "";
+    throw new ApiRequestError(
+      `Civitas API returned a non-JSON response (${response.status})${responseUrl}. Check VITE_API_URL/API_URL and proxy routing so /api/* reaches the backend. Content-Type: ${contentType || "unknown"}. Body preview: ${bodyPreview}`,
+      response.status,
+      "API_NON_JSON_RESPONSE",
+      { contentType: contentType || null, bodyPreview, url: response.url || null },
+    );
+  }
+
+  try {
+    return (await response.json()) as T;
+  } catch (error) {
+    throw new ApiRequestError(
+      `Civitas API returned invalid JSON (${response.status}).`,
+      response.status,
+      "API_INVALID_JSON_RESPONSE",
+      { url: response.url || null, cause: error instanceof Error ? error.message : String(error) },
+    );
+  }
+};
+
+const parseApiErrorBody = async (response: Response) => {
+  const contentType = response.headers.get("content-type") || "";
+  if (!isJsonContentType(contentType)) {
+    return {
+      __nonJson: true,
+      contentType,
+      bodyPreview: await readBodyPreview(response),
+      url: response.url || null,
+    };
+  }
+
+  try {
+    return await readJsonResponse(response);
   } catch {
     return null;
   }
@@ -127,6 +175,13 @@ const parseApiErrorBody = async (response: Response) => {
 
 const buildApiErrorMessage = async (response: Response) => {
   const data = await parseApiErrorBody(response);
+  if (data?.__nonJson) {
+    return {
+      message: `Civitas API returned a non-JSON response (${response.status}). Check VITE_API_URL/API_URL and proxy routing so /api/* reaches the backend. Content-Type: ${data.contentType || "unknown"}. Body preview: ${data.bodyPreview}`,
+      code: "API_NON_JSON_RESPONSE",
+      details: data,
+    };
+  }
   const technicalMessage =
     typeof data?.message === "string" && data.message.length > 0
       ? data.message
@@ -194,7 +249,7 @@ export const useApi = () => {
           throw new ApiRequestError(apiError.message, response.status, apiError.code, apiError.details);
         }
 
-        return await response.json();
+        return await readJsonResponse(response);
       } catch (error) {
         if (error instanceof ApiRequestError) {
           throw error;
@@ -225,7 +280,7 @@ export const useApi = () => {
           throw new ApiRequestError(apiError.message, response.status, apiError.code, apiError.details);
         }
 
-        return await response.json();
+        return await readJsonResponse(response);
       } catch (error) {
         if (error instanceof ApiRequestError) throw error;
         throw new ApiRequestError(error instanceof Error ? error.message : String(error));
@@ -256,7 +311,7 @@ export const useApi = () => {
           throw new ApiRequestError(apiError.message, response.status, apiError.code, apiError.details);
         }
 
-        return await response.json();
+        return await readJsonResponse(response);
       } catch (error) {
         if (error instanceof ApiRequestError) throw error;
         throw new ApiRequestError(error instanceof Error ? error.message : String(error));
