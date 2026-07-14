@@ -6,7 +6,7 @@ import { ApiRequestError } from "../api/base";
 import { useOwnerApi } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
 import { toAppErrorPresentation, type AppErrorPresentation } from "../errors/appErrorPresentation";
-import type { ConsolidatedOperationalResponse, OperationalBlock, OwnerCapabilityState } from "../contracts/operational";
+import { validateOperationalResponse, type ConsolidatedOperationalResponse, type OperationalBlock, type OwnerCapabilityState } from "../contracts/operational";
 
 const actionLabel: Record<string, string> = { retry: "Retry", verify_provider: "Verify provider", open_organization: "Open organization", wait_first_wordpress_login: "Wait first WordPress login", manual_retry_required: "Manual retry required", human_action_required: "Human action required", none: "No action" };
 
@@ -24,19 +24,9 @@ const isInvalidOrganizationId = (value: string | undefined) => {
   return decoded === `:${"organizationId"}`;
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
-
-const isOperationalBlock = (value: unknown): value is OperationalBlock => isRecord(value) && typeof value.status === "string" && typeof value.severity === "string" && isRecord(value.freshness);
-
-const isCapabilityState = (value: unknown): value is OwnerCapabilityState => isRecord(value) && typeof value.capability === "string" && typeof value.label === "string" && typeof value.configured === "boolean" && isRecord(value.health) && typeof value.health.status === "string" && Array.isArray(value.blockers) && Array.isArray(value.nextActions);
-
-const isOperationalResponse = (value: unknown): value is ConsolidatedOperationalResponse => {
-  if (!isRecord(value) || !isRecord(value.organization) || !Array.isArray(value.capabilities) || !isRecord(value.summary) || !isRecord(value.polling)) return false;
-  if (typeof value.contractVersion !== "string" || !value.contractVersion.includes("owner-capability-surfaces")) return false;
-  if (typeof value.summary.status !== "string") return false;
-  if (value.worker !== null && value.worker !== undefined && !isOperationalBlock(value.worker)) return false;
-  return value.capabilities.every(isCapabilityState);
-};
+function contractErrorMessage(result: Exclude<ReturnType<typeof validateOperationalResponse>, { ok: true }>) {
+  return `Owner organization operational response failed contract ${result.version || "unknown"} at ${result.path}: ${result.reason}`;
+}
 
 function normalizeLoadFailure(caught: unknown, organizationId: string): OrganizationDetailState {
   if (caught instanceof ApiRequestError && caught.status === 404) return { status: "not-found", organizationId };
@@ -106,18 +96,18 @@ const OwnerOrganizationOperationalPage = () => {
     setState((current) => current.status === "loaded" ? current : { status: "loading" });
     try {
       const response = await ownerApi.getOrganizationOperationalState(organizationId);
-      if (!isOperationalResponse(response)) throw new ApiRequestError("Owner organization operational response did not match the expected contract.", 500, "OWNER_ORGANIZATION_CONTRACT_ERROR");
-      latestLoadedStateRef.current = response;
-      setState({ status: "loaded", organization: response });
-      const interval = response.polling?.shouldPoll ? Math.max(Number(response.polling.intervalSeconds || 3), 1) * 1000 : 0;
+      const contract = validateOperationalResponse(response);
+      if (!contract.ok) throw new ApiRequestError(contractErrorMessage(contract), 500, "OWNER_ORGANIZATION_CONTRACT_ERROR");
+      latestLoadedStateRef.current = contract.value;
+      setState({ status: "loaded", organization: contract.value });
+      const interval = contract.value.polling.shouldPoll ? Math.max(Number(contract.value.polling.intervalSeconds || 3), 1) * 1000 : 0;
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = interval ? setTimeout(() => void load(), interval) : null;
     } catch (caught) {
       setState(normalizeLoadFailure(caught, organizationId));
-      const state = latestLoadedStateRef.current;
+      latestLoadedStateRef.current = null;
       if (timerRef.current) clearTimeout(timerRef.current);
-      if (state?.polling?.shouldPoll) timerRef.current = setTimeout(() => void load(), Math.max(Number(state.polling.intervalSeconds || 3), 1) * 1000);
-      else timerRef.current = null;
+      timerRef.current = null;
     }
   }, [organizationId, ownerApi]);
 
@@ -143,7 +133,7 @@ const OwnerOrganizationOperationalPage = () => {
       {viewState.status === "not-found" ? <EmptyState message="Organization not found. The selected organization does not exist or is no longer available."><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></EmptyState> : null}
       {viewState.status === "denied" ? <StateRegion><AlertStrip variant="warning" title="Access denied">{viewState.message}</AlertStrip></StateRegion> : null}
       {viewState.status === "error" ? <StateRegion><AlertStrip variant="danger" title={`Organization detail error · ${viewState.error.code}`}>{viewState.error.humanMessage}{retry ? <button type="button" className="civitas-secondary-button" onClick={retry}>Try again</button> : null}<Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></AlertStrip></StateRegion> : null}
-      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary?.humanMessage || "Capability surface loaded."}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary?.severity || "info")}>{viewState.organization.summary?.status || "available"}</OwnerBadge></MetricCard><MetricCard label="Capabilities" value={viewState.organization.capabilities.length} detail="Owner capability surface returned by the backend contract." /><MetricCard label="Blockers" value={viewState.organization.blockers.length} detail="Aggregated capability blockers." /><MetricCard label="Polling" value={viewState.organization.polling?.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling?.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2">{viewState.organization.capabilities.map((capability) => <CapabilityCard key={capability.capability} capability={capability} />)}{viewState.organization.worker ? <BlockCard title="Worker" block={viewState.organization.worker} /> : null}</section></> : null}
+      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary.humanMessage || "Capability surface loaded."}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary.severity || "info")}>{viewState.organization.summary.status || "available"}</OwnerBadge></MetricCard><MetricCard label="Capabilities" value={viewState.organization.capabilities.length} detail="Owner capability surface returned by the backend contract." /><MetricCard label="Blockers" value={viewState.organization.blockers.length} detail="Aggregated capability blockers." /><MetricCard label="Polling" value={viewState.organization.polling.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2">{viewState.organization.capabilities.map((capability) => <CapabilityCard key={capability.capability} capability={capability} />)}{viewState.organization.worker ? <BlockCard title="Worker" block={viewState.organization.worker} /> : null}</section></> : null}
     </OwnerShell>
   );
 };

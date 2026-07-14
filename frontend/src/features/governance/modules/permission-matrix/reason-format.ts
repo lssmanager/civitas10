@@ -9,6 +9,7 @@ const reasonLabels: Record<PermissionMatrixReasonCode, string> = {
   delegation_denied: "Delegation denied",
   data_scope_unavailable: "Data scope unavailable",
   authorization_context_stale: "Authorization context stale",
+  owning_operation_not_mounted: "Owning operation not mounted",
 };
 
 export const reasonLabel = (code: PermissionMatrixReasonCode) => reasonLabels[code] ?? code;

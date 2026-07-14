@@ -1,0 +1,284 @@
+{
+  "contractVersion": "2026-07-civitas10-governance-read-model-v1",
+  "generatedAt": "2026-07-14T23:36:56.741Z",
+  "organization": {
+    "logtoOrganizationId": "org-1",
+    "name": "Colegio Uno",
+    "surface": "owner"
+  },
+  "organizationId": "org-1",
+  "organizationName": "Colegio Uno",
+  "surface": "owner",
+  "versions": {
+    "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+    "ceilingVersion": "not_mounted",
+    "activationVersion": "not_mounted",
+    "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+    "unitsVersion": "2026-07-civitas10-units-read-v1",
+    "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+    "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+    "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+    "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+    "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+    "runtimeStatus": "current"
+  },
+  "runtimeStatus": "current",
+  "modules": {
+    "overview": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "permissions": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "taxonomy": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "units": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "data-scope": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "aliases-navigation": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "access-preview": {
+      "status": "planned",
+      "reason": "owning_operation_not_mounted",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    },
+    "audit": {
+      "status": "active",
+      "reason": "read_model_projection_available",
+      "dependencyVersions": {
+        "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+        "ceilingVersion": "not_mounted",
+        "activationVersion": "not_mounted",
+        "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+        "unitsVersion": "2026-07-civitas10-units-read-v1",
+        "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+        "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+        "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+        "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+        "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+        "runtimeStatus": "current"
+      }
+    }
+  },
+  "summary": {
+    "status": "available",
+    "activeModules": 7,
+    "plannedModules": 1,
+    "unavailableModules": 0,
+    "reason": "aggregate_projection_only"
+  },
+  "permissionMatrix": [
+    {
+      "permission": "governance.owner.read",
+      "canonical": true,
+      "rolePotential": true,
+      "ownerAllowed": true,
+      "tenantEnabled": null,
+      "effective": true,
+      "reason": {
+        "code": "allowed",
+        "sourceVersions": {
+          "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+          "ceilingVersion": "not_mounted",
+          "activationVersion": "not_mounted",
+          "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+          "unitsVersion": "2026-07-civitas10-units-read-v1",
+          "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+          "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+          "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+          "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+          "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+          "runtimeStatus": "current"
+        }
+      }
+    },
+    {
+      "permission": "governance.tenant.read",
+      "canonical": true,
+      "rolePotential": true,
+      "ownerAllowed": true,
+      "tenantEnabled": true,
+      "effective": true,
+      "reason": {
+        "code": "allowed",
+        "sourceVersions": {
+          "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+          "ceilingVersion": "not_mounted",
+          "activationVersion": "not_mounted",
+          "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+          "unitsVersion": "2026-07-civitas10-units-read-v1",
+          "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+          "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+          "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+          "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+          "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+          "runtimeStatus": "current"
+        }
+      }
+    },
+    {
+      "permission": "governance.preview.read",
+      "canonical": true,
+      "rolePotential": null,
+      "ownerAllowed": null,
+      "tenantEnabled": null,
+      "effective": false,
+      "reason": {
+        "code": "owning_operation_not_mounted",
+        "sourceVersions": {
+          "catalogVersion": "2026-07-civitas10-active-permissions-v1",
+          "ceilingVersion": "not_mounted",
+          "activationVersion": "not_mounted",
+          "taxonomyVersion": "2026-07-civitas10-taxonomy-read-v1",
+          "unitsVersion": "2026-07-civitas10-units-read-v1",
+          "dataScopeVersion": "2026-07-civitas10-data-scope-read-v1",
+          "visualVersion": "2026-07-civitas10-visual-navigation-v1",
+          "policyVersion": "2026-07-civitas10-policy-runtime-v1",
+          "readModelVersion": "2026-07-civitas10-governance-read-model-v1",
+          "operationRegistryVersion": "2026-07-civitas10-governance-operations-v1",
+          "runtimeStatus": "current"
+        }
+      }
+    }
+  ],
+  "taxonomy": [],
+  "units": [],
+  "dataScopes": [],
+  "aliasesNavigation": {
+    "aliasesTenantEditable": false,
+    "navigationTenantEditable": false,
+    "visualPreferences": [
+      {
+        "screenId": "owner-governance",
+        "hidden": false,
+        "order": 20,
+        "locked": true
+      },
+      {
+        "screenId": "tenant-governance",
+        "hidden": false,
+        "order": 20,
+        "locked": true
+      }
+    ],
+    "summary": {
+      "reason": "navigation_preferences_read_only_projection",
+      "preferenceCount": 2
+    }
+  },
+  "accessPreviews": [],
+  "auditSummary": {
+    "totalEvents": 0,
+    "latestEventAt": null,
+    "redaction": "actor_subjects_and_before_after_payloads_redacted_in_aggregate"
+  },
+  "auditEvents": [],
+  "diagnostics": [
+    {
+      "code": "governance_read_model_projection",
+      "severity": "info",
+      "message": "Aggregate read model is mounted; feature writes remain in owning APIs."
+    }
+  ]
+}

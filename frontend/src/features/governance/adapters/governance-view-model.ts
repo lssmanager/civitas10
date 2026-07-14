@@ -9,6 +9,10 @@ const statusLabels: Record<string, string> = {
   stale: "Stale",
   drift: "Drift detected",
   ready: "Ready",
+  active: "Active",
+  planned: "Planned",
+  denied: "Denied",
+  error: "Error",
   blocked: "Unavailable",
   unavailable: "Not available",
   unknown: "Unknown",
@@ -42,9 +46,9 @@ export const governanceOverviewMetrics = (model: GovernanceReadModel) => {
   const versions = versionSummary(model.versions);
   const effectivePermissions = model.permissionMatrix.filter((row) => row.effective).length;
   const deniedPermissions = model.permissionMatrix.filter((row) => !row.effective).length;
-  const pendingModules = Object.values(model.modules).filter((module) => module?.status === "pending").length;
-  const blockedModules = Object.values(model.modules).filter((module) => module?.status === "blocked").length;
-  const drift = model.versions.runtimeStatus === "drift" || model.diagnostics.some((diagnostic) => diagnostic.includes("drift"));
+  const pendingModules = Object.values(model.modules).filter((module) => module?.status === "pending" || module?.status === "planned" || module?.status === "stale").length;
+  const blockedModules = Object.values(model.modules).filter((module) => module?.status === "blocked" || module?.status === "unavailable" || module?.status === "error" || module?.status === "denied").length;
+  const drift = model.versions.runtimeStatus === "drift" || model.diagnostics.some((diagnostic) => typeof diagnostic === "string" ? diagnostic.includes("drift") : diagnostic.code.includes("drift"));
 
   return [
     { label: "Catalog", value: humanizeCode(versions.catalog), detail: versions.catalog === "unavailable" ? "The permission catalog version has not been reported." : "Permission catalog version reported by the read model.", tone: statusTone(versions.catalog === "unavailable" ? "unknown" : "ready") },

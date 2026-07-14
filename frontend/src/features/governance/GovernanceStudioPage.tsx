@@ -74,7 +74,7 @@ const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface
   aliasesNavigation: { aliasesTenantEditable: false, navigationTenantEditable: false, visualPreferences: [] },
   accessPreviews: [],
   auditEvents: [],
-  diagnostics: ["read-model-pending"],
+  diagnostics: [{ code: "read_model_pending", severity: "info", message: "Governance read model has not been loaded." }],
 });
 
 const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTenantAccess, onSelectSection }: { activeSection: GovernanceSectionId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; onSelectSection: (section: GovernanceSectionId) => void }) => {
@@ -118,7 +118,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     const load = surface === "owner" ? governanceApi.getOwnerGovernance : governanceApi.getTenantGovernance;
     void load(organizationId)
       .then((response) => { if (active) setModel(response); })
-      .catch((caught) => { if (active) { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); setModel(emptyGovernanceModel(organizationId, surface)); } })
+      .catch((caught) => { if (active) { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [governanceApi, organizationId, surface]);

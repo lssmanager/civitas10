@@ -36,6 +36,26 @@ function labelForAdapter(adapter) {
   return String(adapter).split(/[-_]/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
 
+function toOwnerHealth(raw = {}, configured = false) {
+  const status = raw.status || 'unknown';
+  const severity = status === 'healthy' ? 'success' : status === 'unhealthy' ? 'warning' : configured ? 'info' : 'info';
+  return {
+    status,
+    severity,
+    humanMessage: raw.message || (configured ? 'Capability configured.' : 'Capability not configured.'),
+    checkedAt: raw.lastCheckedAt || null,
+  };
+}
+
+function neutralRuntimeState(capability) {
+  return {
+    source: 'not_configured',
+    status: 'not_configured',
+    summary: {},
+    metadata: { capability },
+  };
+}
+
 function normalizeHealthFromConnector(row, capability) {
   if (!row) {
     return {
@@ -81,6 +101,7 @@ function legacyRuntimeStateFromProfile(profile, capability) {
   return {
     source: 'legacy_custom_data',
     legacy: true,
+    status: 'legacy_fallback',
     summary: { companyId: crm.companyId },
     metadata: crm.provider ? { provider: crm.provider } : {},
     replacement: 'organization_runtime_state:crm.company_id',
@@ -129,8 +150,8 @@ function buildOwnerCapabilityState({ capability, connectorRows = [], runtimeStat
     label: labelForCapability(capability),
     configured,
     adapter: configured ? { key: row.adapter, label: labelForAdapter(row.adapter), status: row.adapterStatus || row.connectorStatus || 'active' } : null,
-    health,
-    runtimeState: runtimeStateForCapability({ capability, runtimeStateRows, profile }),
+    health: toOwnerHealth(health, configured),
+    runtimeState: runtimeStateForCapability({ capability, runtimeStateRows, profile }) || neutralRuntimeState(capability),
     blockers,
     nextActions,
   };
@@ -157,6 +178,26 @@ function buildOwnerRegistryPayload(rows = [], { capabilities = OWNER_CAPABILITIE
   return { capabilities: Array.from(grouped.values()) };
 }
 
+function defaultSummary() {
+  return { status: 'available', severity: 'info', humanMessage: 'Capability surface loaded.', dominantSource: null, nextAction: 'none', availableActions: ['none'] };
+}
+
+function normalizeSummary(summary) {
+  return { ...defaultSummary(), ...(summary && typeof summary === 'object' ? summary : {}) };
+}
+
+function defaultPolling() {
+  return { shouldPoll: false, intervalSeconds: 0, reason: 'stable', activeOperationIds: [] };
+}
+
+function normalizePolling(polling) {
+  const normalized = { ...defaultPolling(), ...(polling && typeof polling === 'object' ? polling : {}) };
+  normalized.shouldPoll = Boolean(normalized.shouldPoll);
+  normalized.intervalSeconds = Number.isFinite(Number(normalized.intervalSeconds)) ? Number(normalized.intervalSeconds) : 0;
+  normalized.activeOperationIds = Array.isArray(normalized.activeOperationIds) ? normalized.activeOperationIds.filter(Boolean) : [];
+  return normalized;
+}
+
 function buildOwnerOperationalStateResponse({ baseResponse = {}, organization = {}, connectorRows = [], runtimeStateRows = [], profile = null } = {}) {
   const capabilities = buildOwnerCapabilities({ connectorRows, runtimeStateRows, profile });
   return {
@@ -167,12 +208,12 @@ function buildOwnerOperationalStateResponse({ baseResponse = {}, organization = 
       name: organization.name || profile?.nameCache || baseResponse.organization?.name || null,
       status: organization.status || 'active',
     },
-    summary: baseResponse.summary || null,
+    summary: normalizeSummary(baseResponse.summary),
     capabilities,
     blockers: capabilities.flatMap((item) => item.blockers),
     nextActions: capabilities.flatMap((item) => item.nextActions),
     worker: baseResponse.worker || null,
-    polling: baseResponse.polling || null,
+    polling: normalizePolling(baseResponse.polling),
     latestEventIds: baseResponse.latestEventIds || {},
     legacy: {
       deprecated: true,

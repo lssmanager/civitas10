@@ -83,3 +83,24 @@ test('worker queue owner signal includes impact and actionable nextAction', () =
   assert.equal(signal.nextAction.type, 'inspect_queue');
   assert.deepEqual(signal.nextAction.target, { queue: 'sync' });
 });
+
+test('owner operational-state response fills required neutral runtime, health, summary and polling blocks', () => {
+  const response = buildOwnerOperationalStateResponse({ organization: { logtoOrganizationId: 'org-1' } });
+  const lms = response.capabilities.find((item) => item.capability === 'lms');
+
+  assert.equal(response.summary.status, 'available');
+  assert.equal(response.polling.shouldPoll, false);
+  assert.equal(lms.health.severity, 'info');
+  assert.equal(typeof lms.health.humanMessage, 'string');
+  assert.equal(lms.runtimeState.source, 'not_configured');
+  assert.deepEqual(lms.runtimeState.summary, {});
+});
+
+test('owner operational-state response normalizes partial legacy base blocks before frontend validation', () => {
+  const response = buildOwnerOperationalStateResponse({ baseResponse: { summary: { status: 'degraded' }, polling: { shouldPoll: true, activeOperationIds: ['op-1'] } }, organization: { logtoOrganizationId: 'org-1' } });
+
+  assert.equal(response.summary.severity, 'info');
+  assert.equal(response.summary.humanMessage, 'Capability surface loaded.');
+  assert.equal(response.polling.intervalSeconds, 0);
+  assert.deepEqual(response.polling.activeOperationIds, ['op-1']);
+});

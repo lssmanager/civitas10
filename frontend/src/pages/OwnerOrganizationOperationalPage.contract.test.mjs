@@ -10,9 +10,9 @@ test("OwnerOrganizationOperationalPage reads operational-state for the selected 
 });
 
 test("OwnerOrganizationOperationalPage keeps polling when the contract asks for it", () => {
-  assert.match(source, /response\.polling\?\.shouldPoll/);
+  assert.match(source, /contract\.value\.polling\.shouldPoll/);
   assert.match(source, /setTimeout\(\(\) => void load\(\), interval\)/);
-  assert.match(source, /if \(state\?\.polling\?\.shouldPoll\)/);
+  assert.match(source, /timerRef\.current = null/);
 });
 
 test("OwnerOrganizationOperationalPage renders the owner capability surface returned by the backend", () => {

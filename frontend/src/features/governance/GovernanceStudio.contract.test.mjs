@@ -98,8 +98,19 @@ test("governance modules are feature-owned and responsive-neutral", () => {
 test("governance unavailable operations prevent blind fetches", () => {
   const capabilities = readFileSync(new URL("./governance-capabilities.ts", import.meta.url), "utf8");
   assert.match(capabilities, /governanceOperationRegistry/);
-  assert.match(capabilities, /operation: "governance.readModel"[\s\S]*status: "unavailable"/);
+  assert.match(capabilities, /operation: "governance.readModel"[\s\S]*status: "active"/);
   assert.match(capabilities, /operation: "governance.accessPreview"[\s\S]*status: "unavailable"/);
   assert.match(page, /!isGovernanceOperationActive\(surface, "governance.readModel"\)/);
   assert.match(page, /!isGovernanceOperationActive\(model.surface, "governance.accessPreview"\)/);
+});
+
+
+test("governance read model contract validates real mounted fixture", () => {
+  const contract = readFileSync(new URL("./contracts.ts", import.meta.url), "utf8");
+  const fixture = JSON.parse(readFileSync(new URL("./fixtures/governance-read-model-owner.json", import.meta.url), "utf8"));
+  assert.equal(fixture.contractVersion, "2026-07-civitas10-governance-read-model-v1");
+  assert.equal(fixture.modules.permissions.status, "active");
+  assert.match(contract, /validateGovernanceReadModel/);
+  assert.match(contract, /\$\.modules.\$\{key\}\.status/);
+  assert.match(api, /assertGovernanceReadModel/);
 });

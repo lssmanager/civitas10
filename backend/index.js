@@ -33,6 +33,7 @@ const { createOrganizationProvisioningRecorder } = require("./services/organizat
 const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganizationProvisioningDraft } = require("./services/organizationProvisioningDrafts");
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
+const { buildGovernanceReadModel, assertTenantRouteMatchesContext } = require("./services/governanceReadModel");
 const { requireGlobalOwner } = require("./authorization/guards");
 const { organizationPath } = require("./routes/tenantRoutes");
 const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
@@ -365,6 +366,16 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
   }
 });
 
+
+secureRoute.get("/owner/organizations/:organizationId/governance", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerProfileRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
+  try {
+    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
+    return res.json(buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "owner" }));
+  } catch (error) {
+    return sendPublicError(res, error, "OwnerGovernanceReadModelError", "Failed to build owner governance read model");
+  }
+});
+
 secureRoute.get("/owner/system/worker-queues", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerWorkerQueuesRead] }), requireGlobalOwner, async (_req, res) => {
   try {
     const organizations = await listLogtoOrganizations().catch(() => []);
@@ -437,6 +448,17 @@ const documentListHandler = async (_req, res) => {
   ]);
 };
 const documentCreateHandler = async (_req, res) => { res.json({ data: "Document created" }); };
+
+secureRoute.get("/o/:organizationId/governance", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), async (req, res) => {
+  try {
+    assertTenantRouteMatchesContext(req);
+    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
+    return res.json(buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "tenant" }));
+  } catch (error) {
+    return sendPublicError(res, error, "TenantGovernanceReadModelError", "Failed to build tenant governance read model");
+  }
+});
+
 const documentReadPolicies = ["same-organization", "membership-required"];
 const documentCreatePolicies = ["same-organization", "membership-required", "critical-operation-audited"];
 
