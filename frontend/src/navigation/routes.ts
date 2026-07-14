@@ -27,6 +27,13 @@ const ownerOrganizationsRoute = staticRoute("/owner/organizations");
 const ownerCreateOrganizationRoute = staticRoute("/owner/create");
 const ownerOrganizationStateRoute = defineRoute("/owner/organizations/:organizationId");
 const ownerOrganizationGovernanceRoute = defineRoute("/owner/organizations/:organizationId/governance");
+const ownerOrganizationGovernanceRolesRoute = defineRoute("/owner/organizations/:organizationId/governance/roles");
+const ownerOrganizationGovernanceTaxonomyRoute = defineRoute("/owner/organizations/:organizationId/governance/taxonomy");
+const ownerOrganizationGovernanceGroupsRoute = defineRoute("/owner/organizations/:organizationId/governance/groups");
+const ownerOrganizationGovernanceDataScopesRoute = defineRoute("/owner/organizations/:organizationId/governance/data-scopes");
+const ownerOrganizationGovernanceNavigationRoute = defineRoute("/owner/organizations/:organizationId/governance/navigation");
+const ownerOrganizationGovernancePreviewRoute = defineRoute("/owner/organizations/:organizationId/governance/preview");
+const ownerOrganizationGovernanceAuditRoute = defineRoute("/owner/organizations/:organizationId/governance/audit");
 const tenantGovernanceRoute = defineRoute("/o/:organizationId/settings/governance");
 const tenantLmsGradesRoute = defineRoute("/o/:organizationId/lms/grades");
 const ownerLogsRoute = staticRoute("/owner/logs");
@@ -48,6 +55,13 @@ export const appRoutes = {
   ownerCreateOrganization: appRoute(ownerCreateOrganizationRoute, "Create", "create", "Alta canónica en Logto con bootstrap limpio."),
   ownerOrganizationState: appRoute(ownerOrganizationStateRoute, "Organization detail", "organizations", "Estado operacional consolidado por organización."),
   ownerOrganizationGovernance: appRoute(ownerOrganizationGovernanceRoute, "Governance", "governance", "Studio owner contextual para una organización seleccionada."),
+  ownerOrganizationGovernanceRoles: appRoute(ownerOrganizationGovernanceRolesRoute, "Roles and permissions", "governance", "Roles, assignments and permission matrix for the selected organization."),
+  ownerOrganizationGovernanceTaxonomy: appRoute(ownerOrganizationGovernanceTaxonomyRoute, "Taxonomy", "governance", "Taxonomy dimensions and values for the selected organization."),
+  ownerOrganizationGovernanceGroups: appRoute(ownerOrganizationGovernanceGroupsRoute, "Groups", "governance", "Groups, units and memberships for the selected organization."),
+  ownerOrganizationGovernanceDataScopes: appRoute(ownerOrganizationGovernanceDataScopesRoute, "Data scopes", "governance", "Data-scope assignments for the selected organization."),
+  ownerOrganizationGovernanceNavigation: appRoute(ownerOrganizationGovernanceNavigationRoute, "Aliases and navigation", "governance", "Aliases and navigation preferences for the selected organization."),
+  ownerOrganizationGovernancePreview: appRoute(ownerOrganizationGovernancePreviewRoute, "Access preview", "governance", "Read-only access preview for the selected organization."),
+  ownerOrganizationGovernanceAudit: appRoute(ownerOrganizationGovernanceAuditRoute, "Audit and diagnostics", "governance", "Audit and diagnostics for the selected organization."),
   tenantGovernance: appRoute(tenantGovernanceRoute, "Governance", "governance", "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización."),
   tenantLmsGrades: appRoute(tenantLmsGradesRoute, "Grades", "grades", "Superficie tenant LMS para calificaciones bajo contexto organizacional."),
   ownerLogs: appRoute(ownerLogsRoute, "Audit / diagnostics", "operations", "Trazabilidad global de eventos operativos owner.", false),
@@ -85,6 +99,13 @@ export const routeMetadata: Record<string, RouteMetadata> = {
   [appRoutes.owner.path]: { label: appRoutes.owner.label },
   [appRoutes.ownerGovernance.path]: { label: appRoutes.ownerGovernance.label, parentPath: appRoutes.ownerOrganizations.path },
   [appRoutes.ownerOrganizationGovernance.path]: { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerOrganizationState.path },
+  [appRoutes.ownerOrganizationGovernanceRoles.path]: { label: appRoutes.ownerOrganizationGovernanceRoles.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernanceTaxonomy.path]: { label: appRoutes.ownerOrganizationGovernanceTaxonomy.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernanceGroups.path]: { label: appRoutes.ownerOrganizationGovernanceGroups.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernanceDataScopes.path]: { label: appRoutes.ownerOrganizationGovernanceDataScopes.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernanceNavigation.path]: { label: appRoutes.ownerOrganizationGovernanceNavigation.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernancePreview.path]: { label: appRoutes.ownerOrganizationGovernancePreview.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernanceAudit.path]: { label: appRoutes.ownerOrganizationGovernanceAudit.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
   [appRoutes.ownerSystem.path]: { label: appRoutes.ownerSystem.label },
   [appRoutes.ownerWorkerQueues.path]: { label: appRoutes.ownerWorkerQueues.label, parentPath: appRoutes.ownerSystem.path },
   [appRoutes.ownerLogs.path]: { label: appRoutes.ownerLogs.label, parentPath: appRoutes.ownerSystem.path },

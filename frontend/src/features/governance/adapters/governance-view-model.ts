@@ -65,4 +65,4 @@ export const configurationCoverage = (model: GovernanceReadModel) => [
   { label: "Audit events", count: model.auditEvents.length, tab: "audit-diagnostics" },
 ] as const;
 
-export const governanceDisplayName = (organizationId: string) => organizationId || "Selected organization";
+export const governanceDisplayName = (modelOrOrganizationId: GovernanceReadModel | string, fallbackId = "") => typeof modelOrOrganizationId === "string" ? modelOrOrganizationId || "Selected organization" : modelOrOrganizationId.organizationName || fallbackId || modelOrOrganizationId.organizationId || "Selected organization";

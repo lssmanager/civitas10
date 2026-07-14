@@ -55,6 +55,7 @@ export type GovernanceAuditEvent = { id: string; actorId: string; organizationId
 
 export type GovernanceReadModel = {
   organizationId: string;
+  organizationName?: string | null;
   surface: GovernanceSurface;
   versions: GovernanceVersionSummary;
   modules: Partial<Record<GovernanceModuleKey, { status: "ready" | "pending" | "blocked"; reason?: string }>>;

@@ -39,10 +39,17 @@ test("context scopes preserve owner platform access and tenant organization enfo
   assert.match(evaluator, /requiresOrganizationContext && !context\.organizationId/);
 });
 
-test("governance tabs are explicit and asymmetric by surface", () => {
-  assert.match(page, /ownerGovernanceTabs: GovernanceTabId\[] = \["overview", "roles-permissions", "taxonomy", "groups", "data-scopes", "aliases-navigation", "access-preview", "audit-diagnostics"\]/);
-  assert.match(page, /tenantGovernanceTabs: GovernanceTabId\[] = \["roles-permissions", "members", "data-scopes", "taxonomy", "groups", "aliases-navigation", "access-preview"\]/);
-  assert.match(page, /members: "Members"/);
+test("governance sections are route-backed vertical navigation", () => {
+  assert.match(routes, /governance\/roles/);
+  assert.match(routes, /governance\/taxonomy/);
+  assert.match(routes, /governance\/groups/);
+  assert.match(routes, /governance\/data-scopes/);
+  assert.match(routes, /governance\/navigation/);
+  assert.match(routes, /governance\/preview/);
+  assert.match(routes, /governance\/audit/);
+  assert.match(page, /SectionNavigation/);
+  assert.match(page, /aria-label="Breadcrumb"/);
+  assert.doesNotMatch(page, /<Tabs|useSearchParams/);
 });
 
 test("governance read model keeps concepts and reason versions separated", () => {
