@@ -1,11 +1,45 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ErrorState, MetricCard, OwnerBadge, OwnerShell, PageHeader, ownerToneFromSeverity } from "../components/owner/OwnerUI";
+import { AlertStrip, EmptyState, StateRegion } from "../shared/ui";
+import { MetricCard, OwnerBadge, OwnerShell, PageHeader, ownerToneFromSeverity } from "../components/owner/OwnerUI";
+import { ApiRequestError } from "../api/base";
 import { useOwnerApi } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
+import { toAppErrorPresentation, type AppErrorPresentation } from "../errors/appErrorPresentation";
 import type { ConsolidatedOperationalResponse, OperationalBlock } from "../contracts/operational";
 
 const actionLabel: Record<string, string> = { retry: "Retry", verify_provider: "Verify provider", open_organization: "Open organization", wait_first_wordpress_login: "Wait first WordPress login", manual_retry_required: "Manual retry required", human_action_required: "Human action required", none: "No action" };
+
+type OrganizationDetailState =
+  | { status: "loading" }
+  | { status: "loaded"; organization: ConsolidatedOperationalResponse }
+  | { status: "not-found"; organizationId: string }
+  | { status: "denied"; message: string }
+  | { status: "error"; error: AppErrorPresentation };
+
+const isInvalidOrganizationId = (value: string | undefined) => {
+  const id = value ? value.trim() : "";
+  if (!id) return true;
+  const decoded = (() => { try { return decodeURIComponent(id); } catch { return id; } })();
+  return decoded === `:${"organizationId"}`;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+const isOperationalBlock = (value: unknown): value is OperationalBlock => isRecord(value) && typeof value.status === "string" && typeof value.severity === "string" && isRecord(value.freshness);
+
+const isOperationalResponse = (value: unknown): value is ConsolidatedOperationalResponse => {
+  if (!isRecord(value) || !isRecord(value.organization) || !isRecord(value.summary) || !isRecord(value.polling)) return false;
+  if (typeof value.summary.humanMessage !== "string" || typeof value.summary.status !== "string") return false;
+  return [value.canonical, value.fluentcrm, value.wordpress, value.worker, value.liveVerification, value.contactProgress].every(isOperationalBlock);
+};
+
+function normalizeLoadFailure(caught: unknown, organizationId: string): OrganizationDetailState {
+  if (caught instanceof ApiRequestError && caught.status === 404) return { status: "not-found", organizationId };
+  const error = toAppErrorPresentation(caught);
+  if (error.status === 401 || error.status === 403) return { status: "denied", message: error.humanMessage };
+  return { status: "error", error };
+}
 
 function BlockCard({ title, block }: { title: string; block: OperationalBlock }) {
   return (
@@ -34,60 +68,56 @@ function BlockCard({ title, block }: { title: string; block: OperationalBlock })
 const OwnerOrganizationOperationalPage = () => {
   const { organizationId = "" } = useParams();
   const ownerApi = useOwnerApi();
-  const [state, setState] = useState<ConsolidatedOperationalResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [viewState, setState] = useState<OrganizationDetailState>({ status: "loading" });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestLoadedStateRef = useRef<ConsolidatedOperationalResponse | null>(null);
+
+  const load = useCallback(async () => {
+    if (isInvalidOrganizationId(organizationId)) {
+      setState({ status: "not-found", organizationId });
+      return;
+    }
+    setState((current) => current.status === "loaded" ? current : { status: "loading" });
+    try {
+      const response = await ownerApi.getOrganizationOperationalState(organizationId);
+      if (!isOperationalResponse(response)) throw new ApiRequestError("Owner organization operational response did not match the expected contract.", 500, "OWNER_ORGANIZATION_CONTRACT_ERROR");
+      latestLoadedStateRef.current = response;
+      setState({ status: "loaded", organization: response });
+      const interval = response.polling?.shouldPoll ? Math.max(Number(response.polling.intervalSeconds || 3), 1) * 1000 : 0;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = interval ? setTimeout(() => void load(), interval) : null;
+    } catch (caught) {
+      setState(normalizeLoadFailure(caught, organizationId));
+      const state = latestLoadedStateRef.current;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (state?.polling?.shouldPoll) timerRef.current = setTimeout(() => void load(), Math.max(Number(state.polling.intervalSeconds || 3), 1) * 1000);
+      else timerRef.current = null;
+    }
+  }, [organizationId, ownerApi]);
 
   useEffect(() => {
-    let cancelled = false;
-    const clearTimer = () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-    const load = async () => {
-      setError(null);
-      try {
-        const response = await ownerApi.getOrganizationOperationalState(organizationId);
-        if (cancelled) return;
-        setState(response);
-        const interval = response.polling?.shouldPoll ? Math.max(Number(response.polling.intervalSeconds || 3), 1) * 1000 : 0;
-        clearTimer();
-        if (interval) timerRef.current = setTimeout(() => void load(), interval);
-      } catch (caught) {
-        if (cancelled) return;
-        setError(caught instanceof Error ? caught.message : "Failed to load operational state.");
-        clearTimer();
-        if (state?.polling?.shouldPoll) timerRef.current = setTimeout(() => void load(), Math.max(Number(state.polling.intervalSeconds || 3), 1) * 1000);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    setLoading(true);
     void load();
-    return () => { cancelled = true; clearTimer(); };
-  }, [organizationId, ownerApi]);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [load]);
+
+  const title = viewState.status === "loaded" ? viewState.organization.organization.name || organizationId : organizationId;
+  const retry = viewState.status === "error" && viewState.error.retryable ? () => void load() : undefined;
 
   return (
     <OwnerShell organizationId={organizationId}>
-      <PageHeader eyebrow="Organization detail" title={state?.organization.name || organizationId} description="Selected organization context for Overview, Governance and Operations." />
+      <PageHeader eyebrow="Organization detail" title={title || "Organization not found"} description="Selected organization context for Overview, Governance and Operations." />
       <nav className="civitas-card civitas-pad-tight" aria-label="Organization detail sections" data-owner-organization-detail-tabs="true">
         <div className="flex flex-wrap gap-2">
-          <Link to={appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-primary-button" aria-current="page">Overview</Link>
-          <Link to={appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-secondary-button">Governance</Link>
+          <Link to={!isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path} className="civitas-primary-button" aria-current="page">Overview</Link>
+          <Link to={!isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path} className="civitas-secondary-button">Governance</Link>
           <a href="#operations" className="civitas-secondary-button">Operations</a>
         </div>
       </nav>
-      {error ? <ErrorState message={error} /> : null}
-      <section id="operations" className="grid gap-4 md:grid-cols-4">
-        <MetricCard label="Summary" detail={state?.summary.humanMessage || "Loading operational summary..."}><OwnerBadge tone={ownerToneFromSeverity(state?.summary.severity || "info")}>{state?.summary.status || (loading ? "loading" : "unknown")}</OwnerBadge></MetricCard>
-        <MetricCard label="Dominant source" value={state?.summary.dominantSource || "-"} />
-        <MetricCard label="Next action" value={state ? (actionLabel[String(state.summary.nextAction)] || String(state.summary.nextAction)) : "-"} />
-        <MetricCard label="Polling" value={state?.polling.shouldPoll ? `${state.polling.intervalSeconds}s` : "stopped"} detail={state?.polling.reason || "-"} />
-      </section>
-      {state ? <section className="grid gap-4 lg:grid-cols-2"><BlockCard title="Canonical / Logto" block={state.canonical} /><BlockCard title="FluentCRM" block={state.fluentcrm} /><BlockCard title="WordPress" block={state.wordpress} /><BlockCard title="Worker" block={state.worker} /><BlockCard title="Live verification" block={state.liveVerification} /><BlockCard title="Contact progress" block={state.contactProgress} /></section> : null}
+      {viewState.status === "loading" ? <StateRegion><p className="text-sm text-muted-strong">Loading organization detail...</p></StateRegion> : null}
+      {viewState.status === "not-found" ? <EmptyState message="Organization not found. The selected organization does not exist or is no longer available."><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></EmptyState> : null}
+      {viewState.status === "denied" ? <StateRegion><AlertStrip variant="warning" title="Access denied">{viewState.message}</AlertStrip></StateRegion> : null}
+      {viewState.status === "error" ? <StateRegion><AlertStrip variant="danger" title={`Organization detail error · ${viewState.error.code}`}>{viewState.error.humanMessage}{retry ? <button type="button" className="civitas-secondary-button" onClick={retry}>Try again</button> : null}<Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></AlertStrip></StateRegion> : null}
+      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary.humanMessage}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary.severity)}>{viewState.organization.summary.status}</OwnerBadge></MetricCard><MetricCard label="Dominant source" value={viewState.organization.summary.dominantSource || "-"} /><MetricCard label="Next action" value={actionLabel[String(viewState.organization.summary.nextAction)] || String(viewState.organization.summary.nextAction)} /><MetricCard label="Polling" value={viewState.organization.polling.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2"><BlockCard title="Canonical / Logto" block={viewState.organization.canonical} /><BlockCard title="FluentCRM" block={viewState.organization.fluentcrm} /><BlockCard title="WordPress" block={viewState.organization.wordpress} /><BlockCard title="Worker" block={viewState.organization.worker} /><BlockCard title="Live verification" block={viewState.organization.liveVerification} /><BlockCard title="Contact progress" block={viewState.organization.contactProgress} /></section></> : null}
     </OwnerShell>
   );
 };
