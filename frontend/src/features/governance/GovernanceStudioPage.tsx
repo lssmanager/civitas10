@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
-import { PageHeader, SectionCard, StateRegion, StatusPill, Tabs, type TabItem } from "../../shared/ui";
+import { PageHeader, SectionCard, SectionNavigation, StateRegion, StatusPill, type SectionNavigationItem } from "../../shared/ui";
 import { useGovernanceApi } from "./api";
 import { appRoutes } from "../../navigation/routes";
 import { governanceModuleStatus, isGovernanceOperationActive } from "./governance-capabilities";
@@ -18,20 +18,53 @@ import { AccessPreviewModule, AccessPreviewUnavailable } from "./modules/access-
 import { AuditDiagnosticsModule } from "./modules/audit/AuditDiagnosticsModule";
 import { governanceDisplayName, moduleStatusLabel, moduleStatusTone } from "./adapters/governance-view-model";
 
+type GovernanceSectionId = "overview" | "roles" | "taxonomy" | "groups" | "data-scopes" | "navigation" | "preview" | "audit" | "members";
 type GovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
-const ownerGovernanceTabs: GovernanceTabId[] = ["overview", "roles-permissions", "taxonomy", "groups", "data-scopes", "aliases-navigation", "access-preview", "audit-diagnostics"];
-const tenantGovernanceTabs: GovernanceTabId[] = ["roles-permissions", "members", "data-scopes", "taxonomy", "groups", "aliases-navigation", "access-preview"];
-const moduleLabels: Record<GovernanceTabId, string> = { overview: "Overview", "roles-permissions": "Roles and permissions", members: "Members", taxonomy: "Organization taxonomy", groups: "Groups", "data-scopes": "Data-scope assignments", "aliases-navigation": "Aliases and navigation", "access-preview": "Access preview", "audit-diagnostics": "Audit and diagnostics" };
-const tabModuleKey: Record<GovernanceTabId, GovernanceModuleKey> = { overview: "overview", "roles-permissions": "permissions", members: "members", taxonomy: "taxonomy", groups: "units", "data-scopes": "data-scope", "aliases-navigation": "aliases-navigation", "access-preview": "access-preview", "audit-diagnostics": "audit" };
-const tabsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceTabs : tenantGovernanceTabs;
+const ownerGovernanceSections: GovernanceSectionId[] = ["overview", "roles", "taxonomy", "groups", "data-scopes", "navigation", "preview", "audit"];
+const tenantGovernanceSections: GovernanceSectionId[] = ["roles", "members", "data-scopes", "taxonomy", "groups", "navigation", "preview"];
+const sectionLabels: Record<GovernanceSectionId, string> = { overview: "Overview", roles: "Roles and permissions", members: "Members", taxonomy: "Taxonomy", groups: "Groups", "data-scopes": "Data scopes", navigation: "Aliases and navigation", preview: "Access preview", audit: "Audit and diagnostics" };
+const sectionToModuleKey: Record<GovernanceSectionId, GovernanceModuleKey> = { overview: "overview", roles: "permissions", members: "members", taxonomy: "taxonomy", groups: "units", "data-scopes": "data-scope", navigation: "aliases-navigation", preview: "access-preview", audit: "audit" };
+const sectionToTab: Record<GovernanceSectionId, GovernanceTabId> = { overview: "overview", roles: "roles-permissions", members: "members", taxonomy: "taxonomy", groups: "groups", "data-scopes": "data-scopes", navigation: "aliases-navigation", preview: "access-preview", audit: "audit-diagnostics" };
+const tabToSection: Record<GovernanceTabId, GovernanceSectionId> = { overview: "overview", "roles-permissions": "roles", members: "members", taxonomy: "taxonomy", groups: "groups", "data-scopes": "data-scopes", "aliases-navigation": "navigation", "access-preview": "preview", "audit-diagnostics": "audit" };
+const sectionsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceSections : tenantGovernanceSections;
 const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId: string) => {
   if (!organizationId) return appRoutes.ownerOrganizations.path;
   return surface === "owner" ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : `/o/${encodeURIComponent(organizationId)}`;
 };
 
+const ownerSectionRoute: Record<Exclude<GovernanceSectionId, "members">, keyof typeof appRoutes> = {
+  overview: "ownerOrganizationGovernance",
+  roles: "ownerOrganizationGovernanceRoles",
+  taxonomy: "ownerOrganizationGovernanceTaxonomy",
+  groups: "ownerOrganizationGovernanceGroups",
+  "data-scopes": "ownerOrganizationGovernanceDataScopes",
+  navigation: "ownerOrganizationGovernanceNavigation",
+  preview: "ownerOrganizationGovernancePreview",
+  audit: "ownerOrganizationGovernanceAudit",
+};
+
+const sectionPath = (surface: GovernanceSurface, organizationId: string, section: GovernanceSectionId) => {
+  if (surface === "owner" && section !== "members") return appRoutes[ownerSectionRoute[section]].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
+  const tab = sectionToTab[section];
+  return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?tab=${encodeURIComponent(tab)}`;
+};
+
+const activeSectionFromLocation = (surface: GovernanceSurface, pathname: string, search: string): GovernanceSectionId => {
+  if (surface === "tenant") {
+    const tab = new URLSearchParams(search).get("tab") as GovernanceTabId | null;
+    return tab && tabToSection[tab] ? tabToSection[tab] : sectionsForSurface(surface)[0];
+  }
+  const pathParts = pathname.split("/").filter(Boolean);
+  const last = pathParts[pathParts.length - 1] || "governance";
+  if (last === "governance") return "overview";
+  if (["roles", "taxonomy", "groups", "data-scopes", "navigation", "preview", "audit"].includes(last)) return last as GovernanceSectionId;
+  return "overview";
+};
+
 const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface): GovernanceReadModel => ({
   organizationId,
   surface,
+  organizationName: null,
   versions: { catalogVersion: "unavailable", runtimeStatus: "pending" },
   modules: governanceModuleStatus(surface),
   permissionMatrix: [],
@@ -44,10 +77,10 @@ const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface
   diagnostics: ["read-model-pending"],
 });
 
-const GovernanceModules = ({ activeTab, model, previewOwnerAccess, previewTenantAccess, onSelectTab }: { activeTab: GovernanceTabId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; onSelectTab: (tab: GovernanceTabId) => void }) => {
-  const activeModule = tabModuleKey[activeTab];
+const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTenantAccess, onSelectSection }: { activeSection: GovernanceSectionId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; onSelectSection: (section: GovernanceSectionId) => void }) => {
+  const activeModule = sectionToModuleKey[activeSection];
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
-  if (activeModule === "overview") return <OverviewModule model={model} onSelectTab={(tab) => onSelectTab(tab as GovernanceTabId)} />;
+  if (activeModule === "overview") return <OverviewModule model={model} onSelectTab={(tab) => onSelectSection(tabToSection[tab as GovernanceTabId] ?? "overview")} />;
   if (activeModule === "permissions") return <PermissionMatrixModule rows={model.permissionMatrix} surface={model.surface} />;
   if (activeModule === "members") return <MembersRoleAssignmentsModule />;
   if (activeModule === "taxonomy") return <TaxonomyModule items={model.taxonomy} />;
@@ -63,11 +96,11 @@ const GovernanceModules = ({ activeTab, model, previewOwnerAccess, previewTenant
 
 export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }) => {
   const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const organizationId = params.organizationId ?? params.orgId ?? "";
   const governanceApi = useGovernanceApi();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as GovernanceTabId | null) ?? tabsForSurface(surface)[0];
-  const [activeTab, setActiveTab] = useState<GovernanceTabId>(() => tabsForSurface(surface).includes(initialTab) ? initialTab : tabsForSurface(surface)[0]);
+  const activeSection = activeSectionFromLocation(surface, location.pathname, location.search);
   const [model, setModel] = useState<GovernanceReadModel>(() => emptyGovernanceModel(organizationId, surface));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +111,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     setError(null);
     if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) {
       setModel(emptyGovernanceModel(organizationId, surface));
-      setError(!organizationId ? "Choose an organization from Directory to open its Governance tabs." : null);
+      setError(!organizationId ? "Choose an organization from Directory to open its Governance sections." : null);
       setLoading(false);
       return () => { active = false; };
     }
@@ -91,23 +124,26 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
   }, [governanceApi, organizationId, surface]);
 
   const Layout = surface === "owner" ? OwnerLayout : OrganizationLayout;
-  const tabs = tabsForSurface(surface);
-  const selectTab = (tab: GovernanceTabId) => {
-    setActiveTab(tab);
-    setSearchParams({ tab });
-  };
-  const tabItems: TabItem<GovernanceTabId>[] = tabs.map((tab) => ({
-    id: tab,
-    label: moduleLabels[tab],
-    status: <StatusPill status={moduleStatusTone(model, tabModuleKey[tab])} noDot>{moduleStatusLabel(model, tabModuleKey[tab])}</StatusPill>,
-    panel: <GovernanceModules activeTab={tab} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} onSelectTab={selectTab} />,
-  }));
+  const displayName = governanceDisplayName(model, organizationId);
+  const sectionItems: SectionNavigationItem[] = useMemo(() => sectionsForSurface(surface).map((section) => {
+    const key = sectionToModuleKey[section];
+    return { id: section, label: sectionLabels[section], href: sectionPath(surface, organizationId, section), status: moduleStatusLabel(model, key), statusTone: moduleStatusTone(model, key) };
+  }), [model, organizationId, surface]);
+  const selectSection = (section: GovernanceSectionId) => navigate(sectionPath(surface, organizationId, section));
+
   return (
     <Layout organizationId={organizationId} isAdmin={surface === "tenant"}>
-      <PageHeader eyebrow="Governance" title={governanceDisplayName(organizationId)} description="Canonical Logto organization · governance snapshot for permissions, groups, data scopes, aliases and audit." actions={<><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Back to Directory</Link><StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill></>} />
+      <PageHeader eyebrow="Organizations / Governance" title={displayName} description="Governance overview for catalog health, permissions, groups, data scopes, aliases and audit." actions={<><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Back to Directory</Link><StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill></>} />
+      <nav aria-label="Breadcrumb" className="text-sm text-muted-strong"><Link to={appRoutes.ownerOrganizations.path} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{sectionLabels[activeSection]}</span></nav>
       {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Open Directory</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
-      <Tabs items={tabItems} activeId={activeTab} onChange={selectTab} label="Governance modules" />
+      <div className="grid gap-4 md:grid-cols-[16rem_minmax(0,1fr)]">
+        <SectionNavigation label="Governance" items={sectionItems} activeId={activeSection} />
+        <section className="min-w-0" aria-labelledby="governance-section-title">
+          <h2 id="governance-section-title" className="sr-only">{sectionLabels[activeSection]}</h2>
+          <GovernanceModules activeSection={activeSection} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} onSelectSection={selectSection} />
+        </section>
+      </div>
       <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={buildOrganizationSurfacePath(surface, organizationId)}>Open organization surface</Link>.</p>
     </Layout>
   );

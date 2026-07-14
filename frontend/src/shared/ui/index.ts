@@ -13,3 +13,4 @@ export { Stepper } from "./Stepper";
 export { FormGrid } from "./FormGrid";
 export { NavCollapse, type NavCollapseItem } from "./NavCollapse";
 export { Tabs, type TabItem } from "./Tabs";
+export { SectionNavigation, type SectionNavigationItem } from "./SectionNavigation";

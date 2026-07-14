@@ -6,7 +6,7 @@ import { ApiRequestError } from "../api/base";
 import { useOwnerApi } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
 import { toAppErrorPresentation, type AppErrorPresentation } from "../errors/appErrorPresentation";
-import type { ConsolidatedOperationalResponse, OperationalBlock } from "../contracts/operational";
+import type { ConsolidatedOperationalResponse, OperationalBlock, OwnerCapabilityState } from "../contracts/operational";
 
 const actionLabel: Record<string, string> = { retry: "Retry", verify_provider: "Verify provider", open_organization: "Open organization", wait_first_wordpress_login: "Wait first WordPress login", manual_retry_required: "Manual retry required", human_action_required: "Human action required", none: "No action" };
 
@@ -28,10 +28,14 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 
 const isOperationalBlock = (value: unknown): value is OperationalBlock => isRecord(value) && typeof value.status === "string" && typeof value.severity === "string" && isRecord(value.freshness);
 
+const isCapabilityState = (value: unknown): value is OwnerCapabilityState => isRecord(value) && typeof value.capability === "string" && typeof value.label === "string" && typeof value.configured === "boolean" && isRecord(value.health) && typeof value.health.status === "string" && Array.isArray(value.blockers) && Array.isArray(value.nextActions);
+
 const isOperationalResponse = (value: unknown): value is ConsolidatedOperationalResponse => {
-  if (!isRecord(value) || !isRecord(value.organization) || !isRecord(value.summary) || !isRecord(value.polling)) return false;
-  if (typeof value.summary.humanMessage !== "string" || typeof value.summary.status !== "string") return false;
-  return [value.canonical, value.fluentcrm, value.wordpress, value.worker, value.liveVerification, value.contactProgress].every(isOperationalBlock);
+  if (!isRecord(value) || !isRecord(value.organization) || !Array.isArray(value.capabilities) || !isRecord(value.summary) || !isRecord(value.polling)) return false;
+  if (typeof value.contractVersion !== "string" || !value.contractVersion.includes("owner-capability-surfaces")) return false;
+  if (typeof value.summary.status !== "string") return false;
+  if (value.worker !== null && value.worker !== undefined && !isOperationalBlock(value.worker)) return false;
+  return value.capabilities.every(isCapabilityState);
 };
 
 function normalizeLoadFailure(caught: unknown, organizationId: string): OrganizationDetailState {
@@ -60,6 +64,28 @@ function BlockCard({ title, block }: { title: string; block: OperationalBlock })
         <div><dt className="font-medium text-text">Provider status</dt><dd className="mt-1 break-all">{String(block.providerStatus || "-")}</dd></div>
         <div><dt className="font-medium text-text">Checked at</dt><dd className="mt-1">{block.freshness.checkedAt || "-"}</dd></div>
         <div><dt className="font-medium text-text">Next action</dt><dd className="mt-1">{actionLabel[String(block.nextAction)] || String(block.nextAction)}</dd></div>
+      </dl>
+    </article>
+  );
+}
+
+function CapabilityCard({ capability }: { capability: OwnerCapabilityState }) {
+  const blockers = capability.blockers.length;
+  return (
+    <article className="owner-card">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{capability.capability}</p>
+          <h3 className="mt-2 text-lg font-semibold text-text">{capability.label}</h3>
+          <p className="mt-2 text-sm text-muted-strong">{capability.health.humanMessage || (capability.configured ? "Capability configured." : "Capability not configured.")}</p>
+        </div>
+        <OwnerBadge tone={ownerToneFromSeverity(capability.health.severity || (capability.configured ? "success" : "info"))}>{capability.health.status}</OwnerBadge>
+      </div>
+      <dl className="mt-5 grid gap-3 text-sm text-muted-strong sm:grid-cols-2">
+        <div><dt className="font-medium text-text">Adapter</dt><dd className="mt-1">{capability.adapter?.label || "Not configured"}</dd></div>
+        <div><dt className="font-medium text-text">Runtime source</dt><dd className="mt-1">{capability.runtimeState.source}</dd></div>
+        <div><dt className="font-medium text-text">Blockers</dt><dd className="mt-1">{blockers}</dd></div>
+        <div><dt className="font-medium text-text">Next actions</dt><dd className="mt-1">{capability.nextActions.length}</dd></div>
       </dl>
     </article>
   );
@@ -117,7 +143,7 @@ const OwnerOrganizationOperationalPage = () => {
       {viewState.status === "not-found" ? <EmptyState message="Organization not found. The selected organization does not exist or is no longer available."><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></EmptyState> : null}
       {viewState.status === "denied" ? <StateRegion><AlertStrip variant="warning" title="Access denied">{viewState.message}</AlertStrip></StateRegion> : null}
       {viewState.status === "error" ? <StateRegion><AlertStrip variant="danger" title={`Organization detail error · ${viewState.error.code}`}>{viewState.error.humanMessage}{retry ? <button type="button" className="civitas-secondary-button" onClick={retry}>Try again</button> : null}<Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></AlertStrip></StateRegion> : null}
-      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary.humanMessage}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary.severity)}>{viewState.organization.summary.status}</OwnerBadge></MetricCard><MetricCard label="Dominant source" value={viewState.organization.summary.dominantSource || "-"} /><MetricCard label="Next action" value={actionLabel[String(viewState.organization.summary.nextAction)] || String(viewState.organization.summary.nextAction)} /><MetricCard label="Polling" value={viewState.organization.polling.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2"><BlockCard title="Canonical / Logto" block={viewState.organization.canonical} /><BlockCard title="FluentCRM" block={viewState.organization.fluentcrm} /><BlockCard title="WordPress" block={viewState.organization.wordpress} /><BlockCard title="Worker" block={viewState.organization.worker} /><BlockCard title="Live verification" block={viewState.organization.liveVerification} /><BlockCard title="Contact progress" block={viewState.organization.contactProgress} /></section></> : null}
+      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary?.humanMessage || "Capability surface loaded."}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary?.severity || "info")}>{viewState.organization.summary?.status || "available"}</OwnerBadge></MetricCard><MetricCard label="Capabilities" value={viewState.organization.capabilities.length} detail="Owner capability surface returned by the backend contract." /><MetricCard label="Blockers" value={viewState.organization.blockers.length} detail="Aggregated capability blockers." /><MetricCard label="Polling" value={viewState.organization.polling?.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling?.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2">{viewState.organization.capabilities.map((capability) => <CapabilityCard key={capability.capability} capability={capability} />)}{viewState.organization.worker ? <BlockCard title="Worker" block={viewState.organization.worker} /> : null}</section></> : null}
     </OwnerShell>
   );
 };

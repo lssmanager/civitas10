@@ -15,9 +15,9 @@ test("OwnerOrganizationOperationalPage keeps polling when the contract asks for 
   assert.match(source, /if \(state\?\.polling\?\.shouldPoll\)/);
 });
 
-test("OwnerOrganizationOperationalPage renders the backbone blocks we expect in the clean owner view", () => {
-  assert.match(source, /BlockCard title="Canonical \/ Logto"/);
-  assert.match(source, /BlockCard title="FluentCRM"/);
+test("OwnerOrganizationOperationalPage renders the owner capability surface returned by the backend", () => {
+  assert.match(source, /CapabilityCard/);
+  assert.match(source, /viewState\.organization\.capabilities\.map/);
+  assert.match(source, /Owner capability surface returned by the backend contract/);
   assert.match(source, /BlockCard title="Worker"/);
-  assert.match(source, /BlockCard title="Contact progress"/);
 });
