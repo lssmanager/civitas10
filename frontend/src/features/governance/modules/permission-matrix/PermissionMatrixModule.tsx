@@ -16,7 +16,7 @@ const ReasonCell = ({ reason }: { reason: PermissionMatrixReason }) => (
 );
 
 export const PermissionMatrixModule = ({ rows, surface }: { rows: readonly GovernancePermissionMatrixRow[]; surface: GovernanceSurface }) => (
-  <SectionCard title={surface === "owner" ? "Roles and permission ceilings" : "Active permissions"} description="Columns remain distinct: canonical, role potential, owner allowed, tenant enabled, effective and first denial reason with source versions.">
+  <SectionCard title={surface === "owner" ? "Roles and permissions" : "Active permissions"} description="Columns remain distinct: canonical, role potential, owner allowed, tenant enabled, effective and first denial reason with source versions.">
     <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm" data-governance-permission-matrix="true">
         <thead><tr>{["Permission", "Canonical", "Role potential", "Owner allowed", "Tenant enabled", "Effective", "Reason"].map((header) => <th key={header} className="px-3 py-2 font-semibold text-muted-strong">{header}</th>)}</tr></thead>

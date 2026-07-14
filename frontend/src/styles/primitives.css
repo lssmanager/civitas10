@@ -846,3 +846,21 @@ textarea.owner-field {
 .civitas-state-region .civitas-alert {
   margin: 0;
 }
+
+.civitas-clickable-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.civitas-clickable-card:hover {
+  border-color: var(--civitas-border-strong);
+  box-shadow: var(--civitas-shadow-raised);
+  transform: translateY(-1px);
+}
+
+.civitas-clickable-card:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.125rem var(--civitas-focus), var(--civitas-shadow-raised);
+}

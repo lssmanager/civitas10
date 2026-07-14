@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
@@ -19,13 +19,9 @@ import { AuditDiagnosticsModule } from "./modules/audit/AuditDiagnosticsModule";
 
 const ownerGovernanceTabs: GovernanceModuleKey[] = ["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"];
 const tenantGovernanceTabs: GovernanceModuleKey[] = ["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"];
-const moduleLabels: Record<GovernanceModuleKey, string> = { overview: "Overview and drift status", permissions: "Roles and permission ceilings", members: "Members and role assignments", taxonomy: "Organization taxonomy", units: "Units and groups", "data-scope": "Data-scope assignments", "aliases-navigation": "Aliases and navigation", "access-preview": "Access preview", audit: "Audit and diagnostics" };
-const tenantModuleLabels: Partial<Record<GovernanceModuleKey, string>> = { permissions: "Active permissions", "data-scope": "Data assignments" };
+const moduleLabels: Record<GovernanceModuleKey, string> = { overview: "Overview", permissions: "Roles and permissions", members: "Members", taxonomy: "Organization taxonomy", units: "Groups", "data-scope": "Data-scope assignments", "aliases-navigation": "Aliases and navigation", "access-preview": "Access preview", audit: "Audit and diagnostics" };
+const tenantModuleLabels: Partial<Record<GovernanceModuleKey, string>> = { permissions: "Roles and permissions", "data-scope": "Data-scope assignments" };
 const tabsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceTabs : tenantGovernanceTabs;
-const buildGovernancePath = (surface: GovernanceSurface, organizationId: string) => {
-  if (!organizationId) return surface === "owner" ? appRoutes.ownerGovernance.path : "";
-  return surface === "owner" ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerGovernance.path : appRoutes.tenantGovernance.build?.({ organizationId }) ?? "";
-};
 const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId: string) => {
   if (!organizationId) return appRoutes.ownerOrganizations.path;
   return surface === "owner" ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : `/o/${encodeURIComponent(organizationId)}`;
@@ -77,7 +73,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     setError(null);
     if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) {
       setModel(emptyGovernanceModel(organizationId, surface));
-      setError(!organizationId ? "Governance requires a selected organization." : null);
+      setError(!organizationId ? "Choose an organization from Directory to open its Governance tabs." : null);
       setLoading(false);
       return () => { active = false; };
     }
@@ -92,16 +88,11 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
   const Layout = surface === "owner" ? OwnerLayout : OrganizationLayout;
   const title = surface === "owner" ? "Authorization Governance Studio" : "Organization Governance Studio";
   const tabs = tabsForSurface(surface);
-  const routeContext = useMemo(() => buildGovernancePath(surface, organizationId), [organizationId, surface]);
-
   return (
     <Layout organizationId={organizationId} isAdmin={surface === "tenant"}>
-      <PageHeader eyebrow={surface === "owner" ? "Owner governance" : "Tenant governance"} title={title} description="Composes permissions, owner ceilings, tenant activations, data scope, taxonomy, units, aliases and visual navigation without becoming a new authorization authority." actions={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} />
-      <SectionCard title="Governance boundary" description="Feature writes stay in their owning services (#94/#95/#97/#98/#76/#77). This page consumes the aggregate read model and preview endpoints only.">
-        <div className="flex flex-wrap gap-2 text-sm"><StatusPill status="neutral">{routeContext}</StatusPill><StatusPill status="neutral">no wildcards</StatusPill><StatusPill status="neutral">no client Logto Management API</StatusPill><StatusPill status="neutral">visual preferences only subtract</StatusPill></div>
-        {error ? <p className="mt-3 text-sm text-warning-strong">{error}</p> : null}
-        {loading ? <p className="mt-3 text-sm text-muted-strong">Loading governance read model...</p> : null}
-      </SectionCard>
+      <PageHeader eyebrow={surface === "owner" ? "Owner governance" : "Tenant governance"} title={title} description="Review organization permissions, taxonomy, groups, data-scope assignments, aliases, access preview and audit diagnostics from one selected organization context." actions={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} />
+      {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Open Directory</Link></SectionCard> : null}
+      {loading ? <p className="mt-3 text-sm text-muted-strong">Loading governance read model...</p> : null}
       <nav className="civitas-card civitas-pad-tight" aria-label="Governance modules" data-governance-studio-tabs="true">
         <div className="flex flex-wrap gap-2">
           {tabs.map((key) => <button key={key} type="button" className={activeModule === key ? "civitas-primary-button" : "civitas-secondary-button"} aria-pressed={activeModule === key} onClick={() => setActiveModule(key)}>{surface === "tenant" ? tenantModuleLabels[key] ?? moduleLabels[key] : moduleLabels[key]}</button>)}

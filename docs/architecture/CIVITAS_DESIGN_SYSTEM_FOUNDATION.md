@@ -977,9 +977,9 @@ This status means #111 is prepared for closure only after PR #102 is updated wit
 
 ## Navigation product validation update — owner contract v2
 
-Product visual validation superseded the earlier #111 hierarchy that placed Governance under Overview and exposed Worker runtime as a nested accordion. The frozen Phase 2 owner topology is now: `Overview`, `Governance`, `Operations`, `Organizations → Directory/Create`, optional `Settings` only when it has active destinations, and optional `Profile` only when it renders a functional surface.
+Product visual validation superseded the earlier #111 hierarchy. Governance is not a global owner page: it is contextual to a selected organization. The frozen Phase 2 owner sidebar topology is now: `Overview`, `Operations`, `Organizations → Directory/Create`, optional `Settings` only when it has active destinations, and optional `Profile` only when it renders a functional surface.
 
-Governance is a primary Phase 2 destination. Overview may summarize or link to Governance, but it does not contain Governance as a child and does not control its visibility. Operations is a single direct dashboard entry; runtime status, worker queues and diagnostics belong inside that dashboard rather than as permanent sidebar children. Organization detail remains contextual and is not a static sidebar item.
+Governance is reached from Organization Directory by selecting a real organization and opening `/owner/organizations/:organizationId/governance` from the organization detail tabs. `/owner/governance` is a selector/redirect guard, not a final product screen. Operations is a single direct dashboard entry; runtime status, worker queues and diagnostics belong inside that dashboard rather than as permanent sidebar children. Organization detail remains contextual and is not a static sidebar item.
 
 Desktop navigation uses a stable expanded sidebar during Phase 2. The desktop collapsed rail, rail tooltips, rail flyouts and persisted rail preference are removed. Mobile/tablet keeps the responsive drawer with accessible labels, Escape/backdrop close behavior and focus-visible navigation. Reintroducing a collapsed rail requires a new issue/decision record with usage evidence, validated design and CODEOWNER review.
 

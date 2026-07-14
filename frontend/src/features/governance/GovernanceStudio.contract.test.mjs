@@ -18,13 +18,15 @@ test("governance studio exposes separate owner and tenant surfaces", () => {
   assert.match(routes, /tenantGovernance/);
   assert.match(routes, /\/o\/:organizationId\/settings\/governance/);
   assert.match(registry, /owner-organization-governance/);
+  assert.match(registry, /route: routeCatalog\.ownerOrganizationGovernance/);
+  assert.match(registry, /requiresOrganizationContext: true/);
   assert.match(registry, /tenant-governance/);
 });
 
 test("governance tabs are explicit and asymmetric by surface", () => {
   assert.match(page, /ownerGovernanceTabs: GovernanceModuleKey\[] = \["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"\]/);
   assert.match(page, /tenantGovernanceTabs: GovernanceModuleKey\[] = \["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"\]/);
-  assert.match(page, /Members and role assignments/);
+  assert.match(page, /members: "Members"/);
   assert.doesNotMatch(page, /tenantGovernanceTabs[\s\S]*"audit"/);
 });
 
@@ -48,8 +50,7 @@ test("governance page is an aggregate read model, not a write authority", () => 
   assert.match(api, /ownerApiFetch\(`\/owner\/organizations\/\$\{encodeURIComponent\(organizationId\)\}\/governance`\)/);
   assert.match(api, /access-preview/);
   assert.doesNotMatch(api, /createScope|createRole|lms\.\*|org\.members\.\*/);
-  assert.match(page, /no client Logto Management API/);
-  assert.match(page, /Feature writes stay in their owning services/);
+  assert.doesNotMatch(page, /no client Logto Management API|Feature writes stay in their owning services|Governance boundary|no wildcards|visual preferences only subtract/);
 });
 
 test("access preview is read-only and does not mutate grants", () => {

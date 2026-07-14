@@ -10,6 +10,9 @@ test("OwnerOrganizationsIndexPage lists Logto organizations as responsive cards"
   assert.match(source, /ownerApi\.getOrganizations\(\)/);
   assert.match(source, /data-owner-organization-card/);
   assert.match(source, /civitas-grid-3/);
+  assert.match(source, /className="civitas-card civitas-stack civitas-clickable-card"/);
+  assert.match(source, /aria-label={`Open \${summary.name} organization detail`}/);
+  assert.doesNotMatch(source, /Open detail/);
   assert.doesNotMatch(source, /DataTable/);
 });
 

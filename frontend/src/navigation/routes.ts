@@ -43,7 +43,7 @@ const structuralRoute = (path: string, label: string, iconKey: IconKey, descript
 
 export const appRoutes = {
   owner: appRoute(ownerRoute, "Overview", "overview", "Resumen ejecutivo del backbone owner y accesos a Governance, Operations y Organizations."),
-  ownerGovernance: appRoute(ownerGovernanceRoute, "Governance", "governance", "Superficie principal Phase 2 para permisos, ceilings, data scope y navegación visual."),
+  ownerGovernance: appRoute(ownerGovernanceRoute, "Governance selector", "governance", "Redirects to Directory because Governance requires a selected organization.", false),
   ownerOrganizations: appRoute(ownerOrganizationsRoute, "Directory", "directory", "Directorio owner_global de organizaciones canónicas de Logto con señales Civitas."),
   ownerCreateOrganization: appRoute(ownerCreateOrganizationRoute, "Create", "create", "Alta canónica en Logto con bootstrap limpio."),
   ownerOrganizationState: appRoute(ownerOrganizationStateRoute, "Organization detail", "organizations", "Estado operacional consolidado por organización."),
@@ -66,7 +66,6 @@ const settingsChildren = [appRoutes.ownerBranding, appRoutes.ownerRoleMapping, a
 
 export const ownerNavigationTree: NavigationNode[] = [
   appRoutes.owner,
-  appRoutes.ownerGovernance,
   appRoutes.ownerSystem,
   structuralRoute("/owner/organizations-section", "Organizations", "organizations", "Directorio y creación de organizaciones.", [appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization]),
   ...(settingsChildren.length ? [structuralRoute("/owner/settings-section", "Settings", "settings", "Configuración owner estable.", settingsChildren)] : []),
@@ -78,14 +77,14 @@ export const tenantNavigationTree: NavigationNode[] = [
   appRoutes.tenantLmsGrades,
 ];
 
-export const ownerNavigation: AppRoute[] = [appRoutes.owner, appRoutes.ownerGovernance, appRoutes.ownerSystem, appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization];
+export const ownerNavigation: AppRoute[] = [appRoutes.owner, appRoutes.ownerSystem, appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization];
 
 export type RouteMetadata = { label: string; parentPath?: string };
 
 export const routeMetadata: Record<string, RouteMetadata> = {
   [appRoutes.owner.path]: { label: appRoutes.owner.label },
-  [appRoutes.ownerGovernance.path]: { label: appRoutes.ownerGovernance.label },
-  [appRoutes.ownerOrganizationGovernance.path]: { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerGovernance.path },
+  [appRoutes.ownerGovernance.path]: { label: appRoutes.ownerGovernance.label, parentPath: appRoutes.ownerOrganizations.path },
+  [appRoutes.ownerOrganizationGovernance.path]: { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerOrganizationState.path },
   [appRoutes.ownerSystem.path]: { label: appRoutes.ownerSystem.label },
   [appRoutes.ownerWorkerQueues.path]: { label: appRoutes.ownerWorkerQueues.label, parentPath: appRoutes.ownerSystem.path },
   [appRoutes.ownerLogs.path]: { label: appRoutes.ownerLogs.label, parentPath: appRoutes.ownerSystem.path },

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorState, MetricCard, OwnerBadge, OwnerShell, PageHeader, ownerToneFromSeverity } from "../components/owner/OwnerUI";
 import { useOwnerApi } from "../api/owner";
+import { appRoutes } from "../navigation/routes";
 import type { ConsolidatedOperationalResponse, OperationalBlock } from "../contracts/operational";
 
 const actionLabel: Record<string, string> = { retry: "Retry", verify_provider: "Verify provider", open_organization: "Open organization", wait_first_wordpress_login: "Wait first WordPress login", manual_retry_required: "Manual retry required", human_action_required: "Human action required", none: "No action" };
@@ -71,9 +72,16 @@ const OwnerOrganizationOperationalPage = () => {
 
   return (
     <OwnerShell organizationId={organizationId}>
-      <PageHeader eyebrow="Operational state" title={state?.organization.name || organizationId} description="Vista técnica de la organización derivada del backbone operacional consolidado. Runtime conserva el detalle operativo separado del resumen owner." />
+      <PageHeader eyebrow="Organization detail" title={state?.organization.name || organizationId} description="Selected organization context for Overview, Governance and Operations." />
+      <nav className="civitas-card civitas-pad-tight" aria-label="Organization detail sections" data-owner-organization-detail-tabs="true">
+        <div className="flex flex-wrap gap-2">
+          <Link to={appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-primary-button" aria-current="page">Overview</Link>
+          <Link to={appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-secondary-button">Governance</Link>
+          <a href="#operations" className="civitas-secondary-button">Operations</a>
+        </div>
+      </nav>
       {error ? <ErrorState message={error} /> : null}
-      <section className="grid gap-4 md:grid-cols-4">
+      <section id="operations" className="grid gap-4 md:grid-cols-4">
         <MetricCard label="Summary" detail={state?.summary.humanMessage || "Loading operational summary..."}><OwnerBadge tone={ownerToneFromSeverity(state?.summary.severity || "info")}>{state?.summary.status || (loading ? "loading" : "unknown")}</OwnerBadge></MetricCard>
         <MetricCard label="Dominant source" value={state?.summary.dominantSource || "-"} />
         <MetricCard label="Next action" value={state ? (actionLabel[String(state.summary.nextAction)] || String(state.summary.nextAction)) : "-"} />

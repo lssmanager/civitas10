@@ -1,5 +1,6 @@
 import { useLogto } from "@logto/react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useParams } from "react-router-dom";
 import { getMe, type MeResponse } from "../api/me";
 import { APP_ENV } from "../env";
 import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, OWNER_SHELL_REQUIRED_SCOPES, ownerHasGlobalRole } from "./ownerScopes";
@@ -15,6 +16,7 @@ type OwnerRouteGuardState =
 
 export function OwnerRouteGuard({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useLogto();
+  const { organizationId } = useParams();
   const [state, setState] = useState<OwnerRouteGuardState>({ status: "loading" });
 
   useEffect(() => {
@@ -68,5 +70,5 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
       {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-muted">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
     </div>
   );
-  return <VisualAuthorizationProvider value={visualAuthorizationContextFromOwnerMe(state.me)}>{children}</VisualAuthorizationProvider>;
+  return <VisualAuthorizationProvider value={visualAuthorizationContextFromOwnerMe(state.me, organizationId)}>{children}</VisualAuthorizationProvider>;
 }
