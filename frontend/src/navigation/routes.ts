@@ -1,105 +1,100 @@
+import type { IconKey } from "../authorization/contracts/ids";
+import { defineRoute, type DefinedRoute, type RouteParams } from "./route-builders";
+
+export const OWNER_NAVIGATION_CONTRACT_VERSION = 2;
+export const TENANT_NAVIGATION_CONTRACT_VERSION = 1;
+
 export type AppRoute = {
   path: string;
   label: string;
   description?: string;
+  route?: DefinedRoute;
+  build?: (params?: RouteParams) => string;
+  iconKey: IconKey;
+  active?: boolean;
 };
 
 export type NavigationNode = AppRoute & {
-  children?: AppRoute[];
+  children?: NavigationNode[];
+  structural?: boolean;
 };
 
+const staticRoute = (path: string) => defineRoute(path);
+
+const ownerRoute = staticRoute("/owner");
+const ownerGovernanceRoute = staticRoute("/owner/governance");
+const ownerOrganizationsRoute = staticRoute("/owner/organizations");
+const ownerCreateOrganizationRoute = staticRoute("/owner/create");
+const ownerOrganizationStateRoute = defineRoute("/owner/organizations/:organizationId");
+const ownerOrganizationGovernanceRoute = defineRoute("/owner/organizations/:organizationId/governance");
+const tenantGovernanceRoute = defineRoute("/o/:organizationId/settings/governance");
+const tenantLmsGradesRoute = defineRoute("/o/:organizationId/lms/grades");
+const ownerLogsRoute = staticRoute("/owner/logs");
+const ownerSystemRoute = staticRoute("/owner/system");
+const ownerWorkerQueuesRoute = staticRoute("/owner/system/worker-queues");
+const ownerBrandingRoute = staticRoute("/owner/branding");
+const ownerRoleMappingRoute = staticRoute("/owner/role-mapping");
+const ownerPlatformSettingsRoute = staticRoute("/owner/settings");
+const selectOrganizationRoute = staticRoute("/select-organization");
+const accountRoute = staticRoute("/account");
+
+const appRoute = (route: DefinedRoute, label: string, iconKey: IconKey, description?: string, active = true): AppRoute => ({ path: route.pattern, label, description, route, build: route.build, iconKey, active });
+const structuralRoute = (path: string, label: string, iconKey: IconKey, description?: string, children: NavigationNode[] = [], active = true): NavigationNode => ({ path, label, description, iconKey, active, structural: true, children });
+
 export const appRoutes = {
-  owner: {
-    path: "/owner",
-    label: "Operational Overview",
-    description: "Estado global del backbone owner y accesos a cada organización.",
-  },
-  ownerOrganizations: {
-    path: "/owner/organizations",
-    label: "Organizations",
-    description: "Directorio owner_global de organizaciones canónicas de Logto con señales Civitas.",
-  },
-  ownerCreateOrganization: {
-    path: "/owner/create",
-    label: "Create",
-    description: "Alta canónica en Logto con bootstrap limpio.",
-  },
-  ownerOrganizationState: {
-    path: "/owner/organizations/:organizationId",
-    label: "Organization state",
-    description: "Estado operacional consolidado por organización.",
-  },
-  ownerOrganizationGovernance: {
-    path: "/owner/organizations/:organizationId/governance",
-    label: "Governance",
-    description: "Studio owner para permisos, ceilings, data scope y contrato visual por organización.",
-  },
-  tenantGovernance: {
-    path: "/o/:organizationId/settings/governance",
-    label: "Governance",
-    description: "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización.",
-  },
-  ownerLogs: {
-    path: "/owner/logs",
-    label: "Audit logs",
-    description: "Trazabilidad global de eventos operativos owner.",
-  },
-  ownerSystem: {
-    path: "/owner/system",
-    label: "System",
-    description: "Configuración y salud global del sistema owner.",
-  },
-  ownerWorkerQueues: {
-    path: "/owner/system/worker-queues",
-    label: "Worker & queues",
-    description: "Observabilidad global del runtime operativo.",
-  },
-  ownerBranding: {
-    path: "/owner/branding",
-    label: "Branding",
-    description: "Configuración visual y de identidad del entorno.",
-  },
-  ownerRoleMapping: {
-    path: "/owner/role-mapping",
-    label: "Role mapping",
-    description: "Mapeo de roles y permisos owner a capacidades operativas.",
-  },
-  selectOrganization: {
-    path: "/select-organization",
-    label: "Select organization",
-    description: "Selector visual de organizaciones reales de Logto.",
-  },
-  account: {
-    path: "/account",
-    label: "Account",
-    description: "Resumen del perfil autenticado.",
-  },
+  owner: appRoute(ownerRoute, "Overview", "overview", "Resumen ejecutivo del backbone owner y accesos a Governance, Operations y Organizations."),
+  ownerGovernance: appRoute(ownerGovernanceRoute, "Governance selector", "governance", "Redirects to Directory because Governance requires a selected organization.", false),
+  ownerOrganizations: appRoute(ownerOrganizationsRoute, "Directory", "directory", "Directorio owner_global de organizaciones canónicas de Logto con señales Civitas."),
+  ownerCreateOrganization: appRoute(ownerCreateOrganizationRoute, "Create", "create", "Alta canónica en Logto con bootstrap limpio."),
+  ownerOrganizationState: appRoute(ownerOrganizationStateRoute, "Organization detail", "organizations", "Estado operacional consolidado por organización."),
+  ownerOrganizationGovernance: appRoute(ownerOrganizationGovernanceRoute, "Governance", "governance", "Studio owner contextual para una organización seleccionada."),
+  tenantGovernance: appRoute(tenantGovernanceRoute, "Governance", "governance", "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización."),
+  tenantLmsGrades: appRoute(tenantLmsGradesRoute, "Grades", "grades", "Superficie tenant LMS para calificaciones bajo contexto organizacional."),
+  ownerLogs: appRoute(ownerLogsRoute, "Audit / diagnostics", "operations", "Trazabilidad global de eventos operativos owner.", false),
+  ownerSystem: appRoute(ownerSystemRoute, "Operations", "operations", "Dashboard operativo consolidado para runtime, colas y diagnósticos."),
+  ownerWorkerQueues: appRoute(ownerWorkerQueuesRoute, "Worker queues", "operations", "Observabilidad global del runtime operativo.", false),
+  ownerBranding: appRoute(ownerBrandingRoute, "Branding", "settings", "Configuración visual y de identidad del entorno.", false),
+  ownerRoleMapping: appRoute(ownerRoleMappingRoute, "Role mappings", "settings", "Mapeo de roles y permisos owner a capacidades operativas.", false),
+  ownerPlatformSettings: appRoute(ownerPlatformSettingsRoute, "Platform settings", "settings", "Ajustes globales de plataforma owner.", false),
+  selectOrganization: appRoute(selectOrganizationRoute, "Organization detail", "organizations", "Selector visual de organizaciones reales de Logto.", false),
+  account: appRoute(accountRoute, "Profile", "profile", "Resumen del perfil autenticado.", false),
 } as const satisfies Record<string, AppRoute>;
 
-export const primaryNavigation: AppRoute[] = [appRoutes.account];
+export const primaryNavigation: AppRoute[] = [];
+
+const settingsChildren = [appRoutes.ownerBranding, appRoutes.ownerRoleMapping, appRoutes.ownerPlatformSettings].filter((route) => route.active);
 
 export const ownerNavigationTree: NavigationNode[] = [
   appRoutes.owner,
-  { path: "/owner/organizations-section", label: "Organizations", description: "Creación y estado operacional por organización.", children: [appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization, appRoutes.selectOrganization] },
-  { path: "/owner/runtime-section", label: "Runtime", description: "Salud global del worker y colas.", children: [appRoutes.ownerSystem, appRoutes.ownerWorkerQueues, appRoutes.ownerLogs] },
-  { path: "/owner/configuration-section", label: "Configuration", description: "Branding y mapeo de roles del tenant owner.", children: [appRoutes.ownerBranding, appRoutes.ownerRoleMapping] },
+  appRoutes.ownerSystem,
+  structuralRoute("/owner/organizations-section", "Organizations", "organizations", "Directorio y creación de organizaciones.", [appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization]),
+  ...(settingsChildren.length ? [structuralRoute("/owner/settings-section", "Settings", "settings", "Configuración owner estable.", settingsChildren)] : []),
+  ...(appRoutes.account.active ? [appRoutes.account] : []),
 ];
 
-export const ownerNavigation: AppRoute[] = [appRoutes.owner, appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization, appRoutes.ownerSystem, appRoutes.ownerWorkerQueues, appRoutes.ownerLogs, appRoutes.ownerBranding, appRoutes.ownerRoleMapping, appRoutes.selectOrganization];
+export const tenantNavigationTree: NavigationNode[] = [
+  appRoutes.tenantGovernance,
+  appRoutes.tenantLmsGrades,
+];
+
+export const ownerNavigation: AppRoute[] = [appRoutes.owner, appRoutes.ownerSystem, appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization];
 
 export type RouteMetadata = { label: string; parentPath?: string };
 
 export const routeMetadata: Record<string, RouteMetadata> = {
-  "/owner": { label: appRoutes.owner.label },
-  "/owner/organizations": { label: appRoutes.ownerOrganizations.label, parentPath: appRoutes.owner.path },
-  "/owner/create": { label: appRoutes.ownerCreateOrganization.label, parentPath: appRoutes.owner.path },
-  "/owner/logs": { label: appRoutes.ownerLogs.label, parentPath: appRoutes.owner.path },
-  "/owner/system": { label: appRoutes.ownerSystem.label, parentPath: appRoutes.owner.path },
-  "/owner/system/worker-queues": { label: appRoutes.ownerWorkerQueues.label, parentPath: appRoutes.ownerSystem.path },
-  "/owner/branding": { label: appRoutes.ownerBranding.label, parentPath: appRoutes.owner.path },
-  "/owner/role-mapping": { label: appRoutes.ownerRoleMapping.label, parentPath: appRoutes.owner.path },
-  "/select-organization": { label: appRoutes.selectOrganization.label, parentPath: appRoutes.owner.path },
-  "/account": { label: appRoutes.account.label },
-  "/owner/organizations/:organizationId/governance": { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerOrganizationState.path },
-  "/o/:organizationId/settings/governance": { label: appRoutes.tenantGovernance.label },
+  [appRoutes.owner.path]: { label: appRoutes.owner.label },
+  [appRoutes.ownerGovernance.path]: { label: appRoutes.ownerGovernance.label, parentPath: appRoutes.ownerOrganizations.path },
+  [appRoutes.ownerOrganizationGovernance.path]: { label: appRoutes.ownerOrganizationGovernance.label, parentPath: appRoutes.ownerOrganizationState.path },
+  [appRoutes.ownerSystem.path]: { label: appRoutes.ownerSystem.label },
+  [appRoutes.ownerWorkerQueues.path]: { label: appRoutes.ownerWorkerQueues.label, parentPath: appRoutes.ownerSystem.path },
+  [appRoutes.ownerLogs.path]: { label: appRoutes.ownerLogs.label, parentPath: appRoutes.ownerSystem.path },
+  [appRoutes.ownerOrganizations.path]: { label: appRoutes.ownerOrganizations.label, parentPath: "/owner/organizations-section" },
+  [appRoutes.ownerCreateOrganization.path]: { label: appRoutes.ownerCreateOrganization.label, parentPath: appRoutes.ownerOrganizations.path },
+  [appRoutes.ownerOrganizationState.path]: { label: appRoutes.ownerOrganizationState.label, parentPath: appRoutes.ownerOrganizations.path },
+  [appRoutes.ownerBranding.path]: { label: appRoutes.ownerBranding.label, parentPath: "/owner/settings-section" },
+  [appRoutes.ownerRoleMapping.path]: { label: appRoutes.ownerRoleMapping.label, parentPath: "/owner/settings-section" },
+  [appRoutes.ownerPlatformSettings.path]: { label: appRoutes.ownerPlatformSettings.label, parentPath: "/owner/settings-section" },
+  [appRoutes.account.path]: { label: appRoutes.account.label },
+  [appRoutes.tenantGovernance.path]: { label: appRoutes.tenantGovernance.label },
+  [appRoutes.tenantLmsGrades.path]: { label: appRoutes.tenantLmsGrades.label },
 };

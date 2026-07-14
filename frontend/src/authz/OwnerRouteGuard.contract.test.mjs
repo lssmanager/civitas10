@@ -39,5 +39,5 @@ test("owner routes are wrapped by OwnerRouteGuard and ScreenGate", () => {
   assert.match(appSource, /ScreenGate screenId="owner-overview"/);
   assert.match(appSource, /ScreenGate screenId="owner-organizations"/);
   assert.match(appSource, /ScreenGate screenId="owner-organizations-create"/);
-  assert.match(appSource, /ScreenGate screenId="owner-organization-governance"/);
+  assert.match(appSource, /ScreenGate screenId="owner-governance"/);
 });

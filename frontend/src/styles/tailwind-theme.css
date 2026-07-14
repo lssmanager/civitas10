@@ -1,0 +1,81 @@
+@theme inline {
+  --color-*: initial;
+
+  --color-bg: var(--civitas-bg);
+  --color-surface: var(--civitas-surface);
+  --color-surface-raised: var(--civitas-surface-raised);
+  --color-surface-subtle: var(--civitas-surface-subtle);
+  --color-surface-translucent: var(--civitas-surface-translucent);
+
+  --color-border: var(--civitas-border);
+  --color-border-strong: var(--civitas-border-strong);
+
+  --color-text: var(--civitas-text);
+  --color-body: var(--civitas-body);
+  --color-muted: var(--civitas-muted);
+  --color-muted-strong: var(--civitas-muted-strong);
+
+  --color-primary: var(--civitas-primary);
+  --color-primary-strong: var(--civitas-primary-strong);
+  --color-primary-soft: var(--civitas-primary-soft);
+  --color-primary-muted: var(--civitas-primary-muted);
+  --color-primary-contrast: var(--civitas-primary-contrast);
+
+  --color-info: var(--civitas-info);
+  --color-info-strong: var(--civitas-info-strong);
+  --color-info-soft: var(--civitas-info-soft);
+  --color-info-muted: var(--civitas-info-muted);
+
+  --color-success: var(--civitas-success);
+  --color-success-strong: var(--civitas-success-strong);
+  --color-success-soft: var(--civitas-success-soft);
+  --color-success-muted: var(--civitas-success-muted);
+
+  --color-warning: var(--civitas-warning);
+  --color-warning-strong: var(--civitas-warning-strong);
+  --color-warning-soft: var(--civitas-warning-soft);
+  --color-warning-muted: var(--civitas-warning-muted);
+
+  --color-danger: var(--civitas-danger);
+  --color-danger-strong: var(--civitas-danger-strong);
+  --color-danger-soft: var(--civitas-danger-soft);
+  --color-danger-muted: var(--civitas-danger-muted);
+
+  --color-neutral: var(--civitas-neutral);
+  --color-neutral-strong: var(--civitas-neutral-strong);
+  --color-neutral-soft: var(--civitas-neutral-soft);
+  --color-neutral-muted: var(--civitas-neutral-muted);
+
+  --color-disabled: var(--civitas-disabled);
+  --color-focus: var(--civitas-focus);
+
+  --spacing-0: var(--civitas-space-0);
+  --spacing-1: var(--civitas-space-1);
+  --spacing-2: var(--civitas-space-2);
+  --spacing-3: var(--civitas-space-3);
+  --spacing-4: var(--civitas-space-4);
+  --spacing-5: var(--civitas-space-5);
+  --spacing-6: var(--civitas-space-6);
+  --spacing-8: var(--civitas-space-8);
+  --spacing-10: var(--civitas-space-10);
+  --spacing-12: var(--civitas-space-12);
+  --spacing-sidebar: var(--civitas-sidebar-width);
+
+  --text-xs: var(--civitas-font-xs);
+  --text-sm: var(--civitas-font-sm);
+  --text-base: var(--civitas-font-md);
+  --text-md: var(--civitas-font-md);
+  --text-lg: var(--civitas-font-lg);
+  --text-xl: var(--civitas-font-xl);
+  --text-2xl: var(--civitas-font-2xl);
+  --text-3xl: var(--civitas-font-3xl);
+  --text-4xl: var(--civitas-font-4xl);
+
+  --radius-sm: var(--civitas-radius-sm);
+  --radius-md: var(--civitas-radius-md);
+  --radius-lg: var(--civitas-radius-lg);
+  --radius-xl: var(--civitas-radius-xl);
+  --radius-full: var(--civitas-radius-pill);
+  --radius-card: var(--civitas-radius-lg);
+  --radius-control: var(--civitas-radius-md);
+}

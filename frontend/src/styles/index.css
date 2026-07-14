@@ -1,6 +1,7 @@
 @import "./tokens.css";
 @import "./tokens/layout.css";
 @import "./theme.css";
+@import "./tailwind-theme.css";
 @import "./layout.css";
 @import "./primitives.css";
 

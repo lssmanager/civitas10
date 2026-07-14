@@ -41,13 +41,13 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const inputClassName = "mt-1 block w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-300 placeholder-gray-400";
-  const labelClassName = "block text-sm font-medium text-gray-700 mb-1";
+  const inputClassName = "mt-1 block w-full px-4 py-3 bg-surface border border-border rounded-lg text-text text-sm transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-focus focus:border-transparent hover:border-border-strong placeholder-muted";
+  const labelClassName = "block text-sm font-medium text-muted-strong mb-1";
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-sm p-8">
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">Crear primera organización Civitas</h3>
-      <p className="mb-6 text-sm text-gray-500">Alta canónica en Logto desde el espacio owner global.</p>
+    <div className="max-w-md mx-auto bg-surface rounded-xl shadow-sm p-8">
+      <h3 className="text-xl font-semibold text-text mb-2">Crear primera organización Civitas</h3>
+      <p className="mb-6 text-sm text-muted">Alta canónica en Logto desde el espacio owner global.</p>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="name" className={labelClassName}>
@@ -86,7 +86,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
         <button
           type="submit"
           disabled={isCreating}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200 ease-in-out shadow-sm"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-primary-contrast bg-primary hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus disabled:opacity-50 transition-colors duration-200 ease-in-out shadow-sm"
         >
           {isCreating ? 'Creating...' : 'Create Organization'}
         </button>

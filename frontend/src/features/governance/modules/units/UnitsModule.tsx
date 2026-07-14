@@ -1,3 +1,15 @@
-import { SectionCard, StatusPill } from "../../../../shared/ui";
+import { DataTable, EmptyState, SectionCard, StatusPill, type DataTableColumn } from "../../../../shared/ui";
 import type { GovernanceUnitItem } from "../../contracts";
-export const UnitsModule = ({ units }: { units: readonly GovernanceUnitItem[] }) => <SectionCard title="Units and groups" description="Membership is shown for governance and data-scope selection; group membership alone never grants permission."><div className="civitas-grid-3">{units.map((unit) => <article key={unit.id} className="civitas-card civitas-pad-tight"><h3 className="font-semibold">{unit.label}</h3><p className="text-sm text-slate-600">parent: {unit.parentId || "root"} · members: {unit.memberCount ?? 0}</p><StatusPill status={unit.status === "active" ? "success" : "warning"}>{unit.status}</StatusPill></article>)}</div>{units.length === 0 ? <p className="text-sm text-slate-600">No units or groups were returned.</p> : null}</SectionCard>;
+
+const columns: DataTableColumn<GovernanceUnitItem>[] = [
+  { key: "group", header: "Group", render: (unit) => <span className="font-medium text-text">{unit.label}</span> },
+  { key: "unit", header: "Unit", render: (unit) => unit.parentId || "Root" },
+  { key: "members", header: "Members", render: (unit) => String(unit.memberCount ?? 0) },
+  { key: "status", header: "Status", render: (unit) => <StatusPill status={unit.status === "active" ? "success" : "warning"}>{unit.status === "active" ? "Active" : "Archived"}</StatusPill> },
+];
+
+export const UnitsModule = ({ units }: { units: readonly GovernanceUnitItem[] }) => (
+  <SectionCard title="Groups" description="Groups organize membership for governance review; access is determined separately.">
+    <DataTable columns={columns} data={[...units]} getKey={(unit) => unit.id} emptyState={<EmptyState message="No groups"><p className="text-sm text-muted-strong">This organization has not returned groups for governance review yet.</p></EmptyState>} />
+  </SectionCard>
+);

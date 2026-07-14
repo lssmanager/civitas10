@@ -12,7 +12,7 @@ export default function Callback() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Redirecting...</div>
+        <div className="text-xl text-muted-strong">Redirecting...</div>
       </div>
     );
   }

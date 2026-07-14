@@ -8,9 +8,9 @@ const Context = createContext<VisualAuthorizationContext>(restrictiveAuthorizati
 export const VisualAuthorizationProvider = ({ value, children }: { value: VisualAuthorizationContext; children: ReactNode }) => <Context.Provider value={value}>{children}</Context.Provider>;
 export const useVisualAuthorization = () => useContext(Context);
 
-export const visualAuthorizationContextFromOwnerMe = (me?: MeResponse): VisualAuthorizationContext => {
+export const visualAuthorizationContextFromOwnerMe = (me?: MeResponse, organizationId?: string): VisualAuthorizationContext => {
   const permissions: PermissionKey[] = [];
   if (me?.auth.owner?.canReadOwner) permissions.push("owner.read" as PermissionKey, "owner.organizations.read" as PermissionKey, "owner.system.read" as PermissionKey, "account.profile.read" as PermissionKey, "governance.owner.read" as PermissionKey, "governance.preview.read" as PermissionKey);
   if (me?.auth.owner?.canWriteOwner) permissions.push("owner.write" as PermissionKey, "owner.organizations.create" as PermissionKey);
-  return { status: me ? "ready" : "stale", policyVersion: "owner-legacy-adapter", catalogVersion: "phase2-visual-contract", visualVersion: "96.0", effectivePermissions: new Set(permissions), availableDataScopeCapabilities: new Set(["owner"]), enabledFeatures: new Set(["owner-runtime"]), policyDecisions: new Map() };
+  return { status: me ? "ready" : "stale", organizationId, policyVersion: "owner-legacy-adapter", catalogVersion: "phase2-visual-contract", visualVersion: "96.0", effectivePermissions: new Set(permissions), availableDataScopeCapabilities: new Set(["owner"]), enabledFeatures: new Set(["owner-runtime"]), policyDecisions: new Map() };
 };

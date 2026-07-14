@@ -1,0 +1,8 @@
+# Contract surfaces for #111 navigation / authorization topology.
+/frontend/src/authorization/ @lssmanager
+/frontend/src/navigation/ @lssmanager
+/frontend/src/layouts/AppShell.tsx @lssmanager
+/frontend/src/layouts/OwnerLayout.tsx @lssmanager
+/frontend/src/layouts/OrganizationLayout.tsx @lssmanager
+/frontend/src/pages/App/index.tsx @lssmanager
+/frontend/scripts/validate-navigation-contract.mjs @lssmanager

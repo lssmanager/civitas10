@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { IconBuildingCommunity, IconExternalLink, IconRefresh } from "@tabler/icons-react";
+import { IconBuildingCommunity, IconRefresh } from "@tabler/icons-react";
 import { OwnerBadge, OwnerShell, primaryButtonClassName, secondaryButtonClassName } from "../components/owner/OwnerUI";
 import { AlertStrip, EmptyState, PageHeader, SectionCard, StateRegion, StatusPill } from "../shared/ui";
 import { useOwnerApi, type OwnerOrganization } from "../api/owner";
@@ -46,9 +46,9 @@ const getOrganizationSummary = (organization: OwnerOrganization) => {
 
 const OrganizationCard = ({ organization }: { organization: OwnerOrganization }) => {
   const summary = getOrganizationSummary(organization);
-  const detailPath = summary.id ? `/owner/organizations/${encodeURIComponent(summary.id)}` : null;
-  return (
-    <article className="civitas-card civitas-stack" data-owner-organization-card="true">
+  const detailPath = summary.id ? appRoutes.ownerOrganizationState.build?.({ organizationId: summary.id }) ?? null : null;
+  const cardContent = (
+    <>
       <div className="civitas-card-header">
         <div className="civitas-cluster">
           <IconBuildingCommunity size={22} aria-hidden="true" />
@@ -67,9 +67,17 @@ const OrganizationCard = ({ organization }: { organization: OwnerOrganization })
         <div><dt>Contact email</dt><dd>{summary.email || "Not provided"}</dd></div>
         <div><dt>Phone</dt><dd>{summary.phone || "Not provided"}</dd></div>
       </dl>
-      <div className="civitas-action-bar">
-        {detailPath ? <Link to={detailPath} className={secondaryButtonClassName}><IconExternalLink size={18} />Open detail</Link> : <span className="civitas-muted">Detail requires a Logto organization id.</span>}
-      </div>
+      <p className="civitas-muted text-sm">Open organization detail to manage Overview, Governance and Operations.</p>
+    </>
+  );
+  return detailPath ? (
+    <Link to={detailPath} className="civitas-card civitas-stack civitas-clickable-card" data-owner-organization-card="true" aria-label={`Open ${summary.name} organization detail`}>
+      {cardContent}
+    </Link>
+  ) : (
+    <article className="civitas-card civitas-stack" data-owner-organization-card="true">
+      {cardContent}
+      <span className="civitas-muted">Detail requires a Logto organization id.</span>
     </article>
   );
 };

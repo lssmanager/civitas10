@@ -846,3 +846,74 @@ textarea.owner-field {
 .civitas-state-region .civitas-alert {
   margin: 0;
 }
+
+.civitas-clickable-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.civitas-clickable-card:hover {
+  border-color: var(--civitas-border-strong);
+  box-shadow: var(--civitas-shadow-raised);
+  transform: translateY(-1px);
+}
+
+.civitas-clickable-card:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.125rem var(--civitas-focus), var(--civitas-shadow-raised);
+}
+
+.civitas-tabs {
+  display: grid;
+  gap: var(--civitas-space-4);
+}
+
+.civitas-tabs-list {
+  display: flex;
+  gap: var(--civitas-space-2);
+  overflow-x: auto;
+  padding: var(--civitas-space-1);
+  border: 1px solid var(--civitas-border);
+  border-radius: var(--civitas-radius-lg);
+  background: var(--civitas-surface);
+}
+
+.civitas-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--civitas-space-2);
+  min-width: max-content;
+  border: 1px solid transparent;
+  border-radius: var(--civitas-radius-md);
+  padding: var(--civitas-space-2) var(--civitas-space-3);
+  color: var(--civitas-muted-strong);
+  font-weight: 600;
+  background: transparent;
+}
+
+.civitas-tab:hover {
+  color: var(--civitas-text);
+  background: var(--civitas-surface-subtle);
+}
+
+.civitas-tab:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.125rem var(--civitas-focus);
+}
+
+.civitas-tab[data-selected="true"] {
+  color: var(--civitas-primary-strong);
+  border-color: var(--civitas-border-strong);
+  background: var(--civitas-primary-soft);
+}
+
+.civitas-tab-status {
+  font-size: var(--civitas-font-xs);
+}
+
+.civitas-tab-panel {
+  display: grid;
+  gap: var(--civitas-space-4);
+}

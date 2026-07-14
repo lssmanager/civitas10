@@ -12,7 +12,7 @@ const reasonLabels: Record<PermissionMatrixReasonCode, string> = {
 };
 
 export const reasonLabel = (code: PermissionMatrixReasonCode) => reasonLabels[code] ?? code;
-export const reasonToneClass = (code: PermissionMatrixReasonCode) => code === "allowed" ? "text-emerald-700" : code === "not_canonical" ? "text-slate-700" : code === "ceiling_not_authorized" ? "text-amber-700" : "text-red-700";
+export const reasonToneClass = (code: PermissionMatrixReasonCode) => code === "allowed" ? "text-success-strong" : code === "not_canonical" ? "text-muted-strong" : code === "ceiling_not_authorized" ? "text-warning-strong" : "text-danger-strong";
 export const formatSourceVersions = (versions: PermissionMatrixReason["sourceVersions"]) => {
   const entries = Object.entries(versions).filter(([, value]) => Boolean(value));
   return entries.length ? entries.map(([key, value]) => `${key}=${value}`).join(" · ") : "versions unavailable";

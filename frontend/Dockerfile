@@ -1,5 +1,7 @@
 FROM node:22-alpine
 
+RUN apk add --no-cache git
+
 WORKDIR /app
 
 ARG VITE_API_URL
@@ -16,6 +18,7 @@ RUN npm install --include=dev
 COPY frontend/ ./
 COPY config/ /config/
 COPY core/ /core/
+COPY docs/design-system/ /docs/design-system/
 RUN npm run build
 RUN npm install -g serve
 

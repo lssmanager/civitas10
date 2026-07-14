@@ -1,6 +1,6 @@
 import type { ActionId, CapabilityKey, FeatureFlagKey, IconKey, MenuKey, PermissionKey, PolicyKey, ResponsiveGroupKey, RouteId, ScreenId } from "./ids";
 
-export type RouteReference = { routeId: RouteId; path: string; scope: "owner" | "tenant" | "account" | "public" };
+export type RouteReference = { routeId: RouteId; path: string; scope: "owner" | "tenant" | "account" | "public"; contextScope: "platform" | "tenant" };
 
 export type ScreenDefinition = {
   screenId: ScreenId;

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorState, MetricCard, OwnerBadge, OwnerShell, PageHeader, ownerToneFromSeverity } from "../components/owner/OwnerUI";
 import { useOwnerApi } from "../api/owner";
+import { appRoutes } from "../navigation/routes";
 import type { ConsolidatedOperationalResponse, OperationalBlock } from "../contracts/operational";
 
 const actionLabel: Record<string, string> = { retry: "Retry", verify_provider: "Verify provider", open_organization: "Open organization", wait_first_wordpress_login: "Wait first WordPress login", manual_retry_required: "Manual retry required", human_action_required: "Human action required", none: "No action" };
@@ -11,20 +12,20 @@ function BlockCard({ title, block }: { title: string; block: OperationalBlock })
     <article className="owner-card">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{title}</p>
-          <h3 className="mt-2 text-lg font-semibold text-slate-950">{block.humanMessage || block.status}</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{title}</p>
+          <h3 className="mt-2 text-lg font-semibold text-text">{block.humanMessage || block.status}</h3>
         </div>
         <OwnerBadge tone={ownerToneFromSeverity(block.severity)}>{block.severity}</OwnerBadge>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <OwnerBadge tone={ownerToneFromSeverity(block.status === "ok" || block.status === "healthy" ? "success" : block.severity)}>{block.status}</OwnerBadge>
-        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{block.freshness.source}</span>
+        <span className="inline-flex rounded-full bg-neutral-soft px-2.5 py-1 text-xs font-medium text-muted-strong">{block.freshness.source}</span>
       </div>
-      <dl className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-        <div><dt className="font-medium text-slate-900">Provider code</dt><dd className="mt-1 break-all">{block.providerCode || "-"}</dd></div>
-        <div><dt className="font-medium text-slate-900">Provider status</dt><dd className="mt-1 break-all">{String(block.providerStatus || "-")}</dd></div>
-        <div><dt className="font-medium text-slate-900">Checked at</dt><dd className="mt-1">{block.freshness.checkedAt || "-"}</dd></div>
-        <div><dt className="font-medium text-slate-900">Next action</dt><dd className="mt-1">{actionLabel[String(block.nextAction)] || String(block.nextAction)}</dd></div>
+      <dl className="mt-5 grid gap-3 text-sm text-muted-strong sm:grid-cols-2">
+        <div><dt className="font-medium text-text">Provider code</dt><dd className="mt-1 break-all">{block.providerCode || "-"}</dd></div>
+        <div><dt className="font-medium text-text">Provider status</dt><dd className="mt-1 break-all">{String(block.providerStatus || "-")}</dd></div>
+        <div><dt className="font-medium text-text">Checked at</dt><dd className="mt-1">{block.freshness.checkedAt || "-"}</dd></div>
+        <div><dt className="font-medium text-text">Next action</dt><dd className="mt-1">{actionLabel[String(block.nextAction)] || String(block.nextAction)}</dd></div>
       </dl>
     </article>
   );
@@ -71,9 +72,16 @@ const OwnerOrganizationOperationalPage = () => {
 
   return (
     <OwnerShell organizationId={organizationId}>
-      <PageHeader eyebrow="Operational state" title={state?.organization.name || organizationId} description="Vista técnica de la organización derivada del backbone operacional consolidado. Runtime conserva el detalle operativo separado del resumen owner." />
+      <PageHeader eyebrow="Organization detail" title={state?.organization.name || organizationId} description="Selected organization context for Overview, Governance and Operations." />
+      <nav className="civitas-card civitas-pad-tight" aria-label="Organization detail sections" data-owner-organization-detail-tabs="true">
+        <div className="flex flex-wrap gap-2">
+          <Link to={appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-primary-button" aria-current="page">Overview</Link>
+          <Link to={appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path} className="civitas-secondary-button">Governance</Link>
+          <a href="#operations" className="civitas-secondary-button">Operations</a>
+        </div>
+      </nav>
       {error ? <ErrorState message={error} /> : null}
-      <section className="grid gap-4 md:grid-cols-4">
+      <section id="operations" className="grid gap-4 md:grid-cols-4">
         <MetricCard label="Summary" detail={state?.summary.humanMessage || "Loading operational summary..."}><OwnerBadge tone={ownerToneFromSeverity(state?.summary.severity || "info")}>{state?.summary.status || (loading ? "loading" : "unknown")}</OwnerBadge></MetricCard>
         <MetricCard label="Dominant source" value={state?.summary.dominantSource || "-"} />
         <MetricCard label="Next action" value={state ? (actionLabel[String(state.summary.nextAction)] || String(state.summary.nextAction)) : "-"} />

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "rules": [
+    { "from": "bg-white", "to": "bg-surface", "kind": "background", "semanticIntent": "surface", "requiresReview": false },
+    { "from": "bg-gray-50", "to": "bg-bg", "kind": "background", "semanticIntent": "page-background", "requiresReview": false },
+    { "from": "bg-gray-100", "to": "bg-surface-subtle", "kind": "background", "semanticIntent": "subtle-surface", "requiresReview": false },
+    { "from": "text-gray-900", "to": "text-text", "kind": "foreground", "semanticIntent": "primary-text", "requiresReview": false },
+    { "from": "text-gray-700", "to": "text-body", "kind": "foreground", "semanticIntent": "body-text", "requiresReview": false },
+    { "from": "text-gray-500", "to": "text-muted", "kind": "foreground", "semanticIntent": "muted-text", "requiresReview": false },
+    { "from": "border-gray-200", "to": "border-border", "kind": "border", "semanticIntent": "default-border", "requiresReview": false },
+    { "from": "border-gray-300", "to": "border-border-strong", "kind": "border", "semanticIntent": "strong-border", "requiresReview": false },
+    { "from": "bg-indigo-600", "to": "bg-primary", "kind": "background", "semanticIntent": "primary-action", "requiresReview": false },
+    { "from": "hover:bg-indigo-700", "to": "hover:bg-primary-strong", "kind": "background", "semanticIntent": "primary-action-hover", "requiresReview": false },
+    { "from": "bg-indigo-700", "to": "bg-primary-strong", "kind": "background", "semanticIntent": "primary-action-strong", "requiresReview": false },
+    { "from": "text-indigo-600", "to": "text-primary", "kind": "foreground", "semanticIntent": "primary-link", "requiresReview": false },
+    { "from": "ring-indigo-600", "to": "ring-primary", "kind": "ring", "semanticIntent": "primary-focus-ring", "requiresReview": true },
+    { "from": "focus:ring-indigo-600", "to": "focus:ring-primary", "kind": "ring", "semanticIntent": "primary-focus-ring", "requiresReview": true }
+  ],
+  "darkModeRules": []
+}

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local licensed design intake; never commit snippets or generated mapped output.
+.design-intake/

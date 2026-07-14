@@ -100,7 +100,6 @@
   --civitas-topbar-height-mobile: var(--topbar-height-mobile);
   --civitas-content-max-width: var(--topbar-max-width);
   --civitas-sidebar-width: 16.5rem;
-  --civitas-sidebar-collapsed-width: 5.25rem;
   --civitas-sidebar-mobile-width: min(85vw, 20rem);
   /* Sidebar nav geometry contract: role-filtered child menus add only this indent to the parent rail. */
   --civitas-nav-item-padding-x: var(--civitas-space-3);
@@ -116,8 +115,6 @@
   --civitas-nav-gutter-inline: var(--civitas-space-2);
   --civitas-nav-scroll-padding: var(--civitas-space-2);
   --civitas-nav-mobile-max-height: var(--civitas-viewport-height);
-  --civitas-nav-flyout-min-width: 13rem;
-  --civitas-nav-flyout-max-width: 18rem;
   /* Canonical responsive breakpoints: sm 480px, md 768px, lg 1024px, xl 1280px. */
   --civitas-breakpoint-sm: 480px;
   --civitas-breakpoint-md: 768px;
@@ -142,7 +139,6 @@
   --civitas-z-sticky-action: 30;
   --civitas-z-overlay: 50;
   --civitas-z-popover: 1000;
-  --civitas-z-nav-flyout: var(--civitas-z-popover);
   --civitas-z-tooltip: 1400;
   --civitas-z-sidebar-mobile: var(--civitas-z-overlay);
   --civitas-border-width: thin;
