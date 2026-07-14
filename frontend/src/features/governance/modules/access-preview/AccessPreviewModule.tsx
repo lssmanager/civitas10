@@ -1,10 +1,23 @@
 import { useState } from "react";
-import { SectionCard, StatusPill } from "../../../../shared/ui";
+import { DataTable, EmptyState, FormField, SectionCard, StatusPill, type DataTableColumn } from "../../../../shared/ui";
 import type { ActionId, ScreenId } from "../../../../authorization/contracts/ids";
 import type { GovernanceAccessPreview, GovernanceAccessPreviewRequest, GovernanceSurface, PermissionMatrixReason } from "../../contracts";
-import { formatSourceVersions } from "../permission-matrix/reason-format";
+import { formatSourceVersions, reasonLabel } from "../permission-matrix/reason-format";
 
 const previewVersions = (preview: GovernanceAccessPreview) => formatSourceVersions(preview.decision.sourceVersions as PermissionMatrixReason["sourceVersions"]);
+
+const columns: DataTableColumn<GovernanceAccessPreview>[] = [
+  { key: "subject", header: "Subject", render: (preview) => <span className="font-medium text-text">{preview.subjectId}</span> },
+  { key: "target", header: "Target", render: (preview) => preview.actionId || preview.screenId || "Not specified" },
+  { key: "decision", header: "Decision", render: (preview) => <StatusPill status={preview.decision.allowed ? "success" : "danger"}>{preview.decision.allowed ? "Allowed" : "Denied"}</StatusPill> },
+  { key: "reason", header: "Reason", render: (preview) => <div><span>{reasonLabel(preview.decision.reason as PermissionMatrixReason["code"])}</span><p className="text-xs text-muted">{previewVersions(preview)}</p></div> },
+];
+
+export const AccessPreviewUnavailable = () => (
+  <SectionCard title="Access preview" description="Preview what a user or role can do in this organization once the service is active.">
+    <EmptyState message="Access preview is not available yet"><p className="text-sm text-muted-strong">The preview service is not active for this organization.</p></EmptyState>
+  </SectionCard>
+);
 
 export const AccessPreviewModule = ({ organizationId, surface, previews, onPreview }: { organizationId: string; surface: GovernanceSurface; previews: readonly GovernanceAccessPreview[]; onPreview: (request: GovernanceAccessPreviewRequest) => Promise<GovernanceAccessPreview> }) => {
   const [subjectId, setSubjectId] = useState("");
@@ -31,24 +44,15 @@ export const AccessPreviewModule = ({ organizationId, surface, previews, onPrevi
   const visiblePreviews = previewResult ? [previewResult, ...previews] : previews;
 
   return (
-    <SectionCard title="Access preview" description="Read-only simulation: explains effective decisions without minting tokens or mutating grants." actions={<StatusPill status="warning">preview — no muta estado</StatusPill>}>
+    <SectionCard title="Access preview" description="Simulate an authorization decision for this selected organization." actions={<StatusPill status="success">Read-only</StatusPill>}>
       <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto_auto]" data-access-preview-flow="actor-action-simulate-explanation">
-        <label className="text-sm font-medium text-muted-strong">Actor / role simulated<input className="civitas-input mt-1" value={subjectId} onChange={(event) => setSubjectId(event.target.value)} placeholder="user_123 or organization_headteacher" /></label>
-        <label className="text-sm font-medium text-muted-strong">Action or screen<input className="civitas-input mt-1" value={targetId} onChange={(event) => setTargetId(event.target.value)} placeholder="lms.grades.edit" /></label>
-        <label className="text-sm font-medium text-muted-strong">Type<select className="civitas-input mt-1" value={targetType} onChange={(event) => setTargetType(event.target.value as "action" | "screen")}><option value="action">Action</option><option value="screen">Screen</option></select></label>
-        <button type="button" className="civitas-primary-button self-end" disabled={!subjectId || !targetId || loading} onClick={() => void simulatePreview()}>{loading ? "Simulating..." : "Simulate"}</button>
+        <FormField id="governance-preview-subject" label="Actor or role"><input id="governance-preview-subject" className="civitas-input" value={subjectId} onChange={(event) => setSubjectId(event.target.value)} placeholder="user or role id" /></FormField>
+        <FormField id="governance-preview-target" label="Action or screen"><input id="governance-preview-target" className="civitas-input" value={targetId} onChange={(event) => setTargetId(event.target.value)} placeholder="permission or screen id" /></FormField>
+        <FormField id="governance-preview-type" label="Type"><select id="governance-preview-type" className="civitas-input" value={targetType} onChange={(event) => setTargetType(event.target.value as "action" | "screen")}><option value="action">Action</option><option value="screen">Screen</option></select></FormField>
+        <button type="button" className="civitas-primary-button self-end" disabled={!subjectId || !targetId || loading} onClick={() => void simulatePreview()}>{loading ? "Previewing..." : "Preview access"}</button>
       </div>
       {error ? <p className="mt-3 text-sm text-danger-strong">{error}</p> : null}
-      <div className="mt-4 space-y-3">
-        {visiblePreviews.map((preview) => <article key={`${preview.subjectId}-${preview.actionId || preview.screenId}-${preview.decision.reason}`} className="civitas-card civitas-pad-tight">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div data-access-preview-decision="true"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Effective decision</p><StatusPill status={preview.decision.allowed ? "success" : "warning"}>{preview.decision.allowed ? "✓ allowed" : "✕ denied"}</StatusPill></div>
-            <div data-access-preview-explanation="true"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Explanation</p><p className="text-sm text-muted-strong">{preview.decision.reason}</p><p className="text-xs font-mono text-muted">{previewVersions(preview)}</p></div>
-          </div>
-          <p className="mt-3 text-sm text-muted-strong">{preview.subjectId} → {preview.actionId || preview.screenId}</p>
-        </article>)}
-      </div>
-      {visiblePreviews.length === 0 ? <p className="mt-3 text-sm text-muted-strong">No preview rows were returned.</p> : null}
+      <DataTable columns={columns} data={[...visiblePreviews]} getKey={(preview, index) => `${preview.subjectId}-${preview.actionId || preview.screenId}-${index}`} emptyState={<EmptyState message="No access previews"><p className="text-sm text-muted-strong">Run a preview when the service is available, or review returned preview rows here.</p></EmptyState>} />
     </SectionCard>
   );
 };

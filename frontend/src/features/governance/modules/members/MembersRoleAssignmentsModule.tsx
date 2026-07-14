@@ -1,7 +1,7 @@
-import { SectionCard } from "../../../../shared/ui";
+import { EmptyState, SectionCard } from "../../../../shared/ui";
 
 export const MembersRoleAssignmentsModule = () => (
-  <SectionCard title="Members and role assignments" description="Tenant-owned module placeholder: assignments must stay inside delegation rules and cannot mutate Logto role templates.">
-    <p className="text-sm text-muted-strong">Member role assignment data is supplied by the tenant governance read model. No owner ceiling or Logto template write is performed by this surface.</p>
+  <SectionCard title="Members" description="Review member assignments when the tenant governance read model returns them.">
+    <EmptyState message="Member assignments are not available in this snapshot"><p className="text-sm text-muted-strong">No member assignment data was returned for this organization.</p></EmptyState>
   </SectionCard>
 );

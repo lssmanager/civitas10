@@ -24,10 +24,9 @@ test("governance studio exposes separate owner and tenant surfaces", () => {
 });
 
 test("governance tabs are explicit and asymmetric by surface", () => {
-  assert.match(page, /ownerGovernanceTabs: GovernanceModuleKey\[] = \["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"\]/);
-  assert.match(page, /tenantGovernanceTabs: GovernanceModuleKey\[] = \["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"\]/);
+  assert.match(page, /ownerGovernanceTabs: GovernanceTabId\[] = \["overview", "roles-permissions", "taxonomy", "groups", "data-scopes", "aliases-navigation", "access-preview", "audit-diagnostics"\]/);
+  assert.match(page, /tenantGovernanceTabs: GovernanceTabId\[] = \["roles-permissions", "members", "data-scopes", "taxonomy", "groups", "aliases-navigation", "access-preview"\]/);
   assert.match(page, /members: "Members"/);
-  assert.doesNotMatch(page, /tenantGovernanceTabs[\s\S]*"audit"/);
 });
 
 test("governance read model keeps concepts and reason versions separated", () => {
@@ -40,23 +39,24 @@ test("governance read model keeps concepts and reason versions separated", () =>
   assert.match(matrix, /formatSourceVersions/);
   assert.match(matrix + reasonFormat, /not_canonical/);
   assert.match(matrix + reasonFormat, /ceiling_not_authorized/);
-  assert.match(matrix, /aria-label="not applicable"/);
+  assert.match(matrix, /Not applicable/);
   assert.match(contracts, /taxonomyIds/);
   assert.match(contracts, /unitIds/);
-  assert.match(dataScope, /resource filtering stays server-side/);
+  assert.match(dataScope, /DataTable/);
+  assert.match(dataScope, /No data-scope assignments/);
 });
 
 test("governance page is an aggregate read model, not a write authority", () => {
   assert.match(api, /ownerApiFetch\(`\/owner\/organizations\/\$\{encodeURIComponent\(organizationId\)\}\/governance`\)/);
   assert.match(api, /access-preview/);
   assert.doesNotMatch(api, /createScope|createRole|lms\.\*|org\.members\.\*/);
-  assert.doesNotMatch(page, /no client Logto Management API|Feature writes stay in their owning services|Governance boundary|no wildcards|visual preferences only subtract/);
+  assert.doesNotMatch(page, /no client Logto Management API|Feature writes stay in their owning services|Governance boundary|no wildcards|visual preferences only subtract|backend remains authority|The UI stays read-only and does not fetch/);
 });
 
 test("access preview is read-only and does not mutate grants", () => {
-  assert.match(accessPreview, /preview — no muta estado/);
-  assert.match(accessPreview, /data-access-preview-decision/);
-  assert.match(accessPreview, /data-access-preview-explanation/);
+  assert.match(accessPreview, /Read-only/);
+  assert.match(accessPreview, /Access preview is not available yet/);
+  assert.match(accessPreview, /DataTable/);
   assert.match(api, /previewOwnerAccessReadOnly/);
   assert.match(api, /previewTenantAccessReadOnly/);
   assert.match(api, /X-Civitas-Preview-Only/);

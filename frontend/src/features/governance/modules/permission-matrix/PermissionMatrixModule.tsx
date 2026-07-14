@@ -1,38 +1,32 @@
-import { SectionCard, StatusPill } from "../../../../shared/ui";
+import { DataTable, EmptyState, SectionCard, StatusPill, type DataTableColumn } from "../../../../shared/ui";
 import type { GovernancePermissionMatrixRow, GovernanceSurface, PermissionMatrixReason } from "../../contracts";
 
 import { formatSourceVersions, reasonLabel, reasonToneClass } from "./reason-format";
 
-const BooleanCell = ({ value }: { value: boolean | null }) => {
-  if (value === null) return <span className="font-mono text-muted" aria-label="not applicable">—</span>;
-  return <StatusPill status={value ? "success" : "warning"}>{value ? "yes" : "no"}</StatusPill>;
+const BooleanCell = ({ value, emphatic = false }: { value: boolean | null; emphatic?: boolean }) => {
+  if (value === null) return <span className="text-muted" aria-label="not applicable">Not applicable</span>;
+  return <StatusPill status={value ? "success" : emphatic ? "danger" : "warning"}>{value ? "Allowed" : "Denied"}</StatusPill>;
 };
 
 const ReasonCell = ({ reason }: { reason: PermissionMatrixReason }) => (
   <div>
     <span className={reasonToneClass(reason.code)}>{reasonLabel(reason.code)}</span>
-    <div className="text-xs font-mono text-muted">{formatSourceVersions(reason.sourceVersions)}</div>
+    <div className="text-xs text-muted">{formatSourceVersions(reason.sourceVersions)}</div>
   </div>
 );
 
+const columns: DataTableColumn<GovernancePermissionMatrixRow>[] = [
+  { key: "permission", header: "Permission", render: (row) => <span className="font-medium text-text">{row.permission}</span> },
+  { key: "canonical", header: "Canonical", render: (row) => <BooleanCell value={row.canonical} /> },
+  { key: "rolePotential", header: "Role potential", render: (row) => <BooleanCell value={row.reason.code === "not_canonical" ? null : row.rolePotential} /> },
+  { key: "ownerAllowed", header: "Owner allowed", render: (row) => <BooleanCell value={row.reason.code === "not_canonical" ? null : row.ownerAllowed} /> },
+  { key: "tenantEnabled", header: "Tenant enabled", render: (row) => <BooleanCell value={row.tenantEnabled} /> },
+  { key: "effective", header: "Effective", render: (row) => <BooleanCell value={row.effective} emphatic /> },
+  { key: "reason", header: "Reason", render: (row) => <ReasonCell reason={row.reason} /> },
+];
+
 export const PermissionMatrixModule = ({ rows, surface }: { rows: readonly GovernancePermissionMatrixRow[]; surface: GovernanceSurface }) => (
-  <SectionCard title={surface === "owner" ? "Roles and permissions" : "Active permissions"} description="Columns remain distinct: canonical, role potential, owner allowed, tenant enabled, effective and first denial reason with source versions.">
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-left text-sm" data-governance-permission-matrix="true">
-        <thead><tr>{["Permission", "Canonical", "Role potential", "Owner allowed", "Tenant enabled", "Effective", "Reason"].map((header) => <th key={header} className="px-3 py-2 font-semibold text-muted-strong">{header}</th>)}</tr></thead>
-        <tbody>
-          {rows.map((row) => <tr key={row.permission} data-reason-code={row.reason.code}>
-            <td className="px-3 py-2 font-medium text-text">{row.permission}</td>
-            <td className="px-3 py-2"><BooleanCell value={row.canonical} /></td>
-            <td className="px-3 py-2"><BooleanCell value={row.reason.code === "not_canonical" ? null : row.rolePotential} /></td>
-            <td className="px-3 py-2"><BooleanCell value={row.reason.code === "not_canonical" ? null : row.ownerAllowed} /></td>
-            <td className="px-3 py-2"><BooleanCell value={row.tenantEnabled} /></td>
-            <td className="px-3 py-2"><BooleanCell value={row.effective} /></td>
-            <td className="px-3 py-2 text-muted-strong"><ReasonCell reason={row.reason} /></td>
-          </tr>)}
-        </tbody>
-      </table>
-    </div>
-    {rows.length === 0 ? <p className="text-sm text-muted-strong">No governance matrix rows were returned by the aggregate read model.</p> : null}
+  <SectionCard title={surface === "owner" ? "Roles and permissions" : "Active permissions"} description="Review the returned permission decisions and the first reason that limits an effective permission.">
+    <DataTable columns={columns} data={[...rows]} getKey={(row) => row.permission} emptyState={<EmptyState message="No permission evaluation available"><p className="text-sm text-muted-strong">The organization does not yet have permission evaluation data.</p></EmptyState>} />
   </SectionCard>
 );
