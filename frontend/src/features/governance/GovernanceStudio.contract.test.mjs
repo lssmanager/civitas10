@@ -11,16 +11,32 @@ const matrix = readFileSync(new URL("./modules/permission-matrix/PermissionMatri
 const reasonFormat = readFileSync(new URL("./modules/permission-matrix/reason-format.ts", import.meta.url), "utf8");
 const dataScope = readFileSync(new URL("./modules/data-scope/DataScopeModule.tsx", import.meta.url), "utf8");
 const accessPreview = readFileSync(new URL("./modules/access-preview/AccessPreviewModule.tsx", import.meta.url), "utf8");
+const routeCatalogSource = readFileSync(new URL("../../navigation/route-catalog.ts", import.meta.url), "utf8");
+const appSource = readFileSync(new URL("../../pages/App/index.tsx", import.meta.url), "utf8");
+const evaluator = readFileSync(new URL("../../authorization/evaluation/evaluate-screen.ts", import.meta.url), "utf8");
 
 test("governance studio exposes separate owner and tenant surfaces", () => {
   assert.match(routes, /ownerOrganizationGovernance/);
   assert.match(routes, /\/owner\/organizations\/:organizationId\/governance/);
   assert.match(routes, /tenantGovernance/);
   assert.match(routes, /\/o\/:organizationId\/settings\/governance/);
-  assert.match(registry, /owner-organization-governance/);
+  assert.match(registry, /owner-governance/);
   assert.match(registry, /route: routeCatalog\.ownerOrganizationGovernance/);
-  assert.match(registry, /requiresOrganizationContext: true/);
+  assert.match(registry, /requiresOrganizationContext: false/);
+  assert.match(routeCatalogSource, /ownerOrganizationGovernance:[\s\S]*"platform"/);
+  assert.match(appSource, /ScreenGate screenId="owner-governance"/);
+  assert.doesNotMatch(appSource, /ScreenGate screenId="owner-organization-governance"/);
   assert.match(registry, /tenant-governance/);
+  assert.match(routeCatalogSource, /tenantGovernance: route\("tenant\.settings\.governance", appRoutes\.tenantGovernance\.path, "tenant", "tenant"\)/);
+});
+
+test("context scopes preserve owner platform access and tenant organization enforcement", () => {
+  assert.match(registry, /screenId: "owner-governance"[\s\S]*requiresOrganizationContext: false/);
+  assert.match(routeCatalogSource, /const route = \(routeId: string, path: string, scope: RouteReference\["scope"\], contextScope: RouteReference\["contextScope"\]/);
+  assert.match(routeCatalogSource, /ownerOrganizationGovernance: route\("owner\.organizations\.governance", appRoutes\.ownerOrganizationGovernance\.path, "owner", "platform"\)/);
+  assert.match(registry, /screenId: "tenant-governance"[\s\S]*requiresOrganizationContext: true/);
+  assert.match(routeCatalogSource, /tenantGovernance: route\("tenant\.settings\.governance", appRoutes\.tenantGovernance\.path, "tenant", "tenant"\)/);
+  assert.match(evaluator, /requiresOrganizationContext && !context\.organizationId/);
 });
 
 test("governance tabs are explicit and asymmetric by surface", () => {

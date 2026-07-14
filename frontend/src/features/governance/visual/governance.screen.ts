@@ -2,11 +2,11 @@ import { defineScreen } from "../../../authorization/registry/define-screen";
 import { routeCatalog } from "../../../navigation/route-catalog";
 
 export const ownerGovernanceScreen = defineScreen({
-  screenId: "owner-organization-governance",
+  screenId: "owner-governance",
   capability: "owner",
   route: routeCatalog.ownerOrganizationGovernance,
   navigation: { menuKey: "owner.organizations.governance", parentMenuKey: "owner.organizations", labelKey: "navigation.owner.organizations.governance", breadcrumbKey: "breadcrumbs.owner.organizations.governance", iconKey: "governance", responsiveGroup: "governance", order: 20 },
-  access: { requiredAllPermissions: ["governance.owner.read"], policies: ["authorization-snapshot-current"], requiresOrganizationContext: true },
+  access: { requiredAllPermissions: ["governance.owner.read"], policies: ["authorization-snapshot-current"], requiresOrganizationContext: false },
   organizationCustomization: { visibility: "locked", order: "locked" },
   actions: ["governance.access.preview"],
 });

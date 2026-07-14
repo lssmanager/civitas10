@@ -33,7 +33,9 @@ export const validateVisualRegistry = (registry: Pick<VisualRegistry, "screens" 
     const existingRoute = seenRoutes.get(screen.route.path);
     if (existingRoute) errors.push(`route path conflict ${screen.route.path} between ${existingRoute} and ${screen.screenId}`);
     seenRoutes.set(screen.route.path, screen.screenId);
-    if (screen.route.scope !== "tenant" && screen.access.requiresOrganizationContext) errors.push(`organization context required on non-tenant route ${screen.screenId}`);
+    if (screen.route.contextScope !== "tenant" && screen.access.requiresOrganizationContext) errors.push(`organization context required on non-tenant route ${screen.screenId}`);
+    if (screen.route.path.startsWith("/owner") && screen.route.contextScope !== "platform") errors.push(`owner route must use platform context ${screen.screenId}`);
+    if (screen.route.path.startsWith("/o/") && screen.route.contextScope !== "tenant") errors.push(`tenant route must use tenant context ${screen.screenId}`);
     if (screen.route.path.startsWith("/owner") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("org."))) errors.push(`tenant permission on owner screen ${screen.screenId}`);
     if (screen.route.path.startsWith("/o/") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("owner."))) errors.push(`owner permission on tenant screen ${screen.screenId}`);
     for (const actionId of screen.actions) if (!seenActions.has(actionId)) errors.push(`unknown action ${actionId} referenced by screen ${screen.screenId}`);
