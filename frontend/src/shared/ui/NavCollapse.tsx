@@ -36,7 +36,7 @@ const readStoredExpanded = () => {
   }
 };
 
-export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCollapseItem[]; label: string; collapsed?: boolean }) => {
+export const NavCollapse = ({ items, label }: { items: NavCollapseItem[]; label: string }) => {
   const location = useLocation();
   const activeParentKeys = useMemo(
     () => collectActiveParentKeys(items, location.pathname),
@@ -61,7 +61,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     const active = itemCanBeSelfActive(item, location.pathname);
     const Icon = item.icon;
     return (
-      <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-has-children="false" title={collapsed ? item.label : undefined} aria-label={collapsed ? item.label : undefined}>
+      <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-has-children="false">
         {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
       </Link>
@@ -72,18 +72,18 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
     if (!item.children?.length) return renderLink(item, depth);
 
     const key = itemKey(item);
-    const expanded = !collapsed && expandedKeys.includes(key);
+    const expanded = expandedKeys.includes(key);
     const branchActive = itemOrChildIsActive(item, location.pathname);
     const selfActive = itemCanBeSelfActive(item, location.pathname);
     const Icon = item.icon;
     return (
       <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded} data-depth={depth}>
-        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${selfActive ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={selfActive} data-branch-active={branchActive} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)} aria-label={collapsed ? item.label : undefined}>
+        <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${selfActive ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={selfActive} data-branch-active={branchActive} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)}>
           {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
           <span className="civitas-nav-link-label">{item.label}</span>
           <span className="civitas-nav-tree-caret" aria-hidden="true"><IconChevronRight className="civitas-nav-tree-caret-icon" /></span>
         </button>
-        <div className="civitas-nav-tree-children" hidden={!expanded && !collapsed}>
+        <div className="civitas-nav-tree-children" hidden={!expanded}>
           {item.children.map((child) => renderItem(child, depth + 1))}
         </div>
       </div>
@@ -91,7 +91,7 @@ export const NavCollapse = ({ items, label, collapsed = false }: { items: NavCol
   };
 
   return (
-    <div className="civitas-nav-row" data-civitas-nav="true" data-civitas-nav-collapsed={collapsed} data-civitas-nav-tree="true">
+    <div className="civitas-nav-row" data-civitas-nav="true" data-civitas-nav-tree="true">
       <nav className="civitas-primary-nav" aria-label={`${label} navigation`}>
         {items.map((item) => renderItem(item, item.level ?? 0))}
       </nav>

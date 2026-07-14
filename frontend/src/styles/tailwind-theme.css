@@ -60,7 +60,6 @@
   --spacing-10: var(--civitas-space-10);
   --spacing-12: var(--civitas-space-12);
   --spacing-sidebar: var(--civitas-sidebar-width);
-  --spacing-sidebar-collapsed: var(--civitas-sidebar-collapsed-width);
 
   --text-xs: var(--civitas-font-xs);
   --text-sm: var(--civitas-font-sm);

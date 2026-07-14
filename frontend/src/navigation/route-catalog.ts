@@ -9,6 +9,7 @@ export const routeCatalog = {
   ownerOrganizations: route("owner.organizations", appRoutes.ownerOrganizations.path, "owner"),
   ownerCreateOrganization: route("owner.organizations.create", appRoutes.ownerCreateOrganization.path, "owner"),
   ownerOrganizationState: route("owner.organizations.state", appRoutes.ownerOrganizationState.path, "owner"),
+  ownerGovernance: route("owner.governance", appRoutes.ownerGovernance.path, "owner"),
   ownerOrganizationGovernance: route("owner.organizations.governance", appRoutes.ownerOrganizationGovernance.path, "owner"),
   ownerSystem: route("owner.system", appRoutes.ownerSystem.path, "owner"),
   ownerWorkerQueues: route("owner.system.worker_queues", appRoutes.ownerWorkerQueues.path, "owner"),

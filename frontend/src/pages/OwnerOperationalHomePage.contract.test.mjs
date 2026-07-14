@@ -12,7 +12,7 @@ test("OwnerOperationalHomePage loads organizations and runtime in parallel", () 
 
 test("OwnerOperationalHomePage keeps primary navigation out of the page body", () => {
   assert.doesNotMatch(source, /Create organization<\/Link>|Create organization<\/button>/);
-  assert.match(source, /appRoutes\.ownerWorkerQueues\.path/);
+  assert.match(source, /appRoutes\.ownerSystem\.path/);
   assert.match(source, /View operational issues/);
   assert.match(source, /View organizations/);
   assert.doesNotMatch(source, /DataTable/);
@@ -20,6 +20,6 @@ test("OwnerOperationalHomePage keeps primary navigation out of the page body", (
 
 test("OwnerOperationalHomePage explains its executive summary responsibility", () => {
   assert.match(source, /Resumen ejecutivo del estado global/i);
-  assert.match(source, /El detalle técnico vive en Runtime y la creación vive en Create/i);
+  assert.match(source, /El detalle técnico vive en Operations y la creación vive en Create/i);
   assert.doesNotMatch(source, /waiting \{queue\.waiting\}/);
 });

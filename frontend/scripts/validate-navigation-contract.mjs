@@ -94,7 +94,7 @@ for (const file of files) {
 const routesPath = join(sourceRoot, "navigation/routes.ts");
 const appShellPath = join(sourceRoot, "layouts/AppShell.tsx");
 const routes = readFileSync(routesPath, "utf8");
-for (const required of ["ownerNavigationTree", "tenantNavigationTree", "Directory", "Settings", "Worker runtime", "ownerOrganizationGovernance", "ownerPlatformSettings"]) {
+for (const required of ["ownerNavigationTree", "tenantNavigationTree", "OWNER_NAVIGATION_CONTRACT_VERSION = 2", "Directory", "Governance", "Operations", "ownerGovernance"]) {
   if (!routes.includes(required)) fail(`navigation route contract missing ${required}`);
 }
 const appShell = readFileSync(appShellPath, "utf8");

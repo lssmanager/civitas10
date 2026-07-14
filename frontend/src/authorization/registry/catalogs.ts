@@ -4,4 +4,4 @@ export const activePermissions = new Set<PermissionKey>(["owner.read", "owner.wr
 export const knownPolicies = new Set<PolicyKey>(["same-organization", "membership-required", "authorization-snapshot-current", "resource-belongs-to-organization"].map((item) => item as PolicyKey));
 export const knownFeatureFlags = new Set<FeatureFlagKey>(["lms-grades", "owner-runtime"].map((item) => item as FeatureFlagKey));
 export const knownCapabilities = new Set<CapabilityKey>(["lms", "crm", "support", "scheduling", "payments", "email", "storage", "analytics", "notifications", "automation", "community", "owner", "account"]);
-export const knownIcons = new Set<IconKey>(["dashboard", "building", "server", "settings", "user", "grades"]);
+export const knownIcons = new Set<IconKey>(["overview", "governance", "operations", "organizations", "directory", "create", "settings", "profile", "grades"]);

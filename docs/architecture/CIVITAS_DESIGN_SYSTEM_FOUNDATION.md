@@ -173,7 +173,6 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-readable-max`
 - `--civitas-viewport-height`
 - `--civitas-sidebar-width`
-- `--civitas-sidebar-collapsed-width`
 - `--civitas-sidebar-mobile-width`
 - `--civitas-nav-item-padding-x`
 - `--civitas-nav-child-indent`
@@ -186,8 +185,6 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-nav-collapse-button-size`
 - `--civitas-nav-scroll-padding`
 - `--civitas-nav-mobile-max-height`
-- `--civitas-nav-flyout-min-width`
-- `--civitas-nav-flyout-max-width`
 
 #### Breakpoints
 
@@ -202,7 +199,6 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-z-sticky-action`
 - `--civitas-z-overlay`
 - `--civitas-z-popover`
-- `--civitas-z-nav-flyout`
 - `--civitas-z-tooltip`
 - `--civitas-border-width`
 
@@ -309,9 +305,6 @@ Esta sección documenta **lo que existe hoy en el repo** y debe tratarse como ca
 - `--civitas-nav-collapse-bg-hover` (canonical)
 - `--civitas-nav-collapse-icon` (canonical)
 - `--civitas-nav-focus-ring` (canonical)
-- `--civitas-nav-flyout-bg` (canonical)
-- `--civitas-nav-flyout-border` (canonical)
-- `--civitas-nav-flyout-shadow` (canonical)
 
 
 ### 4.3 Floating layer: popover, flyout, tooltip
@@ -327,7 +320,6 @@ Esta familia cubre contenido flotante opaco que aparece por encima del contenido
 - `--civitas-popover-radius` (canonical; alias semántico a la escala de radius)
 - `--civitas-popover-offset` (canonical; alias semántico a la escala de spacing)
 - `--civitas-z-popover` (canonical)
-- `--civitas-z-nav-flyout` (canonical; mismo nivel que popover porque el flyout de nav es un caso específico de popover)
 
 #### Tooltip tokens
 
@@ -339,11 +331,10 @@ Esta familia cubre contenido flotante opaco que aparece por encima del contenido
 
 #### Regla de interacción XOR
 
-Un mismo trigger muestra `tooltip` o `popover/flyout`, nunca ambos simultáneamente. En `NavCollapse` collapsed, un item sin hijos puede exponer tooltip de label, pero un item con hijos abre solo el flyout porque el flyout ya contiene el label/contexto necesario.
+Durante Phase 2 `NavCollapse` no expone rail contraído desktop, tooltips de rail ni flyouts de rail. La navegación desktop conserva labels visibles; el drawer mobile mantiene labels accesibles.
 
 #### Tabla de consumo
 
-- `NavCollapse`: el flyout del sidebar contraído consume `--civitas-popover-bg`, `--civitas-popover-border`, `--civitas-popover-text`, `--civitas-popover-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset` y `--civitas-z-nav-flyout`.
 - `Dropdown` futuro: debe consumir `--civitas-popover-*` y `--civitas-z-popover`; no debe inventar fondo, border, radius ni shadow propios.
 - `ConfirmDialog` futuro: si usa una capa flotante no modal o panel auxiliar, debe consumir `--civitas-popover-*`; si usa scrim, el scrim consume `--civitas-overlay-backdrop`, no el panel.
 - `Tooltip` futuro: debe consumir `--civitas-tooltip-*` y `--civitas-z-tooltip`.
@@ -518,22 +509,21 @@ El menú lateral queda cerrado como primitive oficial en `frontend/src/styles/la
 - Jerarquía: `NavCollapse` emite `data-depth`, `data-active`, `data-expanded` y `data-has-children`; depth 0 no suma indent, depth 1 suma `--civitas-nav-child-indent`, y depth 2 suma dos veces ese token. La indentación siempre se suma al padding base, nunca reemplaza `--civitas-nav-item-padding-x`.
 - Hover: `--civitas-nav-item-bg-hover`; debe ser sutil y no puede parecer estado activo.
 - Active: `--civitas-nav-item-bg-active`, `--civitas-nav-item-text-active`, `--civitas-nav-item-icon-active`; usa una sola lógica tonal basada en el primary oficial, sin degradado, doble borde ni shadow flotante, y no altera columnas, padding ni ancho del item.
-- Expanded/collapsed: el grupo usa `civitas-nav-tree-group` y `data-civitas-nav-expanded`; el chevron usa `--civitas-nav-chevron` / `--civitas-nav-chevron-active`, ocupa la columna trailing fija y rota con transición mínima, sin cápsula ni borde decorativo.
-- Collapse button: `civitas-sidebar-toggle` consume `--civitas-nav-collapse-bg`, `--civitas-nav-collapse-bg-hover`, `--civitas-nav-collapse-icon`, `--civitas-nav-collapse-button-size` y `--civitas-radius-md`; queda definido como icon button de sistema integrado al shell, sin borde blanco brillante ni glow. Su tamaño y el de los íconos de navegación no cambian entre `expanded` y `collapsed`; solo aparece/desaparece el label.
+- Expanded tree: el grupo usa `civitas-nav-tree-group` y `data-civitas-nav-expanded`; el chevron usa `--civitas-nav-chevron` / `--civitas-nav-chevron-active`, ocupa la columna trailing fija y rota con transición mínima, sin cápsula ni borde decorativo.
+- No desktop collapse button: durante Phase 2 no existe `civitas-sidebar-toggle`, rail contraído ni preferencia local de collapsed mode; los labels permanecen visibles en desktop.
 - Scroll desktop: `civitas-sidebar` es el shell visual con altura `100vh` + `--civitas-viewport-height` y `overflow: hidden`; la región que scrollea es `civitas-sidebar .civitas-nav-row`, con `min-height: 0`, `overflow-y: auto` y `--civitas-nav-scroll-padding`.
 - Scroll tablet/mobile: el drawer fixed usa `--civitas-sidebar-mobile-width`, `100vh` + `--civitas-nav-mobile-max-height`, `overflow: hidden` y conserva `civitas-nav-row` como única región vertical scrolleable del menú. Esto evita que un body/root lock bloquee el scroll interno del panel.
 - Focus-visible: `--civitas-nav-focus-ring`; disabled: `--civitas-disabled`.
-- Flyout collapsed: `--civitas-nav-flyout-bg`, `--civitas-nav-flyout-border`, `--civitas-nav-flyout-shadow`, `--civitas-popover-radius`, `--civitas-popover-offset`, `--civitas-z-nav-flyout`, `--civitas-nav-flyout-min-width` y `--civitas-nav-flyout-max-width`; es opaco, no usa `surface-translucent`, y no puede mostrarse junto con tooltip en el mismo trigger.
+- No collapsed flyout: los tokens y selectores de flyout de rail se retiran mientras no exista un modo contraído validado.
 
 
 #### Máquina de estados del sidebar
 
 - `expanded`: `data-civitas-sidebar-state="expanded"`; el shell usa `--civitas-sidebar-width`, labels visibles y navegación inline.
-- `collapsed`: `data-civitas-sidebar-state="collapsed"`; el shell usa `--civitas-sidebar-collapsed-width`, labels ocultos en el rail principal y navegación mínima por iconos.
-- `flyout-open`: estado efímero CSS (`:hover` / `:focus-within`) disponible solo bajo `.civitas-shell-sidebar-collapsed`; abre un panel contextual del item, no cambia `data-civitas-sidebar-state`, no modifica la preferencia persistida y no empuja el layout principal.
-- `mobile-open`: `data-civitas-sidebar-mobile-state="mobile-open"`; drawer visible en mobile/tablet, independiente de la preferencia desktop `expanded/collapsed`.
+- `expanded`: `data-civitas-sidebar-state="expanded"`; durante Phase 2 desktop usa sidebar expandido fijo sin rail contraído controlado por usuario.
+- `mobile-open`: `data-civitas-sidebar-mobile-state="mobile-open"`; drawer visible en mobile/tablet, independiente de cualquier preferencia desktop; no existe preferencia `collapsed` durante Phase 2.
 
-Regla de transición: solo `civitas-sidebar-toggle` puede persistir el cambio `expanded <-> collapsed`. Abrir un flyout o abrir/cerrar el drawer mobile no escribe la preferencia desktop y no puede reexpandir el shell colapsado.
+Regla de transición Phase 2: no existe `civitas-sidebar-toggle` ni preferencia desktop persistida. Abrir/cerrar el drawer mobile no escribe estado desktop.
 
 Este contrato aplica en light y dark theme. Cualquier cambio futuro del menú debe ajustar primero estos tokens o primitives; no se aceptan estilos locales ni inline styles para identidad visual.
 
@@ -661,7 +651,6 @@ Ejemplo normativo:
   --radius-card: var(--civitas-radius-lg);
   --radius-control: var(--civitas-radius-md);
   --spacing-sidebar: var(--civitas-sidebar-width);
-  --spacing-sidebar-collapsed: var(--civitas-sidebar-collapsed-width);
 }
 ```
 
@@ -689,7 +678,7 @@ Referencias oficiales:
 
 AppShell puede consumir ambos resultados, pero no define permisos, topología, labels canónicos, colores, spacing o componentes de negocio.
 
-El bloque Sidebar Layout de Tailwind Plus puede servir como referencia visual. No reemplaza la máquina de estados, rutas, responsive, collapsed state o Navigation Registry de AppShell/NavCollapse.
+El bloque Sidebar Layout de Tailwind Plus puede servir como referencia visual. No reemplaza la máquina de estados, rutas, responsive o Navigation Registry de AppShell/NavCollapse; el collapsed rail desktop queda fuera de Phase 2.
 
 ### 12.4 Capa React reusable
 
@@ -770,7 +759,7 @@ La deuda existente usa una allowlist finita con owner, motivo y fecha de elimina
 - owner y tenant;
 - light y dark;
 - desktop, tablet y mobile;
-- sidebar expanded, collapsed y drawer;
+- sidebar expanded y drawer mobile;
 - keyboard y focus-visible;
 - reduced motion;
 - empty, loading, error y planned;
@@ -859,7 +848,7 @@ Ownership por capa:
 Namespaces Tailwind expuestos por el bridge de #113:
 
 - color semántico: `bg-bg`, `bg-surface`, `bg-surface-raised`, `bg-surface-subtle`, `border-border`, `border-border-strong`, `text-text`, `text-body`, `text-muted`, `text-muted-strong`, `bg-primary`, `text-primary`, `text-primary-strong`, `text-primary-contrast`, estados `info`, `success`, `warning`, `danger`, `neutral`, `disabled` y `focus`;
-- spacing canónico usado: `0`, `1`, `2`, `3`, `4`, `5`, `6`, `8`, `10`, `12`, además de `sidebar` y `sidebar-collapsed`;
+
 - typography usada: `xs`, `sm`, `base`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`;
 - radius usado: `sm`, `md`, `lg`, `xl`, `full`, `card` y `control`.
 
@@ -964,7 +953,7 @@ permission catalog / backend operation contract
 
 Contract files and ownership:
 
-- `frontend/src/navigation/routes.ts` declares the canonical owner and tenant navigation trees. Owner topology keeps `Governance` under `Overview`, `Worker runtime` as a child group of `Overview`, visual label `Directory` for `/owner/organizations`, stable `Settings`, and `Profile` as the account surface.
+- `frontend/src/navigation/routes.ts` declares the canonical owner and tenant navigation trees. Owner navigation contract v2 makes `Governance` a main Phase 2 surface, consolidates runtime into direct `Operations`, keeps `Directory` / `Create` under `Organizations`, hides empty `Settings` children and hides `Profile` until a functional account surface exists.
 - `frontend/src/navigation/route-builders.ts` is the only frontend builder for parameterized route patterns. It rejects missing, empty, or literal placeholder params so `%3AorganizationId` cannot be produced by navigation code.
 - `frontend/src/layouts/AppShell.tsx` receives already-resolved navigation and exposes an explicit `navigation-required-but-empty` failure state instead of silently falling back to `emptyNavItems`.
 - `frontend/src/layouts/OwnerLayout.tsx` and `frontend/src/layouts/OrganizationLayout.tsx` materialize the canonical owner/tenant trees for the shell; they do not define an alternate topology.
@@ -984,3 +973,14 @@ Governance matrix for the current branch:
 | Tenant | `tenant-governance` | `governance.access.preview` | `governance.tenant.read` + `governance.preview.read` | `governance.readModel` / `governance.accessPreview` | `unavailable` until handlers are mounted |
 
 This status means #111 is prepared for closure only after PR #102 is updated with these contracts, CI is green against `main`, and the GitHub-side required-review/ruleset status is verified.
+
+
+## Navigation product validation update — owner contract v2
+
+Product visual validation superseded the earlier #111 hierarchy that placed Governance under Overview and exposed Worker runtime as a nested accordion. The frozen Phase 2 owner topology is now: `Overview`, `Governance`, `Operations`, `Organizations → Directory/Create`, optional `Settings` only when it has active destinations, and optional `Profile` only when it renders a functional surface.
+
+Governance is a primary Phase 2 destination. Overview may summarize or link to Governance, but it does not contain Governance as a child and does not control its visibility. Operations is a single direct dashboard entry; runtime status, worker queues and diagnostics belong inside that dashboard rather than as permanent sidebar children. Organization detail remains contextual and is not a static sidebar item.
+
+Desktop navigation uses a stable expanded sidebar during Phase 2. The desktop collapsed rail, rail tooltips, rail flyouts and persisted rail preference are removed. Mobile/tablet keeps the responsive drawer with accessible labels, Escape/backdrop close behavior and focus-visible navigation. Reintroducing a collapsed rail requires a new issue/decision record with usage evidence, validated design and CODEOWNER review.
+
+Navigation contract changes require: version bump, canonical snapshot/test update, product justification, CODEOWNER review, desktop/mobile visual validation and migration notes for stable route changes. CI validates the executable contract, but GitHub branch protection/rulesets must still require human CODEOWNER review.

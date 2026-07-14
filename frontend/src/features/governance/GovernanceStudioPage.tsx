@@ -23,8 +23,8 @@ const moduleLabels: Record<GovernanceModuleKey, string> = { overview: "Overview 
 const tenantModuleLabels: Partial<Record<GovernanceModuleKey, string>> = { permissions: "Active permissions", "data-scope": "Data assignments" };
 const tabsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceTabs : tenantGovernanceTabs;
 const buildGovernancePath = (surface: GovernanceSurface, organizationId: string) => {
-  if (!organizationId) return "";
-  return surface === "owner" ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? "" : appRoutes.tenantGovernance.build?.({ organizationId }) ?? "";
+  if (!organizationId) return surface === "owner" ? appRoutes.ownerGovernance.path : "";
+  return surface === "owner" ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerGovernance.path : appRoutes.tenantGovernance.build?.({ organizationId }) ?? "";
 };
 const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId: string) => {
   if (!organizationId) return appRoutes.ownerOrganizations.path;

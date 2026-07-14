@@ -47,7 +47,9 @@ function AppContent() {
       <Route path={appRoutes.ownerOrganizations.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-organizations"><OwnerOrganizationsIndexPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerCreateOrganization.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-organizations-create"><OwnerOrganizationsPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationState.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-organization-state"><OwnerOrganizationOperationalPage /></ScreenGate></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerGovernance.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-organization-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernance.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-organization-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerSystem.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-worker-queues"><OwnerWorkerQueuesPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-worker-queues"><OwnerWorkerQueuesPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.tenantGovernance.path} element={<TenantGovernanceRoute />} />
       <Route path="/:orgId" element={<OrganizationPage />} />
