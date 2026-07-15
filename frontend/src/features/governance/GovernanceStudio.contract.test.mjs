@@ -114,8 +114,13 @@ test("governance read model contract validates real mounted fixture", () => {
   assert.equal(fixture.modules.taxonomy.status, "planned");
   assert.equal(fixture.modules["access-preview"].status, "unavailable");
   assert.ok(Array.isArray(fixture.operationRegistry.operations));
+  assert.equal(fixture.roles[0].canonicalKey, "organization_admin");
+  assert.equal(fixture.members[0].display.startsWith("sub_"), true);
+  assert.equal(JSON.stringify(fixture).includes("secret@example.test"), false);
   assert.match(contract, /validateGovernanceReadModel/);
   assert.match(contract, /\$\.modules.\$\{key\}\.status/);
   assert.match(contract, /\$\.operationRegistry\.operations/);
+  assert.match(contract, /GovernanceRoleSummary/);
+  assert.match(contract, /GovernanceMemberSummary/);
   assert.match(api, /assertGovernanceReadModel/);
 });

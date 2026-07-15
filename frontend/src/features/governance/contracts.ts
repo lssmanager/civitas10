@@ -42,7 +42,12 @@ export type PermissionMatrixReason = {
   };
 };
 
+export type GovernanceRoleSummary = { id: string; canonicalKey: string; displayName: string; assignedMemberCount: number; potentialPermissions: PermissionKey[]; ceilingCoverage: number };
+export type GovernanceMemberSummary = { id: string; display: string; roleIds: string[]; roleAliases: string[]; dataScopeSummary: string; allowedAssignmentActions: string[] };
+
 export type GovernancePermissionMatrixRow = {
+  roleId?: string;
+  roleKey?: string;
   permission: PermissionKey;
   canonical: boolean;
   rolePotential: boolean | null;
@@ -70,6 +75,8 @@ export type GovernanceReadModel = {
   versions: GovernanceVersionSummary;
   runtimeStatus?: "current" | "pending" | "stale" | "drift";
   modules: Partial<Record<GovernanceModuleKey, { status: GovernanceModuleStatus; reason?: string; dependencyVersions?: GovernanceVersionSummary }>>;
+  roles?: GovernanceRoleSummary[];
+  members?: GovernanceMemberSummary[];
   operationRegistry?: { registryVersion: string; operations: Array<Record<string, unknown>> };
   moduleInventory?: Array<Record<string, unknown>>;
   summary?: Record<string, unknown>;
@@ -109,6 +116,8 @@ export const validateGovernanceReadModel = (value: unknown): GovernanceContractV
     if (!["active", "planned", "unavailable", "denied", "stale", "error", "ready", "pending", "blocked"].includes(String(module.status))) return fail(`$.modules.${key}.status`, version, "module status is invalid");
     if (module.reason !== undefined && typeof module.reason !== "string") return fail(`$.modules.${key}.reason`, version, "module reason must be a string");
   }
+  if (value.roles !== undefined && !Array.isArray(value.roles)) return fail("$.roles", version, "roles must be an array");
+  if (value.members !== undefined && !Array.isArray(value.members)) return fail("$.members", version, "members must be an array");
   for (const key of ["permissionMatrix", "taxonomy", "units", "dataScopes", "accessPreviews", "auditEvents", "diagnostics"] as const) if (!Array.isArray(value[key])) return fail(`$.${key}`, version, `${key} must be an array`);
   if (!isRecord(value.aliasesNavigation)) return fail("$.aliasesNavigation", version, "aliasesNavigation must be an object");
   return { ok: true, value: value as GovernanceReadModel };

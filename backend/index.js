@@ -11,6 +11,9 @@ const { createSecurityPolicyRegistry } = require("./middleware/securityPolicies"
 const {
   listLogtoOrganizations,
   listLogtoOrganizationRoles,
+  listLogtoOrganizationUsers,
+  listLogtoOrganizationUserRoles,
+  assignOrganizationRoleToUser,
   getLogtoOrganizationById,
 } = require("./services/logtoManagement");
 const {
@@ -34,6 +37,7 @@ const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganization
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { buildGovernanceReadModel, assertTenantRouteMatchesContext } = require("./services/governanceReadModel");
+const { updateOwnerCeilings, updateTenantActivations, roleMapFromRoles } = require("./services/governanceRolesReadModel");
 const { requireGlobalOwner } = require("./authorization/guards");
 const { organizationPath } = require("./routes/tenantRoutes");
 const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
@@ -370,9 +374,23 @@ secureRoute.get("/owner/organizations/:organizationId/operational-state", "owner
 secureRoute.get("/owner/organizations/:organizationId/governance", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerProfileRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
   try {
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
-    return res.json(buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "owner" }));
+    const roles = await listLogtoOrganizationRoles();
+    const members = await listLogtoOrganizationUsers({ organizationId: req.params.organizationId }).catch(() => []);
+    const memberRolesByUserId = new Map(await Promise.all(members.map(async (user) => [user.id || user.userId || user.logtoUserId, await listLogtoOrganizationUserRoles({ organizationId: req.params.organizationId, userId: user.id || user.userId || user.logtoUserId }).catch(() => [])])));
+    return res.json(await buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "owner", roles, members, memberRolesByUserId }));
   } catch (error) {
     return sendPublicError(res, error, "OwnerGovernanceReadModelError", "Failed to build owner governance read model");
+  }
+});
+
+
+secureRoute.put("/owner/organizations/:organizationId/governance/entitlement-ceilings", "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerRuntimeOperationsExecute] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
+  try {
+    const roles = await listLogtoOrganizationRoles();
+    const result = await updateOwnerCeilings({ organizationId: req.params.organizationId, actorLogtoUserId: req.user?.sub || req.user?.id, changes: req.body?.changes || [], expectedPolicyVersion: req.body?.expectedPolicyVersion, roleIdToName: roleMapFromRoles(roles), reason: req.body?.reason || "owner_ceiling_update" });
+    return res.json({ contractVersion: "2026-07-civitas10-governance-roles-v1", ...result });
+  } catch (error) {
+    return sendPublicError(res, error, "OwnerGovernanceCeilingError", "Failed to update owner entitlement ceilings");
   }
 });
 
@@ -453,9 +471,37 @@ secureRoute.get("/o/:organizationId/governance", "organizationMemberRead", requi
   try {
     assertTenantRouteMatchesContext(req);
     const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);
-    return res.json(buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "tenant" }));
+    const roles = await listLogtoOrganizationRoles();
+    const members = await listLogtoOrganizationUsers({ organizationId: req.params.organizationId }).catch(() => []);
+    const memberRolesByUserId = new Map(await Promise.all(members.map(async (user) => [user.id || user.userId || user.logtoUserId, await listLogtoOrganizationUserRoles({ organizationId: req.params.organizationId, userId: user.id || user.userId || user.logtoUserId }).catch(() => [])])));
+    return res.json(await buildGovernanceReadModel({ organization: logtoOrganization, organizationId: req.params.organizationId, surface: "tenant", roles, members, memberRolesByUserId }));
   } catch (error) {
     return sendPublicError(res, error, "TenantGovernanceReadModelError", "Failed to build tenant governance read model");
+  }
+});
+
+
+secureRoute.put("/o/:organizationId/governance/role-activations", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), async (req, res) => {
+  try {
+    assertTenantRouteMatchesContext(req);
+    const roles = await listLogtoOrganizationRoles();
+    const result = await updateTenantActivations({ organizationId: req.params.organizationId, actorLogtoUserId: req.user?.sub || req.user?.id, changes: req.body?.changes || [], expectedPolicyVersion: req.body?.expectedPolicyVersion, roleIdToName: roleMapFromRoles(roles), reason: req.body?.reason || "tenant_activation_update" });
+    return res.json({ contractVersion: "2026-07-civitas10-governance-roles-v1", ...result });
+  } catch (error) {
+    return sendPublicError(res, error, "TenantGovernanceActivationError", "Failed to update tenant role activations");
+  }
+});
+
+secureRoute.post("/o/:organizationId/governance/member-role-assignments", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), async (req, res) => {
+  try {
+    assertTenantRouteMatchesContext(req);
+    const roleId = String(req.body?.logtoRoleId || "");
+    const userId = String(req.body?.logtoUserId || "");
+    if (!roleId || !userId) return res.status(400).json({ error: "ValidationError", message: "logtoUserId and logtoRoleId are required." });
+    await assignOrganizationRoleToUser({ organizationId: req.params.organizationId, userId, organizationRoleId: roleId });
+    return res.status(202).json({ contractVersion: "2026-07-civitas10-governance-roles-v1", status: "accepted", organizationId: req.params.organizationId, target: { logtoUserId: userId, logtoRoleId: roleId } });
+  } catch (error) {
+    return sendPublicError(res, error, "TenantGovernanceRoleAssignmentError", "Failed to assign organization role");
   }
 });
 

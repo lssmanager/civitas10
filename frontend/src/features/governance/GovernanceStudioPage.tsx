@@ -82,7 +82,7 @@ const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTe
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
   if (activeModule === "overview") return <OverviewModule model={model} onSelectTab={(tab) => onSelectSection(tabToSection[tab as GovernanceTabId] ?? "overview")} />;
   if (activeModule === "permissions") return <PermissionMatrixModule rows={model.permissionMatrix} surface={model.surface} />;
-  if (activeModule === "members") return <MembersRoleAssignmentsModule />;
+  if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
   if (activeModule === "taxonomy") return <TaxonomyModule items={model.taxonomy} />;
   if (activeModule === "units") return <UnitsModule units={model.units} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;

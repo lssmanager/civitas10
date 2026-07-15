@@ -16,7 +16,7 @@ const ReasonCell = ({ reason }: { reason: PermissionMatrixReason }) => (
 );
 
 const columns: DataTableColumn<GovernancePermissionMatrixRow>[] = [
-  { key: "permission", header: "Permission", render: (row) => <span className="font-medium text-text">{row.permission}</span> },
+  { key: "permission", header: "Permission", render: (row) => <span className="font-medium text-text">{row.roleKey ? `${row.roleKey} · ` : ""}{row.permission}</span> },
   { key: "canonical", header: "Canonical", render: (row) => <BooleanCell value={row.canonical} /> },
   { key: "rolePotential", header: "Role potential", render: (row) => <BooleanCell value={row.reason.code === "not_canonical" ? null : row.rolePotential} /> },
   { key: "ownerAllowed", header: "Owner allowed", render: (row) => <BooleanCell value={row.reason.code === "not_canonical" ? null : row.ownerAllowed} /> },
@@ -27,6 +27,6 @@ const columns: DataTableColumn<GovernancePermissionMatrixRow>[] = [
 
 export const PermissionMatrixModule = ({ rows, surface }: { rows: readonly GovernancePermissionMatrixRow[]; surface: GovernanceSurface }) => (
   <SectionCard title={surface === "owner" ? "Roles and permissions" : "Active permissions"} description="Review the returned permission decisions and the first reason that limits an effective permission.">
-    <DataTable columns={columns} data={[...rows]} getKey={(row) => row.permission} emptyState={<EmptyState message="No permission evaluation available"><p className="text-sm text-muted-strong">The organization does not yet have permission evaluation data.</p></EmptyState>} />
+    <DataTable columns={columns} data={[...rows]} getKey={(row) => `${row.roleId || "global"}:${row.permission}`} emptyState={<EmptyState message="No permission evaluation available"><p className="text-sm text-muted-strong">The organization does not yet have permission evaluation data.</p></EmptyState>} />
   </SectionCard>
 );

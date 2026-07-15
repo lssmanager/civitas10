@@ -9,3 +9,9 @@ test('owner and tenant governance read-model endpoints are mounted and protected
   assert.match(source, /secureRoute\.get\("\/o\/:organizationId\/governance", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ\.documentsRead\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH\.organization\.roles\.member\), requirePermission\(ORG_AUTHZ\.documentsRead\)/);
   assert.match(source, /assertTenantRouteMatchesContext\(req\)/);
 });
+
+test('governance roles mutation endpoints are mounted and protected separately', () => {
+  assert.match(source, /secureRoute\.put\("\/owner\/organizations\/:organizationId\/governance\/entitlement-ceilings", "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ\.ownerRuntimeOperationsExecute\] \}\), requireGlobalOwner/);
+  assert.match(source, /secureRoute\.put\("\/o\/:organizationId\/governance\/role-activations", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ\.documentsCreate\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH\.organization\.roles\.admin\), requirePermission\(ORG_AUTHZ\.documentsCreate\)/);
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/member-role-assignments", "organizationAdminWrite"/);
+});
