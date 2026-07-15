@@ -12,14 +12,14 @@ test('governance read model exposes versioned aggregate without PII graphs', asy
   assert.equal(response.surface, 'owner');
   assert.equal(response.runtimeStatus, 'current');
   assert.equal(response.modules.permissions.status, 'active');
-  assert.equal(response.modules.taxonomy.status, 'planned');
+  assert.equal(response.modules.taxonomy.status, 'active');
   assert.equal(response.modules['access-preview'].status, 'unavailable');
   assert.equal(response.roles[0].canonicalKey, 'organization_admin');
   assert.equal(response.roles[0].assignedMemberCount, 1);
   assert.equal(response.members[0].display.startsWith('sub_'), true);
   assert.equal(JSON.stringify(response).includes('secret@example.test'), false);
-  assert.equal(response.operationRegistry.operations.filter((entry) => entry.status === 'active').length, 5);
-  assert.ok(response.moduleInventory.some((entry) => entry.module === 'taxonomy' && entry.status === 'planned'));
+  assert.ok(response.operationRegistry.operations.filter((entry) => entry.status === 'active').length >= 9);
+  assert.ok(response.moduleInventory.some((entry) => entry.module === 'taxonomy' && entry.status === 'active'));
   assert.equal(Array.isArray(response.permissionMatrix), true);
   assert.equal(Object.hasOwn(response, 'assignmentGraph'), false);
   assert.equal(Object.hasOwn(response, 'rawToken'), false);

@@ -2,6 +2,7 @@
 
 const { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory } = require("../../core/governance/operation-registry.cjs");
 const { buildRolesGovernanceSlice } = require("./governanceRolesReadModel");
+const { buildStructureGovernanceSlice } = require("./governanceStructureReadModel");
 
 const MODULE_KEYS = Object.freeze(["overview", "permissions", "members", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]);
 const TENANT_MODULES = Object.freeze(new Set(["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"]));
@@ -93,6 +94,7 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
   const modules = buildModules({ surface, versions });
   const logtoOrganizationId = organizationId || safeString(organization?.id) || safeString(organization?.logtoOrganizationId);
   const rolesSlice = await buildRolesGovernanceSlice({ organizationId: logtoOrganizationId, roles, members, memberRolesByUserId });
+  const structureSlice = await buildStructureGovernanceSlice(logtoOrganizationId);
   return {
     contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION,
     generatedAt: isoNow(),
@@ -115,13 +117,13 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
     roles: rolesSlice.roles,
     members: rolesSlice.members,
     permissionMatrix: rolesSlice.permissionMatrix.length ? rolesSlice.permissionMatrix : buildPermissionMatrix(versions),
-    taxonomy: [],
-    units: [],
-    dataScopes: [],
+    taxonomy: structureSlice.taxonomy.items,
+    units: structureSlice.units.items,
+    dataScopes: structureSlice.dataScopes.items,
     aliasesNavigation: buildAliasesNavigation(),
     accessPreviews: [],
-    auditSummary: { totalEvents: rolesSlice.auditEvents.length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || null, redaction: "actor_subjects_and_before_after_payloads_redacted_in_aggregate" },
-    auditEvents: rolesSlice.auditEvents.map((event, index) => ({ id: `audit_${index + 1}`, actorId: event.actorLogtoUserId ? "redacted_actor" : "system", organizationId: logtoOrganizationId, target: event.targetType || event.permission || "governance", action: event.action, reason: event.reason || "governance_mutation", contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION, createdAt: event.createdAt })),
+    auditSummary: { totalEvents: rolesSlice.auditEvents.length + structureSlice.auditEvents.length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || structureSlice.auditEvents.at(-1)?.createdAt || null, redaction: "actor_subjects_and_before_after_payloads_redacted_in_aggregate" },
+    auditEvents: [...rolesSlice.auditEvents, ...structureSlice.auditEvents].map((event, index) => ({ id: `audit_${index + 1}`, actorId: event.actorLogtoUserId ? "redacted_actor" : "system", organizationId: logtoOrganizationId, target: event.targetType || event.permission || "governance", action: event.action, reason: event.reason || "governance_mutation", contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION, createdAt: event.createdAt })),
     diagnostics: [
       { code: "governance_read_model_projection", severity: "info", message: "Aggregate read model is mounted; feature writes remain in owning APIs." },
       ...(versions.runtimeStatus === "current" ? [] : [{ code: versions.runtimeStatus === "drift" ? "authorization_version_drift" : "authorization_snapshot_stale", severity: "warning", message: "Authorization runtime is not current." }]),

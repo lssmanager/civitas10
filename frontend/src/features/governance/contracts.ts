@@ -57,9 +57,9 @@ export type GovernancePermissionMatrixRow = {
   reason: PermissionMatrixReason;
 };
 
-export type GovernanceTaxonomyItem = { id: string; dimension: string; label: string; status: "active" | "archived"; assignable: boolean };
-export type GovernanceUnitItem = { id: string; label: string; parentId?: string; status: "active" | "archived"; memberCount?: number };
-export type GovernanceDataScopeAssignment = { principalId: string; capability: string; taxonomyIds: string[]; unitIds: string[]; resourceSummary: string; effective: boolean; reason: string };
+export type GovernanceTaxonomyItem = { id: string; dimension: string; stableKey?: string; label: string; parentId?: string; status: "draft" | "active" | "deprecating" | "archived"; assignable: boolean; sourceVersion?: string };
+export type GovernanceUnitItem = { id: string; label: string; stableKey?: string; unitType?: string; hierarchyKey?: string; parentId?: string; status: "draft" | "active" | "archived"; memberCount?: number; relationshipCount?: number; capabilityGroupCount?: number; reconciliationStatus?: string; sourceVersion?: string };
+export type GovernanceDataScopeAssignment = { id?: string; principalId: string; roleId?: string | null; capability: string; action?: string; scopeType?: string; taxonomyIds: string[]; unitIds: string[]; resourceSummary: string; effective: boolean; source?: string; reason: string; unresolvedReason?: string | null; sourceVersion?: string };
 export type GovernanceAliasNavigationPolicy = { aliasesTenantEditable: boolean; navigationTenantEditable: boolean; visualPreferences: Array<{ screenId: ScreenId; hidden?: boolean; order?: number; locked: boolean }> };
 export type GovernanceAccessPreview = { subjectId: string; actionId?: ActionId; screenId?: ScreenId; decision: { allowed: boolean; reason: VisualDecisionReason | PermissionMatrixReasonCode | string; sourceVersions: PermissionMatrixReason["sourceVersions"] } };
 export type GovernanceAuditEvent = { id: string; actorId: string; organizationId: string; target: string; action: string; before?: unknown; after?: unknown; reason: string; contractVersion: string; createdAt: string };

@@ -76,6 +76,67 @@
       "responseSchema": "GovernanceRoleAssignmentMutation"
     },
     {
+      "operationId": "governance.taxonomyValues",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/taxonomy/values",
+      "expressPattern": "/o/:organizationId/governance/taxonomy/values",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceTaxonomyMutation"
+    },
+    {
+      "operationId": "governance.taxonomyPublish",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/taxonomy/publish",
+      "expressPattern": "/o/:organizationId/governance/taxonomy/publish",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceTaxonomyMutation"
+    },
+    {
+      "operationId": "governance.units",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/units",
+      "expressPattern": "/o/:organizationId/governance/units",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceUnitMutation"
+    },
+    {
+      "operationId": "governance.dataScopes",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/data-scopes",
+      "expressPattern": "/o/:organizationId/governance/data-scopes",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "authorization-resource-in-scope"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceDataScopeMutation"
+    },
+    {
       "operationId": "governance.accessPreview",
       "method": "POST",
       "pattern": "/owner/organizations/{organizationId}/access-preview",
@@ -154,42 +215,45 @@
     {
       "module": "taxonomy",
       "repository": "backend/taxonomy",
-      "service": "taxonomy services present; owning product route not mounted",
-      "permission": "org.documents.read",
+      "service": "taxonomy values and publish operations",
+      "permission": "org.documents.create",
       "policies": [
-        "same-organization"
+        "same-organization",
+        "organization_admin"
       ],
-      "mountedOperation": null,
-      "version": "not_mounted",
-      "status": "planned",
-      "reason": "taxonomy_read_endpoint_not_mounted"
+      "mountedOperation": "governance.taxonomyValues|governance.taxonomyPublish",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "taxonomy_operations_mounted"
     },
     {
       "module": "units",
       "repository": "backend/organization-structure",
-      "service": "unit services present; owning product route not mounted",
-      "permission": "org.documents.read",
+      "service": "unit hierarchy operations",
+      "permission": "org.documents.create",
       "policies": [
-        "same-organization"
+        "same-organization",
+        "organization_admin"
       ],
-      "mountedOperation": null,
-      "version": "not_mounted",
-      "status": "planned",
-      "reason": "unit_read_endpoint_not_mounted"
+      "mountedOperation": "governance.units",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "unit_operations_mounted"
     },
     {
       "module": "data-scope",
       "repository": "backend/authorization/data-scope",
-      "service": "data-scope services present; owning product route not mounted",
-      "permission": "org.documents.read",
+      "service": "data-scope assignment operations",
+      "permission": "org.documents.create",
       "policies": [
         "same-organization",
+        "organization_admin",
         "authorization-resource-in-scope"
       ],
-      "mountedOperation": null,
-      "version": "not_mounted",
-      "status": "planned",
-      "reason": "data_scope_read_endpoint_not_mounted"
+      "mountedOperation": "governance.dataScopes",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "data_scope_operations_mounted"
     },
     {
       "module": "aliases-navigation",

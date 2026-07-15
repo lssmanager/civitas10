@@ -15,3 +15,10 @@ test('governance roles mutation endpoints are mounted and protected separately',
   assert.match(source, /secureRoute\.put\("\/o\/:organizationId\/governance\/role-activations", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ\.documentsCreate\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH\.organization\.roles\.admin\), requirePermission\(ORG_AUTHZ\.documentsCreate\)/);
   assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/member-role-assignments", "organizationAdminWrite"/);
 });
+
+test('taxonomy units and data-scope owning endpoints are mounted and organization protected', () => {
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/taxonomy\/values", "organizationAdminWrite"/);
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/taxonomy\/publish", "organizationAdminWrite"/);
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/units", "organizationAdminWrite"/);
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/data-scopes", "organizationAdminWrite"/);
+});

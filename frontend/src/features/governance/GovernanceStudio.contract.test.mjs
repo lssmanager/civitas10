@@ -111,9 +111,12 @@ test("governance read model contract validates real mounted fixture", () => {
   const fixture = JSON.parse(readFileSync(new URL("./fixtures/governance-read-model-owner.json", import.meta.url), "utf8"));
   assert.equal(fixture.contractVersion, "2026-07-civitas10-governance-read-model-v1");
   assert.equal(fixture.modules.permissions.status, "active");
-  assert.equal(fixture.modules.taxonomy.status, "planned");
+  assert.equal(fixture.modules.taxonomy.status, "active");
   assert.equal(fixture.modules["access-preview"].status, "unavailable");
   assert.ok(Array.isArray(fixture.operationRegistry.operations));
+  assert.ok(fixture.taxonomy.length > 0);
+  assert.ok(fixture.units.length > 0);
+  assert.ok(fixture.dataScopes.length > 0);
   assert.equal(fixture.roles[0].canonicalKey, "organization_admin");
   assert.equal(fixture.members[0].display.startsWith("sub_"), true);
   assert.equal(JSON.stringify(fixture).includes("secret@example.test"), false);
