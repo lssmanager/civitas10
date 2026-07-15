@@ -1,10 +1,8 @@
 "use strict";
 
-const GOVERNANCE_READ_MODEL_CONTRACT_VERSION = "2026-07-civitas10-governance-read-model-v1";
-const GOVERNANCE_OPERATION_REGISTRY_VERSION = "2026-07-civitas10-governance-operations-v1";
+const { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory } = require("../../core/governance/operation-registry.cjs");
 
 const MODULE_KEYS = Object.freeze(["overview", "permissions", "members", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]);
-const ACTIVE_READ_MODULES = Object.freeze(new Set(["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "audit"]));
 const TENANT_MODULES = Object.freeze(new Set(["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"]));
 const OWNER_MODULES = Object.freeze(new Set(["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]));
 
@@ -33,10 +31,11 @@ function moduleStatus({ key, surface, versions }) {
   if (key === "members" && surface === "owner") return null;
   const supported = surface === "owner" ? OWNER_MODULES.has(key) : TENANT_MODULES.has(key);
   if (!supported) return null;
+  const inventory = moduleInventory.find((item) => item.module === key);
+  if (!inventory) return { status: "error", reason: "module_inventory_missing", dependencyVersions: versions };
   if (versions.runtimeStatus === "stale") return { status: "stale", reason: "authorization_snapshot_stale", dependencyVersions: versions };
   if (versions.runtimeStatus === "drift") return { status: "stale", reason: "authorization_version_drift", dependencyVersions: versions };
-  if (ACTIVE_READ_MODULES.has(key)) return { status: "active", reason: "read_model_projection_available", dependencyVersions: versions };
-  return { status: "planned", reason: "owning_operation_not_mounted", dependencyVersions: versions };
+  return { status: inventory.status, reason: inventory.reason, dependencyVersions: versions };
 }
 
 function buildModules({ surface, versions }) {
@@ -88,6 +87,7 @@ function buildAliasesNavigation() {
 }
 
 function buildGovernanceReadModel({ organization, organizationId, surface, stale = false, drift = false } = {}) {
+  if (!["owner", "tenant"].includes(surface)) { const error = new Error("Invalid governance surface."); error.status = 500; error.code = "GOVERNANCE_SURFACE_INVALID"; throw error; }
   const versions = buildVersions({ stale, drift });
   const modules = buildModules({ surface, versions });
   const logtoOrganizationId = organizationId || safeString(organization?.id) || safeString(organization?.logtoOrganizationId);
@@ -101,6 +101,8 @@ function buildGovernanceReadModel({ organization, organizationId, surface, stale
     versions,
     runtimeStatus: versions.runtimeStatus,
     modules,
+    operationRegistry: { registryVersion: GOVERNANCE_OPERATION_REGISTRY_VERSION, operations: governanceOperationRegistry },
+    moduleInventory,
     summary: {
       status: versions.runtimeStatus === "current" ? "available" : versions.runtimeStatus,
       activeModules: Object.values(modules).filter((item) => item.status === "active").length,
@@ -134,4 +136,4 @@ function assertTenantRouteMatchesContext(req) {
   }
 }
 
-module.exports = { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, buildGovernanceReadModel, assertTenantRouteMatchesContext };
+module.exports = { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory, buildGovernanceReadModel, assertTenantRouteMatchesContext };

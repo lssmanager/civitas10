@@ -97,9 +97,10 @@ test("governance modules are feature-owned and responsive-neutral", () => {
 
 test("governance unavailable operations prevent blind fetches", () => {
   const capabilities = readFileSync(new URL("./governance-capabilities.ts", import.meta.url), "utf8");
-  assert.match(capabilities, /governanceOperationRegistry/);
-  assert.match(capabilities, /operation: "governance.readModel"[\s\S]*status: "active"/);
-  assert.match(capabilities, /operation: "governance.accessPreview"[\s\S]*status: "unavailable"/);
+  assert.match(capabilities, /operation-registry\.generated\.json/);
+  const artifact = JSON.parse(readFileSync(new URL("./operation-registry.generated.json", import.meta.url), "utf8"));
+  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.readModel" && entry.surface === "owner").status, "active");
+  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.accessPreview" && entry.surface === "owner").status, "unavailable");
   assert.match(page, /!isGovernanceOperationActive\(surface, "governance.readModel"\)/);
   assert.match(page, /!isGovernanceOperationActive\(model.surface, "governance.accessPreview"\)/);
 });
@@ -110,7 +111,11 @@ test("governance read model contract validates real mounted fixture", () => {
   const fixture = JSON.parse(readFileSync(new URL("./fixtures/governance-read-model-owner.json", import.meta.url), "utf8"));
   assert.equal(fixture.contractVersion, "2026-07-civitas10-governance-read-model-v1");
   assert.equal(fixture.modules.permissions.status, "active");
+  assert.equal(fixture.modules.taxonomy.status, "planned");
+  assert.equal(fixture.modules["access-preview"].status, "unavailable");
+  assert.ok(Array.isArray(fixture.operationRegistry.operations));
   assert.match(contract, /validateGovernanceReadModel/);
   assert.match(contract, /\$\.modules.\$\{key\}\.status/);
+  assert.match(contract, /\$\.operationRegistry\.operations/);
   assert.match(api, /assertGovernanceReadModel/);
 });

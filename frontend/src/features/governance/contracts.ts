@@ -70,6 +70,8 @@ export type GovernanceReadModel = {
   versions: GovernanceVersionSummary;
   runtimeStatus?: "current" | "pending" | "stale" | "drift";
   modules: Partial<Record<GovernanceModuleKey, { status: GovernanceModuleStatus; reason?: string; dependencyVersions?: GovernanceVersionSummary }>>;
+  operationRegistry?: { registryVersion: string; operations: Array<Record<string, unknown>> };
+  moduleInventory?: Array<Record<string, unknown>>;
   summary?: Record<string, unknown>;
   permissionMatrix: GovernancePermissionMatrixRow[];
   taxonomy: GovernanceTaxonomyItem[];
@@ -100,6 +102,8 @@ export const validateGovernanceReadModel = (value: unknown): GovernanceContractV
   if (typeof value.versions.catalogVersion !== "string") return fail("$.versions.catalogVersion", version, "catalogVersion must be a string");
   if (!["current", "pending", "stale", "drift"].includes(String(value.runtimeStatus))) return fail("$.runtimeStatus", version, "runtimeStatus must be current, pending, stale or drift");
   if (!isRecord(value.modules)) return fail("$.modules", version, "modules must be an object");
+  if (!isRecord(value.operationRegistry)) return fail("$.operationRegistry", version, "operationRegistry must be an object");
+  if (!Array.isArray(value.operationRegistry.operations)) return fail("$.operationRegistry.operations", version, "operationRegistry.operations must be an array");
   for (const [key, module] of Object.entries(value.modules)) {
     if (!isRecord(module)) return fail(`$.modules.${key}`, version, "module must be an object");
     if (!["active", "planned", "unavailable", "denied", "stale", "error", "ready", "pending", "blocked"].includes(String(module.status))) return fail(`$.modules.${key}.status`, version, "module status is invalid");

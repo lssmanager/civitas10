@@ -9,7 +9,10 @@ test('governance read model exposes versioned aggregate without PII graphs', () 
   assert.equal(response.surface, 'owner');
   assert.equal(response.runtimeStatus, 'current');
   assert.equal(response.modules.permissions.status, 'active');
-  assert.equal(response.modules['access-preview'].status, 'planned');
+  assert.equal(response.modules.taxonomy.status, 'planned');
+  assert.equal(response.modules['access-preview'].status, 'unavailable');
+  assert.equal(response.operationRegistry.operations.filter((entry) => entry.status === 'active').length, 2);
+  assert.ok(response.moduleInventory.some((entry) => entry.module === 'taxonomy' && entry.status === 'planned'));
   assert.equal(Array.isArray(response.permissionMatrix), true);
   assert.equal(Object.hasOwn(response, 'assignmentGraph'), false);
   assert.equal(Object.hasOwn(response, 'rawToken'), false);
@@ -27,4 +30,9 @@ test('stale governance runtime is distinct from unavailable modules', () => {
   assert.equal(response.modules.permissions.status, 'stale');
   assert.equal(response.modules['access-preview'].status, 'stale');
   assert.ok(response.diagnostics.some((item) => item.code === 'authorization_snapshot_stale'));
+});
+
+
+test('malformed governance surface fails closed before building a response', () => {
+  assert.throws(() => buildGovernanceReadModel({ organizationId: 'org-1', surface: 'unknown' }), /Invalid governance surface/);
 });

@@ -1,0 +1,189 @@
+{
+  "registryVersion": "2026-07-civitas10-governance-operations-v1",
+  "operations": [
+    {
+      "operationId": "governance.readModel",
+      "method": "GET",
+      "pattern": "/owner/organizations/{organizationId}/governance",
+      "expressPattern": "/owner/organizations/:organizationId/governance",
+      "surface": "owner",
+      "permission": "owner.profile.read",
+      "policies": [
+        "owner_global"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-read-model-v1",
+      "responseSchema": "GovernanceReadModel"
+    },
+    {
+      "operationId": "governance.readModel",
+      "method": "GET",
+      "pattern": "/o/{organizationId}/governance",
+      "expressPattern": "/o/:organizationId/governance",
+      "surface": "tenant",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization",
+        "organization_member"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-read-model-v1",
+      "responseSchema": "GovernanceReadModel"
+    },
+    {
+      "operationId": "governance.accessPreview",
+      "method": "POST",
+      "pattern": "/owner/organizations/{organizationId}/access-preview",
+      "expressPattern": "/owner/organizations/:organizationId/access-preview",
+      "surface": "owner",
+      "permission": "governance.preview.read",
+      "policies": [
+        "authorization-snapshot-current"
+      ],
+      "status": "unavailable",
+      "contractVersion": "not_mounted",
+      "responseSchema": "GovernanceAccessPreview"
+    },
+    {
+      "operationId": "governance.accessPreview",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/access-preview",
+      "expressPattern": "/o/:organizationId/access-preview",
+      "surface": "tenant",
+      "permission": "governance.preview.read",
+      "policies": [
+        "same-organization",
+        "authorization-snapshot-current"
+      ],
+      "status": "unavailable",
+      "contractVersion": "not_mounted",
+      "responseSchema": "GovernanceAccessPreview"
+    }
+  ],
+  "modules": [
+    {
+      "module": "overview",
+      "repository": "backend/services/governanceReadModel.js",
+      "service": "buildGovernanceReadModel",
+      "permission": "owner.profile.read|org.documents.read",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "organization_member"
+      ],
+      "mountedOperation": "governance.readModel",
+      "version": "2026-07-civitas10-governance-read-model-v1",
+      "status": "active",
+      "reason": "aggregate_read_model_mounted"
+    },
+    {
+      "module": "permissions",
+      "repository": "backend/authorization/entitlements",
+      "service": "entitlement read projection summary",
+      "permission": "owner.profile.read|org.documents.read",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "organization_member"
+      ],
+      "mountedOperation": "governance.readModel",
+      "version": "2026-07-civitas10-governance-read-model-v1",
+      "status": "active",
+      "reason": "permission_matrix_summary_projected"
+    },
+    {
+      "module": "members",
+      "repository": "backend/authorization/delegation",
+      "service": "delegation services present; member owning route not mounted",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization",
+        "organization_member"
+      ],
+      "mountedOperation": null,
+      "version": "not_mounted",
+      "status": "planned",
+      "reason": "member_assignment_read_endpoint_not_mounted"
+    },
+    {
+      "module": "taxonomy",
+      "repository": "backend/taxonomy",
+      "service": "taxonomy services present; owning product route not mounted",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization"
+      ],
+      "mountedOperation": null,
+      "version": "not_mounted",
+      "status": "planned",
+      "reason": "taxonomy_read_endpoint_not_mounted"
+    },
+    {
+      "module": "units",
+      "repository": "backend/organization-structure",
+      "service": "unit services present; owning product route not mounted",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization"
+      ],
+      "mountedOperation": null,
+      "version": "not_mounted",
+      "status": "planned",
+      "reason": "unit_read_endpoint_not_mounted"
+    },
+    {
+      "module": "data-scope",
+      "repository": "backend/authorization/data-scope",
+      "service": "data-scope services present; owning product route not mounted",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization",
+        "authorization-resource-in-scope"
+      ],
+      "mountedOperation": null,
+      "version": "not_mounted",
+      "status": "planned",
+      "reason": "data_scope_read_endpoint_not_mounted"
+    },
+    {
+      "module": "aliases-navigation",
+      "repository": "frontend visual registry + backend authorization diagnostics",
+      "service": "read-only navigation summary",
+      "permission": "owner.profile.read|org.documents.read",
+      "policies": [
+        "owner_global",
+        "same-organization"
+      ],
+      "mountedOperation": "governance.readModel",
+      "version": "2026-07-civitas10-governance-read-model-v1",
+      "status": "planned",
+      "reason": "preference_write_endpoint_not_mounted"
+    },
+    {
+      "module": "access-preview",
+      "repository": "backend/authorization/diagnostics.js",
+      "service": "diagnostics present; preview HTTP handler not mounted",
+      "permission": "governance.preview.read",
+      "policies": [
+        "authorization-snapshot-current"
+      ],
+      "mountedOperation": "governance.accessPreview",
+      "version": "not_mounted",
+      "status": "unavailable",
+      "reason": "access_preview_handler_not_mounted"
+    },
+    {
+      "module": "audit",
+      "repository": "backend/authorization/runtime/outbox",
+      "service": "aggregate redacted audit summary only",
+      "permission": "owner.profile.read",
+      "policies": [
+        "owner_global"
+      ],
+      "mountedOperation": "governance.readModel",
+      "version": "2026-07-civitas10-governance-read-model-v1",
+      "status": "planned",
+      "reason": "paginated_audit_endpoint_not_mounted"
+    }
+  ]
+}
