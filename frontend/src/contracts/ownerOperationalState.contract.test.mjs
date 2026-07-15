@@ -12,7 +12,17 @@ test("owner organization detail consumes the capability-surface operational cont
   assert.equal(Object.hasOwn(fixture, "fluentcrm"), false);
   assert.match(contract, /type OwnerOperationalStateResponse/);
   assert.match(contract, /capabilities: OwnerCapabilityState\[\]/);
-  assert.match(page, /contractVersion\.includes\("owner-capability-surfaces"\)/);
-  assert.match(page, /isCapabilityState/);
+  assert.match(contract, /OPERATIONAL_CONTRACT_VERSION = "2026-07-civitas10-owner-capability-surfaces-v1"/);
+  assert.match(contract, /validateOperationalResponse/);
+  assert.match(contract, /const path = `\$\.capabilities\[\$\{index\}\]`/);
+  assert.match(page, /validateOperationalResponse\(response\)/);
   assert.doesNotMatch(page, /viewState\.organization\.fluentcrm|viewState\.organization\.canonical|viewState\.organization\.contactProgress/);
+});
+
+
+test("owner operational contract rejects null runtimeState and missing freshness source with paths", () => {
+  assert.match(contract, /runtimeState must be a non-null object/);
+  assert.match(contract, /`\$\{path\}\.runtimeState\.\$\{key\}`/);
+  assert.match(contract, /`\$\{path\}\.source`/);
+  assert.match(contract, /unsupported contract version/);
 });

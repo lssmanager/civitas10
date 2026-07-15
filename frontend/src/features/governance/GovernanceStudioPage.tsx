@@ -74,7 +74,7 @@ const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface
   aliasesNavigation: { aliasesTenantEditable: false, navigationTenantEditable: false, visualPreferences: [] },
   accessPreviews: [],
   auditEvents: [],
-  diagnostics: ["read-model-pending"],
+  diagnostics: [{ code: "read_model_pending", severity: "info", message: "Governance read model has not been loaded." }],
 });
 
 const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTenantAccess, onSelectSection }: { activeSection: GovernanceSectionId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; onSelectSection: (section: GovernanceSectionId) => void }) => {
@@ -82,7 +82,7 @@ const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTe
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
   if (activeModule === "overview") return <OverviewModule model={model} onSelectTab={(tab) => onSelectSection(tabToSection[tab as GovernanceTabId] ?? "overview")} />;
   if (activeModule === "permissions") return <PermissionMatrixModule rows={model.permissionMatrix} surface={model.surface} />;
-  if (activeModule === "members") return <MembersRoleAssignmentsModule />;
+  if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
   if (activeModule === "taxonomy") return <TaxonomyModule items={model.taxonomy} />;
   if (activeModule === "units") return <UnitsModule units={model.units} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;
@@ -118,7 +118,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     const load = surface === "owner" ? governanceApi.getOwnerGovernance : governanceApi.getTenantGovernance;
     void load(organizationId)
       .then((response) => { if (active) setModel(response); })
-      .catch((caught) => { if (active) { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); setModel(emptyGovernanceModel(organizationId, surface)); } })
+      .catch((caught) => { if (active) { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [governanceApi, organizationId, surface]);

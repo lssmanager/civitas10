@@ -1,0 +1,352 @@
+{
+  "registryVersion": "2026-07-civitas10-governance-operations-v1",
+  "operations": [
+    {
+      "operationId": "governance.readModel",
+      "method": "GET",
+      "pattern": "/owner/organizations/{organizationId}/governance",
+      "expressPattern": "/owner/organizations/:organizationId/governance",
+      "surface": "owner",
+      "permission": "owner.profile.read",
+      "policies": [
+        "owner_global"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-read-model-v1",
+      "responseSchema": "GovernanceReadModel"
+    },
+    {
+      "operationId": "governance.readModel",
+      "method": "GET",
+      "pattern": "/o/{organizationId}/governance",
+      "expressPattern": "/o/:organizationId/governance",
+      "surface": "tenant",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization",
+        "organization_member"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-read-model-v1",
+      "responseSchema": "GovernanceReadModel"
+    },
+    {
+      "operationId": "governance.entitlementCeilings",
+      "method": "PUT",
+      "pattern": "/owner/organizations/{organizationId}/governance/entitlement-ceilings",
+      "expressPattern": "/owner/organizations/:organizationId/governance/entitlement-ceilings",
+      "surface": "owner",
+      "permission": "owner.runtime.operations.execute",
+      "policies": [
+        "owner_global"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-roles-v1",
+      "responseSchema": "GovernanceEntitlementMutation"
+    },
+    {
+      "operationId": "governance.roleActivations",
+      "method": "PUT",
+      "pattern": "/o/{organizationId}/governance/role-activations",
+      "expressPattern": "/o/:organizationId/governance/role-activations",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-roles-v1",
+      "responseSchema": "GovernanceEntitlementMutation"
+    },
+    {
+      "operationId": "governance.memberRoleAssignments",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/member-role-assignments",
+      "expressPattern": "/o/:organizationId/governance/member-role-assignments",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "delegation"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-roles-v1",
+      "responseSchema": "GovernanceRoleAssignmentMutation"
+    },
+    {
+      "operationId": "governance.taxonomyValues",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/taxonomy/values",
+      "expressPattern": "/o/:organizationId/governance/taxonomy/values",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceTaxonomyMutation"
+    },
+    {
+      "operationId": "governance.taxonomyPublish",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/taxonomy/publish",
+      "expressPattern": "/o/:organizationId/governance/taxonomy/publish",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceTaxonomyMutation"
+    },
+    {
+      "operationId": "governance.units",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/units",
+      "expressPattern": "/o/:organizationId/governance/units",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceUnitMutation"
+    },
+    {
+      "operationId": "governance.dataScopes",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/governance/data-scopes",
+      "expressPattern": "/o/:organizationId/governance/data-scopes",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "authorization-resource-in-scope"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-structure-v1",
+      "responseSchema": "GovernanceDataScopeMutation"
+    },
+    {
+      "operationId": "governance.accessPreview",
+      "method": "POST",
+      "pattern": "/owner/organizations/{organizationId}/access-preview",
+      "expressPattern": "/owner/organizations/:organizationId/access-preview",
+      "surface": "owner",
+      "permission": "governance.preview.read",
+      "policies": [
+        "authorization-snapshot-current",
+        "preview-only"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-operations-v1",
+      "responseSchema": "GovernanceAccessPreview"
+    },
+    {
+      "operationId": "governance.accessPreview",
+      "method": "POST",
+      "pattern": "/o/{organizationId}/access-preview",
+      "expressPattern": "/o/:organizationId/access-preview",
+      "surface": "tenant",
+      "permission": "governance.preview.read",
+      "policies": [
+        "same-organization",
+        "authorization-snapshot-current",
+        "preview-only"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-operations-v1",
+      "responseSchema": "GovernanceAccessPreview"
+    },
+    {
+      "operationId": "governance.navigationPreferences",
+      "method": "PUT",
+      "pattern": "/o/{organizationId}/governance/navigation-preferences",
+      "expressPattern": "/o/:organizationId/governance/navigation-preferences",
+      "surface": "tenant",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "presentation_only"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-operations-v1",
+      "responseSchema": "GovernanceAliasNavigationPolicy"
+    },
+    {
+      "operationId": "governance.audit",
+      "method": "GET",
+      "pattern": "/owner/organizations/{organizationId}/governance/audit",
+      "expressPattern": "/owner/organizations/:organizationId/governance/audit",
+      "surface": "owner",
+      "permission": "owner.profile.read",
+      "policies": [
+        "owner_global",
+        "redacted_audit"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-operations-v1",
+      "responseSchema": "GovernanceAuditEvent[]"
+    },
+    {
+      "operationId": "governance.audit",
+      "method": "GET",
+      "pattern": "/o/{organizationId}/governance/audit",
+      "expressPattern": "/o/:organizationId/governance/audit",
+      "surface": "tenant",
+      "permission": "org.documents.read",
+      "policies": [
+        "same-organization",
+        "redacted_audit"
+      ],
+      "status": "active",
+      "contractVersion": "2026-07-civitas10-governance-operations-v1",
+      "responseSchema": "GovernanceAuditEvent[]"
+    }
+  ],
+  "modules": [
+    {
+      "module": "overview",
+      "repository": "backend/services/governanceReadModel.js",
+      "service": "buildGovernanceReadModel",
+      "permission": "owner.profile.read|org.documents.read",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "organization_member"
+      ],
+      "mountedOperation": "governance.readModel",
+      "version": "2026-07-civitas10-governance-read-model-v1",
+      "status": "active",
+      "reason": "aggregate_read_model_mounted"
+    },
+    {
+      "module": "permissions",
+      "repository": "backend/authorization/entitlements",
+      "service": "roles ceilings activations permission matrix",
+      "permission": "owner.runtime.operations.execute|org.documents.create",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "organization_admin"
+      ],
+      "mountedOperation": "governance.entitlementCeilings|governance.roleActivations",
+      "version": "2026-07-civitas10-governance-roles-v1",
+      "status": "active",
+      "reason": "roles_entitlements_and_permission_matrix_mounted"
+    },
+    {
+      "module": "members",
+      "repository": "backend/authorization/delegation + Logto Management",
+      "service": "member role assignment through server-side Logto M2M",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "delegation"
+      ],
+      "mountedOperation": "governance.memberRoleAssignments",
+      "version": "2026-07-civitas10-governance-roles-v1",
+      "status": "active",
+      "reason": "member_role_assignment_operation_mounted"
+    },
+    {
+      "module": "taxonomy",
+      "repository": "backend/taxonomy",
+      "service": "taxonomy values and publish operations",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "mountedOperation": "governance.taxonomyValues|governance.taxonomyPublish",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "taxonomy_operations_mounted"
+    },
+    {
+      "module": "units",
+      "repository": "backend/organization-structure",
+      "service": "unit hierarchy operations",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin"
+      ],
+      "mountedOperation": "governance.units",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "unit_operations_mounted"
+    },
+    {
+      "module": "data-scope",
+      "repository": "backend/authorization/data-scope",
+      "service": "data-scope assignment operations",
+      "permission": "org.documents.create",
+      "policies": [
+        "same-organization",
+        "organization_admin",
+        "authorization-resource-in-scope"
+      ],
+      "mountedOperation": "governance.dataScopes",
+      "version": "2026-07-civitas10-governance-structure-v1",
+      "status": "active",
+      "reason": "data_scope_operations_mounted"
+    },
+    {
+      "module": "aliases-navigation",
+      "repository": "backend/services/governanceOperationsReadModel.js",
+      "service": "organization aliases and navigation preferences",
+      "permission": "owner.profile.read|org.documents.create",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "presentation_only"
+      ],
+      "mountedOperation": "governance.navigationPreferences",
+      "version": "2026-07-civitas10-governance-operations-v1",
+      "status": "active",
+      "reason": "aliases_navigation_preferences_mounted"
+    },
+    {
+      "module": "access-preview",
+      "repository": "backend/authorization/diagnostics.js",
+      "service": "read-only authorization simulator",
+      "permission": "governance.preview.read",
+      "policies": [
+        "authorization-snapshot-current",
+        "preview-only",
+        "rate-limited"
+      ],
+      "mountedOperation": "governance.accessPreview",
+      "version": "2026-07-civitas10-governance-operations-v1",
+      "status": "active",
+      "reason": "access_preview_handler_mounted"
+    },
+    {
+      "module": "audit",
+      "repository": "backend/services/governanceOperationsReadModel.js",
+      "service": "redacted governance audit diagnostics",
+      "permission": "owner.profile.read|org.documents.read",
+      "policies": [
+        "owner_global",
+        "same-organization",
+        "redacted_audit"
+      ],
+      "mountedOperation": "governance.audit",
+      "version": "2026-07-civitas10-governance-operations-v1",
+      "status": "active",
+      "reason": "governance_audit_endpoint_mounted"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import type { GovernanceReadModel } from "../../contracts";
 import { configurationCoverage, governanceOverviewMetrics } from "../../adapters/governance-view-model";
 
 export const OverviewModule = ({ model, onSelectTab }: { model: GovernanceReadModel; onSelectTab?: (tab: string) => void }) => {
-  const attentionItems = Object.entries(model.modules).filter(([, module]) => module?.status === "pending" || module?.status === "blocked");
+  const attentionItems = Object.entries(model.modules).filter(([, module]) => module?.status === "pending" || module?.status === "planned" || module?.status === "stale" || module?.status === "blocked" || module?.status === "unavailable" || module?.status === "error" || module?.status === "denied");
   return (
     <>
       <SectionCard title="Governance health" description="A product summary of the current governance snapshot for this organization.">
@@ -12,7 +12,7 @@ export const OverviewModule = ({ model, onSelectTab }: { model: GovernanceReadMo
         </div>
       </SectionCard>
       <SectionCard title="Attention required" description="Pending or unavailable areas that may need follow-up before the studio is complete.">
-        {attentionItems.length ? <div className="flex flex-wrap gap-2">{attentionItems.map(([key, module]) => <StatusPill key={key} status={module?.status === "blocked" ? "danger" : "warning"}>{key.replace(/-/g, " ")}: {module?.status === "blocked" ? "Unavailable" : "Pending"}</StatusPill>)}</div> : <EmptyState message="No governance attention items were reported for this organization." />}
+        {attentionItems.length ? <div className="flex flex-wrap gap-2">{attentionItems.map(([key, module]) => <StatusPill key={key} status={["blocked", "unavailable", "error", "denied"].includes(String(module?.status)) ? "danger" : "warning"}>{key.replace(/-/g, " ")}: {["blocked", "unavailable", "error", "denied"].includes(String(module?.status)) ? "Unavailable" : "Pending"}</StatusPill>)}</div> : <EmptyState message="No governance attention items were reported for this organization." />}
       </SectionCard>
       <SectionCard title="Configuration coverage" description="Use these summaries to jump to the tab that owns each governance area.">
         <div className="civitas-grid-3">

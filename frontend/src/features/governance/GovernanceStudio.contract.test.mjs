@@ -97,9 +97,33 @@ test("governance modules are feature-owned and responsive-neutral", () => {
 
 test("governance unavailable operations prevent blind fetches", () => {
   const capabilities = readFileSync(new URL("./governance-capabilities.ts", import.meta.url), "utf8");
-  assert.match(capabilities, /governanceOperationRegistry/);
-  assert.match(capabilities, /operation: "governance.readModel"[\s\S]*status: "unavailable"/);
-  assert.match(capabilities, /operation: "governance.accessPreview"[\s\S]*status: "unavailable"/);
+  assert.match(capabilities, /operation-registry\.generated\.json/);
+  const artifact = JSON.parse(readFileSync(new URL("./operation-registry.generated.json", import.meta.url), "utf8"));
+  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.readModel" && entry.surface === "owner").status, "active");
+  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.accessPreview" && entry.surface === "owner").status, "active");
   assert.match(page, /!isGovernanceOperationActive\(surface, "governance.readModel"\)/);
-  assert.match(page, /!isGovernanceOperationActive\(model.surface, "governance.accessPreview"\)/);
+  assert.match(api, /assertAccessPreview/);
+});
+
+
+test("governance read model contract validates real mounted fixture", () => {
+  const contract = readFileSync(new URL("./contracts.ts", import.meta.url), "utf8");
+  const fixture = JSON.parse(readFileSync(new URL("./fixtures/governance-read-model-owner.json", import.meta.url), "utf8"));
+  assert.equal(fixture.contractVersion, "2026-07-civitas10-governance-read-model-v1");
+  assert.equal(fixture.modules.permissions.status, "active");
+  assert.equal(fixture.modules.taxonomy.status, "active");
+  assert.equal(fixture.modules["access-preview"].status, "active");
+  assert.ok(Array.isArray(fixture.operationRegistry.operations));
+  assert.ok(fixture.taxonomy.length > 0);
+  assert.ok(fixture.units.length > 0);
+  assert.ok(fixture.dataScopes.length > 0);
+  assert.equal(fixture.roles[0].canonicalKey, "organization_admin");
+  assert.equal(fixture.members[0].display.startsWith("sub_"), true);
+  assert.equal(JSON.stringify(fixture).includes("secret@example.test"), false);
+  assert.match(contract, /validateGovernanceReadModel/);
+  assert.match(contract, /\$\.modules.\$\{key\}\.status/);
+  assert.match(contract, /\$\.operationRegistry\.operations/);
+  assert.match(contract, /GovernanceRoleSummary/);
+  assert.match(contract, /GovernanceMemberSummary/);
+  assert.match(api, /assertGovernanceReadModel/);
 });
