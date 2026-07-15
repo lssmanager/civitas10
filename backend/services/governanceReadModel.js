@@ -3,6 +3,7 @@
 const { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory } = require("../../core/governance/operation-registry.cjs");
 const { buildRolesGovernanceSlice } = require("./governanceRolesReadModel");
 const { buildStructureGovernanceSlice } = require("./governanceStructureReadModel");
+const { buildAliasesNavigationPolicy, listGovernanceAuditEvents } = require("./governanceOperationsReadModel");
 
 const MODULE_KEYS = Object.freeze(["overview", "permissions", "members", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]);
 const TENANT_MODULES = Object.freeze(new Set(["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"]));
@@ -76,18 +77,6 @@ function buildPermissionMatrix(versions) {
   ];
 }
 
-function buildAliasesNavigation() {
-  return {
-    aliasesTenantEditable: false,
-    navigationTenantEditable: false,
-    visualPreferences: [
-      { screenId: "owner-governance", hidden: false, order: 20, locked: true },
-      { screenId: "tenant-governance", hidden: false, order: 20, locked: true },
-    ],
-    summary: { reason: "navigation_preferences_read_only_projection", preferenceCount: 2 },
-  };
-}
-
 async function buildGovernanceReadModel({ organization, organizationId, surface, stale = false, drift = false, roles = [], members = [], memberRolesByUserId = new Map() } = {}) {
   if (!["owner", "tenant"].includes(surface)) { const error = new Error("Invalid governance surface."); error.status = 500; error.code = "GOVERNANCE_SURFACE_INVALID"; throw error; }
   const versions = buildVersions({ stale, drift });
@@ -120,10 +109,13 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
     taxonomy: structureSlice.taxonomy.items,
     units: structureSlice.units.items,
     dataScopes: structureSlice.dataScopes.items,
-    aliasesNavigation: buildAliasesNavigation(),
+    aliasesNavigation: buildAliasesNavigationPolicy(logtoOrganizationId),
     accessPreviews: [],
-    auditSummary: { totalEvents: rolesSlice.auditEvents.length + structureSlice.auditEvents.length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || structureSlice.auditEvents.at(-1)?.createdAt || null, redaction: "actor_subjects_and_before_after_payloads_redacted_in_aggregate" },
-    auditEvents: [...rolesSlice.auditEvents, ...structureSlice.auditEvents].map((event, index) => ({ id: `audit_${index + 1}`, actorId: event.actorLogtoUserId ? "redacted_actor" : "system", organizationId: logtoOrganizationId, target: event.targetType || event.permission || "governance", action: event.action, reason: event.reason || "governance_mutation", contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION, createdAt: event.createdAt })),
+    auditSummary: { totalEvents: rolesSlice.auditEvents.length + structureSlice.auditEvents.length + listGovernanceAuditEvents({ organizationId: logtoOrganizationId }).length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || structureSlice.auditEvents.at(-1)?.createdAt || listGovernanceAuditEvents({ organizationId: logtoOrganizationId })[0]?.createdAt || null, redaction: "actor_subjects_before_after_tokens_and_connector_secrets_redacted" },
+    auditEvents: [
+      ...[...rolesSlice.auditEvents, ...structureSlice.auditEvents].map((event, index) => ({ id: `audit_${index + 1}`, actorId: event.actorLogtoUserId ? "redacted_actor" : "system", organizationId: logtoOrganizationId, target: event.targetType || event.permission || "governance", action: event.action, reason: event.reason || "governance_mutation", contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION, createdAt: event.createdAt })),
+      ...listGovernanceAuditEvents({ organizationId: logtoOrganizationId }),
+    ],
     diagnostics: [
       { code: "governance_read_model_projection", severity: "info", message: "Aggregate read model is mounted; feature writes remain in owning APIs." },
       ...(versions.runtimeStatus === "current" ? [] : [{ code: versions.runtimeStatus === "drift" ? "authorization_version_drift" : "authorization_snapshot_stale", severity: "warning", message: "Authorization runtime is not current." }]),

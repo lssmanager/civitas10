@@ -22,3 +22,11 @@ test('taxonomy units and data-scope owning endpoints are mounted and organizatio
   assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/units", "organizationAdminWrite"/);
   assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/governance\/data-scopes", "organizationAdminWrite"/);
 });
+
+test('aliases navigation, access preview and audit endpoints are mounted and protected', () => {
+  assert.match(source, /secureRoute\.post\("\/owner\/organizations\/:organizationId\/access-preview", "ownerRead"/);
+  assert.match(source, /secureRoute\.post\("\/o\/:organizationId\/access-preview", "organizationMemberRead"/);
+  assert.match(source, /secureRoute\.put\("\/o\/:organizationId\/governance\/navigation-preferences", "organizationAdminWrite"/);
+  assert.match(source, /secureRoute\.get\("\/owner\/organizations\/:organizationId\/governance\/audit", "ownerRead"/);
+  assert.match(source, /secureRoute\.get\("\/o\/:organizationId\/governance\/audit", "organizationMemberRead"/);
+});

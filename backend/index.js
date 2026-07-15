@@ -39,6 +39,7 @@ const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./se
 const { buildGovernanceReadModel, assertTenantRouteMatchesContext } = require("./services/governanceReadModel");
 const { updateOwnerCeilings, updateTenantActivations, roleMapFromRoles } = require("./services/governanceRolesReadModel");
 const { createTaxonomyValue, publishTaxonomy, createUnit: createGovernanceUnit, activateUnit: activateGovernanceUnit, createDataScope, safeActor } = require("./services/governanceStructureReadModel");
+const { updateNavigationPreferences, previewAccess, listGovernanceAuditEvents, actorId } = require("./services/governanceOperationsReadModel");
 const { requireGlobalOwner } = require("./authorization/guards");
 const { organizationPath } = require("./routes/tenantRoutes");
 const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
@@ -384,6 +385,15 @@ secureRoute.get("/owner/organizations/:organizationId/governance", "ownerRead", 
   }
 });
 
+secureRoute.post("/owner/organizations/:organizationId/access-preview", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerProfileRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
+  try { const result = await previewAccess({ organizationId: req.params.organizationId, surface: "owner", body: { ...(req.body || {}), previewOnly: req.body?.previewOnly === true || req.get("X-Civitas-Preview-Only") === "true" }, actorLogtoUserId: actorId(req), principal: req.user || {} }); return res.json(result); }
+  catch (error) { return sendPublicError(res, error, "OwnerGovernanceAccessPreviewError", "Failed to preview owner access"); }
+});
+
+secureRoute.get("/owner/organizations/:organizationId/governance/audit", "ownerRead", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerProfileRead] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
+  try { return res.json({ contractVersion: "2026-07-civitas10-governance-operations-v1", events: listGovernanceAuditEvents({ organizationId: req.params.organizationId, limit: req.query?.limit }) }); }
+  catch (error) { return sendPublicError(res, error, "OwnerGovernanceAuditError", "Failed to load governance audit events"); }
+});
 
 secureRoute.put("/owner/organizations/:organizationId/governance/entitlement-ceilings", "ownerSensitiveWrite", requireGlobalAccess({ resource: API_RESOURCE, requiredScopes: [OWNER_AUTHZ.ownerRuntimeOperationsExecute] }), requireGlobalOwner, requireSafeOrganizationIdParam, async (req, res) => {
   try {
@@ -481,6 +491,20 @@ secureRoute.get("/o/:organizationId/governance", "organizationMemberRead", requi
   }
 });
 
+secureRoute.post("/o/:organizationId/access-preview", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); const result = await previewAccess({ organizationId: req.params.organizationId, surface: "tenant", body: { ...(req.body || {}), previewOnly: req.body?.previewOnly === true || req.get("X-Civitas-Preview-Only") === "true" }, actorLogtoUserId: actorId(req), principal: req.user || {} }); return res.json(result); }
+  catch (error) { return sendPublicError(res, error, "TenantGovernanceAccessPreviewError", "Failed to preview tenant access"); }
+});
+
+secureRoute.put("/o/:organizationId/governance/navigation-preferences", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); return res.json(updateNavigationPreferences({ organizationId: req.params.organizationId, preferences: req.body?.preferences || [], actorLogtoUserId: actorId(req), surface: "tenant" })); }
+  catch (error) { return sendPublicError(res, error, "TenantGovernanceNavigationError", "Failed to update navigation preferences"); }
+});
+
+secureRoute.get("/o/:organizationId/governance/audit", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); return res.json({ contractVersion: "2026-07-civitas10-governance-operations-v1", events: listGovernanceAuditEvents({ organizationId: req.params.organizationId, limit: req.query?.limit }) }); }
+  catch (error) { return sendPublicError(res, error, "TenantGovernanceAuditError", "Failed to load governance audit events"); }
+});
 
 secureRoute.put("/o/:organizationId/governance/role-activations", "organizationAdminWrite", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsCreate] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.admin), requirePermission(ORG_AUTHZ.documentsCreate), async (req, res) => {
   try {

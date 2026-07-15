@@ -100,9 +100,9 @@ test("governance unavailable operations prevent blind fetches", () => {
   assert.match(capabilities, /operation-registry\.generated\.json/);
   const artifact = JSON.parse(readFileSync(new URL("./operation-registry.generated.json", import.meta.url), "utf8"));
   assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.readModel" && entry.surface === "owner").status, "active");
-  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.accessPreview" && entry.surface === "owner").status, "unavailable");
+  assert.equal(artifact.operations.find((entry) => entry.operationId === "governance.accessPreview" && entry.surface === "owner").status, "active");
   assert.match(page, /!isGovernanceOperationActive\(surface, "governance.readModel"\)/);
-  assert.match(page, /!isGovernanceOperationActive\(model.surface, "governance.accessPreview"\)/);
+  assert.match(api, /assertAccessPreview/);
 });
 
 
@@ -112,7 +112,7 @@ test("governance read model contract validates real mounted fixture", () => {
   assert.equal(fixture.contractVersion, "2026-07-civitas10-governance-read-model-v1");
   assert.equal(fixture.modules.permissions.status, "active");
   assert.equal(fixture.modules.taxonomy.status, "active");
-  assert.equal(fixture.modules["access-preview"].status, "unavailable");
+  assert.equal(fixture.modules["access-preview"].status, "active");
   assert.ok(Array.isArray(fixture.operationRegistry.operations));
   assert.ok(fixture.taxonomy.length > 0);
   assert.ok(fixture.units.length > 0);

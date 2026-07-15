@@ -1,13 +1,13 @@
 import type { GovernanceModuleKey, GovernanceSurface } from "./contracts";
 import registryArtifact from "./operation-registry.generated.json";
 
-export type GovernanceOperationKey = "governance.readModel" | "governance.accessPreview" | "governance.entitlementCeilings" | "governance.roleActivations" | "governance.memberRoleAssignments" | "governance.taxonomyValues" | "governance.taxonomyPublish" | "governance.units" | "governance.dataScopes";
+export type GovernanceOperationKey = "governance.readModel" | "governance.accessPreview" | "governance.entitlementCeilings" | "governance.roleActivations" | "governance.memberRoleAssignments" | "governance.taxonomyValues" | "governance.taxonomyPublish" | "governance.units" | "governance.dataScopes" | "governance.navigationPreferences" | "governance.audit";
 export type GovernanceEffectiveStatus = "active" | "planned" | "disabled" | "unavailable";
 
 export type GovernanceOperationContract = {
   operationId: GovernanceOperationKey;
   operation: GovernanceOperationKey;
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "PUT";
   pattern: string;
   surface: GovernanceSurface;
   permission: string;
