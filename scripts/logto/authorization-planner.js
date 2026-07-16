@@ -1,0 +1,26 @@
+'use strict'
+const { canonicalJson, hashContract } = require('./canonical-contract-loader')
+const { fingerprintRemoteState } = require('./drift-report')
+const SCHEMA_VERSION = '2026-07-logto-authz-plan-v1'
+function desiredFromManifest(manifest) {
+  const activePermissions = manifest.permissions.filter((p)=>p.status === 'active').map((p)=>({ name: p.name, description: p.description || '', resource: p.resource })).sort((a,b)=>a.name.localeCompare(b.name))
+  return { resource: manifest.resource, permissions: activePermissions, globalRoles: manifest.globalRoles.slice().sort(), organizationRoles: manifest.organizationRoles.slice().sort(), assignments: Object.fromEntries(Object.entries(manifest.rolePermissionAssignments).sort(([a],[b])=>a.localeCompare(b)).map(([role, permissions])=>[role, permissions.slice().sort()])) }
+}
+function buildAuthorizationPlan({ contract, remoteState, targetEnvironment = 'unknown' }) {
+  const desired = desiredFromManifest(contract.manifest)
+  const remoteFingerprint = fingerprintRemoteState(remoteState)
+  const plan = { schemaVersion: SCHEMA_VERSION, generatedAt: '1970-01-01T00:00:00.000Z', contractVersion: contract.manifest.contractVersion, contractHash: contract.contractHash || hashContract(contract.manifest), targetEnvironment, remoteFingerprint, resource: { desiredIdentifier: desired.resource, remoteId: remoteState.resource?.id || null, operations: [] }, permissions: { create: [], update: [], noop: [], conflicts: [], unmanaged: [] }, globalRoles: { create: [], updateAssignments: [], noop: [], conflicts: [] }, organizationRoles: { create: [], updateAssignments: [], noop: [], conflicts: [] }, customClaims: { operations: [] }, destructiveOperations: [], warnings: [] }
+  if (!remoteState.resource) plan.resource.operations.push(operation('create-resource', 'resource', desired.resource, { indicator: desired.resource }))
+  else if (remoteState.resource.indicator !== desired.resource) plan.resource.operations.push(conflict('resource-conflict', desired.resource, { actual: remoteState.resource.indicator }))
+  const remotePermissions = new Map(remoteState.permissions.map((p)=>[p.name,p]))
+  for (const permission of desired.permissions) { const remote = remotePermissions.get(permission.name); if (!remote) plan.permissions.create.push(operation('create-permission', 'permission', permission.name, permission)); else if ((remote.description || '') !== permission.description) plan.permissions.update.push(operation('update-permission', 'permission', permission.name, { id: remote.id, ...permission })); else plan.permissions.noop.push({ name: permission.name, remoteId: remote.id }) }
+  for (const remote of remoteState.permissions) if (!desired.permissions.some((p)=>p.name === remote.name)) plan.permissions.unmanaged.push({ name: remote.name, remoteId: remote.id, driftType: 'unmanaged' })
+  addRolePlan(plan.globalRoles, desired.globalRoles, desired.assignments, remoteState.globalRoles, 'global-role')
+  addRolePlan(plan.organizationRoles, desired.organizationRoles, desired.assignments, remoteState.organizationRoles, 'organization-role')
+  return sortPlan(plan)
+}
+function addRolePlan(bucket, desiredRoles, assignments, remoteRoles, targetType) { const remoteByName = new Map(remoteRoles.map((r)=>[r.name,r])); for (const role of desiredRoles) { const remote = remoteByName.get(role); if (!remote) bucket.create.push(operation(`create-${targetType}`, targetType, role, { name: role, permissions: assignments[role] || [] })); else { const desiredPerms = assignments[role] || []; const current = remote.permissions || []; const missing = desiredPerms.filter((p)=>!current.includes(p)).sort(); const extra = current.filter((p)=>!desiredPerms.includes(p)).sort(); if (missing.length) bucket.updateAssignments.push(operation(`assign-${targetType}-permissions`, targetType, role, { id: remote.id, add: missing, preserveExtra: extra })); else bucket.noop.push({ name: role, remoteId: remote.id, extraAssignmentsPreserved: extra }) } } for (const remote of remoteRoles) if (!desiredRoles.includes(remote.name)) bucket.conflicts.push({ name: remote.name, remoteId: remote.id, driftType: 'unmanaged-role' }) }
+function operation(type, targetType, targetId, payload) { return { operationId: `${type}:${targetId}`, type, targetType, targetId, payload } }
+function conflict(type, targetId, details) { return { operationId: `${type}:${targetId}`, type, targetType: 'resource', targetId, details, driftType: type } }
+function sortPlan(plan) { const sortById = (items) => items.sort((a,b)=>(a.operationId || a.name).localeCompare(b.operationId || b.name)); for (const section of [plan.resource.operations, plan.permissions.create, plan.permissions.update, plan.permissions.noop, plan.permissions.conflicts, plan.permissions.unmanaged, plan.globalRoles.create, plan.globalRoles.updateAssignments, plan.globalRoles.noop, plan.globalRoles.conflicts, plan.organizationRoles.create, plan.organizationRoles.updateAssignments, plan.organizationRoles.noop, plan.organizationRoles.conflicts]) sortById(section); plan.planHash = require('crypto').createHash('sha256').update(canonicalJson({ ...plan, generatedAt: undefined, planHash: undefined })).digest('hex'); return plan }
+module.exports = { SCHEMA_VERSION, buildAuthorizationPlan, desiredFromManifest }

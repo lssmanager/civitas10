@@ -32,7 +32,7 @@ const Landing = () => {
       </SectionCard>
 
       <KpiGrid cols={3}>
-        <CapabilityCard title="Owner global" description="Operational overview, organization provisioning, runtime health, and cross-tenant observability." />
+        <CapabilityCard title="Owner global" description="Overview, Governance, Operations, organization provisioning, and cross-tenant observability." />
         <CapabilityCard title="Organization admin" description="Tenant administration stays scoped to the selected Logto organization context." />
         <CapabilityCard title="Organization member" description="Workspace capabilities are resolved from organization tokens and tenant memberships." />
       </KpiGrid>

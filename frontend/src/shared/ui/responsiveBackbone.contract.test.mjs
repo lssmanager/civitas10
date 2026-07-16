@@ -12,6 +12,7 @@ const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), 
 const dataTable = readFileSync(new URL("./DataTable.tsx", import.meta.url), "utf8");
 const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.url), "utf8");
 const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
+const ownerRegistry = readFileSync(new URL("../../features/owner/organizations/organizations.screen.ts", import.meta.url), "utf8");
 const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
 const actionButtons = readFileSync(new URL("../../components/layout/TopBar/ActionButtons.tsx", import.meta.url), "utf8");
 const actionButtonCss = readFileSync(new URL("../../components/common/ActionButton/ActionButton.module.css", import.meta.url), "utf8");
@@ -91,21 +92,20 @@ test("navigation is provided by the shared NavCollapse primitive", () => {
   assert.doesNotMatch(appShell, /<nav className="civitas-primary-nav"/);
 });
 
-test("owner sidebar navigation is a persisted multi-expand tree", () => {
+test("owner sidebar navigation is an expanded desktop tree with mobile drawer only", () => {
   assert.match(navCollapse, /children\?: NavCollapseItem\[\]/);
   assert.match(navCollapse, /NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded"/);
   assert.match(navCollapse, /setExpandedKeys\(\(current\) => current\.includes\(key\) \? current\.filter/);
-  assert.match(navCollapse, /hidden=\{!expanded && !collapsed\}/);
+  assert.match(navCollapse, /hidden=\{!expanded\}/);
   assert.match(navCollapse, /activeParentKeys\.slice\(0, 1\)/);
   assert.match(navCollapse, /itemCanBeSelfActive = \(item: NavCollapseItem, pathname: string\) => Boolean\(item\.path\) && itemIsActive\(item, pathname\)/);
   assert.match(navCollapse, /data-branch-active=\{branchActive\}/);
   assert.match(navCollapse, /selfActive \? "civitas-nav-link-active"/);
-  assert.match(appShell, /children: \[/);
-  assert.match(appShell, /SIDEBAR_STATE_STORAGE_KEY = "civitas:sidebar-state"/);
-  assert.match(appShell, /effectiveSidebarCollapsed = isMobile \? false : sidebarCollapsed/);
+  assert.doesNotMatch(navCollapse, /collapsed/);
+  assert.doesNotMatch(appShell, /SIDEBAR_STATE_STORAGE_KEY|sidebarCollapsed|civitas-sidebar-toggle|civitas-shell-sidebar-collapsed/);
   assert.match(appShell, /data-civitas-sidebar-state=\{sidebarState\}/);
   assert.match(appShell, /data-civitas-sidebar-mobile-state=\{mobileState\}/);
-  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar-toggle\s*\{\s*display: none;/s);
+  assert.doesNotMatch(layoutCss, /civitas-shell-sidebar-collapsed|civitas-sidebar-toggle/);
 });
 
 test("shell topbar uses the canonical flex-between layout tokens", () => {
@@ -144,16 +144,13 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
   assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*min-height: 0;[^}]*overflow-y: auto;/s);
-  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar,[\s\S]*?height: var\(--civitas-nav-mobile-max-height\);[\s\S]*?overflow: hidden;/s);
+  assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar\s*\{[\s\S]*?height: var\(--civitas-nav-mobile-max-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;[^}]*scrollbar-width: thin;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-shell\s*\{[\s\S]*?height: var\(--civitas-viewport-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-shell-content\s*\{[\s\S]*?height: var\(--civitas-viewport-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-main\s*\{[\s\S]*?overflow-y: auto;[\s\S]*?-webkit-overflow-scrolling: touch;/s);
   assert.match(layoutCss, /\.civitas-main > \*\s*{[^}]*max-width: min\(100%, var\(--civitas-content-max-width\)\);/s);
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar\s*{[^}]*overflow: visible;/s);
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-sidebar \.civitas-nav-row\s*{[^}]*overflow: visible;/s);
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?left: calc\(100% \+ var\(--civitas-popover-offset\)\);[\s\S]*?z-index: var\(--civitas-z-nav-flyout\);/s);
 });
 
 test("sidebar nav geometry computes from one canonical token family", () => {
@@ -187,40 +184,31 @@ test("sidebar nav geometry computes from one canonical token family", () => {
     "--civitas-nav-item-gap",
     "--civitas-nav-icon-size",
     "--civitas-nav-icon-label-gap",
-    "--civitas-nav-collapse-button-size",
   ];
   for (const tokenName of tokenNames) {
     assert.equal([...tokensCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 1, `${tokenName} must have exactly one canonical definition`);
   }
 
   const header = readDeclarations(".civitas-sidebar-header");
-  const collapsedHeader = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar-header");
   const genericNav = readDeclarations(".civitas-primary-nav");
   const topbarNav = readDeclarations(".civitas-topbar .civitas-primary-nav");
   const sidebarNav = readDeclarations(".civitas-sidebar .civitas-primary-nav");
   const parent = { ...readDeclarations(".civitas-sidebar .civitas-nav-link"), "--civitas-nav-depth-offset": "0rem" };
   const child = { ...parent, ...readDeclarations('.civitas-sidebar .civitas-nav-link[data-depth="1"]') };
-  const collapsedParent = { ...parent, ...readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link") };
-  const button = readDeclarations(".civitas-sidebar-toggle");
   const icon = readDeclarations(".civitas-nav-link-icon");
 
   const headerPadding = toRemNumber(header["padding-left"]);
   const parentPadding = toRemNumber(parent["padding-left"], parent);
-  const collapsedParentPadding = toRemNumber(collapsedParent["padding-left"], collapsedParent);
   const childPadding = toRemNumber(child["padding-left"], child);
   const basePadding = toRemNumber("var(--civitas-nav-item-padding-x)");
   const childIndent = toRemNumber("var(--civitas-nav-child-indent)");
-
-  const collapsedHeaderPadding = toRemNumber(collapsedHeader["padding-left"]);
 
   assert.equal(genericNav["align-items"], undefined, "generic nav must not carry legacy centered alignment into the sidebar");
   assert.equal(topbarNav["align-items"], "center", "topbar nav owns its horizontal centering explicitly");
   assert.equal(sidebarNav["align-items"], "stretch", "sidebar nav must own left-aligned row stretching");
   assert.equal(parent.width, "100%", "sidebar nav rows must fill the nav column before padding is computed");
   assert.equal(headerPadding, basePadding);
-  assert.equal(collapsedHeaderPadding, basePadding);
   assert.equal(parentPadding, basePadding);
-  assert.equal(collapsedParentPadding, basePadding);
   assert.ok(childIndent > 0, "child nav items must be visually dependent on their parent with one tokenized indent");
   assert.equal(childPadding, basePadding + childIndent);
   assert.equal(childPadding > parentPadding, true);
@@ -228,27 +216,11 @@ test("sidebar nav geometry computes from one canonical token family", () => {
   assert.equal(toRemNumber(child["min-height"], child), toRemNumber("var(--civitas-nav-item-height)"));
   assert.equal(toRemNumber(icon.width), toRemNumber("var(--civitas-nav-icon-size)"));
   assert.equal(toRemNumber(icon.height), toRemNumber("var(--civitas-nav-icon-size)"));
-  assert.equal(toRemNumber(button.width), toRemNumber("var(--civitas-nav-collapse-button-size)"));
-  assert.equal(toRemNumber(button.height), toRemNumber("var(--civitas-nav-collapse-button-size)"));
-  const collapsedIcon = readDeclarations(".civitas-shell-sidebar-collapsed .civitas-sidebar .civitas-nav-link-icon");
-  assert.equal(collapsedIcon.width, undefined, "collapsed nav icon must inherit canonical icon width");
-  assert.equal(collapsedIcon.height, undefined, "collapsed nav icon must inherit canonical icon height");
-
-  const collapsedSizeOverrides = /civitas-shell-sidebar-collapsed[^{}]*(?:civitas-nav-link-icon|civitas-sidebar-toggle)[^{}]*\{[^}]*?(?:width|height|font-size):\s*(?!var\(--civitas-nav-collapse-button-size\)|var\(--civitas-nav-icon-size\))/s;
-  assert.doesNotMatch(layoutCss, collapsedSizeOverrides, "collapsed icon/toggle rules must not introduce smaller icon or toggle sizes");
+  assert.doesNotMatch(layoutCss, /civitas-shell-sidebar-collapsed|civitas-sidebar-toggle/);
 });
 
-test("sidebar flyout contrast uses dedicated theme tokens", () => {
-  for (const tokenName of [
-    "--civitas-nav-flyout-bg",
-    "--civitas-nav-flyout-border",
-    "--civitas-nav-flyout-text",
-    "--civitas-nav-flyout-icon",
-  ]) {
-    assert.equal([...themeCss.matchAll(new RegExp(`${tokenName}:`, "g"))].length, 2, `${tokenName} must be defined for light and dark themes`);
-  }
-
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children,[\s\S]*?background: var\(--civitas-nav-flyout-bg\);[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link,[\s\S]*?color: var\(--civitas-nav-flyout-text\);/s);
-  assert.match(layoutCss, /\.civitas-shell-sidebar-collapsed \.civitas-nav-tree-group:hover \.civitas-nav-tree-children \.civitas-nav-link-icon,[\s\S]*?color: var\(--civitas-nav-flyout-icon\);/s);
+test("desktop collapsed rail and flyout tokens are absent during Phase 2", () => {
+  assert.doesNotMatch(tokensCss, /sidebar-collapsed|nav-flyout|z-nav-flyout/);
+  assert.doesNotMatch(themeCss, /nav-flyout/);
+  assert.doesNotMatch(layoutCss, /civitas-shell-sidebar-collapsed|nav-flyout|civitas-sidebar-toggle/);
 });

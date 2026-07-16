@@ -6,8 +6,8 @@ export type OwnerAuthorization = {
   logtoUserId: string;
   internalUserId: string;
   authorizedBy: "logto_global_role_and_scope";
-  requiredScope: "owner:read";
-  requiredWriteScope: "owner:write";
+  requiredScope: "owner.profile.read";
+  requiredWriteScope: "owner.runtime.operations.execute";
   canReadOwner: boolean;
   canWriteOwner: boolean;
   globalRoles: string[];

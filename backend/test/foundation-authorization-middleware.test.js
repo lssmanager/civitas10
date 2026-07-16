@@ -23,11 +23,12 @@ test("organization roles match verified Logto role names", () => {
   ]);
 });
 
-test("owner accesses any permission by wildcard", () => { const r = res(); let called = false; requirePermission("billing:manage")({ user: { roles: [GLOBAL_ROLES.OWNER] } }, r, () => { called = true; }); assert.equal(called, true); });
-test("organization_admin can execute lms enroll", () => { const r = res(); let called = false; requirePermission("lms:enroll")({ user: { roles: [ORGANIZATION_ROLES.ADMIN] } }, r, () => { called = true; }); assert.equal(called, true); });
-test("organization_student cannot execute lms enroll", () => { const r = res(); requirePermission("lms:enroll")({ user: { roles: [ORGANIZATION_ROLES.STUDENT] } }, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 403); assert.equal(r.body.required, "lms:enroll"); });
-test("missing user returns 401", () => { const r = res(); requirePermission("members:invite")({}, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 401); });
-test("missing permission returns 403 with canonical required field", () => { const r = res(); requirePermission("members:invite")({ user: { roles: [GLOBAL_ROLES.SUPPORT_AGENT] } }, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 403); assert.equal(r.body.required, "members:invite"); assert.deepEqual(r.body.roles, [GLOBAL_ROLES.SUPPORT_AGENT]); });
+test("scope present allows access", () => { const r = res(); let called = false; requirePermission("org.documents.read")({ auth: { scopes: new Set(["org.documents.read"]) } }, r, () => { called = true; }); assert.equal(called, true); });
+test("scope absent denies even for owner_global", () => { const r = res(); requirePermission("owner.organizations.read")({ auth: { scopes: new Set(), globalRoles: [GLOBAL_ROLES.OWNER] } }, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 403); assert.equal(r.body.requiredPermission, "owner.organizations.read"); });
+test("organization role without scope cannot grant permission", () => { const r = res(); requirePermission("org.documents.create")({ auth: { scopes: new Set(), organizationRoles: [ORGANIZATION_ROLES.ADMIN] } }, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 403); });
+test("missing user returns 401", () => { const r = res(); requirePermission("org.documents.read")({}, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 401); });
+test("wildcard and legacy permission registration fails", () => { assert.throws(() => requirePermission("*")); assert.throws(() => requirePermission("owner:read")); assert.throws(() => requirePermission("organization.members.write")); assert.throws(() => requirePermission("org.impersonate")); });
+test("all and any permission helpers use scope-only semantics", () => { const { requireAllPermissions, requireAnyPermission } = require("../middleware/requirePermission"); const r1 = res(); let allCalled = false; requireAllPermissions(["org.documents.read", "org.documents.create"])({ auth: { scopes: new Set(["org.documents.read", "org.documents.create"]) } }, r1, () => { allCalled = true; }); assert.equal(allCalled, true); const r2 = res(); let anyCalled = false; requireAnyPermission(["org.documents.create", "org.documents.read"])({ auth: { scopes: new Set(["org.documents.read"]) } }, r2, () => { anyCalled = true; }); assert.equal(anyCalled, true); });
 test("requireSeats without req.org returns 500", async () => { const r = res(); await requireSeats({}, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 500); assert.match(r.body.detail, /requireOrg/); });
 test("requireSeats with no seats available returns 422 with action", async () => { const r = res(); await requireSeats({ org: { seats_total: 3, seats_used: 3, seats_available: 0 } }, r, () => assert.fail("next should not be called")); assert.equal(r.statusCode, 422); assert.ok(r.body.action); });
 test("requireSeats with seats available calls next", async () => { const r = res(); let called = false; const req = { org: { seats_total: 3, seats_used: 1, seats_available: 2 } }; await requireSeats(req, r, () => { called = true; }); assert.equal(called, true); });
@@ -55,9 +56,9 @@ test("requireOrg with suspended org returns 403 with action", async () => {
 
 test("canonical middleware chain reaches handler", async () => {
   const calls = [];
-  const requireAuth = (req, _res, next) => { req.user = { roles: [GLOBAL_ROLES.OWNER] }; calls.push("auth"); next(); };
+  const requireAuth = (req, _res, next) => { req.auth = { scopes: new Set(["org.documents.read"]) }; req.user = { scopes: ["org.documents.read"], roles: [GLOBAL_ROLES.OWNER] }; calls.push("auth"); next(); };
   const requireOrg = (req, _res, next) => { req.org = { id: "org-1", seats_total: 2, seats_used: 1, seats_available: 1 }; calls.push("org"); next(); };
-  const permission = requirePermission("members:invite");
+  const permission = requirePermission("org.documents.read");
   const r = res();
   const req = {};
   await new Promise((resolve) => requireAuth(req, r, resolve));

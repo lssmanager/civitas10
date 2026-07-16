@@ -1,0 +1,3 @@
+'use strict'
+async function applyPermissionOperation(client, operation, context) { const resourceId = context.remoteResourceId || context.createdResourceId; if (operation.type === 'create-permission') return client.requestJson('POST', `/api/resources/${encodeURIComponent(resourceId)}/scopes`, { body: { name: operation.payload.name, description: operation.payload.description } }); if (operation.type === 'update-permission') return client.requestJson('PATCH', `/api/resources/${encodeURIComponent(resourceId)}/scopes/${encodeURIComponent(operation.payload.id)}`, { body: { description: operation.payload.description } }); return null }
+module.exports = { applyPermissionOperation }

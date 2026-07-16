@@ -1,4 +1,5 @@
 import { APP_ENV } from "../env";
+import { ApiRequestError, readJsonResponse } from "./base";
 
 export type MeResponse = {
   auth: {
@@ -23,8 +24,8 @@ export async function getMe(accessToken: string): Promise<MeResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to load /me (${response.status})`);
+    throw new ApiRequestError(`Failed to load /me (${response.status})`, response.status, "ME_REQUEST_FAILED", await readJsonResponse(response).catch((error) => error instanceof ApiRequestError ? error.details : null));
   }
 
-  return response.json();
+  return readJsonResponse<MeResponse>(response);
 }

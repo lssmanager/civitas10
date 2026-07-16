@@ -280,4 +280,11 @@ const idempotencyRecords = pgTable("idempotency_records", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords };
+const { roleDelegationRules, orgDelegationRestrictions } = require("./authz-delegation");
+const { orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions } = require("./authz-entitlements");
+const taxonomySchema = require("./authz-taxonomy");
+const unitsSchema = require("./authz-units");
+const dataScopeSchema = require("./authz-data-scopes");
+const authorizationRuntimeSchema = require("./authorization-runtime");
+
+module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema, ...authorizationRuntimeSchema };

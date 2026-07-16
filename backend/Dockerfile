@@ -7,6 +7,7 @@ RUN npm install
 
 COPY backend/ ./
 COPY core/ /core/
+COPY scripts/authorization/ /scripts/authorization/
 COPY dist/ /dist/
 
 ENV NODE_ENV=production

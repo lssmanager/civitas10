@@ -11,10 +11,10 @@ name: ESLint
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master" ]
+    branches: [ "main" ]
   schedule:
     - cron: '15 3 * * 3'
 
@@ -29,6 +29,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate authorization naming contract
+        run: |
+          npm run authz:naming:report
+          git diff --exit-code artifacts/authorization-naming-report.json
+          npm run authz:naming:check
+
+      - name: Validate Logto authorization bootstrap contract
+        run: npm run logto:authz:contract-check
+
+      - name: Validate backend scope-only and delegation contracts
+        run: |
+          npm run authz:scope-contract-check
+          npm run authz:delegation-contract-check
+          npm run authz:policy-contract-check
+          npm run authz:tenant-contract-check
+          npm run authz:entitlement-contract-check
+
+
+      - name: Validate frontend navigation contract
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          npm run lint
+          npm run test
+          npm run validate:navigation-contract
 
       - name: Install ESLint
         run: |

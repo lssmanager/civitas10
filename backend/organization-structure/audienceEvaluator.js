@@ -1,0 +1,5 @@
+"use strict";
+const { isEffective } = require("./unitMembershipService");
+function matchPredicate(predicate,{membership,unit,roleIds=[]}){ if(predicate.predicate==="unit_relationship_in") return predicate.relationshipTypes.includes(membership.relationshipType); if(predicate.predicate==="role_in") return membership.logtoRoleId&&predicate.roleIds.includes(membership.logtoRoleId)||roleIds.some(r=>predicate.roleIds.includes(r)); if(predicate.predicate==="unit_type_in") return predicate.unitTypes?.includes(unit.unitType); if(predicate.predicate==="unit_in") return predicate.unitIds?.includes(unit.id); if(predicate.predicate==="dimension_value_in") return unit.dimensionValueId&&predicate.valueIds.includes(unit.dimensionValueId); if(predicate.predicate==="membership_active_at") return isEffective(membership, predicate.at?new Date(predicate.at):new Date()); return false; }
+function evaluateAudienceAst(ast,ctx){ if(ast.op==="and") return ast.children.every(c=>evaluateAudienceAst(c,ctx)); if(ast.op==="or") return ast.children.some(c=>evaluateAudienceAst(c,ctx)); return matchPredicate(ast,ctx); }
+module.exports={ evaluateAudienceAst };

@@ -9,3 +9,6 @@ README.md
 !dist/
 !dist/auth.contract.json
 !dist/shared.contract.json
+
+# Licensed/design intake is local-only and must not enter Docker build contexts.
+frontend/.design-intake/

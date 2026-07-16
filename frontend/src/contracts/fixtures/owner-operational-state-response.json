@@ -1,0 +1,482 @@
+{
+  "contractVersion": "2026-07-civitas10-owner-capability-surfaces-v1",
+  "generatedAt": "2026-07-07T10:00:00.000Z",
+  "organization": {
+    "logtoOrganizationId": "org-1",
+    "name": "Colegio Uno",
+    "status": "active"
+  },
+  "summary": {
+    "status": "degraded",
+    "severity": "info",
+    "humanMessage": "Capability surface loaded.",
+    "dominantSource": null,
+    "nextAction": "none",
+    "availableActions": [
+      "none"
+    ]
+  },
+  "capabilities": [
+    {
+      "capability": "crm",
+      "label": "CRM",
+      "configured": true,
+      "adapter": {
+        "key": "fluentcrm",
+        "label": "FluentCRM",
+        "status": "available"
+      },
+      "health": {
+        "status": "healthy",
+        "severity": "success",
+        "humanMessage": "Capability configured.",
+        "checkedAt": "2026-07-07T09:00:00.000Z"
+      },
+      "runtimeState": {
+        "source": "organization_runtime_state",
+        "summary": {
+          "companyId": "company-123"
+        },
+        "metadata": {
+          "provider": "fluentcrm"
+        },
+        "status": "active"
+      },
+      "blockers": [],
+      "nextActions": []
+    },
+    {
+      "capability": "marketing",
+      "label": "Marketing",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Marketing.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "marketing"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Marketing todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "marketing"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Marketing",
+          "target": {
+            "capability": "marketing"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "lms",
+      "label": "LMS",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad LMS.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "lms"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad LMS todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "lms"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector LMS",
+          "target": {
+            "capability": "lms"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "community",
+      "label": "Community",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Community.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "community"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Community todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "community"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Community",
+          "target": {
+            "capability": "community"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "payments",
+      "label": "Payments",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Payments.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "payments"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Payments todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "payments"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Payments",
+          "target": {
+            "capability": "payments"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "notifications",
+      "label": "Notifications",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Notifications.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "notifications"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Notifications todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "notifications"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Notifications",
+          "target": {
+            "capability": "notifications"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "support",
+      "label": "Support",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Support.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "support"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Support todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "support"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Support",
+          "target": {
+            "capability": "support"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "analytics",
+      "label": "Analytics",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Analytics.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "analytics"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Analytics todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "analytics"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Analytics",
+          "target": {
+            "capability": "analytics"
+          }
+        }
+      ]
+    },
+    {
+      "capability": "scheduling",
+      "label": "Scheduling",
+      "configured": false,
+      "adapter": null,
+      "health": {
+        "status": "not_configured",
+        "severity": "info",
+        "humanMessage": "No hay adapter configurado para la capacidad Scheduling.",
+        "checkedAt": null
+      },
+      "runtimeState": {
+        "source": "not_configured",
+        "status": "not_configured",
+        "summary": {},
+        "metadata": {
+          "capability": "scheduling"
+        }
+      },
+      "blockers": [
+        {
+          "code": "connector_not_configured",
+          "severity": "info",
+          "message": "La capacidad Scheduling todavía no tiene un connector activo para esta organización.",
+          "scope": "organization",
+          "capability": "scheduling"
+        }
+      ],
+      "nextActions": [
+        {
+          "type": "configure_connector",
+          "label": "Configurar connector Scheduling",
+          "target": {
+            "capability": "scheduling"
+          }
+        }
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Marketing todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "marketing"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad LMS todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "lms"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Community todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "community"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Payments todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "payments"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Notifications todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "notifications"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Support todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "support"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Analytics todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "analytics"
+    },
+    {
+      "code": "connector_not_configured",
+      "severity": "info",
+      "message": "La capacidad Scheduling todavía no tiene un connector activo para esta organización.",
+      "scope": "organization",
+      "capability": "scheduling"
+    }
+  ],
+  "nextActions": [
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Marketing",
+      "target": {
+        "capability": "marketing"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector LMS",
+      "target": {
+        "capability": "lms"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Community",
+      "target": {
+        "capability": "community"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Payments",
+      "target": {
+        "capability": "payments"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Notifications",
+      "target": {
+        "capability": "notifications"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Support",
+      "target": {
+        "capability": "support"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Analytics",
+      "target": {
+        "capability": "analytics"
+      }
+    },
+    {
+      "type": "configure_connector",
+      "label": "Configurar connector Scheduling",
+      "target": {
+        "capability": "scheduling"
+      }
+    }
+  ],
+  "worker": null,
+  "polling": {
+    "shouldPoll": false,
+    "intervalSeconds": 0,
+    "reason": "stable",
+    "activeOperationIds": []
+  },
+  "latestEventIds": {},
+  "legacy": {
+    "deprecated": true,
+    "providerBlocks": {},
+    "replacement": "capabilities[]"
+  }
+}

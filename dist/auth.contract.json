@@ -14,24 +14,20 @@
       "globalRoles": [
         "owner_global"
       ],
-      "scopes": {
-        "ownerRead": "owner:read",
-        "ownerWrite": "owner:write",
-        "runtimeRead": "runtime:read",
-        "runtimeWrite": "runtime:write",
-        "workerQueuesRead": "worker-queues:read",
-        "workerQueuesWrite": "worker-queues:write",
-        "organizationCreate": "organization:create",
-        "organizationRead": "organization:read",
-        "organizationWrite": "organization:write",
-        "impersonationWrite": "impersonation:write"
+      "permissions": {
+        "ownerProfileRead": "owner.profile.read",
+        "ownerOrganizationsRead": "owner.organizations.read",
+        "ownerOrganizationsCreate": "owner.organizations.create",
+        "ownerRuntimeRead": "owner.runtime.read",
+        "ownerRuntimeOperationsExecute": "owner.runtime.operations.execute",
+        "ownerWorkerQueuesRead": "owner.worker_queues.read"
       }
     },
     "organization": {
       "reservedResource": "organization",
-      "documentScopes": {
-        "read": "read:documents",
-        "create": "create:documents"
+      "documentPermissions": {
+        "documentsRead": "org.documents.read",
+        "documentsCreate": "org.documents.create"
       },
       "roles": {
         "admin": "organization_admin",

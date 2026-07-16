@@ -34,9 +34,10 @@ test("owner shell required scopes come from the shared Civitas contract", () => 
   assert.match(ownerScopesSource, /getMissingScopes/);
 });
 
-test("owner routes are wrapped by OwnerRouteGuard", () => {
+test("owner routes are wrapped by OwnerRouteGuard and ScreenGate", () => {
   assert.match(appSource, /OwnerRouteGuard/);
-  assert.match(appSource, /<OwnerRouteGuard><OwnerOperationalHomePage \/><\/OwnerRouteGuard>/);
-  assert.match(appSource, /<OwnerRouteGuard><OwnerOrganizationsIndexPage \/><\/OwnerRouteGuard>/);
-  assert.match(appSource, /<OwnerRouteGuard><OwnerOrganizationsPage \/><\/OwnerRouteGuard>/);
+  assert.match(appSource, /ScreenGate screenId="owner-overview"/);
+  assert.match(appSource, /ScreenGate screenId="owner-organizations"/);
+  assert.match(appSource, /ScreenGate screenId="owner-organizations-create"/);
+  assert.match(appSource, /ScreenGate screenId="owner-governance"/);
 });

@@ -38,7 +38,7 @@ const OwnerOperationalHomePage = () => {
 
   return (
     <OwnerShell>
-      <PageHeader eyebrow="Owner overview" title="Global owner summary" description="Resumen ejecutivo del estado global: organizaciones, señales críticas y accesos profundos a vistas especializadas. El detalle técnico vive en Runtime y la creación vive en Create." />
+      <PageHeader eyebrow="Owner overview" title="Global owner summary" description="Resumen ejecutivo del estado global: organizaciones, señales críticas y accesos profundos a vistas especializadas. El detalle técnico vive en Operations y la creación vive en Create." />
 
       {error ? <StateRegion><AlertStrip variant="danger">{error}</AlertStrip></StateRegion> : null}
 
@@ -48,7 +48,7 @@ const OwnerOperationalHomePage = () => {
           {runtime ? <OwnerBadge tone={ownerToneFromSeverity(runtime.workerHealth.severity)}>{runtime.workerHealth.classification}</OwnerBadge> : <StatusPill status="unknown">loading</StatusPill>}
         </MetricCard>
         <MetricCard label="Blocked organizations" value={runtime?.blockedOrganizations.length ?? 0} variant={(runtime?.blockedOrganizations.length ?? 0) > 0 ? "danger" : "ok"}>
-          <Link to={appRoutes.ownerWorkerQueues.path} className="civitas-nav-link">View operational issues</Link>
+          <Link to={appRoutes.ownerSystem.path} className="civitas-nav-link">View operational issues</Link>
         </MetricCard>
       </KpiGrid>
 

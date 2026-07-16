@@ -1,5 +1,7 @@
 "use strict";
 
+const { OWNER_PERMISSIONS, ORGANIZATION_PERMISSIONS } = require("../authz/runtime/active-permissions");
+
 const CivitasSharedContract = Object.freeze({
   version: "2026-07-civitas-shared-contract-v1",
   logto: Object.freeze({
@@ -15,22 +17,18 @@ const CivitasSharedContract = Object.freeze({
     global: Object.freeze({
       ownerRole: "owner_global",
       globalRoles: Object.freeze(["owner_global"]),
-      scopes: Object.freeze({
-        ownerRead: "owner:read",
-        ownerWrite: "owner:write",
-        runtimeRead: "runtime:read",
-        runtimeWrite: "runtime:write",
-        workerQueuesRead: "worker-queues:read",
-        workerQueuesWrite: "worker-queues:write",
-        organizationCreate: "organization:create",
-        organizationRead: "organization:read",
-        organizationWrite: "organization:write",
-        impersonationWrite: "impersonation:write",
+      permissions: Object.freeze({
+        ownerProfileRead: OWNER_PERMISSIONS.profileRead,
+        ownerOrganizationsRead: OWNER_PERMISSIONS.organizationsRead,
+        ownerOrganizationsCreate: OWNER_PERMISSIONS.organizationsCreate,
+        ownerRuntimeRead: OWNER_PERMISSIONS.runtimeRead,
+        ownerRuntimeOperationsExecute: OWNER_PERMISSIONS.runtimeOperationsExecute,
+        ownerWorkerQueuesRead: OWNER_PERMISSIONS.workerQueuesRead,
       }),
     }),
     organization: Object.freeze({
       reservedResource: "organization",
-      documentScopes: Object.freeze({ read: "read:documents", create: "create:documents" }),
+      documentPermissions: Object.freeze({ documentsRead: ORGANIZATION_PERMISSIONS.documentsRead, documentsCreate: ORGANIZATION_PERMISSIONS.documentsCreate }),
       roles: Object.freeze({ admin: "organization_admin", member: "organization_member" }),
     }),
     invariants: Object.freeze([

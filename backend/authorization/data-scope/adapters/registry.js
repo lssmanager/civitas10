@@ -1,0 +1,2 @@
+"use strict";
+const adapters=new Map(); function registerDataScopeAdapter(adapter){ if(!adapter?.capability||/moodle|buddyboss|listmonk|freescout/i.test(adapter.capability)) throw new Error("invalid_capability_adapter"); adapters.set(adapter.capability,adapter); return adapter;} function getDataScopeAdapter(capability){return adapters.get(capability)||null;} module.exports={registerDataScopeAdapter,getDataScopeAdapter};

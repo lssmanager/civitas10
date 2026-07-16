@@ -1,9 +1,11 @@
 import { useLogto } from "@logto/react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useParams } from "react-router-dom";
 import { getMe, type MeResponse } from "../api/me";
 import { APP_ENV } from "../env";
-import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, ownerHasGlobalRole } from "./ownerScopes";
+import { getMissingOwnerShellScopes, OWNER_GLOBAL_ROLE, OWNER_SHELL_REQUIRED_SCOPES, ownerHasGlobalRole } from "./ownerScopes";
 import { getAccessTokenDiagnostics } from "../api/base";
+import { VisualAuthorizationProvider, visualAuthorizationContextFromOwnerMe } from "../authorization/components/VisualAuthorizationProvider";
 
 type OwnerTokenDiagnostics = ReturnType<typeof getAccessTokenDiagnostics>;
 
@@ -14,6 +16,7 @@ type OwnerRouteGuardState =
 
 export function OwnerRouteGuard({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useLogto();
+  const { organizationId } = useParams();
   const [state, setState] = useState<OwnerRouteGuardState>({ status: "loading" });
 
   useEffect(() => {
@@ -36,10 +39,13 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
         }
         const missingScopes = getMissingOwnerShellScopes(me);
         if (missingScopes.length > 0) {
+          const receivedCanonicalApiPermission = (me.auth?.scopes ?? []).some((scope) => OWNER_SHELL_REQUIRED_SCOPES.includes(scope));
           setState({
             status: "denied",
             reason: "global-scopes",
-            message: "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated.",
+            message: receivedCanonicalApiPermission
+              ? "403 / Access denied: missing required global API permissions. Sign out and sign in again to refresh owner consent if your role was recently updated."
+              : "No se recibió un permiso API canónico en el token. Cierra sesión e inicia sesión después de asignar los permisos canónicos al rol.",
             missingScopes,
             tokenDiagnostics,
           });
@@ -55,14 +61,14 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [getAccessToken, isAuthenticated]);
 
-  if (state.status === "loading") return <div className="p-6 text-sm text-slate-600">Validando permisos...</div>;
+  if (state.status === "loading") return <div className="p-6 text-sm text-muted-strong">Validando permisos...</div>;
   if (state.status === "denied") return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold text-slate-900">403 / Access denied</h1>
-      <p className="mt-2 text-sm text-slate-600">{state.message}</p>
-      {state.reason === "global-scopes" && state.missingScopes?.length ? <p className="mt-2 text-sm text-slate-600">Missing global scopes: {state.missingScopes.join(", ")}</p> : null}
-      {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-slate-500">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
+      <h1 className="text-2xl font-semibold text-text">403 / Access denied</h1>
+      <p className="mt-2 text-sm text-muted-strong">{state.message}</p>
+      {state.reason === "global-scopes" && state.missingScopes?.length ? <p className="mt-2 text-sm text-muted-strong">Missing global scopes: {state.missingScopes.join(", ")}</p> : null}
+      {state.reason === "global-scopes" && state.tokenDiagnostics ? <p className="mt-2 text-xs text-muted">Token audience: {JSON.stringify(state.tokenDiagnostics.aud)} · Token scope: {state.tokenDiagnostics.scope || "(empty)"}</p> : null}
     </div>
   );
-  return <>{children}</>;
+  return <VisualAuthorizationProvider value={visualAuthorizationContextFromOwnerMe(state.me, organizationId)}>{children}</VisualAuthorizationProvider>;
 }

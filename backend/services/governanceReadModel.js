@@ -1,0 +1,137 @@
+"use strict";
+
+const { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory } = require("../../core/governance/operation-registry.cjs");
+const { buildRolesGovernanceSlice } = require("./governanceRolesReadModel");
+const { buildStructureGovernanceSlice } = require("./governanceStructureReadModel");
+const { buildAliasesNavigationPolicy, listGovernanceAuditEvents } = require("./governanceOperationsReadModel");
+
+const MODULE_KEYS = Object.freeze(["overview", "permissions", "members", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]);
+const TENANT_MODULES = Object.freeze(new Set(["permissions", "members", "data-scope", "taxonomy", "units", "aliases-navigation", "access-preview"]));
+const OWNER_MODULES = Object.freeze(new Set(["overview", "permissions", "taxonomy", "units", "data-scope", "aliases-navigation", "access-preview", "audit"]));
+
+function isoNow() { return new Date().toISOString(); }
+function safeString(value, fallback = null) { return typeof value === "string" && value.trim() ? value.trim() : fallback; }
+function organizationName(organization = {}) { return safeString(organization.name) || safeString(organization.nameCache) || safeString(organization.displayName); }
+
+function buildVersions({ stale = false, drift = false } = {}) {
+  const runtimeStatus = drift ? "drift" : stale ? "stale" : "current";
+  return {
+    catalogVersion: "2026-07-civitas10-active-permissions-v1",
+    ceilingVersion: "not_mounted",
+    activationVersion: "not_mounted",
+    taxonomyVersion: "2026-07-civitas10-taxonomy-read-v1",
+    unitsVersion: "2026-07-civitas10-units-read-v1",
+    dataScopeVersion: "2026-07-civitas10-data-scope-read-v1",
+    visualVersion: "2026-07-civitas10-visual-navigation-v1",
+    policyVersion: "2026-07-civitas10-policy-runtime-v1",
+    readModelVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION,
+    operationRegistryVersion: GOVERNANCE_OPERATION_REGISTRY_VERSION,
+    runtimeStatus,
+  };
+}
+
+function moduleStatus({ key, surface, versions }) {
+  if (key === "members" && surface === "owner") return null;
+  const supported = surface === "owner" ? OWNER_MODULES.has(key) : TENANT_MODULES.has(key);
+  if (!supported) return null;
+  const inventory = moduleInventory.find((item) => item.module === key);
+  if (!inventory) return { status: "error", reason: "module_inventory_missing", dependencyVersions: versions };
+  if (versions.runtimeStatus === "stale") return { status: "stale", reason: "authorization_snapshot_stale", dependencyVersions: versions };
+  if (versions.runtimeStatus === "drift") return { status: "stale", reason: "authorization_version_drift", dependencyVersions: versions };
+  return { status: inventory.status, reason: inventory.reason, dependencyVersions: versions };
+}
+
+function buildModules({ surface, versions }) {
+  return Object.fromEntries(MODULE_KEYS.map((key) => [key, moduleStatus({ key, surface, versions })]).filter(([, value]) => value));
+}
+
+function buildPermissionMatrix(versions) {
+  return [
+    {
+      permission: "governance.owner.read",
+      canonical: true,
+      rolePotential: true,
+      ownerAllowed: true,
+      tenantEnabled: null,
+      effective: true,
+      reason: { code: "allowed", sourceVersions: versions },
+    },
+    {
+      permission: "governance.tenant.read",
+      canonical: true,
+      rolePotential: true,
+      ownerAllowed: true,
+      tenantEnabled: true,
+      effective: true,
+      reason: { code: "allowed", sourceVersions: versions },
+    },
+    {
+      permission: "governance.preview.read",
+      canonical: true,
+      rolePotential: null,
+      ownerAllowed: null,
+      tenantEnabled: null,
+      effective: false,
+      reason: { code: "owning_operation_not_mounted", sourceVersions: versions },
+    },
+  ];
+}
+
+async function buildGovernanceReadModel({ organization, organizationId, surface, stale = false, drift = false, roles = [], members = [], memberRolesByUserId = new Map() } = {}) {
+  if (!["owner", "tenant"].includes(surface)) { const error = new Error("Invalid governance surface."); error.status = 500; error.code = "GOVERNANCE_SURFACE_INVALID"; throw error; }
+  const versions = buildVersions({ stale, drift });
+  const modules = buildModules({ surface, versions });
+  const logtoOrganizationId = organizationId || safeString(organization?.id) || safeString(organization?.logtoOrganizationId);
+  const rolesSlice = await buildRolesGovernanceSlice({ organizationId: logtoOrganizationId, roles, members, memberRolesByUserId });
+  const structureSlice = await buildStructureGovernanceSlice(logtoOrganizationId);
+  return {
+    contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION,
+    generatedAt: isoNow(),
+    organization: { logtoOrganizationId, name: organizationName(organization), surface },
+    organizationId: logtoOrganizationId,
+    organizationName: organizationName(organization),
+    surface,
+    versions,
+    runtimeStatus: versions.runtimeStatus,
+    modules,
+    operationRegistry: { registryVersion: GOVERNANCE_OPERATION_REGISTRY_VERSION, operations: governanceOperationRegistry },
+    moduleInventory,
+    summary: {
+      status: versions.runtimeStatus === "current" ? "available" : versions.runtimeStatus,
+      activeModules: Object.values(modules).filter((item) => item.status === "active").length,
+      plannedModules: Object.values(modules).filter((item) => item.status === "planned").length,
+      unavailableModules: Object.values(modules).filter((item) => item.status === "unavailable").length,
+      reason: "aggregate_projection_only",
+    },
+    roles: rolesSlice.roles,
+    members: rolesSlice.members,
+    permissionMatrix: rolesSlice.permissionMatrix.length ? rolesSlice.permissionMatrix : buildPermissionMatrix(versions),
+    taxonomy: structureSlice.taxonomy.items,
+    units: structureSlice.units.items,
+    dataScopes: structureSlice.dataScopes.items,
+    aliasesNavigation: buildAliasesNavigationPolicy(logtoOrganizationId),
+    accessPreviews: [],
+    auditSummary: { totalEvents: rolesSlice.auditEvents.length + structureSlice.auditEvents.length + listGovernanceAuditEvents({ organizationId: logtoOrganizationId }).length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || structureSlice.auditEvents.at(-1)?.createdAt || listGovernanceAuditEvents({ organizationId: logtoOrganizationId })[0]?.createdAt || null, redaction: "actor_subjects_before_after_tokens_and_connector_secrets_redacted" },
+    auditEvents: [
+      ...[...rolesSlice.auditEvents, ...structureSlice.auditEvents].map((event, index) => ({ id: `audit_${index + 1}`, actorId: event.actorLogtoUserId ? "redacted_actor" : "system", organizationId: logtoOrganizationId, target: event.targetType || event.permission || "governance", action: event.action, reason: event.reason || "governance_mutation", contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION, createdAt: event.createdAt })),
+      ...listGovernanceAuditEvents({ organizationId: logtoOrganizationId }),
+    ],
+    diagnostics: [
+      { code: "governance_read_model_projection", severity: "info", message: "Aggregate read model is mounted; feature writes remain in owning APIs." },
+      ...(versions.runtimeStatus === "current" ? [] : [{ code: versions.runtimeStatus === "drift" ? "authorization_version_drift" : "authorization_snapshot_stale", severity: "warning", message: "Authorization runtime is not current." }]),
+    ],
+  };
+}
+
+function assertTenantRouteMatchesContext(req) {
+  const routeOrganizationId = req.params.organizationId;
+  const tokenOrganizationId = req.user?.organizationId || req.user?.claims?.organization_id || req.user?.claims?.organizationId || null;
+  if (!tokenOrganizationId || tokenOrganizationId !== routeOrganizationId) {
+    const error = new Error("Tenant governance route organization does not match the verified tenant context.");
+    error.status = 403;
+    error.code = "TENANT_ORGANIZATION_MISMATCH";
+    throw error;
+  }
+}
+
+module.exports = { GOVERNANCE_READ_MODEL_CONTRACT_VERSION, GOVERNANCE_OPERATION_REGISTRY_VERSION, governanceOperationRegistry, moduleInventory, buildGovernanceReadModel, assertTenantRouteMatchesContext };

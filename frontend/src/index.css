@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "./styles/index.css";
+@import "./styles/dashboard.css";
 
 /* Static visual-contract sentinels. Runtime CSS lives in src/styles/*.css. */
 /* .civitas-shell .civitas-topbar .civitas-primary-nav .civitas-card .civitas-field */
