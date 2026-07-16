@@ -94,3 +94,15 @@ test("authorization context separates token and effective permissions", async ()
   assert.deepEqual(context.tokenPermissions, ["org.documents.create", "org.documents.read"]);
   assert.deepEqual(context.effectivePermissions, ["org.documents.create"]);
 });
+
+test("domain and JIT provisioning roles remain RBAC candidates without ceilings or activations", async () => {
+  const repository = createInMemoryEntitlementRepository();
+  const domainProvisioned = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "teacher", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "domain_jit_teacher", logtoRoleId: "role_teacher", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: { role_teacher: "organization_teacher" } });
+  assert.equal(domainProvisioned.allowed, false);
+  assert.equal(domainProvisioned.reasonCode, ENTITLEMENT_REASON_CODES.OWNER_CEILING_MISSING);
+  const service = createEntitlementService({ repository, runtimeConsistencyPort: runtimePort(), roleIdToName: { role_teacher: "organization_teacher" } });
+  await service.upsertOwnerLimits({ organizationId: "orgA", expectedPolicyVersion: 1, actorLogtoUserId: "owner", changes: [{ logtoRoleId: "role_teacher", permission: "org.documents.read", allowed: true }] });
+  const jitWithCeilingOnly = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "teacher", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "sso_jit_teacher", logtoRoleId: "role_teacher", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: { role_teacher: "organization_teacher" } });
+  assert.equal(jitWithCeilingOnly.allowed, false);
+  assert.equal(jitWithCeilingOnly.reasonCode, ENTITLEMENT_REASON_CODES.TENANT_ACTIVATION_MISSING);
+});

@@ -394,3 +394,19 @@ No se permite crear el rol en Logto, agregarlo a un selector de UI ni asignarlo 
 7. migraciones, auditoría, razón de denegación y pruebas completas.
 
 Así, añadir roles se vuelve un flujo repetible y parametrizado: se completan datos de una plantilla; no se rediseña la arquitectura ni se conceden permisos implícitos.
+
+## Normative amendment: Logto provisioning is identity input, not effective authorization
+
+Default organization roles, email-domain provisioning, and Enterprise SSO/JIT provisioning may create or reconcile organization membership, assign approved canonical organization roles, and emit token role/scope claims. Those artifacts are only identity inputs and RBAC candidates. They never bypass deny-by-default and never create Owner Ceilings, Tenant Activations, or Data Scopes by themselves.
+
+Every protected operation still evaluates the complete path: active catalog, valid Logto token/identity, canonical role RBAC potential, Owner Ceiling, Tenant Activation, and ABAC Data Scope over the resource. Missing any layer denies with an observable same-tenant reason code. Domain or SSO origin does not alter the result.
+
+The initial organization wizard may use an explicitly selected Owner Bootstrap Profile for onboarding. The profile is finite and versioned: it can create the initial membership/role binding, materialize only listed Owner Ceilings, materialize only listed Tenant Activations, enable only listed scope templates, and audit `profileId`, catalog version, actor, wizard source, and policy version. New onboarding capabilities require a profile/catalog change; no Logto default role implicitly activates all admin permissions.
+
+Provisioning controls are mandatory: JIT/domain mappings can only assign pre-approved canonical `organization_*` roles; they cannot assign `owner_global` or Owner privileges; domain/IdP bindings must be verified, tenant-scoped, and idempotent; external claims cannot inject permissions, action IDs, Owner Ceilings, Tenant Activations, or Data Scopes; membership/role provisioning changes audit and refresh authorization context; post-bootstrap default roles gain RBAC potential only, not extra activations.
+
+Scope subject is `organizationId + membershipId + canonicalRoleId`. Each membership-role binding is evaluated as a complete path. Generic mutable role scopes and privilege/scope borrowing across roles or memberships are not supported.
+
+### Implementation note: scope-template persistence
+
+The Phase 2 implementation persists Owner scope templates in `owner_scope_templates` and tenant-local enablement/labels in `tenant_scope_configurations`. Data-scope assignment rows may reference `scope_template_id` and `scope_template_version`; the server validates assignments against the Owner-published immutable semantics before writing any target. Tenant labels remain presentation-only and cannot alter strategy, capability, role applicability, target kind, dimension keys or relationship keys.
