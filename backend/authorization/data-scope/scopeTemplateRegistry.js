@@ -11,7 +11,7 @@ const OWNER_SCOPE_TEMPLATES = Object.freeze(Object.entries(DATA_SCOPE_STRATEGIES
     version: OWNER_SCOPE_TEMPLATE_VERSION,
     capability,
     strategy: strategy.strategy,
-    allowedTargetKinds: Object.freeze(strategy.strategy === "dimensions" ? ["dimension"] : strategy.strategy === "relationships" ? ["unit", "resource"] : []),
+    allowedTargetKinds: Object.freeze(strategy.strategy === "dimensions" ? ["dimension"] : ["relationships", "group_leadership"].includes(strategy.strategy) ? ["unit", "resource"] : []),
     allowedDimensionKeys: Object.freeze(strategy.requiredDimensionKeys || []),
     allowedRelationshipKeys: Object.freeze(strategy.relationshipKeys || []),
     allowedRoleKeys: Object.freeze([roleKey]),

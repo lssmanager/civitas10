@@ -71,3 +71,15 @@ test('negative fixtures required by #74 are rejected', () => {
 })
 
 function active(name, domain, surface = 'organization') { return { name, description: name, domain, surface, status: 'active', resource: API_RESOURCE, consumers: ['fixture'], policyRequirements: [], overlayMode: surface === 'organization' ? 'restrictable' : 'not-applicable' } }
+
+test('organization_groupleader is canonical read-only and cannot receive owner or unknown permissions', () => {
+  const manifest = getAuthorizationManifest();
+  assert.ok(manifest.organizationRoles.includes('organization_groupleader'));
+  assert.deepEqual(manifest.rolePermissionAssignments.organization_groupleader, ['org.documents.read']);
+  const ownerMutation = clone(manifest);
+  ownerMutation.rolePermissionAssignments.organization_groupleader.push('owner.profile.read');
+  assert.match(validate(ownerMutation), /organization role cannot receive owner permission/);
+  const unknownMutation = clone(manifest);
+  unknownMutation.rolePermissionAssignments.organization_groupleader.push('lms.grades.update');
+  assert.match(validate(unknownMutation), /missing permission|non-active or missing permission|invalid role permission reference|unknown permission/);
+});

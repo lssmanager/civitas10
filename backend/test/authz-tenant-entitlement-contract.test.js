@@ -106,3 +106,22 @@ test("domain and JIT provisioning roles remain RBAC candidates without ceilings 
   assert.equal(jitWithCeilingOnly.allowed, false);
   assert.equal(jitWithCeilingOnly.reasonCode, ENTITLEMENT_REASON_CODES.TENANT_ACTIVATION_MISSING);
 });
+
+test("group leader PBAC requires exact ceiling and activation and never grants update potential", async () => {
+  const roleMap = { role_group: "organization_groupleader" };
+  const repository = createInMemoryEntitlementRepository();
+  const noCeiling = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  assert.equal(noCeiling.allowed, false);
+  assert.equal(noCeiling.reasonCode, ENTITLEMENT_REASON_CODES.OWNER_CEILING_MISSING);
+  const service = createEntitlementService({ repository, runtimeConsistencyPort: runtimePort(), roleIdToName: roleMap });
+  await service.upsertOwnerLimits({ organizationId: "orgA", expectedPolicyVersion: 1, actorLogtoUserId: "owner", changes: [{ logtoRoleId: "role_group", permission: "org.documents.read", allowed: true }] });
+  const noActivation = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  assert.equal(noActivation.allowed, false);
+  assert.equal(noActivation.reasonCode, ENTITLEMENT_REASON_CODES.TENANT_ACTIVATION_MISSING);
+  await service.upsertTenantActivations({ organizationId: "orgA", expectedPolicyVersion: 2, actorLogtoUserId: "admin", changes: [{ logtoRoleId: "role_group", permission: "org.documents.read", enabled: true }] });
+  const allowed = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  assert.equal(allowed.allowed, true);
+  const update = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["lms.grades.update"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "lms.grades.update", repository, roleIdToName: roleMap });
+  assert.equal(update.allowed, false);
+  assert.equal(update.reasonCode, ENTITLEMENT_REASON_CODES.ROLE_PERMISSION_MISSING);
+});

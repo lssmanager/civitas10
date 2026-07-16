@@ -9,6 +9,7 @@ const ORGANIZATION_ROLES = Object.freeze({
   DIRECTOR: 'organization_director',
   HEADDIRECTOR: 'organization_headdirector',
   HEADTEACHER: 'organization_headteacher',
+  GROUPLEADER: 'organization_groupleader',
   MEMBER: 'organization_member',
   PARENT: 'organization_parent',
   PAYROLL: 'organization_payroll',
