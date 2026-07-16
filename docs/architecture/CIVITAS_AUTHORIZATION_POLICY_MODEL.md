@@ -335,3 +335,62 @@ Un cambio de rol, permiso, template, estrategia ABAC, ceiling, activation por de
 7. aprobación de ownership/CODEOWNERS.
 
 No se admiten cambios silenciosos que alteren autorización efectiva.
+
+
+## 15. Plantilla obligatoria para introducir o cambiar un rol canónico
+
+Un rol nuevo no es una configuración de tenant ni una asignación aislada de Logto: modifica el contrato global de seguridad. Para eliminar decisiones repetidas y asegurar que cada cambio atraviese RBAC, PBAC y ABAC de forma consistente, **todo rol nuevo, cambio material de potencial o deprecación debe usar la plantilla** [CIVITAS_NEW_CANONICAL_ROLE_TEMPLATE.md](templates/CIVITAS_NEW_CANONICAL_ROLE_TEMPLATE.md).
+
+### 15.1 Flujo parametrizado
+
+```text
+Necesidad de responsabilidad reutilizable
+→ completar plantilla y aprobar Owner
+→ catálogo + Logto + estrategia ABAC versionados
+→ ceilings/activations o Bootstrap Profile explícitos
+→ pruebas de multirol, tenant isolation y revocación
+→ desplegar el rol como candidato
+→ Tenant asigna miembros, aliases y scopes permitidos
+```
+
+La plantilla hace que cada rol declare los mismos parámetros:
+
+| Parámetro | Quién lo define | Ejemplo |
+|---|---|---|
+| ID canónico y estado | Owner | `organization_groupleader` |
+| Alias visible | Tenant | “Director de grupo” |
+| Potencial RBAC | Owner | permisos de lectura explícitos |
+| Owner Ceiling inicial | Owner/perfil | qué puede ofrecerse |
+| Tenant Activation | Tenant dentro del ceiling | qué queda habilitado |
+| Estrategia ABAC | Owner | `group_leadership` |
+| Valores, unidades y relaciones | Tenant | `leads(7B)` |
+| Membresía/rol Logto | Tenant o provisioning aprobado | usuario → rol |
+| Auditoría/versiones | Sistema | antes/después, actor, razón |
+
+### 15.2 Cuándo usar rol nuevo y cuándo no
+
+Crear un rol canónico únicamente si representa una responsabilidad reutilizable, con potencial RBAC o estrategia ABAC propios, que otros tenants puedan necesitar.
+
+No crear un rol cuando el cambio sea solamente:
+
+- un nombre local de cargo: usar alias;
+- una unidad, curso, grupo o área diferente: usar scope/unidad/relación;
+- una diferencia temporal de disponibilidad: usar Tenant Activation;
+- un límite comercial o de producto: usar Owner Ceiling/perfil;
+- una responsabilidad ya expresable por un rol existente con un scope distinto.
+
+Ejemplo: `organization_groupleader` es canónico porque representa liderazgo de un grupo y una estrategia ABAC reusable. “Director de 7B” es una relación `leads(7B)`; “Rector del Colegio X” es un alias/configuración local, no un rol.
+
+### 15.3 Gate de implementación
+
+No se permite crear el rol en Logto, agregarlo a un selector de UI ni asignarlo a usuarios de producción hasta que el issue/ADR que usa la plantilla tenga:
+
+1. ID canónico, propósito y decisiones de no-acceso;
+2. tabla RBAC de permisos potenciales;
+3. Owner Ceilings, Tenant Activations y Bootstrap Profile definidos o explícitamente ausentes;
+4. estrategia ABAC, atributos y comportamiento sin scope;
+5. casos multirol sin privilege borrowing;
+6. controles de provisioning Logto;
+7. migraciones, auditoría, razón de denegación y pruebas completas.
+
+Así, añadir roles se vuelve un flujo repetible y parametrizado: se completan datos de una plantilla; no se rediseña la arquitectura ni se conceden permisos implícitos.
