@@ -69,7 +69,7 @@ Public contracts must be versioned.
 
 Example:
 
-```
+```text
 /api/v1/lms/courses
 /api/v1/crm/contacts
 ```
@@ -80,7 +80,7 @@ Breaking changes require a new contract version.
 
 All API surfaces use the canonical Civitas authorization chain:
 
-```
+```text
 requireAuth → requireOrg → requirePermission(permission) → requireSeats → handler
 ```
 
