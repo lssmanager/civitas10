@@ -1,5 +1,5 @@
 # Civitas 1.1
 
-Civitas 1.1 is the clean reconstruction foundation for the Civitas platform. It keeps the parts that already work well from the previous codebase and removes contaminated owner UI and legacy operational surfaces that mixed logs, snapshots, provider diagnostics, and partial truths.
+Civitas is the multi-tenant platform core for operating organizations, authorization, business modules, provider integrations, human-facing APIs, internal events, and AI-agent tools through one governed runtime.
 
-This repository is no longer treated as the original Logto sample app. It now
+This repository is the clean reconstruction foundation for Civitas. It keeps the identity, authorization, operational, deployment, and contract foundations
