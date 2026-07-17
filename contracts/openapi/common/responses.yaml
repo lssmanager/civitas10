@@ -1,0 +1,32 @@
+components:
+  responses:
+    BadRequest:
+      description: Request or organization context is invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas.yaml#/components/schemas/Problem
+    Unauthorized:
+      description: Authentication is required or invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas.yaml#/components/schemas/Problem
+    Forbidden:
+      description: The authenticated principal is not authorized.
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas.yaml#/components/schemas/Problem
+    NotFound:
+      description: The resource is absent or not visible in the authorized boundary.
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas.yaml#/components/schemas/Problem
+    Conflict:
+      description: State or idempotency conflict.
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas.yaml#/components/schemas/Problem

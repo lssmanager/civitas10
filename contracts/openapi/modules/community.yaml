@@ -1,0 +1,47 @@
+paths:
+  /o/{organizationId}/community/groups:
+    get:
+      tags: [community]
+      summary: Planned canonical read operation for community.groups.
+      operationId: communityGroupsList
+      x-civitas-module: community
+      x-civitas-capability: community.groups
+      x-civitas-route-id: community.groups.read
+      x-civitas-action-id: community.groups.read
+      x-civitas-surface: organization
+      x-civitas-status: planned
+      x-civitas-permission: community.groups.read
+      x-civitas-policies: [same-organization, membership-required, authorization-snapshot-current]
+      x-civitas-audit: read
+      x-civitas-idempotency: forbidden
+      x-civitas-execution: synchronous
+      parameters:
+        - $ref: ../common/parameters.yaml#/components/parameters/OrganizationId
+        - $ref: ../common/parameters.yaml#/components/parameters/Cursor
+        - $ref: ../common/parameters.yaml#/components/parameters/Limit
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Canonical successful response.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommunityGroupCollection' }
+        '401': { $ref: ../common/responses.yaml#/components/responses/Unauthorized }
+        '403': { $ref: ../common/responses.yaml#/components/responses/Forbidden }
+components:
+  securitySchemes:
+    bearerAuth: { $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth }
+  schemas:
+    CommunityGroup:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        displayName: { type: string }
+    CommunityGroupCollection:
+      type: object
+      required: [data, page, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/CommunityGroup' } }
+        page: { $ref: ../common/schemas.yaml#/components/schemas/Page }
+        meta: { $ref: ../common/schemas.yaml#/components/schemas/Meta }
