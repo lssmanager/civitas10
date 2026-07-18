@@ -125,10 +125,10 @@ Resolution must verify, in order:
 1. organization context exists and is valid;
 2. the module is enabled for the organization;
 3. the capability is declared by the module version;
-4. the organization has a valid adapter binding when the capability requires one;
-5. adapter configuration is complete and secrets are retrievable through the approved secret boundary;
-6. the adapter is healthy enough for the requested operation;
-7. caller authorization and policy constraints permit the application operation.
+4. caller authorization and policy constraints permit the application operation;
+5. the organization has a valid adapter binding when the capability requires one;
+6. adapter configuration is complete and secrets are retrievable through the approved secret boundary;
+7. the adapter is healthy enough for the requested operation.
 
 A caller must not request `moodle`, `mautic`, `matomo`, or any other provider as the domain capability. It requests `lms.enrollment`, `marketing.campaign`, or another stable capability and receives an implementation selected by Civitas.
 
