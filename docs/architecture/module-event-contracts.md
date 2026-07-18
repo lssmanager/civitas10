@@ -46,10 +46,11 @@ community.post.created.v1
 
 ## Event envelope
 
-Every event should define:
+Every event must define:
 
 - event id;
 - schema version;
+- payload schema;
 - producer module;
 - aggregate type/id;
 - organization id;
@@ -58,6 +59,8 @@ Every event should define:
 - occurred timestamp;
 - sensitivity classification;
 - replay and idempotency rules.
+
+Each event must define a versioned payload schema that consumers can validate before processing. Producers must not emit events with undocumented payload shapes.
 
 ## Security
 
