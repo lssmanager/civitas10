@@ -52,18 +52,22 @@ A module must not:
 - mutate the sidebar directly;
 - bypass authorization;
 - create route permissions outside the canonical catalog;
-- expose disabled tenant modules.
+- expose unavailable tenant modules.
 
 ## Visibility decision
 
 A navigation item is visible only when:
 
 ```text
-module installed and active
+module installed
+AND module lifecycle allows exposure
+AND effective capability availability is valid
+AND required adapter/binding availability is valid when required
 AND route contract valid
 AND organization context valid
 AND permission granted
 AND policy/data scope allows exposure
+AND feature lifecycle allows exposure
 ```
 
 Navigation is presentation. Authorization remains backend authoritative.
@@ -75,6 +79,9 @@ Each organization receives navigation derived from:
 - installed modules;
 - module UI contributions;
 - effective authorization context;
+- effective capability availability;
 - lifecycle state.
 
-Disabling a module removes navigation exposure but does not delete historical data.
+Disabling or decommissioning a module removes navigation exposure but does not delete historical data.
+
+Transitional states such as provisioning, suspended, degraded, or decommissioning must not expose routes that cannot execute successfully.
