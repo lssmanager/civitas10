@@ -415,3 +415,7 @@ The Phase 2 implementation persists Owner scope templates in `owner_scope_templa
 ### Canonical role: organization_groupleader
 
 `organization_groupleader` is an Owner-governed canonical organization role for group leadership. Its Phase 2 RBAC potential is limited to approved read capability (`org.documents.read` in the active catalog); it does not receive `lms.grades.update`, `lms.grades.manage`, Owner permissions, wildcards or planned permissions. Its ABAC strategy is `group_leadership`, which only accepts tenant-scoped `leads` relationships to the relevant group/course/unit resource and denies closed when no valid `leads` relationship exists. Tenant aliases such as “Director de grupo” are presentation-only and never replace the canonical role ID.
+
+### Implementation note: management-level virtual root
+
+`managementLevel: "organization"` is reserved for the virtual, non-editable organization root in hierarchy projections. Persisted `organization_units` rows may only use `strategic`, `tactical`, `coordination`, `operational` or `administrative`; top-level persisted units have `parentUnitId = null` and are validated as children of the virtual root with order `0`. `levelOrder` is derived from the Owner catalog and returned as read-only metadata; clients never submit it.
