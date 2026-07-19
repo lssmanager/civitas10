@@ -445,3 +445,9 @@ The supported endpoint contract is:
 - `GET /o/:organizationId/lms/groups/:groupId/members` with `lms.group_members.read`, asserting the requested tenant group is in the allowed target set before returning membership rows.
 
 Audit records for these reads include actor, organization, target group, action, result, reason code, timestamp and contract version. Frontend LMS Groups views consume these server responses and reason codes; they do not evaluate role names, JWT claims or local scope derivations.
+
+## Governance workspace operational topology (#129)
+
+The organization Governance surface is an operational workspace under the selected organization, not a second organization overview. The only organization overview remains `/owner/organizations/:organizationId`; `/owner/organizations/:organizationId/governance` and `/o/:organizationId/settings/governance` route into task groups: Access policy (Role permissions, Role names, Scope assignments), Organization model (Structure and classification, Groups and courses, People segmentation), and Control and evidence (Access explorer, Audit log).
+
+Every workspace item declares a route/action/permission/source-of-truth contract before it is rendered as an available task. Planned work, including People segmentation until its grammar/privacy contract is approved, must render an unavailable state and must not mount a fetch. The frontend consumes the screen/action registry and server decisions; it never derives access from a role name, JWT claim, hidden control, local tab state, or client graph layout.

@@ -12,6 +12,7 @@ const reasonFormat = readFileSync(new URL("./modules/permission-matrix/reason-fo
 const dataScope = readFileSync(new URL("./modules/data-scope/DataScopeModule.tsx", import.meta.url), "utf8");
 const accessPreview = readFileSync(new URL("./modules/access-preview/AccessPreviewModule.tsx", import.meta.url), "utf8");
 const routeCatalogSource = readFileSync(new URL("../../navigation/route-catalog.ts", import.meta.url), "utf8");
+const workspaceContract = readFileSync(new URL("./governance-workspace-contract.ts", import.meta.url), "utf8");
 const appSource = readFileSync(new URL("../../pages/App/index.tsx", import.meta.url), "utf8");
 const evaluator = readFileSync(new URL("../../authorization/evaluation/evaluate-screen.ts", import.meta.url), "utf8");
 
@@ -47,9 +48,20 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.match(routes, /governance\/navigation/);
   assert.match(routes, /governance\/preview/);
   assert.match(routes, /governance\/audit/);
-  assert.match(page, /SectionNavigation/);
+  assert.match(page, /WorkspaceShell/);
+  assert.match(workspaceContract, /Access policy/);
+  assert.match(workspaceContract, /Organization model/);
+  assert.match(workspaceContract, /Control and evidence/);
+  assert.match(workspaceContract, /People segmentation/);
   assert.match(page, /aria-label="Breadcrumb"/);
   assert.doesNotMatch(page, /<Tabs|useSearchParams/);
+});
+
+test("governance workspace does not expose a second Overview route", () => {
+  assert.doesNotMatch(page, /type GovernanceSectionId = \"overview\"/);
+  assert.doesNotMatch(page, /sectionLabels[\s\S]*Overview/);
+  assert.match(page, /organization overview remains only on the organization detail route/i);
+  assert.match(routes, /ownerOrganizationGovernancePeopleSegmentation/);
 });
 
 test("governance read model keeps concepts and reason versions separated", () => {
@@ -88,10 +100,11 @@ test("access preview is read-only and does not mutate grants", () => {
 });
 
 test("governance modules are feature-owned and responsive-neutral", () => {
-  for (const moduleName of ["OverviewModule", "PermissionMatrixModule", "MembersRoleAssignmentsModule", "TaxonomyModule", "UnitsModule", "DataScopeModule", "AliasesNavigationModule", "AccessPreviewModule", "AuditDiagnosticsModule"]) {
+  for (const moduleName of ["PermissionMatrixModule", "MembersRoleAssignmentsModule", "TaxonomyModule", "UnitsModule", "DataScopeModule", "AliasesNavigationModule", "AccessPreviewModule", "AuditDiagnosticsModule"]) {
     assert.match(page, new RegExp(moduleName));
   }
   assert.doesNotMatch(page, /innerWidth|matchMedia|role ===|roles\.includes/);
+  assert.doesNotMatch(page, /OverviewModule/);
 });
 
 

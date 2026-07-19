@@ -14,3 +14,5 @@ export { FormGrid } from "./FormGrid";
 export { NavCollapse, type NavCollapseItem } from "./NavCollapse";
 export { Tabs, type TabItem } from "./Tabs";
 export { SectionNavigation, type SectionNavigationItem } from "./SectionNavigation";
+
+export { WorkspaceShell, type WorkspaceNavigationGroup, type WorkspaceNavigationItem } from "./WorkspaceShell";

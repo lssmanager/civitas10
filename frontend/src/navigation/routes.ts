@@ -34,6 +34,7 @@ const ownerOrganizationGovernanceDataScopesRoute = defineRoute("/owner/organizat
 const ownerOrganizationGovernanceNavigationRoute = defineRoute("/owner/organizations/:organizationId/governance/navigation");
 const ownerOrganizationGovernancePreviewRoute = defineRoute("/owner/organizations/:organizationId/governance/preview");
 const ownerOrganizationGovernanceAuditRoute = defineRoute("/owner/organizations/:organizationId/governance/audit");
+const ownerOrganizationGovernancePeopleSegmentationRoute = defineRoute("/owner/organizations/:organizationId/governance/people-segmentation");
 const tenantGovernanceRoute = defineRoute("/o/:organizationId/settings/governance");
 const tenantLmsGradesRoute = defineRoute("/o/:organizationId/lms/grades");
 const tenantLmsGroupsRoute = defineRoute("/o/:organizationId/lms/groups");
@@ -55,14 +56,15 @@ export const appRoutes = {
   ownerOrganizations: appRoute(ownerOrganizationsRoute, "Directory", "directory", "Directorio owner_global de organizaciones canónicas de Logto con señales Civitas."),
   ownerCreateOrganization: appRoute(ownerCreateOrganizationRoute, "Create", "create", "Alta canónica en Logto con bootstrap limpio."),
   ownerOrganizationState: appRoute(ownerOrganizationStateRoute, "Organization detail", "organizations", "Estado operacional consolidado por organización."),
-  ownerOrganizationGovernance: appRoute(ownerOrganizationGovernanceRoute, "Governance", "governance", "Studio owner contextual para una organización seleccionada."),
-  ownerOrganizationGovernanceRoles: appRoute(ownerOrganizationGovernanceRolesRoute, "Roles and permissions", "governance", "Roles, assignments and permission matrix for the selected organization."),
-  ownerOrganizationGovernanceTaxonomy: appRoute(ownerOrganizationGovernanceTaxonomyRoute, "Taxonomy", "governance", "Taxonomy dimensions and values for the selected organization."),
-  ownerOrganizationGovernanceGroups: appRoute(ownerOrganizationGovernanceGroupsRoute, "Groups", "governance", "Groups, units and memberships for the selected organization."),
+  ownerOrganizationGovernance: appRoute(ownerOrganizationGovernanceRoute, "Governance", "governance", "Workspace operational contextual para una organización seleccionada."),
+  ownerOrganizationGovernanceRoles: appRoute(ownerOrganizationGovernanceRolesRoute, "Role permissions", "governance", "Owner ceiling, tenant activation and permission matrix for the selected organization."),
+  ownerOrganizationGovernanceTaxonomy: appRoute(ownerOrganizationGovernanceTaxonomyRoute, "Structure and classification", "governance", "Taxonomy values and organization structure facts for the selected organization."),
+  ownerOrganizationGovernanceGroups: appRoute(ownerOrganizationGovernanceGroupsRoute, "Groups and courses", "governance", "LMS group and course read models for the selected organization."),
   ownerOrganizationGovernanceDataScopes: appRoute(ownerOrganizationGovernanceDataScopesRoute, "Data scopes", "governance", "Data-scope assignments for the selected organization."),
-  ownerOrganizationGovernanceNavigation: appRoute(ownerOrganizationGovernanceNavigationRoute, "Aliases and navigation", "governance", "Aliases and navigation preferences for the selected organization."),
-  ownerOrganizationGovernancePreview: appRoute(ownerOrganizationGovernancePreviewRoute, "Access preview", "governance", "Read-only access preview for the selected organization."),
-  ownerOrganizationGovernanceAudit: appRoute(ownerOrganizationGovernanceAuditRoute, "Audit and diagnostics", "governance", "Audit and diagnostics for the selected organization."),
+  ownerOrganizationGovernanceNavigation: appRoute(ownerOrganizationGovernanceNavigationRoute, "Role names", "governance", "Tenant-facing aliases and navigation preferences for canonical roles."),
+  ownerOrganizationGovernancePreview: appRoute(ownerOrganizationGovernancePreviewRoute, "Access explorer", "governance", "Read-only access explorer for the selected organization."),
+  ownerOrganizationGovernanceAudit: appRoute(ownerOrganizationGovernanceAuditRoute, "Audit log", "governance", "Audit and diagnostics for the selected organization."),
+  ownerOrganizationGovernancePeopleSegmentation: appRoute(ownerOrganizationGovernancePeopleSegmentationRoute, "People segmentation", "governance", "Pending tenant-safe people segmentation grammar and privacy contract.", false),
   tenantGovernance: appRoute(tenantGovernanceRoute, "Governance", "governance", "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización."),
   tenantLmsGrades: appRoute(tenantLmsGradesRoute, "Grades", "grades", "Superficie tenant LMS para calificaciones bajo contexto organizacional."),
   tenantLmsGroups: appRoute(tenantLmsGroupsRoute, "Groups", "groups", "LMS groups visible through server-side group leadership authorization."),
@@ -109,6 +111,7 @@ export const routeMetadata: Record<string, RouteMetadata> = {
   [appRoutes.ownerOrganizationGovernanceNavigation.path]: { label: appRoutes.ownerOrganizationGovernanceNavigation.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
   [appRoutes.ownerOrganizationGovernancePreview.path]: { label: appRoutes.ownerOrganizationGovernancePreview.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
   [appRoutes.ownerOrganizationGovernanceAudit.path]: { label: appRoutes.ownerOrganizationGovernanceAudit.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
+  [appRoutes.ownerOrganizationGovernancePeopleSegmentation.path]: { label: appRoutes.ownerOrganizationGovernancePeopleSegmentation.label, parentPath: appRoutes.ownerOrganizationGovernance.path },
   [appRoutes.ownerSystem.path]: { label: appRoutes.ownerSystem.label },
   [appRoutes.ownerWorkerQueues.path]: { label: appRoutes.ownerWorkerQueues.label, parentPath: appRoutes.ownerSystem.path },
   [appRoutes.ownerLogs.path]: { label: appRoutes.ownerLogs.label, parentPath: appRoutes.ownerSystem.path },
