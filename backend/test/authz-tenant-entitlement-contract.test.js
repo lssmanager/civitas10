@@ -29,10 +29,10 @@ test("tenant route inventory distinguishes canonical tenant and owner routes", (
 });
 
 test("policy surface and same-organization reject owner tokens and org/path mismatches", async () => {
-  const ownerDecision = await authorize({ principal: { subject: "owner", tokenType: "global", organizationId: null, scopes: new Set(["org.documents.read"]), globalRoleIds: ["owner_global"] }, permission: "org.documents.read", surface: "organization", operation: "read", organizationId: "orgA", policies: [] });
+  const ownerDecision = await authorize({ principal: { subject: "owner", tokenType: "global", organizationId: null, scopes: new Set(["lms.groups.read"]), globalRoleIds: ["owner_global"] }, permission: "lms.groups.read", surface: "organization", operation: "read", organizationId: "orgA", policies: [] });
   assert.equal(ownerDecision.allowed, false);
   assert.equal(ownerDecision.reasonCode, "surface_mismatch");
-  const mismatchDecision = await authorize({ principal: { subject: "user", tokenType: "organization", organizationId: "orgA", scopes: new Set(["org.documents.read"]), organizationRoleIds: ["organization_member"] }, permission: "org.documents.read", surface: "organization", operation: "read", organizationId: "orgB", policies: ["same-organization"] });
+  const mismatchDecision = await authorize({ principal: { subject: "user", tokenType: "organization", organizationId: "orgA", scopes: new Set(["lms.groups.read"]), organizationRoleIds: ["organization_member"] }, permission: "lms.groups.read", surface: "organization", operation: "read", organizationId: "orgB", policies: ["same-organization"] });
   assert.equal(mismatchDecision.allowed, false);
   assert.equal(mismatchDecision.reasonCode, "organization_route_mismatch");
 });
@@ -110,16 +110,16 @@ test("domain and JIT provisioning roles remain RBAC candidates without ceilings 
 test("group leader PBAC requires exact ceiling and activation and never grants update potential", async () => {
   const roleMap = { role_group: "organization_groupleader" };
   const repository = createInMemoryEntitlementRepository();
-  const noCeiling = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  const noCeiling = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["lms.groups.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "lms.groups.read", repository, roleIdToName: roleMap });
   assert.equal(noCeiling.allowed, false);
   assert.equal(noCeiling.reasonCode, ENTITLEMENT_REASON_CODES.OWNER_CEILING_MISSING);
   const service = createEntitlementService({ repository, runtimeConsistencyPort: runtimePort(), roleIdToName: roleMap });
-  await service.upsertOwnerLimits({ organizationId: "orgA", expectedPolicyVersion: 1, actorLogtoUserId: "owner", changes: [{ logtoRoleId: "role_group", permission: "org.documents.read", allowed: true }] });
-  const noActivation = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  await service.upsertOwnerLimits({ organizationId: "orgA", expectedPolicyVersion: 1, actorLogtoUserId: "owner", changes: [{ logtoRoleId: "role_group", permission: "lms.groups.read", allowed: true }] });
+  const noActivation = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["lms.groups.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "lms.groups.read", repository, roleIdToName: roleMap });
   assert.equal(noActivation.allowed, false);
   assert.equal(noActivation.reasonCode, ENTITLEMENT_REASON_CODES.TENANT_ACTIVATION_MISSING);
-  await service.upsertTenantActivations({ organizationId: "orgA", expectedPolicyVersion: 2, actorLogtoUserId: "admin", changes: [{ logtoRoleId: "role_group", permission: "org.documents.read", enabled: true }] });
-  const allowed = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["org.documents.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "org.documents.read", repository, roleIdToName: roleMap });
+  await service.upsertTenantActivations({ organizationId: "orgA", expectedPolicyVersion: 2, actorLogtoUserId: "admin", changes: [{ logtoRoleId: "role_group", permission: "lms.groups.read", enabled: true }] });
+  const allowed = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["lms.groups.read"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "lms.groups.read", repository, roleIdToName: roleMap });
   assert.equal(allowed.allowed, true);
   const update = await evaluateOrganizationEntitlement({ organizationId: "orgA", subject: "ana", tokenScopes: new Set(["lms.grades.update"]), rolePaths: [{ rolePathId: "group", logtoRoleId: "role_group", tokenScopePresent: true }], permission: "lms.grades.update", repository, roleIdToName: roleMap });
   assert.equal(update.allowed, false);
@@ -128,7 +128,7 @@ test("group leader PBAC requires exact ceiling and activation and never grants u
 
 test("bootstrap profile is transactional and idempotent", async () => {
   const { createBootstrapProfileService } = require("../authorization/entitlements");
-  const profile = { profileId: "owner-onboarding", version: "1", catalogVersion: "cat-1", ownerCeilings: [{ permission: "org.documents.read" }], tenantActivations: [{ permission: "org.documents.read" }], scopeTemplates: [{ capability: "lms", scopeKind: "dimension", dimensionKey: "academic.subject", dimensionValueId: "math" }] };
+  const profile = { profileId: "owner-onboarding", version: "1", catalogVersion: "cat-1", ownerCeilings: [{ permission: "lms.groups.read" }], tenantActivations: [{ permission: "lms.groups.read" }], scopeTemplates: [{ capability: "lms", scopeKind: "dimension", dimensionKey: "academic.subject", dimensionValueId: "math" }] };
   const state = { memberships: [], owner: [], tenant: [], scopes: [], audits: [] };
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const transactionPort = { async transaction(fn) { const before = clone(state); try { return await fn(); } catch (error) { Object.assign(state, before); throw error; } } };

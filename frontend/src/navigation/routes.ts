@@ -36,6 +36,7 @@ const ownerOrganizationGovernancePreviewRoute = defineRoute("/owner/organization
 const ownerOrganizationGovernanceAuditRoute = defineRoute("/owner/organizations/:organizationId/governance/audit");
 const tenantGovernanceRoute = defineRoute("/o/:organizationId/settings/governance");
 const tenantLmsGradesRoute = defineRoute("/o/:organizationId/lms/grades");
+const tenantLmsGroupsRoute = defineRoute("/o/:organizationId/lms/groups");
 const ownerLogsRoute = staticRoute("/owner/logs");
 const ownerSystemRoute = staticRoute("/owner/system");
 const ownerWorkerQueuesRoute = staticRoute("/owner/system/worker-queues");
@@ -64,6 +65,7 @@ export const appRoutes = {
   ownerOrganizationGovernanceAudit: appRoute(ownerOrganizationGovernanceAuditRoute, "Audit and diagnostics", "governance", "Audit and diagnostics for the selected organization."),
   tenantGovernance: appRoute(tenantGovernanceRoute, "Governance", "governance", "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización."),
   tenantLmsGrades: appRoute(tenantLmsGradesRoute, "Grades", "grades", "Superficie tenant LMS para calificaciones bajo contexto organizacional."),
+  tenantLmsGroups: appRoute(tenantLmsGroupsRoute, "Groups", "groups", "LMS groups visible through server-side group leadership authorization."),
   ownerLogs: appRoute(ownerLogsRoute, "Audit / diagnostics", "operations", "Trazabilidad global de eventos operativos owner.", false),
   ownerSystem: appRoute(ownerSystemRoute, "Operations", "operations", "Dashboard operativo consolidado para runtime, colas y diagnósticos."),
   ownerWorkerQueues: appRoute(ownerWorkerQueuesRoute, "Worker queues", "operations", "Observabilidad global del runtime operativo.", false),
@@ -89,6 +91,7 @@ export const ownerNavigationTree: NavigationNode[] = [
 export const tenantNavigationTree: NavigationNode[] = [
   appRoutes.tenantGovernance,
   appRoutes.tenantLmsGrades,
+  appRoutes.tenantLmsGroups,
 ];
 
 export const ownerNavigation: AppRoute[] = [appRoutes.owner, appRoutes.ownerSystem, appRoutes.ownerOrganizations, appRoutes.ownerCreateOrganization];
@@ -117,5 +120,6 @@ export const routeMetadata: Record<string, RouteMetadata> = {
   [appRoutes.ownerPlatformSettings.path]: { label: appRoutes.ownerPlatformSettings.label, parentPath: "/owner/settings-section" },
   [appRoutes.account.path]: { label: appRoutes.account.label },
   [appRoutes.tenantGovernance.path]: { label: appRoutes.tenantGovernance.label },
+  [appRoutes.tenantLmsGroups.path]: { label: appRoutes.tenantLmsGroups.label },
   [appRoutes.tenantLmsGrades.path]: { label: appRoutes.tenantLmsGrades.label },
 };

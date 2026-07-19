@@ -40,7 +40,7 @@ test("active governance operations and modules reference only active canonical p
 test("governance registry rejects unknown, planned, and composite active permissions", () => {
   assert.throws(() => validateOperationRegistry([{ operationId: "bad.unknown", status: "active", permission: "org.unknown.read" }]), /unknown permission/);
   assert.throws(() => validateOperationRegistry([{ operationId: "bad.planned", status: "active", permission: "org.members.read" }]), /must be active/);
-  assert.throws(() => validateOperationRegistry([{ operationId: "bad.composite", status: "active", permission: "owner.profile.read|org.documents.read" }]), /composite permission strings/);
+  assert.throws(() => validateOperationRegistry([{ operationId: "bad.composite", status: "active", permission: ["owner.profile.read", "org.documents.read"].join("|") }]), /composite permission strings/);
 });
 
 test("planned governance operations do not expose fetches or actions", () => {

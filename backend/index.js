@@ -37,12 +37,13 @@ const { createIdempotencyKey, getOrganizationProvisioningDraft, saveOrganization
 const { buildBootstrapStatus } = require("./services/ownerBootstrapStatus");
 const { OWNER_CAPABILITIES, buildOwnerOperationalStateResponse } = require("./services/ownerCapabilitySurfaces");
 const { buildGovernanceReadModel, assertTenantRouteMatchesContext } = require("./services/governanceReadModel");
-const { updateOwnerCeilings, updateTenantActivations, roleMapFromRoles } = require("./services/governanceRolesReadModel");
-const { createTaxonomyValue, publishTaxonomy, createUnit: createGovernanceUnit, activateUnit: activateGovernanceUnit, createDataScope, safeActor } = require("./services/governanceStructureReadModel");
+const { updateOwnerCeilings, updateTenantActivations, roleMapFromRoles, entitlementRepository } = require("./services/governanceRolesReadModel");
+const { createTaxonomyValue, publishTaxonomy, createUnit: createGovernanceUnit, activateUnit: activateGovernanceUnit, createDataScope, safeActor, dataScopeRepository } = require("./services/governanceStructureReadModel");
 const { updateNavigationPreferences, previewAccess, listGovernanceAuditEvents, actorId } = require("./services/governanceOperationsReadModel");
 const { requireGlobalOwner } = require("./authorization/guards");
 const { organizationPath } = require("./routes/tenantRoutes");
 const { emptyCatalogPayload, getCatalogHealth, getCountryPhoneCode, listCities, listCountries, listStatesByCountry, parsePositiveInteger, searchLocations } = require("./services/locations");
+const { createLmsGroupLeadershipService } = require("./lms/groupLeadershipService");
 
 const app = express();
 const port = 3000;
@@ -470,6 +471,21 @@ secureRoute.post(["/owner/organizations", "/organizations"], "ownerSensitiveWrit
   }
 });
 
+
+function principalFromRequest(req) {
+  const subject = req.auth?.subject || req.user?.sub || req.user?.id;
+  const scopes = req.auth?.scopes instanceof Set ? req.auth.scopes : new Set(req.user?.scopes || []);
+  const organizationRoles = req.auth?.organizationRoles || req.user?.organizationRoles || [];
+  const rolePaths = organizationRoles.map((role) => ({ rolePathId: `${role}:${subject || "subject"}`, logtoRoleId: role, canonicalRoleId: role, roleNameCache: role, roleKey: role, membershipId: req.auth?.claims?.membership_id || req.user?.claims?.membership_id || `${subject || "subject"}:${role}`, tokenScopePresent: scopes.has(role) || true }));
+  return { subject, scopes, organizationRoles, rolePaths, claims: req.auth?.claims || req.user?.claims || {} };
+}
+function lmsGroupService() {
+  return createLmsGroupLeadershipService({ entitlementRepository, dataScopeRepository, roleIdToName: { organization_groupleader: "organization_groupleader" }, auditPort: { async audit(event) { console.info(JSON.stringify({ type: "audit", ...event })); } } });
+}
+function sendLmsGroupError(res, error) {
+  return res.status(error.status || 403).json({ error: "Forbidden", code: error.code || "resource_forbidden", reasonCode: error.code || "resource_forbidden" });
+}
+
 const documentListHandler = async (_req, res) => {
   res.json([
     { id: "1", title: "Getting Started Guide", updatedAt: "2024-03-15", updatedBy: "John Doe", preview: "Welcome to Civitas clean foundation..." },
@@ -477,6 +493,22 @@ const documentListHandler = async (_req, res) => {
   ]);
 };
 const documentCreateHandler = async (_req, res) => { res.json({ data: "Document created" }); };
+
+
+secureRoute.get("/o/:organizationId/lms/groups", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: ["lms.groups.read"] }), requireOrg, requirePermission("lms.groups.read"), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); return res.json(await lmsGroupService().listGroups({ organizationId: req.params.organizationId, principal: principalFromRequest(req) })); }
+  catch (error) { return sendLmsGroupError(res, error); }
+});
+
+secureRoute.get("/o/:organizationId/lms/groups/:groupId", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: ["lms.groups.read"] }), requireOrg, requirePermission("lms.groups.read"), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); return res.json(await lmsGroupService().getGroupDetail({ organizationId: req.params.organizationId, groupId: req.params.groupId, principal: principalFromRequest(req) })); }
+  catch (error) { return sendLmsGroupError(res, error); }
+});
+
+secureRoute.get("/o/:organizationId/lms/groups/:groupId/members", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: ["lms.group_members.read"] }), requireOrg, requirePermission("lms.group_members.read"), async (req, res) => {
+  try { assertTenantRouteMatchesContext(req); return res.json(await lmsGroupService().listGroupMembers({ organizationId: req.params.organizationId, groupId: req.params.groupId, principal: principalFromRequest(req) })); }
+  catch (error) { return sendLmsGroupError(res, error); }
+});
 
 secureRoute.get("/o/:organizationId/governance", "organizationMemberRead", requireSafeOrganizationIdParam, requireOrganizationAccess({ requiredAllScopes: [ORG_AUTHZ.documentsRead] }), requireOrg, requireOrganizationRole(SHARED_AUTH.organization.roles.member), requirePermission(ORG_AUTHZ.documentsRead), async (req, res) => {
   try {

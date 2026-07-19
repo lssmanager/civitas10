@@ -414,7 +414,7 @@ The Phase 2 implementation persists Owner scope templates in `owner_scope_templa
 
 ### Canonical role: organization_groupleader
 
-`organization_groupleader` is an Owner-governed canonical organization role for group leadership. Its Phase 2 RBAC potential is limited to approved read capability (`org.documents.read` in the active catalog); it does not receive `lms.grades.update`, `lms.grades.manage`, Owner permissions, wildcards or planned permissions. Its ABAC strategy is `group_leadership`, which only accepts tenant-scoped `leads` relationships to the relevant group/course/unit resource and denies closed when no valid `leads` relationship exists. Tenant aliases such as “Director de grupo” are presentation-only and never replace the canonical role ID.
+`organization_groupleader` is an Owner-governed canonical organization role for group leadership. Its Phase 2 RBAC potential is limited to approved LMS read capabilities (`lms.groups.read`, `lms.group_members.read` and `lms.course_offerings.read` in the active catalog); it does not receive `lms.grades.update`, `lms.grades.manage`, Owner permissions, wildcards or planned permissions. Its ABAC strategy is `group_leadership`, which only accepts tenant-scoped `leads` relationships to the relevant group/course/unit resource and denies closed when no valid `leads` relationship exists. Tenant aliases such as “Director de grupo” are presentation-only and never replace the canonical role ID.
 
 ### Implementation note: management-level virtual root
 
@@ -431,3 +431,17 @@ Owner scope templates are not globally available by default. A data-scope assign
 ### Implementation note: bootstrap and provisioning runtime requirements
 
 Bootstrap profile application requires a transaction port, data-scope service, audit runtime and idempotency key. The operation validates profile references before mutation, writes membership, Owner Ceiling, Tenant Activation and ABAC scopes inside one transaction, audits the result, and returns the prior result on an idempotent retry. JIT/domain provisioning validates exact canonical organization role IDs rather than prefixes, rejects Owner roles and unknown roles, and sanitizes external claims that try to inject permissions, actions, tenant IDs, ceilings, activations or data scopes.
+
+### Canonical Group Leader capability (#128)
+
+`organization_groupleader` is now a business LMS reader, not a surrogate for document access. Its active RBAC potential is limited to `lms.groups.read`, `lms.group_members.read` and `lms.course_offerings.read`; `lms.student_profiles.read` remains planned until a dedicated redaction endpoint exists. The role never receives grade mutation, Owner, wildcard, governance, ceiling, activation or scope-management permissions.
+
+Effective access for each LMS Groups endpoint is the full Phase 2 path: token scope for the exact LMS permission, `organization_groupleader` RBAC potential, Owner Ceiling, Tenant Activation and the `group_leadership` ABAC strategy. `group_leadership` only accepts tenant-scoped `leads(groupId)` provenance. `manages`, `teaches`, simple membership, cross-tenant relationships and stale relationship rows fail closed and do not widen to organization-level access.
+
+The supported endpoint contract is:
+
+- `GET /o/:organizationId/lms/groups` with `lms.groups.read`, returning only groups visible through valid `leads` targets.
+- `GET /o/:organizationId/lms/groups/:groupId` with `lms.groups.read`, asserting the requested tenant group is in the allowed target set and including course offerings only when `lms.course_offerings.read` also completes the full path.
+- `GET /o/:organizationId/lms/groups/:groupId/members` with `lms.group_members.read`, asserting the requested tenant group is in the allowed target set before returning membership rows.
+
+Audit records for these reads include actor, organization, target group, action, result, reason code, timestamp and contract version. Frontend LMS Groups views consume these server responses and reason codes; they do not evaluate role names, JWT claims or local scope derivations.

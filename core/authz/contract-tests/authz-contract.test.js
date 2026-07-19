@@ -75,7 +75,7 @@ function active(name, domain, surface = 'organization') { return { name, descrip
 test('organization_groupleader is canonical read-only and cannot receive owner or unknown permissions', () => {
   const manifest = getAuthorizationManifest();
   assert.ok(manifest.organizationRoles.includes('organization_groupleader'));
-  assert.deepEqual(manifest.rolePermissionAssignments.organization_groupleader, ['org.documents.read']);
+  assert.deepEqual([...manifest.rolePermissionAssignments.organization_groupleader].sort(), ['lms.course_offerings.read', 'lms.group_members.read', 'lms.groups.read']);
   const ownerMutation = clone(manifest);
   ownerMutation.rolePermissionAssignments.organization_groupleader.push('owner.profile.read');
   assert.match(validate(ownerMutation), /organization role cannot receive owner permission/);
