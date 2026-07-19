@@ -53,7 +53,7 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.match(workspaceContract, /Organization model/);
   assert.match(workspaceContract, /Control and evidence/);
   assert.match(workspaceContract, /People segmentation/);
-  assert.match(page, /aria-label="Breadcrumb"/);
+  assert.match(page, /OrganizationContextHeader/);
   assert.doesNotMatch(page, /<Tabs|useSearchParams/);
 });
 
@@ -139,4 +139,13 @@ test("governance read model contract validates real mounted fixture", () => {
   assert.match(contract, /GovernanceRoleSummary/);
   assert.match(contract, /GovernanceMemberSummary/);
   assert.match(api, /assertGovernanceReadModel/);
+});
+
+
+test("legacy governance root redirects to the canonical first operational section", () => {
+  assert.match(appSource, /OwnerGovernanceLegacyRedirect/);
+  assert.match(appSource, /ownerOrganizationGovernanceRoles\.build\?\.\(\{ organizationId \}\)/);
+  assert.match(routes, /ownerOrganizationOperationsRoute = defineRoute\("\/owner\/organizations\/:organizationId\/operations"\)/);
+  const legacyRouteLine = appSource.split("\n").find((line) => line.includes("appRoutes.ownerOrganizationGovernance.path")) || "";
+  assert.doesNotMatch(legacyRouteLine, /GovernanceStudioPage surface="owner"/);
 });

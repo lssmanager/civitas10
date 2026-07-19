@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AlertStrip, EmptyState, StateRegion } from "../shared/ui";
-import { MetricCard, OwnerBadge, OwnerShell, PageHeader, ownerToneFromSeverity } from "../components/owner/OwnerUI";
+import { AlertStrip, EmptyState, OrganizationContextHeader, StateRegion, StatusPill } from "../shared/ui";
+import { MetricCard, OwnerBadge, OwnerShell, ownerToneFromSeverity } from "../components/owner/OwnerUI";
 import { ApiRequestError } from "../api/base";
 import { useOwnerApi } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
@@ -81,7 +81,7 @@ function CapabilityCard({ capability }: { capability: OwnerCapabilityState }) {
   );
 }
 
-const OwnerOrganizationOperationalPage = () => {
+const OwnerOrganizationOperationalPage = ({ initialSection = "overview" }: { initialSection?: "overview" | "operations" }) => {
   const { organizationId = "" } = useParams();
   const ownerApi = useOwnerApi();
   const [viewState, setState] = useState<OrganizationDetailState>({ status: "loading" });
@@ -119,14 +119,18 @@ const OwnerOrganizationOperationalPage = () => {
   const title = viewState.status === "loaded" ? viewState.organization.organization.name || organizationId : organizationId;
   const retry = viewState.status === "error" && viewState.error.retryable ? () => void load() : undefined;
 
+  const overviewPath = !isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path;
+  const governancePath = !isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationGovernanceRoles.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path;
+  const operationsPath = !isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationOperations.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path;
+
   return (
     <OwnerShell organizationId={organizationId}>
-      <PageHeader eyebrow="Organization detail" title={title || "Organization not found"} description="Selected organization context for Overview, Governance and Operations." />
+      <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={title || "Organization not found"} breadcrumb={<><Link to={appRoutes.ownerOrganizations.path} className="text-primary-strong">Organizations</Link> / <span>{title || organizationId}</span></>} status={<StatusPill status={viewState.status === "loaded" ? "success" : viewState.status === "error" ? "danger" : "warning"}>{viewState.status}</StatusPill>} description="Selected organization context for Overview, Governance and Operations." />
       <nav className="civitas-card civitas-pad-tight" aria-label="Organization detail sections" data-owner-organization-detail-tabs="true">
         <div className="flex flex-wrap gap-2">
-          <Link to={!isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path} className="civitas-primary-button" aria-current="page">Overview</Link>
-          <Link to={!isInvalidOrganizationId(organizationId) ? appRoutes.ownerOrganizationGovernance.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : appRoutes.ownerOrganizations.path} className="civitas-secondary-button">Governance</Link>
-          <a href="#operations" className="civitas-secondary-button">Operations</a>
+          <Link to={overviewPath} className={initialSection === "overview" ? "civitas-primary-button" : "civitas-secondary-button"} aria-current={initialSection === "overview" ? "page" : undefined}>Overview</Link>
+          <Link to={governancePath} className="civitas-secondary-button">Governance</Link>
+          <Link to={operationsPath} className={initialSection === "operations" ? "civitas-primary-button" : "civitas-secondary-button"} aria-current={initialSection === "operations" ? "page" : undefined}>Operations</Link>
         </div>
       </nav>
       {viewState.status === "loading" ? <StateRegion><p className="text-sm text-muted-strong">Loading organization detail...</p></StateRegion> : null}

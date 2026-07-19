@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
-import { PageHeader, SectionCard, StateRegion, StatusPill, WorkspaceShell, type WorkspaceNavigationGroup } from "../../shared/ui";
+import { OrganizationContextHeader, SectionCard, StateRegion, StatusPill, WorkspaceShell, type WorkspaceNavigationGroup } from "../../shared/ui";
 import { useGovernanceApi } from "./api";
 import { appRoutes } from "../../navigation/routes";
 import { governanceModuleStatus, isGovernanceOperationActive } from "./governance-capabilities";
@@ -155,8 +155,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
 
   return (
     <Layout organizationId={organizationId} isAdmin={surface === "tenant"}>
-      <PageHeader eyebrow="Organizations / Governance" title={displayName} description="Operational governance workspace for access policy, organization model, control and evidence. The organization overview remains only on the organization detail route." actions={<><Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link><StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill></>} />
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-strong"><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></nav>
+      <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={displayName} breadcrumb={<><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></>} status={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} actions={<Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link>} description="Operational governance workspace for access policy, organization model, control and evidence. The organization overview remains only on the organization detail route." />
       {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={selectOrganizationPath}>Open organization surface</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
       <WorkspaceShell label="Governance workspace" groups={navigationGroups} activeId={activeItemId}>
