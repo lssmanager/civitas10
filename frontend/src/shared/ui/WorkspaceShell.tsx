@@ -34,7 +34,7 @@ export const WorkspaceShell = ({
   const flatItems = groups.flatMap((group) => group.items.map((item) => ({ ...item, groupLabel: group.label })));
 
   return (
-    <div className="grid gap-4 md:grid-cols-[18rem_minmax(0,1fr)]" data-civitas-workspace-shell="true">
+    <div className="civitas-workspace-shell" data-civitas-workspace-shell="true">
       <aside className="civitas-card civitas-pad-tight" aria-label={label}>
         <div className="md:hidden">
           <label className="civitas-label" htmlFor={selectId}>{label}</label>

@@ -1,4 +1,4 @@
-import type { appRoutes } from "../../navigation/routes";
+import { appRoutes } from "../../navigation/routes";
 import type { GovernanceModuleKey, GovernanceSurface } from "./contracts";
 
 export type GovernanceWorkspaceItemId =
@@ -49,7 +49,7 @@ export const GOVERNANCE_WORKSPACE_GROUPS: GovernanceWorkspaceGroup[] = [
     label: "Organization model",
     items: [
       { id: "structure-classification", label: "Structure and classification", routeKey: "ownerOrganizationGovernanceTaxonomy", tenantTab: "structure-classification", moduleKey: "taxonomy", ownerPermissionRequirement: { mode: "all", permissions: ["owner.runtime.operations.execute"] }, tenantPermissionRequirement: { mode: "all", permissions: ["org.documents.read"] }, actionId: "governance.structureClassification.view", entity: "organization_dimension_values + organization_units", endpoint: "/governance/read-model", sourceOfTruth: "taxonomy and organization structure tables", status: "active" },
-      { id: "groups-courses", label: "Groups and courses", routeKey: "ownerOrganizationGovernanceGroups", tenantTab: "groups-courses", moduleKey: "units", ownerPermissionRequirement: { mode: "all", permissions: ["owner.runtime.operations.execute"] }, tenantPermissionRequirement: { mode: "all", permissions: ["lms.groups.read"] }, actionId: "governance.groupsCourses.view", entity: "lms_academic_groups + lms_course_offerings", endpoint: "/o/:organizationId/lms/groups", sourceOfTruth: "LMS group leadership read model", status: "active" },
+      { id: "groups-courses", label: "Groups and courses", routeKey: "ownerOrganizationGovernanceGroups", tenantTab: "groups-courses", moduleKey: "units", ownerPermissionRequirement: { mode: "all", permissions: ["owner.runtime.operations.execute"] }, tenantPermissionRequirement: { mode: "all", permissions: ["lms.groups.read"] }, actionId: "governance.groupsCourses.view", entity: "lms_academic_groups + lms_course_offerings", endpoint: appRoutes.tenantLmsGroups.path, sourceOfTruth: "LMS group leadership read model", status: "active" },
       { id: "people-segmentation", label: "People segmentation", routeKey: "ownerOrganizationGovernancePeopleSegmentation", tenantTab: "people-segmentation", moduleKey: "unavailable", ownerPermissionRequirement: { mode: "all", permissions: [] }, tenantPermissionRequirement: { mode: "all", permissions: [] }, actionId: "governance.peopleSegmentation.pending", entity: "people segmentation grammar", endpoint: "planned", sourceOfTruth: "pending privacy/grammar ADR", status: "planned" },
     ],
   },
