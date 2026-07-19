@@ -87,7 +87,9 @@ const { sanitizeExternalProvisioningClaims } = require("../authorization/provisi
 
 test("provisioning rejects owner roles and external permission injection", () => {
   assert.throws(() => normalizeProvisioningInput({ ...validBody(), jitProvisioning: { defaultRoleNames: ["owner_global"] } }), /provisioning_role_not_canonical|provisioning_owner_role_forbidden/);
+  assert.throws(() => normalizeProvisioningInput({ ...validBody(), jitProvisioning: { defaultRoleNames: ["organization_unknown"] } }), /provisioning_role_not_canonical/);
   const normalized = normalizeProvisioningInput(validBody("owner_global"));
   assert.ok(normalized.errors.some((error) => error.message === "provisioning_role_not_canonical" || error.message === "provisioning_owner_role_forbidden"));
   assert.throws(() => sanitizeExternalProvisioningClaims({ sub: "user", permissions: ["owner.profile.read"], owner_global: true }), /provisioning_claim_forbidden/);
+  assert.throws(() => sanitizeExternalProvisioningClaims({ sub: "user", organizationId: "other" }), /provisioning_claim_forbidden/);
 });

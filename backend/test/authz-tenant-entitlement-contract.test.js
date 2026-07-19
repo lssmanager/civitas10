@@ -125,3 +125,22 @@ test("group leader PBAC requires exact ceiling and activation and never grants u
   assert.equal(update.allowed, false);
   assert.equal(update.reasonCode, ENTITLEMENT_REASON_CODES.ROLE_PERMISSION_MISSING);
 });
+
+test("bootstrap profile is transactional and idempotent", async () => {
+  const { createBootstrapProfileService } = require("../authorization/entitlements");
+  const profile = { profileId: "owner-onboarding", version: "1", catalogVersion: "cat-1", ownerCeilings: [{ permission: "org.documents.read" }], tenantActivations: [{ permission: "org.documents.read" }], scopeTemplates: [{ capability: "lms", scopeKind: "dimension", dimensionKey: "academic.subject", dimensionValueId: "math" }] };
+  const state = { memberships: [], owner: [], tenant: [], scopes: [], audits: [] };
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const transactionPort = { async transaction(fn) { const before = clone(state); try { return await fn(); } catch (error) { Object.assign(state, before); throw error; } } };
+  const idempotencyPort = { results: new Map(), async runOnce({ idempotencyKey }, fn) { if (this.results.has(idempotencyKey)) return this.results.get(idempotencyKey); const result = await fn(); this.results.set(idempotencyKey, result); return result; } };
+  const baseDeps = { transactionPort, idempotencyPort, membershipPort: { async ensureMembershipRoleBinding(input) { state.memberships.push(input); return { membershipId: input.membershipId || "membership-admin" }; } }, entitlementService: { async upsertOwnerLimits(input) { state.owner.push(input); return { policyVersion: 2 }; }, async upsertTenantActivations(input) { state.tenant.push(input); return { policyVersion: 3 }; } }, runtimeConsistencyPort: { async audit(event) { state.audits.push(event); } } };
+  const failing = createBootstrapProfileService({ ...baseDeps, dataScopeService: { async createAssignment(input) { state.scopes.push(input); throw Object.assign(new Error("scope_target_invalid"), { code: "scope_target_invalid" }); } } });
+  await assert.rejects(() => failing.applyProfile({ organizationId: "org", profile, actorLogtoUserId: "owner", initialUserId: "admin", initialRoleId: "role_admin", idempotencyKey: "boot-1" }), /scope_target_invalid/);
+  assert.deepEqual(state, { memberships: [], owner: [], tenant: [], scopes: [], audits: [] });
+  const ok = createBootstrapProfileService({ ...baseDeps, dataScopeService: { async createAssignment(input) { state.scopes.push(input); return { assignment: { id: `scope-${state.scopes.length}` } }; } } });
+  await ok.applyProfile({ organizationId: "org", profile, actorLogtoUserId: "owner", initialUserId: "admin", initialRoleId: "role_admin", idempotencyKey: "boot-2" });
+  await ok.applyProfile({ organizationId: "org", profile, actorLogtoUserId: "owner", initialUserId: "admin", initialRoleId: "role_admin", idempotencyKey: "boot-2" });
+  assert.equal(state.memberships.length, 1);
+  assert.equal(state.scopes.length, 1);
+  assert.equal(state.audits.length, 1);
+});

@@ -20,14 +20,20 @@ const OWNER_SCOPE_TEMPLATES = Object.freeze(Object.entries(DATA_SCOPE_STRATEGIES
   }))
 ));
 
-function createOwnerScopeTemplateRegistry({ templates = OWNER_SCOPE_TEMPLATES, availability = new Map() } = {}) {
+function templateKey({ organizationId, scopeTemplateId, scopeTemplateVersion }) {
+  return `${organizationId}:${scopeTemplateId}:${scopeTemplateVersion}`;
+}
+
+function createOwnerScopeTemplateRegistry({ templates = OWNER_SCOPE_TEMPLATES, availability = new Map(), tenantConfigurations = new Map() } = {}) {
   const byIdVersion = new Map(templates.map((template) => [`${template.id}:${template.version}`, template]));
   return {
     listPublishedTemplates() { return templates.filter((template) => template.lifecycle === "published"); },
     getTemplate({ scopeTemplateId, scopeTemplateVersion }) { return byIdVersion.get(`${scopeTemplateId}:${scopeTemplateVersion}`) || null; },
     isAvailable({ organizationId, scopeTemplateId, scopeTemplateVersion }) {
-      const key = `${organizationId}:${scopeTemplateId}:${scopeTemplateVersion}`;
-      return availability.size === 0 || availability.get(key) === true;
+      return availability.get(templateKey({ organizationId, scopeTemplateId, scopeTemplateVersion })) === true;
+    },
+    getTenantConfiguration({ organizationId, scopeTemplateId, scopeTemplateVersion }) {
+      return tenantConfigurations.get(templateKey({ organizationId, scopeTemplateId, scopeTemplateVersion })) || null;
     },
   };
 }
@@ -35,7 +41,13 @@ function createOwnerScopeTemplateRegistry({ templates = OWNER_SCOPE_TEMPLATES, a
 function assertAssignmentMatchesTemplate({ assignment, template, organizationId, templateRegistry }) {
   if (!template) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_UNKNOWN);
   if (template.lifecycle !== "published") throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_NOT_PUBLISHED);
-  if (templateRegistry && !templateRegistry.isAvailable({ organizationId, scopeTemplateId: template.id, scopeTemplateVersion: template.version })) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_NOT_AVAILABLE);
+  if (templateRegistry) {
+    const lookup = { organizationId, scopeTemplateId: template.id, scopeTemplateVersion: template.version };
+    if (!templateRegistry.isAvailable(lookup)) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_NOT_AVAILABLE);
+    const config = templateRegistry.getTenantConfiguration?.(lookup);
+    if (!config) throw dataScopeError(DATA_SCOPE_REASON_CODES.TENANT_TEMPLATE_CONFIG_MISSING);
+    if (config.enabled !== true) throw dataScopeError(DATA_SCOPE_REASON_CODES.TENANT_TEMPLATE_CONFIG_DISABLED);
+  }
   if (assignment.capability !== template.capability) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_MISMATCH);
   if (!template.allowedTargetKinds.includes(assignment.scopeKind)) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_TARGET_FORBIDDEN);
   if (assignment.dimensionKey && !template.allowedDimensionKeys.includes(assignment.dimensionKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.TEMPLATE_TARGET_FORBIDDEN);
@@ -44,4 +56,4 @@ function assertAssignmentMatchesTemplate({ assignment, template, organizationId,
   return true;
 }
 
-module.exports = { OWNER_SCOPE_TEMPLATE_VERSION, OWNER_SCOPE_TEMPLATES, createOwnerScopeTemplateRegistry, assertAssignmentMatchesTemplate };
+module.exports = { OWNER_SCOPE_TEMPLATE_VERSION, OWNER_SCOPE_TEMPLATES, createOwnerScopeTemplateRegistry, assertAssignmentMatchesTemplate, templateKey };

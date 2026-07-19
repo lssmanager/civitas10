@@ -14,6 +14,7 @@ test("organization roles match verified Logto role names", () => {
     "organization_director",
     "organization_headdirector",
     "organization_headteacher",
+    "organization_groupleader",
     "organization_member",
     "organization_parent",
     "organization_payroll",

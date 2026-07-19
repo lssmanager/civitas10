@@ -125,8 +125,8 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
 
 function assertTenantRouteMatchesContext(req) {
   const routeOrganizationId = req.params.organizationId;
-  const tokenOrganizationId = req.user?.organizationId || req.user?.claims?.organization_id || req.user?.claims?.organizationId || null;
-  if (!tokenOrganizationId || tokenOrganizationId !== routeOrganizationId) {
+  const tokenOrganizationClaim = req.user?.organization_id || req.user?.claims?.organization_id || null;
+  if (!tokenOrganizationClaim || tokenOrganizationClaim !== routeOrganizationId) {
     const error = new Error("Tenant governance route organization does not match the verified tenant context.");
     error.status = 403;
     error.code = "TENANT_ORGANIZATION_MISMATCH";

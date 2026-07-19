@@ -419,3 +419,15 @@ The Phase 2 implementation persists Owner scope templates in `owner_scope_templa
 ### Implementation note: management-level virtual root
 
 `managementLevel: "organization"` is reserved for the virtual, non-editable organization root in hierarchy projections. Persisted `organization_units` rows may only use `strategic`, `tactical`, `coordination`, `operational` or `administrative`; top-level persisted units have `parentUnitId = null` and are validated as children of the virtual root with order `0`. `levelOrder` is derived from the Owner catalog and returned as read-only metadata; clients never submit it.
+
+### Implementation note: active operation requirements and planned capabilities
+
+Active operation registry entries use one canonical `permission` and, when owner and tenant surfaces are alternatives for the same module, an explicit `permissionRequirement` object with `mode: "any" | "all"` and canonical permission IDs. Composite permission strings are forbidden because they hide whether each branch is active and catalogued. Planned operations remain unavailable until they have an active canonical permission, mounted server handler, durable adapter, contract test and frontend consumer; the frontend may display a pending/unavailable state but must not mount a real mutation or fetch for planned capabilities.
+
+### Implementation note: fail-closed scope-template availability
+
+Owner scope templates are not globally available by default. A data-scope assignment can reference a template only when the template is published, explicitly available for the organization, and backed by an enabled tenant scope configuration for the same `scopeTemplateId` and version. Missing template availability returns `scope_template_not_available_for_tenant`; missing tenant configuration returns `tenant_scope_configuration_missing`; disabled configuration returns `tenant_scope_configuration_disabled`; invalid target/role/relationship semantics return `scope_target_invalid`.
+
+### Implementation note: bootstrap and provisioning runtime requirements
+
+Bootstrap profile application requires a transaction port, data-scope service, audit runtime and idempotency key. The operation validates profile references before mutation, writes membership, Owner Ceiling, Tenant Activation and ABAC scopes inside one transaction, audits the result, and returns the prior result on an idempotent retry. JIT/domain provisioning validates exact canonical organization role IDs rather than prefixes, rejects Owner roles and unknown roles, and sanitizes external claims that try to inject permissions, actions, tenant IDs, ceilings, activations or data scopes.

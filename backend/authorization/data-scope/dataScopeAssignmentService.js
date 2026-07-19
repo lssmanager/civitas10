@@ -24,7 +24,7 @@ async function validateScopeTemplate({ input, templateRegistry }) {
   return template;
 }
 
-function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeConsistencyPort, templateRegistry } = {}) {
+function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeConsistencyPort, templateRegistry, membershipPort } = {}) {
   async function emit(event) {
     const policyVersion = runtimeConsistencyPort?.incrementPolicyVersion ? await runtimeConsistencyPort.incrementPolicyVersion(event) : await repository.incrementPolicyVersion();
     const out = { ...event, policyVersion };
@@ -33,8 +33,19 @@ function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeCon
     return policyVersion;
   }
 
+  async function validateMembershipBinding(input) {
+    if (!membershipPort) return;
+    const binding = await membershipPort.getMembershipRoleBinding?.({ organizationId: input.organizationId, membershipId: input.membershipId, canonicalRoleId: input.canonicalRoleId || input.logtoRoleId, userId: input.userId });
+    if (!binding) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.organizationId && binding.organizationId !== input.organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.userId && binding.userId !== input.userId) throw dataScopeError(DATA_SCOPE_REASON_CODES.ROLE_MISMATCH);
+    if (binding.membershipId && binding.membershipId !== input.membershipId) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.canonicalRoleId && binding.canonicalRoleId !== (input.canonicalRoleId || input.logtoRoleId)) throw dataScopeError(DATA_SCOPE_REASON_CODES.ROLE_MISMATCH);
+  }
+
   async function validateAssignmentInput(input) {
     validateTarget(input);
+    await validateMembershipBinding(input);
     const template = await validateScopeTemplate({ input, templateRegistry });
     if (input.scopeKind === "dimension") await validateDimensionAssignment({ taxonomyPort, organizationId: input.organizationId, dimensionKey: input.dimensionKey, dimensionValueId: input.dimensionValueId, capability: input.capability });
     if (input.scopeKind !== "dimension") validateRelationshipKey(input.relationshipKey);
