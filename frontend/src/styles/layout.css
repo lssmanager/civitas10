@@ -640,3 +640,27 @@
   }
 }
 
+
+.civitas-status-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  flex: 0 0 auto;
+  border-radius: var(--civitas-radius-pill);
+  background: var(--civitas-border-strong);
+  box-shadow: 0 0 0 var(--civitas-border-width) var(--civitas-surface), 0 0 0 calc(var(--civitas-border-width) * 2) var(--civitas-border);
+}
+
+.civitas-status-dot[data-status="success"],
+.civitas-status-dot[data-status="ok"],
+.civitas-status-dot[data-status="live"] {
+  background: var(--civitas-success);
+}
+
+.civitas-status-dot[data-status="warning"] {
+  background: var(--civitas-warning);
+}
+
+.civitas-status-dot[data-status="danger"],
+.civitas-status-dot[data-status="critical"] {
+  background: var(--civitas-danger);
+}

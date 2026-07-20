@@ -59,10 +59,11 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.doesNotMatch(page, /<Tabs|useSearchParams/);
 });
 
-test("governance workspace does not expose a second Overview route", () => {
-  assert.doesNotMatch(page, /type GovernanceSectionId = \"overview\"/);
-  assert.doesNotMatch(page, /sectionLabels[\s\S]*Overview/);
-  assert.match(page, /organization overview remains only on the organization detail route/i);
+test("governance workspace owns overview and operations in the persistent organization shell", () => {
+  assert.doesNotMatch(page, /<nav className=\"civitas-card civitas-pad-tight\"/);
+  assert.match(workspaceContract, /organization-overview/);
+  assert.match(workspaceContract, /label: "Operations"/);
+  assert.match(page, /overview and operations share this persistent organization shell/i);
   assert.match(routes, /ownerOrganizationGovernancePeopleSegmentation/);
 });
 
@@ -242,10 +243,9 @@ test("governance read model contract validates real mounted fixture", () => {
 });
 
 
-test("legacy governance root redirects to the canonical first operational section", () => {
-  assert.match(appSource, /OwnerGovernanceLegacyRedirect/);
-  assert.match(appSource, /ownerOrganizationGovernanceRoles\.build\?\.\(\{ organizationId \}\)/);
+test("legacy governance root stays in the persistent organization shell", () => {
+  assert.doesNotMatch(appSource, /OwnerGovernanceLegacyRedirect/);
   assert.match(routes, /ownerOrganizationOperationsRoute = defineRoute\("\/owner\/organizations\/:organizationId\/operations"\)/);
   const legacyRouteLine = appSource.split("\n").find((line) => line.includes("appRoutes.ownerOrganizationGovernance.path")) || "";
-  assert.doesNotMatch(legacyRouteLine, /GovernanceStudioPage surface="owner"/);
+  assert.match(legacyRouteLine, /GovernanceStudioPage surface="owner"/);
 });

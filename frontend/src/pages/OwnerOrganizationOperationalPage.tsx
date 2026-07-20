@@ -17,7 +17,7 @@ type OrganizationDetailState =
   | { status: "denied"; message: string }
   | { status: "error"; error: AppErrorPresentation };
 
-const isInvalidOrganizationId = (value: string | undefined) => {
+export const isInvalidOrganizationId = (value: string | undefined) => {
   const id = value ? value.trim() : "";
   if (!id) return true;
   const decoded = (() => { try { return decodeURIComponent(id); } catch { return id; } })();
@@ -35,7 +35,7 @@ function normalizeLoadFailure(caught: unknown, organizationId: string): Organiza
   return { status: "error", error };
 }
 
-function BlockCard({ title, block }: { title: string; block: OperationalBlock }) {
+export function BlockCard({ title, block }: { title: string; block: OperationalBlock }) {
   return (
     <article className="owner-card">
       <div className="flex items-start justify-between gap-3">
@@ -59,7 +59,7 @@ function BlockCard({ title, block }: { title: string; block: OperationalBlock })
   );
 }
 
-function CapabilityCard({ capability }: { capability: OwnerCapabilityState }) {
+export function CapabilityCard({ capability }: { capability: OwnerCapabilityState }) {
   const blockers = capability.blockers.length;
   return (
     <article className="owner-card">
