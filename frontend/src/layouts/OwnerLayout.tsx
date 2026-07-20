@@ -4,6 +4,7 @@ import { AppShell } from "./AppShell";
 import { buildOwnerNavigationTree, materializeNavigationTree } from "../navigation/materialize-navigation";
 import { toShellNavItems } from "../navigation/nav-item-adapter";
 import { useOwnerApi } from "../api/owner";
+import { isConcreteRouteParam } from "../navigation/route-builders";
 
 type ActiveOrganizationContext = {
   id: string;
@@ -19,7 +20,7 @@ export const OwnerLayout = ({ children, organizationId }: { children: ReactNode;
 
   useEffect(() => {
     let active = true;
-    if (!organizationId || organizationId === ":organizationId") {
+    if (!isConcreteRouteParam(organizationId)) {
       setActiveOrganization(null);
       return () => { active = false; };
     }

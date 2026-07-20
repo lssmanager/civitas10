@@ -1,6 +1,7 @@
 import type { NavigationNode } from "./routes";
 import { appRoutes, ownerNavigationTree } from "./routes";
 import { flattenGovernanceWorkspaceItems } from "../features/governance/governance-workspace-contract";
+import { isConcreteRouteParam } from "./route-builders";
 
 export const materializeNavigationTree = (items: readonly NavigationNode[], params: Record<string, string | undefined> = {}): NavigationNode[] => items.flatMap((item) => {
   let path = item.path;
@@ -22,7 +23,7 @@ export type OwnerNavigationTreeInput = {
 
 export const buildOwnerNavigationTree = ({ organizationId, organizationName }: OwnerNavigationTreeInput = {}): NavigationNode[] => {
   const baseTree = ownerNavigationTree.map((item) => ({ ...item, children: item.children ? [...item.children] : undefined }));
-  if (!organizationId || organizationId === ":organizationId") return baseTree;
+  if (!isConcreteRouteParam(organizationId)) return baseTree;
 
   const governanceChildren = flattenGovernanceWorkspaceItems()
     .filter((item) => item.moduleKey !== "organization-overview" && item.moduleKey !== "operations" && item.status === "active")

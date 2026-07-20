@@ -34,7 +34,9 @@ test("owner contextual workspace is composed into the single AppShell navigation
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationState/);
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationGovernance/);
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationOperations/);
-  assert.match(materializeNavigation, /organizationId === ":organizationId"/);
+  assert.match(materializeNavigation, /isConcreteRouteParam\(organizationId\)/);
+  assert.doesNotMatch(materializeNavigation, /":organizationId"/);
+  assert.doesNotMatch(ownerLayout, /":organizationId"/);
   assert.doesNotMatch(materializeNavigation, /localStorage|sessionStorage/);
   assert.match(ownerLayout, /getOrganizations\(\)/);
   assert.match(ownerLayout, /ActiveOrganizationContext/);
@@ -67,7 +69,8 @@ test("icon IDs are contractual and unknown icon IDs fail before fallback", () =>
 });
 
 test("route builders reject missing and literal placeholders", () => {
-  assert.match(builders, /String\(value\) === placeholder/);
+  assert.match(builders, /routePlaceholderPattern/);
+  assert.match(builders, /isConcreteRouteParam/);
   assert.match(builders, /encodeURIComponent\(String\(value\)\)/);
   assert.doesNotMatch(governancePage, /%3AorganizationId/);
   assert.doesNotMatch(governancePage, /`\/owner\/organizations\/\$\{encodeURIComponent\(organizationId\)\}\/governance`/);

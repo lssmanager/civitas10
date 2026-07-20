@@ -176,7 +176,7 @@ test("role names routes separate owner audit context from tenant alias editing",
   assert.match(workspaceContract, /routeKey: "ownerOrganizationGovernanceRoleNames"/);
   assert.match(routeCatalogSource, /tenantGovernanceRoleNames: route\("tenant\.settings\.governance\.role_names"/);
   assert.match(appSource, /appRoutes\.tenantGovernanceRoleNames\.path/);
-  assert.match(page, /item\.id === "role-names"/);
+  assert.match(page, /"role-names": "role-names"/);
 });
 
 test("role permissions editor is operational, single-role and endpoint-backed", () => {
