@@ -50,7 +50,8 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.match(routes, /governance\/access-policy\/role-names/);
   assert.match(routes, /governance\/preview/);
   assert.match(routes, /governance\/audit/);
-  assert.match(page, /WorkspaceShell/);
+  assert.doesNotMatch(page, /WorkspaceShell|SectionNavigation|GovernanceSectionNav/);
+  assert.match(page, /<section className="min-w-0"/);
   assert.match(workspaceContract, /Access policy/);
   assert.match(workspaceContract, /Organization model/);
   assert.match(workspaceContract, /Control and evidence/);
@@ -153,17 +154,22 @@ test("scope assignments screen is role-path bound and backend-contract driven", 
   assert.match(contracts, /canonicalRoleId\?/);
   assert.match(contracts, /scopeTemplateId\?/);
   assert.match(page, /<DataScopeModule assignments=\{model\.dataScopes\} roles=\{model\.roles \|\| \[\]\}/);
+  assert.match(page, /<AliasesNavigationModule roles=\{model\.roles \?\? \[\]\} policy=\{model\.aliasesNavigation\}/);
 });
 
 test("role names screen is the simple alias editor", () => {
   assert.match(roleNames, /Role names/);
-  assert.match(roleNames, /Alias visuales para roles canónicos \(ID inmutable\)/);
-  assert.match(roleNames, /Rol canónico \(Logto\)/);
-  assert.match(roleNames, /Alias visual/);
-  assert.match(roleNames, /Guardar alias/);
-  assert.match(roleNames, /Todavía no conectado al backend/);
+  assert.match(roleNames, /roles= \[\]|roles\?: readonly GovernanceRoleSummary\[\]/);
+  assert.match(roleNames, /aliasesByRoleId/);
+  assert.match(roleNames, /organizationRoles\.map/);
+  assert.match(roleNames, /alias\?\.displayName \?\? role\.displayName/);
+  assert.match(roleNames, /Canonical role \(Logto\)/);
+  assert.match(roleNames, /Visual alias/);
+  assert.match(roleNames, /readOnly/);
+  assert.match(roleNames, /Save aliases/);
+  assert.match(roleNames, /Alias editing is read-only until the audited alias write API is mounted/);
   assert.doesNotMatch(roleNames, /FilterBar|DataTable|StatusPill|Alias edit preview|Canonical role labels|Search role labels|Role family|Audit only|#125|endpoint/);
-  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|\border\b|routeId|authorizationEffect/);
+  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|\border\b|routeId|authorizationEffect|Todavía no conectado|setMessage/);
   assert.doesNotMatch(roleNames, /role ===|roles\.includes|ownerAllowed|tenantEnabled|fetch\(/);
   assert.match(contracts, /defaultLabel\?/);
   assert.match(contracts, /lastChangedAt\?/);
@@ -175,14 +181,36 @@ test("role names routes separate owner audit context from tenant alias editing",
   assert.match(workspaceContract, /routeKey: "ownerOrganizationGovernanceRoleNames"/);
   assert.match(routeCatalogSource, /tenantGovernanceRoleNames: route\("tenant\.settings\.governance\.role_names"/);
   assert.match(appSource, /appRoutes\.tenantGovernanceRoleNames\.path/);
-  assert.match(page, /item\.id === "role-names"/);
+  assert.match(page, /"role-names": "role-names"/);
+});
+
+
+test("permission group UX keeps groups collapsed and search scoped to selected role", () => {
+  assert.match(matrix, /expanded=\{expanded\[domain\] \?\? false\}/);
+  assert.doesNotMatch(matrix, /grouped\.size <= 3|pendingCount\} pending|setPending\(\{\}\); writeUrlState\(\{ filter/);
+  assert.match(matrix, /const roleRows = useMemo\(\(\) => rows\.filter\(\(row\) => row\.roleId === effectiveRoleId\)/);
+  assert.match(matrix, /row\.displayName/);
+  assert.match(matrix, /row\.description/);
+  assert.match(matrix, /toggleGroup\(allItems, enabled\)/);
+  assert.match(matrix, /\{pendingCount\} unsaved changes/);
+});
+
+test("permission group primitive uses compact independent expansion and toggle controls", () => {
+  const primitive = readFileSync(new URL("../../shared/ui/PermissionGroupAccordion.tsx", import.meta.url), "utf8");
+  assert.match(primitive, /aria-expanded=\{expanded\}/);
+  assert.match(primitive, /aria-controls=\{panelId\}/);
+  assert.match(primitive, /groupToggleActive = activeCount > 0/);
+  assert.doesNotMatch(primitive, /indeterminate|StatusPill/);
+  assert.match(primitive, /Permission name/);
+  assert.match(primitive, /Permission\/capability description/);
+  assert.match(primitive, /Toggle \{row\.label\} for \{roleLabel\}/);
 });
 
 test("role permissions editor is operational, single-role and endpoint-backed", () => {
   assert.match(matrix, /RoleSelector/);
   assert.match(matrix, /PermissionGroupAccordion/);
   assert.match(matrix, /FilterBar/);
-  assert.match(matrix, /Change summary/);
+  assert.match(matrix, /unsaved changes/);
   assert.match(matrix, /expectedPolicyVersion/);
   assert.match(matrix, /owner_ceiling_update/);
   assert.match(matrix, /tenant_activation_update/);

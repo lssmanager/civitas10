@@ -380,8 +380,15 @@ async function replaceJitDefaultRolesForLogtoOrganization({ organizationId, orga
 }
 
 async function listLogtoOrganizationRoles() {
-  const response = await callLogtoManagementApi("/organization-roles");
-  return normalizeRoleListResponse(response);
+  const pageSize = 100;
+  const roles = [];
+  for (let page = 1; page <= 100; page += 1) {
+    const response = await callLogtoManagementApi(`/organization-roles?page=${page}&page_size=${pageSize}`);
+    const batch = normalizeRoleListResponse(response);
+    roles.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+  return roles;
 }
 
 const getOrganizationRoleName = (role = {}) => role.name || role.nameCache || role.key || null;

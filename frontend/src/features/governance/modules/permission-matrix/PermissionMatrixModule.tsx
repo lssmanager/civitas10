@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { EmptyState, FilterBar, PermissionGroupAccordion, RoleSelector, SectionCard, StatusPill, type PermissionToggleRow } from "../../../../shared/ui";
+import { EmptyState, FilterBar, PermissionGroupAccordion, RoleSelector, SectionCard, type PermissionToggleRow } from "../../../../shared/ui";
 import type { GovernancePermissionMatrixRow, GovernanceRoleSummary, GovernanceSurface, GovernanceVersionSummary } from "../../contracts";
 
 import { reasonLabel } from "./reason-format";
@@ -15,7 +15,6 @@ type PermissionMutationInput = {
 };
 
 const domainLabel = (permission: string) => permission.split(".")[0]?.toUpperCase() || "OTHER";
-const permissionLabel = (permission: string) => permission.replace(/\./g, " · ");
 const rowEnabled = (row: GovernancePermissionMatrixRow, surface: GovernanceSurface) => surface === "owner" ? row.ownerAllowed === true : row.tenantEnabled === true;
 const rowEligible = (row: GovernancePermissionMatrixRow, surface: GovernanceSurface) => {
   if (!row.canonical || row.rolePotential !== true) return false;
@@ -74,21 +73,37 @@ export const PermissionMatrixModule = ({
   const [pending, setPending] = useState<Record<string, PendingChange>>({});
   const [feedback, setFeedback] = useState<{ state: "idle" | "saving" | "saved" | "error"; message?: string }>({ state: "idle" });
   const effectiveRoleId = selectedRoleId || roleOptions[0]?.canonicalRoleId || "";
-  const selectedRows = rows.filter((row) => row.roleId === effectiveRoleId && (!filter || row.permission.toLowerCase().includes(filter.toLowerCase()) || String(row.roleKey || "").toLowerCase().includes(filter.toLowerCase())));
-  const selectedRowByPermission = useMemo(() => new Map(selectedRows.map((row) => [row.permission, row])), [selectedRows]);
+  const selectedRoleLabel = roleOptions.find((role) => role.canonicalRoleId === effectiveRoleId)?.alias || effectiveRoleId || "selected role";
+  const roleRows = useMemo(() => rows.filter((row) => row.roleId === effectiveRoleId), [effectiveRoleId, rows]);
+  const normalizedFilter = filter.trim().toLowerCase();
+  const rowMatchesFilter = (row: GovernancePermissionMatrixRow) => !normalizedFilter
+    || row.permission.toLowerCase().includes(normalizedFilter)
+    || String(row.displayName || "").toLowerCase().includes(normalizedFilter)
+    || String(row.description || "").toLowerCase().includes(normalizedFilter);
+  const selectedRows = roleRows.filter(rowMatchesFilter);
+  const selectedRowByPermission = useMemo(() => new Map(roleRows.map((row) => [row.permission, row])), [roleRows]);
   const pendingList = Object.values(pending).filter((change) => {
     const row = selectedRowByPermission.get(change.permission);
     return row ? rowEnabled(row, surface) !== change.enabled : false;
   });
   const pendingCount = pendingList.length;
-  const grouped = useMemo(() => selectedRows.reduce((groups, row) => {
-    const domain = domainLabel(row.permission);
+  const buildRowState = (row: GovernancePermissionMatrixRow): PermissionRowState => {
     const override = pending[row.permission]?.enabled;
     const currentEnabled = override ?? rowEnabled(row, surface);
     const eligible = rowEligible(row, surface);
-    const item: PermissionToggleRow = { permissionId: row.permission, label: permissionLabel(row.permission), checked: currentEnabled, disabled: !eligible, reason: reasonLabel(rowReason(row, surface)) };
+    return { item: { permissionId: row.permission, label: row.displayName || row.permission, description: row.description, checked: currentEnabled, disabled: !eligible, reason: reasonLabel(rowReason(row, surface)) }, row, eligible };
+  };
+  const allGrouped = useMemo(() => roleRows.reduce((groups, row) => {
+    const domain = domainLabel(row.permission);
     const existing = groups.get(domain) || [];
-    existing.push({ item, row, eligible });
+    existing.push(buildRowState(row));
+    groups.set(domain, existing);
+    return groups;
+  }, new Map<string, PermissionRowState[]>()), [pending, roleRows, surface]);
+  const grouped = useMemo(() => selectedRows.reduce((groups, row) => {
+    const domain = domainLabel(row.permission);
+    const existing = groups.get(domain) || [];
+    existing.push(buildRowState(row));
     groups.set(domain, existing);
     return groups;
   }, new Map<string, PermissionRowState[]>()), [pending, selectedRows, surface]);
@@ -128,17 +143,17 @@ export const PermissionMatrixModule = ({
     <SectionCard title={surface === "owner" ? "Owner Ceiling policy" : "Tenant Activation policy"} description={surface === "owner" ? "Select one canonical role and edit only Owner Ceiling decisions." : "Select one canonical role and edit only Tenant Activations allowed by Owner Ceiling."}>
       <div className="civitas-workspace-stack">
         <RoleSelector id="governance-role-selector" label="Canonical role" value={effectiveRoleId} roles={roleOptions} onChange={(roleId) => { setSelectedRoleId(roleId); setPending({}); writeUrlState({ role: roleId }); }} />
-        <FilterBar searchLabel="Search permissions" searchValue={filter} onSearchChange={(value) => { setFilter(value); writeUrlState({ filter: value }); }} onReset={() => { setFilter(""); setPending({}); writeUrlState({ filter: "" }); }}>
-          <StatusPill status={pendingCount ? "warning" : "neutral"}>{pendingCount} pending</StatusPill>
+        <FilterBar searchLabel="Search permissions" searchValue={filter} onSearchChange={(value) => { setFilter(value); writeUrlState({ filter: value }); }} onReset={() => { setFilter(""); writeUrlState({ filter: "" }); }}>
         </FilterBar>
-        {[...grouped.entries()].map(([domain, items]) => <PermissionGroupAccordion key={domain} domain={domain} expanded={expanded[domain] ?? grouped.size <= 3} rows={items.map(({ item }) => item)} onExpandedChange={(isExpanded) => setExpanded((current) => ({ ...current, [domain]: isExpanded }))} onTogglePermission={togglePermission} onToggleGroup={(enabled) => toggleGroup(items, enabled)} />)}
-        {pendingCount ? <div className="civitas-card civitas-pad-tight" aria-live="polite">
-          <p className="text-sm font-semibold text-text">Change summary</p>
-          <ul className="mt-2 grid gap-2 text-sm text-muted-strong">
-            {pendingList.map((change) => <li key={change.permission}>{permissionLabel(change.permission)} — {change.enabled ? "Grant" : "Revoke"} in {surface === "owner" ? "Owner Ceiling" : "Tenant Activation"}</li>)}
-          </ul>
+        {[...grouped.entries()].map(([domain, items]) => {
+          const allItems = allGrouped.get(domain) || [];
+          const activeCount = allItems.filter(({ item }) => item.checked).length;
+          return <PermissionGroupAccordion key={domain} domain={domain} expanded={expanded[domain] ?? false} activeCount={activeCount} totalCount={allItems.length} roleLabel={selectedRoleLabel} rows={items.map(({ item }) => item)} onExpandedChange={(isExpanded) => setExpanded((current) => ({ ...current, [domain]: isExpanded }))} onTogglePermission={togglePermission} onToggleGroup={(enabled) => toggleGroup(allItems, enabled)} />;
+        })}
+        {pendingCount ? <div className="civitas-card civitas-pad-tight civitas-action-bar" aria-live="polite">
+          <p className="text-sm font-semibold text-text">{pendingCount} unsaved changes</p>
           {feedback.message ? <p className={feedback.state === "error" ? "text-sm text-danger" : "text-sm text-muted-strong"}>{feedback.message}</p> : null}
-          <div className="civitas-action-bar"><button type="button" className="civitas-secondary-button" onClick={() => setPending({})} disabled={!pendingCount || feedback.state === "saving"}>Rollback</button><button type="button" className="civitas-primary-button" onClick={() => void save()} disabled={!pendingCount || feedback.state === "saving"}>{feedback.state === "saving" ? "Saving…" : "Save batch"}</button></div>
+          <button type="button" className="civitas-secondary-button" onClick={() => setPending({})} disabled={!pendingCount || feedback.state === "saving"}>Discard</button><button type="button" className="civitas-primary-button" onClick={() => void save()} disabled={!pendingCount || feedback.state === "saving"}>{feedback.state === "saving" ? "Saving…" : "Save changes"}</button>
         </div> : null}
       </div>
     </SectionCard>

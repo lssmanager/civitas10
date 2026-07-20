@@ -35,6 +35,7 @@ async function listRoleView({ roles = [], members = [], memberRolesByUserId = ne
     const id = roleId(role);
     if (!id) continue;
     const canonicalKey = canonicalRoleKey(roleName(role));
+    if (!canonicalKey.startsWith("organization_")) continue;
     const potentialPermissions = rolePermissionAssignments[canonicalKey] || [];
     byRole.set(id, {
       id,
@@ -63,6 +64,7 @@ async function buildPermissionRows({ organizationId, roles = [] }) {
   for (const role of roles) {
     const id = roleId(role);
     if (!id) continue;
+    if (!canonicalRoleKey(roleName(role)).startsWith("organization_")) continue;
     for (const permission of permissions) {
       const rolePath = { rolePathId: `${id}:${permission}`, logtoRoleId: id, roleNameCache: roleIdToName[id], tokenScopePresent: true };
       const evaluation = await evaluateOrganizationEntitlement({ organizationId, subject: null, tokenScopes: permissions, rolePaths: [rolePath], permission, policyVersion, repository: entitlementRepository, roleIdToName });
