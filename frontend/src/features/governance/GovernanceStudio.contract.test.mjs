@@ -11,6 +11,7 @@ const matrix = readFileSync(new URL("./modules/permission-matrix/PermissionMatri
 const roleNames = readFileSync(new URL("./modules/aliases-navigation/AliasesNavigationModule.tsx", import.meta.url), "utf8");
 const reasonFormat = readFileSync(new URL("./modules/permission-matrix/reason-format.ts", import.meta.url), "utf8");
 const dataScope = readFileSync(new URL("./modules/data-scope/DataScopeModule.tsx", import.meta.url), "utf8");
+const unitsModule = readFileSync(new URL("./modules/units/UnitsModule.tsx", import.meta.url), "utf8");
 const accessPreview = readFileSync(new URL("./modules/access-preview/AccessPreviewModule.tsx", import.meta.url), "utf8");
 const routeCatalogSource = readFileSync(new URL("../../navigation/route-catalog.ts", import.meta.url), "utf8");
 const workspaceContract = readFileSync(new URL("./governance-workspace-contract.ts", import.meta.url), "utf8");
@@ -43,7 +44,7 @@ test("context scopes preserve owner platform access and tenant organization enfo
 
 test("governance sections are route-backed vertical navigation", () => {
   assert.match(routes, /governance\/access-policy\/roles/);
-  assert.match(routes, /governance\/taxonomy/);
+  assert.match(routes, /governance\/organization-model\/structure/);
   assert.match(routes, /governance\/groups/);
   assert.match(routes, /governance\/data-scopes/);
   assert.match(routes, /governance\/access-policy\/role-names/);
@@ -101,13 +102,36 @@ test("access preview is read-only and does not mutate grants", () => {
 });
 
 test("governance modules are feature-owned and responsive-neutral", () => {
-  for (const moduleName of ["PermissionMatrixModule", "MembersRoleAssignmentsModule", "TaxonomyModule", "UnitsModule", "DataScopeModule", "AliasesNavigationModule", "AccessPreviewModule", "AuditDiagnosticsModule"]) {
+  for (const moduleName of ["PermissionMatrixModule", "MembersRoleAssignmentsModule", "UnitsModule", "DataScopeModule", "AliasesNavigationModule", "AccessPreviewModule", "AuditDiagnosticsModule"]) {
     assert.match(page, new RegExp(moduleName));
   }
   assert.doesNotMatch(page, /innerWidth|matchMedia|role ===|roles\.includes/);
   assert.doesNotMatch(page, /OverviewModule/);
 });
 
+
+test("structure workspace represents persisted organization units, not taxonomy graph nodes", () => {
+  assert.match(unitsModule, /HierarchyWorkbench/);
+  assert.match(unitsModule, /FilterToolbar/);
+  assert.match(unitsModule, /FormDrawer/);
+  assert.match(unitsModule, /ResponsiveDataView/);
+  assert.match(unitsModule, /OrganizationUnit nodes and parent-child edges/);
+  assert.match(unitsModule, /Virtual organization root/);
+  assert.match(unitsModule, /Descendants are excluded to prevalidate cycles/);
+  assert.match(unitsModule, /Taxonomy tags filter and classify units; they never become hierarchy nodes/);
+  assert.match(unitsModule, /never edits RBAC, PBAC or ABAC permissions/);
+  assert.match(unitsModule, /React Flow is not added until license, bundle and accessibility review is complete/);
+  assert.doesNotMatch(unitsModule, /avatar|Persona seleccionada|permission toggle|ownerAllowed|tenantEnabled|ReactFlow|reactflow|fetch\(/i);
+  assert.match(page, /<UnitsModule units=\{model\.units\} taxonomy=\{model\.taxonomy\} surface=\{model\.surface\}/);
+});
+
+test("structure routes separate owner inspection from tenant organization model workspace", () => {
+  assert.match(routes, /ownerOrganizationGovernanceStructureRoute = defineRoute\("\/owner\/organizations\/:organizationId\/governance\/organization-model\/structure"\)/);
+  assert.match(routes, /tenantGovernanceStructureRoute = defineRoute\("\/o\/:organizationId\/settings\/governance\/organization-model\/structure"\)/);
+  assert.match(workspaceContract, /routeKey: "ownerOrganizationGovernanceStructure"/);
+  assert.match(routeCatalogSource, /tenantGovernanceStructure: route\("tenant\.settings\.governance\.organization_model\.structure"/);
+  assert.match(appSource, /appRoutes\.tenantGovernanceStructure\.path/);
+});
 
 test("scope assignments screen is role-path bound and backend-contract driven", () => {
   assert.match(dataScope, /RoleSelector/);

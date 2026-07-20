@@ -17,6 +17,7 @@ export const routeCatalog = {
   tenantGovernance: route("tenant.settings.governance", appRoutes.tenantGovernance.path, "tenant", "tenant"),
   tenantGovernanceRoles: route("tenant.settings.governance.roles", appRoutes.tenantGovernanceRoles.path, "tenant", "tenant"),
   tenantGovernanceRoleNames: route("tenant.settings.governance.role_names", appRoutes.tenantGovernanceRoleNames.path, "tenant", "tenant"),
+  tenantGovernanceStructure: route("tenant.settings.governance.organization_model.structure", appRoutes.tenantGovernanceStructure.path, "tenant", "tenant"),
   lmsGrades: route("tenant.lms.grades", appRoutes.tenantLmsGrades.path, "tenant", "tenant"),
   lmsGroups: route("tenant.lms.groups", appRoutes.tenantLmsGroups.path, "tenant", "tenant"),
 } as const;

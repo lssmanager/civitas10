@@ -8,7 +8,6 @@ import { appRoutes } from "../../navigation/routes";
 import { governanceModuleStatus, isGovernanceOperationActive } from "./governance-capabilities";
 import type { GovernanceModuleKey, GovernanceReadModel, GovernanceSurface } from "./contracts";
 import { PermissionMatrixModule } from "./modules/permission-matrix/PermissionMatrixModule";
-import { TaxonomyModule } from "./modules/taxonomy/TaxonomyModule";
 import { MembersRoleAssignmentsModule } from "./modules/members/MembersRoleAssignmentsModule";
 import { UnitsModule } from "./modules/units/UnitsModule";
 import { DataScopeModule } from "./modules/data-scope/DataScopeModule";
@@ -18,13 +17,14 @@ import { AuditDiagnosticsModule } from "./modules/audit/AuditDiagnosticsModule";
 import { governanceDisplayName, moduleStatusLabel, moduleStatusTone } from "./adapters/governance-view-model";
 import { GOVERNANCE_WORKSPACE_GROUPS, flattenGovernanceWorkspaceItems, type GovernanceWorkspaceItemId } from "./governance-workspace-contract";
 
-type LegacyGovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
+type LegacyGovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "structure" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
 
 const legacyTabToWorkspaceItem: Record<LegacyGovernanceTabId, GovernanceWorkspaceItemId> = {
   overview: "role-permissions",
   "roles-permissions": "role-permissions",
   members: "role-names",
   taxonomy: "structure-classification",
+  structure: "structure-classification",
   groups: "groups-courses",
   "data-scopes": "scope-assignments",
   "aliases-navigation": "role-names",
@@ -35,6 +35,7 @@ const legacyTabToWorkspaceItem: Record<LegacyGovernanceTabId, GovernanceWorkspac
 const ownerPathSegmentToItem: Record<string, GovernanceWorkspaceItemId> = {
   roles: "role-permissions",
   taxonomy: "structure-classification",
+  structure: "structure-classification",
   groups: "groups-courses",
   "data-scopes": "scope-assignments",
   navigation: "role-names",
@@ -58,6 +59,7 @@ const workspacePath = (surface: GovernanceSurface, organizationId: string, itemI
   if (surface === "owner") return appRoutes[item.routeKey].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
   if (item.id === "role-permissions") return appRoutes.tenantGovernanceRoles.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
   if (item.id === "role-names") return appRoutes.tenantGovernanceRoleNames.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
+  if (item.id === "structure-classification") return appRoutes.tenantGovernanceStructure.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
   return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
 };
 
@@ -102,8 +104,8 @@ const GovernanceModules = ({ activeItemId, model, previewOwnerAccess, previewTen
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
   if (activeModule === "permissions") return <PermissionMatrixModule organizationId={model.organizationId} rows={model.permissionMatrix} roles={model.roles || []} surface={model.surface} versions={model.versions} onSaveOwnerCeilings={(input) => updateOwnerCeilings(model.organizationId, input)} onSaveTenantActivations={(input) => updateTenantActivations(model.organizationId, input)} />;
   if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
-  if (activeModule === "taxonomy") return <><TaxonomyModule items={model.taxonomy} /><UnitsModule units={model.units} /></>;
-  if (activeModule === "units") return <UnitsModule units={model.units} />;
+  if (activeModule === "taxonomy") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
+  if (activeModule === "units") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} roles={model.roles || []} />;
   if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} surface={model.surface} />;
   if (activeModule === "access-preview") {
