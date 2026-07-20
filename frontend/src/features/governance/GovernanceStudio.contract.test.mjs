@@ -74,10 +74,11 @@ test("governance read model keeps concepts and reason versions separated", () =>
   }
   assert.match(contracts, /type PermissionMatrixReason/);
   assert.match(contracts, /sourceVersions/);
-  assert.match(matrix, /formatSourceVersions/);
+  assert.doesNotMatch(matrix, /formatSourceVersions/);
   assert.match(matrix + reasonFormat, /not_canonical/);
   assert.match(matrix + reasonFormat, /ceiling_not_authorized/);
   assert.match(matrix, /role_permission_missing/);
+  assert.match(matrix + reasonFormat, /Not granted to this role/);
   assert.match(contracts, /taxonomyIds/);
   assert.match(contracts, /unitIds/);
   assert.match(dataScope, /DataTable/);

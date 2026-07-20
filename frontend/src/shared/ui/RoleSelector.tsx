@@ -23,7 +23,11 @@ export const RoleSelector = ({
   <label className="civitas-form-field" data-civitas-primitive="role-selector">
     <span className="civitas-form-field-label">{label}</span>
     <select id={id} className="civitas-field" value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}>
-      {roles.map((role) => <option key={role.canonicalRoleId} value={role.canonicalRoleId} disabled={role.disabled}>{role.alias ? `${role.alias} — ${role.canonicalRoleId}` : role.canonicalRoleId}{role.status ? ` (${role.status})` : ""}</option>)}
+      {roles.map((role) => {
+        const label = role.alias || role.status || role.canonicalRoleId;
+        const technicalDetails = [role.canonicalRoleId, role.status].filter(Boolean).join(" · ");
+        return <option key={role.canonicalRoleId} value={role.canonicalRoleId} disabled={role.disabled} title={technicalDetails}>{label}</option>;
+      })}
     </select>
   </label>
 );
