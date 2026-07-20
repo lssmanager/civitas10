@@ -1,6 +1,6 @@
 import type { NavigationNode } from "./routes";
 import { appRoutes, ownerNavigationTree } from "./routes";
-import { flattenGovernanceWorkspaceItems } from "../features/governance/governance-workspace-contract";
+import { GOVERNANCE_WORKSPACE_GROUPS, type GovernanceWorkspaceItem } from "../features/governance/governance-workspace-contract";
 import { isConcreteRouteParam } from "./route-builders";
 
 export const materializeNavigationTree = (items: readonly NavigationNode[], params: Record<string, string | undefined> = {}): NavigationNode[] => items.flatMap((item) => {
@@ -25,9 +25,24 @@ export const buildOwnerNavigationTree = ({ organizationId, organizationName }: O
   const baseTree = ownerNavigationTree.map((item) => ({ ...item, children: item.children ? [...item.children] : undefined }));
   if (!isConcreteRouteParam(organizationId)) return baseTree;
 
-  const governanceChildren = flattenGovernanceWorkspaceItems()
-    .filter((item) => item.moduleKey !== "organization-overview" && item.moduleKey !== "operations" && item.status === "active")
-    .map((item) => appRoutes[item.routeKey]);
+  const governanceItemToNavigationNode = (item: GovernanceWorkspaceItem): NavigationNode => ({
+    ...appRoutes[item.routeKey],
+    id: item.id,
+    label: item.label,
+    status: item.status,
+    actionId: item.actionId,
+    ownerPermissionRequirement: item.ownerPermissionRequirement,
+    tenantPermissionRequirement: item.tenantPermissionRequirement,
+  } as NavigationNode);
+  const governanceChildren = GOVERNANCE_WORKSPACE_GROUPS
+    .filter((group) => group.id !== "operations")
+    .map((group) => ({
+      path: `/owner/organizations/${encodeURIComponent(organizationId)}/governance/${group.id}-section`,
+      label: group.label,
+      iconKey: "governance",
+      structural: true,
+      children: group.items.map(governanceItemToNavigationNode),
+    } as NavigationNode));
 
   const workspaceLabel = organizationName?.trim() || "Selected organization";
   return [

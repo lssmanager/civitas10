@@ -30,7 +30,11 @@ test("owner topology v2 matches product-validated hierarchy", () => {
 
 test("owner contextual workspace is composed into the single AppShell navigation tree", () => {
   assert.match(materializeNavigation, /export const buildOwnerNavigationTree/);
-  assert.match(materializeNavigation, /flattenGovernanceWorkspaceItems/);
+  assert.match(materializeNavigation, /GOVERNANCE_WORKSPACE_GROUPS/);
+  assert.doesNotMatch(materializeNavigation, /flattenGovernanceWorkspaceItems/);
+  assert.doesNotMatch(materializeNavigation, /item\.status === "active"/);
+  assert.match(materializeNavigation, /group\.id !== "operations"/);
+  assert.match(materializeNavigation, /status: item\.status/);
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationState/);
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationGovernance/);
   assert.match(materializeNavigation, /appRoutes\.ownerOrganizationOperations/);

@@ -154,17 +154,22 @@ test("scope assignments screen is role-path bound and backend-contract driven", 
   assert.match(contracts, /canonicalRoleId\?/);
   assert.match(contracts, /scopeTemplateId\?/);
   assert.match(page, /<DataScopeModule assignments=\{model\.dataScopes\} roles=\{model\.roles \|\| \[\]\}/);
+  assert.match(page, /<AliasesNavigationModule roles=\{model\.roles \?\? \[\]\} policy=\{model\.aliasesNavigation\}/);
 });
 
 test("role names screen is the simple alias editor", () => {
   assert.match(roleNames, /Role names/);
-  assert.match(roleNames, /Alias visuales para roles canónicos \(ID inmutable\)/);
-  assert.match(roleNames, /Rol canónico \(Logto\)/);
-  assert.match(roleNames, /Alias visual/);
-  assert.match(roleNames, /Guardar alias/);
-  assert.match(roleNames, /Todavía no conectado al backend/);
+  assert.match(roleNames, /roles= \[\]|roles\?: readonly GovernanceRoleSummary\[\]/);
+  assert.match(roleNames, /aliasesByRoleId/);
+  assert.match(roleNames, /organizationRoles\.map/);
+  assert.match(roleNames, /alias\?\.displayName \?\? role\.displayName/);
+  assert.match(roleNames, /Canonical role \(Logto\)/);
+  assert.match(roleNames, /Visual alias/);
+  assert.match(roleNames, /readOnly/);
+  assert.match(roleNames, /Save aliases/);
+  assert.match(roleNames, /Alias editing is read-only until the audited alias write API is mounted/);
   assert.doesNotMatch(roleNames, /FilterBar|DataTable|StatusPill|Alias edit preview|Canonical role labels|Search role labels|Role family|Audit only|#125|endpoint/);
-  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|\border\b|routeId|authorizationEffect/);
+  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|\border\b|routeId|authorizationEffect|Todavía no conectado|setMessage/);
   assert.doesNotMatch(roleNames, /role ===|roles\.includes|ownerAllowed|tenantEnabled|fetch\(/);
   assert.match(contracts, /defaultLabel\?/);
   assert.match(contracts, /lastChangedAt\?/);

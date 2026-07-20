@@ -45,6 +45,21 @@ function buildModules({ surface, versions }) {
   return Object.fromEntries(MODULE_KEYS.map((key) => [key, moduleStatus({ key, surface, versions })]).filter(([, value]) => value));
 }
 
+
+function roleCatalogDiagnostics({ roles = [], aliasesNavigation }) {
+  const diagnostics = [];
+  const roleIds = new Set();
+  const canonicalCounts = new Map();
+  for (const role of roles) {
+    if (role?.id) roleIds.add(role.id);
+    if (role?.canonicalKey) canonicalCounts.set(role.canonicalKey, (canonicalCounts.get(role.canonicalKey) || 0) + 1);
+    if (!role?.canonicalKey || !String(role.canonicalKey).startsWith("organization_")) diagnostics.push({ code: "logto_role_catalog_mapping_drift", severity: "warning", message: `Logto role ${role?.id || "unknown"} could not be mapped to a Civitas organization role key.` });
+  }
+  for (const [canonicalKey, count] of canonicalCounts.entries()) if (count > 1) diagnostics.push({ code: "logto_role_duplicate_canonical_key", severity: "warning", message: `Multiple Logto roles resolve to ${canonicalKey}.` });
+  for (const alias of aliasesNavigation.aliases || []) if (!roleIds.has(alias.roleId)) diagnostics.push({ code: "role_alias_orphaned", severity: "warning", message: `Alias references role ${alias.roleId}, but Logto did not return that role for this organization.` });
+  return diagnostics;
+}
+
 function buildPermissionMatrix(versions) {
   return [
     {
@@ -84,6 +99,8 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
   const logtoOrganizationId = organizationId || safeString(organization?.id) || safeString(organization?.logtoOrganizationId);
   const rolesSlice = await buildRolesGovernanceSlice({ organizationId: logtoOrganizationId, roles, members, memberRolesByUserId });
   const structureSlice = await buildStructureGovernanceSlice(logtoOrganizationId);
+  const aliasesNavigation = buildAliasesNavigationPolicy(logtoOrganizationId);
+  const diagnostics = roleCatalogDiagnostics({ roles: rolesSlice.roles, aliasesNavigation });
   return {
     contractVersion: GOVERNANCE_READ_MODEL_CONTRACT_VERSION,
     generatedAt: isoNow(),
@@ -109,7 +126,7 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
     taxonomy: structureSlice.taxonomy.items,
     units: structureSlice.units.items,
     dataScopes: structureSlice.dataScopes.items,
-    aliasesNavigation: buildAliasesNavigationPolicy(logtoOrganizationId),
+    aliasesNavigation,
     accessPreviews: [],
     auditSummary: { totalEvents: rolesSlice.auditEvents.length + structureSlice.auditEvents.length + listGovernanceAuditEvents({ organizationId: logtoOrganizationId }).length, latestEventAt: rolesSlice.auditEvents.at(-1)?.createdAt || structureSlice.auditEvents.at(-1)?.createdAt || listGovernanceAuditEvents({ organizationId: logtoOrganizationId })[0]?.createdAt || null, redaction: "actor_subjects_before_after_tokens_and_connector_secrets_redacted" },
     auditEvents: [
@@ -119,6 +136,7 @@ async function buildGovernanceReadModel({ organization, organizationId, surface,
     diagnostics: [
       { code: "governance_read_model_projection", severity: "info", message: "Aggregate read model is mounted; feature writes remain in owning APIs." },
       ...(versions.runtimeStatus === "current" ? [] : [{ code: versions.runtimeStatus === "drift" ? "authorization_version_drift" : "authorization_snapshot_stale", severity: "warning", message: "Authorization runtime is not current." }]),
+      ...diagnostics,
     ],
   };
 }
