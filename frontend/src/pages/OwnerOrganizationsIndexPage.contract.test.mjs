@@ -17,7 +17,7 @@ test("OwnerOrganizationsIndexPage lists Logto organizations as responsive cards"
 });
 
 test("OwnerOrganizationsIndexPage has loading, empty, and error states", () => {
-  assert.match(source, /Loading organizations from the owner Logto contract/);
+  assert.match(source, /Loading organizations/);
   assert.match(source, /No Logto organizations are available yet/);
   assert.match(source, /Could not load organizations/);
   assert.match(source, /Retry/);

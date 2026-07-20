@@ -103,7 +103,7 @@ const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface
 
 const UnavailableWorkspacePanel = ({ title, description }: { title: string; description: string }) => (
   <SectionCard title={title} description={description}>
-    <p className="text-sm text-muted-strong">This workspace task is intentionally unavailable until its endpoint, DTO, privacy contract and durable read model are approved. No fetch is mounted for planned capabilities.</p>
+    <p className="text-sm text-muted-strong">This workspace task is not available yet. No data is loaded for planned capabilities.</p>
   </SectionCard>
 );
 
@@ -124,7 +124,7 @@ const GovernanceModules = ({ activeItemId, model, operationalModel, previewOwner
     return <AccessPreviewModule organizationId={model.organizationId} surface={model.surface} previews={model.accessPreviews} onPreview={previewModel.surface === "owner" ? previewOwnerAccess : previewTenantAccess} />;
   }
   if (activeModule === "audit") return <AuditDiagnosticsModule events={model.auditEvents} />;
-  return <UnavailableWorkspacePanel title={item.label} description="People segmentation is blocked by the allowlisted grammar, privacy and durable endpoint gate." />;
+  return <UnavailableWorkspacePanel title={item.label} description="People segmentation is not available yet." />;
 };
 
 export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }) => {

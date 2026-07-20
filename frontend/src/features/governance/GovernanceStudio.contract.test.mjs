@@ -147,7 +147,7 @@ test("scope assignments screen is role-path bound and backend-contract driven", 
   assert.match(dataScope, /beforeunload/);
   assert.match(dataScope, /Missing scope fails closed/);
   assert.match(dataScope, /Cross-tenant, stale and template-incompatible targets must be rejected by the backend/);
-  assert.match(dataScope, /disabled title="Data-scope assignment mutation endpoint unavailable"/);
+  assert.match(dataScope, /disabled title="Scope assignment changes are not available yet"/);
   assert.doesNotMatch(dataScope, /ownerAllowed|tenantEnabled|role ===|roles\.includes|evaluate|allow\(|fetch\(/);
   assert.match(contracts, /membershipId\?/);
   assert.match(contracts, /canonicalRoleId\?/);
@@ -155,16 +155,15 @@ test("scope assignments screen is role-path bound and backend-contract driven", 
   assert.match(page, /<DataScopeModule assignments=\{model\.dataScopes\} roles=\{model\.roles \|\| \[\]\}/);
 });
 
-test("role names screen is aliases-only and never a navigation or authorization editor", () => {
+test("role names screen is the simple alias editor", () => {
   assert.match(roleNames, /Role names/);
-  assert.match(roleNames, /FilterBar/);
-  assert.match(roleNames, /DataTable/);
-  assert.match(roleNames, /Tenant alias preview/);
-  assert.match(roleNames, /Immutable canonical ID/);
-  assert.match(roleNames, /Save alias/);
-  assert.match(roleNames, /disabled title="Alias write endpoint unavailable"/);
-  assert.match(roleNames, /never change role IDs, permissions, scopes, Logto mappings or route eligibility/);
-  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|order|routeId|authorizationEffect/);
+  assert.match(roleNames, /Alias visuales para roles canónicos \(ID inmutable\)/);
+  assert.match(roleNames, /Rol canónico \(Logto\)/);
+  assert.match(roleNames, /Alias visual/);
+  assert.match(roleNames, /Guardar alias/);
+  assert.match(roleNames, /Todavía no conectado al backend/);
+  assert.doesNotMatch(roleNames, /FilterBar|DataTable|StatusPill|Alias edit preview|Canonical role labels|Search role labels|Role family|Audit only|#125|endpoint/);
+  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|\border\b|routeId|authorizationEffect/);
   assert.doesNotMatch(roleNames, /role ===|roles\.includes|ownerAllowed|tenantEnabled|fetch\(/);
   assert.match(contracts, /defaultLabel\?/);
   assert.match(contracts, /lastChangedAt\?/);

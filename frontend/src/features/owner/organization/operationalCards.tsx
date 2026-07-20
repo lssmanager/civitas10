@@ -75,7 +75,7 @@ export const OperationalOverview = ({ organization }: { organization: Consolidat
     <MetricCard label="Summary" detail={organization.summary.humanMessage || "Capability surface loaded."}>
       <OwnerBadge tone={ownerToneFromSeverity(organization.summary.severity || "info")}>{organization.summary.status || "available"}</OwnerBadge>
     </MetricCard>
-    <MetricCard label="Capabilities" value={organization.capabilities.length} detail="Owner capability surface returned by the backend contract." />
+    <MetricCard label="Capabilities" value={organization.capabilities.length} detail="Owner capability surface returned by the backend." />
     <MetricCard label="Blockers" value={organization.blockers.length} detail="Aggregated capability blockers." />
   </section>
 );
@@ -86,7 +86,7 @@ export const OperationalModules = ({ organization }: { organization: Consolidate
       <MetricCard label="Summary" detail={organization.summary.humanMessage || "Capability surface loaded."}>
         <OwnerBadge tone={ownerToneFromSeverity(organization.summary.severity || "info")}>{organization.summary.status || "available"}</OwnerBadge>
       </MetricCard>
-      <MetricCard label="Capabilities" value={organization.capabilities.length} detail="Owner capability surface returned by the backend contract." />
+      <MetricCard label="Capabilities" value={organization.capabilities.length} detail="Owner capability surface returned by the backend." />
       <MetricCard label="Blockers" value={organization.blockers.length} detail="Aggregated capability blockers." />
       <MetricCard label="Polling" value={organization.polling.shouldPoll ? `${organization.polling.intervalSeconds}s` : "stopped"} detail={organization.polling.reason || "-"} />
     </section>

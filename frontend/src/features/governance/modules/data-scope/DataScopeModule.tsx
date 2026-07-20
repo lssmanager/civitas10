@@ -28,7 +28,7 @@ const columns: DataTableColumn<GovernanceDataScopeAssignment>[] = [
   { key: "status", header: "Status", render: (assignment) => <StatusPill status={assignment.effective ? "success" : "warning"}>{assignment.effective ? "Effective" : "Unavailable"}</StatusPill> },
   { key: "version", header: "Version", render: (assignment) => <span className="text-xs text-muted">{assignment.sourceVersion ?? assignment.scopeTemplateVersion ?? "unversioned"}</span> },
   { key: "changed", header: "Changed", render: (assignment) => <span className="text-xs text-muted">{assignment.changedBy ?? "system"} · {assignment.changedAt ?? "not returned"}</span> },
-  { key: "remove", header: "Remove", render: () => <button type="button" className="civitas-secondary-button" disabled title="Scope assignment mutation endpoint unavailable">Remove</button> },
+  { key: "remove", header: "Remove", render: () => <button type="button" className="civitas-secondary-button" disabled title="Scope assignment changes are not available yet">Remove</button> },
 ];
 
 export const DataScopeModule = ({ assignments, roles = [] }: { assignments: readonly GovernanceDataScopeAssignment[]; roles?: readonly GovernanceRoleSummary[] }) => {
@@ -107,11 +107,11 @@ export const DataScopeModule = ({ assignments, roles = [] }: { assignments: read
               <span className="civitas-form-field-label">Target stable ID</span>
               <input className="civitas-field" value={draft.value} onChange={(event) => setDraft((current) => ({ ...current, value: event.target.value }))} placeholder="Server-resolved target ID" />
             </label>
-            <p className="text-sm text-muted-strong">Draft target <strong>{draft.value || "not selected"}</strong> will not be saved here. Cross-tenant, stale and template-incompatible targets must be rejected by the backend data-scope contract.</p>
-            {hasDraft ? <DecisionState kind="unavailable" title="Unsaved target draft" reasonCode="scope_assignment_write_endpoint_unavailable"><p className="text-sm text-muted-strong">Your draft is preserved locally and browser navigation will warn before leaving.</p></DecisionState> : null}
+            <p className="text-sm text-muted-strong">Draft target <strong>{draft.value || "not selected"}</strong> will not be saved here. Cross-tenant, stale and template-incompatible targets must be rejected by the backend before saving.</p>
+            {hasDraft ? <DecisionState kind="unavailable" title="Unsaved target draft" reasonCode="scope_assignment_write_unavailable"><p className="text-sm text-muted-strong">Your draft is preserved locally and browser navigation will warn before leaving.</p></DecisionState> : null}
             <div className="civitas-action-bar">
               <button type="button" className="civitas-secondary-button" onClick={() => setDraft({ type: "dimension", value: "", templateId: "", roleId: "" })} disabled={!hasDraft}>Discard draft</button>
-              <button type="button" className="civitas-primary-button" disabled title="Data-scope assignment mutation endpoint unavailable">Add target</button>
+              <button type="button" className="civitas-primary-button" disabled title="Scope assignment changes are not available yet">Add target</button>
             </div>
           </div>
         </SectionCard>
