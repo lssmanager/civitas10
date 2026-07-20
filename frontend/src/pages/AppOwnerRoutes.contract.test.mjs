@@ -6,7 +6,7 @@ const source = readFileSync(new URL("./App/index.tsx", import.meta.url), "utf8")
 
 test("App routes expose the clean owner pages", () => {
   assert.match(source, /OwnerOperationalHomePage/);
-  assert.match(source, /OwnerOrganizationOperationalPage/);
+  assert.match(source, /GovernanceStudioPage surface="owner"/);
   assert.match(source, /OwnerWorkerQueuesPage/);
 });
 

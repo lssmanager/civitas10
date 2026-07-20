@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import type { Icon } from "@tabler/icons-react";
 import { StatusPill, type StatusPillStatus } from "./StatusPill";
 
 export type WorkspaceNavigationItem = {
@@ -10,6 +11,7 @@ export type WorkspaceNavigationItem = {
   status?: string;
   statusTone?: StatusPillStatus;
   description?: ReactNode;
+  icon?: Icon;
 };
 
 export type WorkspaceNavigationGroup = {
@@ -52,10 +54,13 @@ export const WorkspaceShell = ({
               <div className="mt-3 flex flex-col gap-1">
                 {group.items.map((item) => {
                   const active = item.id === activeId;
+                  const Icon = item.icon;
+                  const informativeStatus = item.status && ["planned", "not_configured", "stopped"].includes(item.status.toLowerCase());
                   return (
                     <Link key={item.id} to={item.href} aria-current={active ? "page" : undefined} className={active ? "civitas-nav-link civitas-nav-link-active" : "civitas-nav-link"}>
+                      {Icon ? <Icon className="civitas-nav-link-icon" aria-hidden="true" /> : null}
                       <span className="min-w-0 flex-1">{item.label}</span>
-                      {item.status ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : null}
+                      {informativeStatus ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : <span className="civitas-status-dot" data-status={item.statusTone || "neutral"} aria-hidden="true" />}
                     </Link>
                   );
                 })}
