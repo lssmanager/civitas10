@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
-import { OrganizationContextHeader, SectionCard, StateRegion, StatusPill, WorkspaceShell, type WorkspaceNavigationGroup } from "../../shared/ui";
+import { OrganizationContextHeader, SectionCard, StateRegion, StatusPill } from "../../shared/ui";
 import { useOwnerApi } from "../../api/owner";
 import { validateOperationalResponse, type ConsolidatedOperationalResponse } from "../../contracts/operational";
-import { ownerToneFromSeverity } from "../../components/owner/OwnerUI";
 import { isInvalidOrganizationId, OperationalModules, OperationalOverview } from "../owner/organization/operationalCards";
 import { useGovernanceApi } from "./api";
 import { appRoutes } from "../../navigation/routes";
@@ -18,8 +17,8 @@ import { DataScopeModule } from "./modules/data-scope/DataScopeModule";
 import { AliasesNavigationModule } from "./modules/aliases-navigation/AliasesNavigationModule";
 import { AccessPreviewModule, AccessPreviewUnavailable } from "./modules/access-preview/AccessPreviewModule";
 import { AuditDiagnosticsModule } from "./modules/audit/AuditDiagnosticsModule";
-import { governanceDisplayName, moduleStatusLabel, moduleStatusTone } from "./adapters/governance-view-model";
-import { GOVERNANCE_WORKSPACE_GROUPS, flattenGovernanceWorkspaceItems, type GovernanceWorkspaceItemId } from "./governance-workspace-contract";
+import { governanceDisplayName } from "./adapters/governance-view-model";
+import { flattenGovernanceWorkspaceItems, type GovernanceWorkspaceItemId } from "./governance-workspace-contract";
 
 type LegacyGovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "structure" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
 
@@ -59,14 +58,7 @@ const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId
 const workspaceItems = flattenGovernanceWorkspaceItems();
 const workspaceItemById = Object.fromEntries(workspaceItems.map((item) => [item.id, item])) as Record<GovernanceWorkspaceItemId, (typeof workspaceItems)[number]>;
 
-const workspacePath = (surface: GovernanceSurface, organizationId: string, itemId: GovernanceWorkspaceItemId) => {
-  const item = workspaceItemById[itemId] ?? workspaceItems[0];
-  if (surface === "owner") return appRoutes[item.routeKey].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
-  if (item.id === "role-permissions") return appRoutes.tenantGovernanceRoles.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
-  if (item.id === "role-names") return appRoutes.tenantGovernanceRoleNames.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
-  if (item.id === "structure-classification") return appRoutes.tenantGovernanceStructure.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
-  return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
-};
+
 
 const activeItemFromLocation = (surface: GovernanceSurface, pathname: string, search: string): GovernanceWorkspaceItemId => {
   if (surface === "tenant") {
@@ -176,16 +168,6 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
   const Layout = surface === "owner" ? OwnerLayout : OrganizationLayout;
   const displayName = governanceDisplayName(model, organizationId);
   const activeItem = workspaceItemById[activeItemId] ?? workspaceItems[0];
-  const navigationGroups: WorkspaceNavigationGroup[] = useMemo(() => GOVERNANCE_WORKSPACE_GROUPS.map((group) => ({
-    id: group.id,
-    label: group.label,
-    items: group.items.map((item) => {
-      const key = item.moduleKey === "unavailable" ? "overview" : item.moduleKey;
-      const operationalStatus = operationalModel?.summary.status || (operationalModel ? "ready" : "pending");
-      const isOperational = item.moduleKey === "organization-overview" || item.moduleKey === "operations";
-      return { id: item.id, label: item.label, href: workspacePath(surface, organizationId, item.id), icon: item.icon, status: item.status === "planned" ? "planned" : isOperational ? operationalStatus : moduleStatusLabel(model, key as GovernanceModuleKey), statusTone: item.status === "planned" ? "warning" : isOperational ? ownerToneFromSeverity(operationalModel?.summary.severity || operationalStatus) === "success" ? "success" : ownerToneFromSeverity(operationalModel?.summary.severity || operationalStatus) === "warning" ? "warning" : "neutral" : moduleStatusTone(model, key as GovernanceModuleKey) };
-    }),
-  })), [model, operationalModel, organizationId, surface]);
   const organizationSurfacePath = buildOrganizationSurfacePath(surface, organizationId);
   const selectOrganizationPath = surface === "owner" ? appRoutes.ownerOrganizations.path : organizationSurfacePath;
 
@@ -194,10 +176,10 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
       <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={displayName} breadcrumb={<><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></>} status={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} actions={<Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link>} description="Operational governance workspace for access policy, organization model, control and evidence. The overview and operations share this persistent organization shell." />
       {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={selectOrganizationPath}>Open organization surface</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
-      <WorkspaceShell label="Governance workspace" groups={navigationGroups} activeId={activeItemId}>
+      <section className="min-w-0" aria-labelledby="workspace-section-title">
         <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
         <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} />
-      </WorkspaceShell>
+      </section>
       <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={organizationSurfacePath}>Open organization surface</Link>. Visibility is resolved by the screen/action registry and backend decisions; this workspace never evaluates roles or JWT claims in the presentation layer.</p>
     </Layout>
   );

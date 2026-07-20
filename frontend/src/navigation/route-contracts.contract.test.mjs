@@ -8,6 +8,7 @@ const appShell = readFileSync(new URL("../layouts/AppShell.tsx", import.meta.url
 const navAdapter = readFileSync(new URL("./nav-item-adapter.ts", import.meta.url), "utf8");
 const iconRegistry = readFileSync(new URL("./icon-registry.ts", import.meta.url), "utf8");
 const ownerLayout = readFileSync(new URL("../layouts/OwnerLayout.tsx", import.meta.url), "utf8");
+const materializeNavigation = readFileSync(new URL("./materialize-navigation.ts", import.meta.url), "utf8");
 const ownerRouteGuard = readFileSync(new URL("../authz/OwnerRouteGuard.tsx", import.meta.url), "utf8");
 const orgLayout = readFileSync(new URL("../layouts/OrganizationLayout.tsx", import.meta.url), "utf8");
 const governancePage = readFileSync(new URL("../features/governance/GovernanceStudioPage.tsx", import.meta.url), "utf8");
@@ -25,6 +26,18 @@ test("owner topology v2 matches product-validated hierarchy", () => {
   assert.doesNotMatch(routes, /appRoutes\.ownerOrganizationState\]/);
   assert.match(routes, /appRoutes\.account\.active \? \[appRoutes\.account\] : \[\]/);
   assert.doesNotMatch(routes, /Configuration/);
+});
+
+test("owner contextual workspace is composed into the single AppShell navigation tree", () => {
+  assert.match(materializeNavigation, /export const buildOwnerNavigationTree/);
+  assert.match(materializeNavigation, /flattenGovernanceWorkspaceItems/);
+  assert.match(materializeNavigation, /appRoutes\.ownerOrganizationState/);
+  assert.match(materializeNavigation, /appRoutes\.ownerOrganizationGovernance/);
+  assert.match(materializeNavigation, /appRoutes\.ownerOrganizationOperations/);
+  assert.match(materializeNavigation, /organizationId === ":organizationId"/);
+  assert.doesNotMatch(materializeNavigation, /localStorage|sessionStorage/);
+  assert.match(ownerLayout, /getOrganizations\(\)/);
+  assert.match(ownerLayout, /ActiveOrganizationContext/);
 });
 
 test("settings and profile are not published when inactive", () => {
@@ -67,6 +80,6 @@ test("AppShell has explicit missing-navigation failure and no desktop collapsed 
   assert.match(appShell, /navigation-required-but-empty/);
   assert.match(appShell, /Resolved navigation is required/);
   assert.doesNotMatch(appShell, /SIDEBAR_STATE_STORAGE_KEY|sidebarCollapsed|localStorage|civitas-shell-sidebar-collapsed|civitas-sidebar-toggle/);
-  assert.match(ownerLayout, /ownerNavigationTree/);
+  assert.match(ownerLayout, /buildOwnerNavigationTree/);
   assert.match(ownerLayout, /materializeNavigationTree/);
 });

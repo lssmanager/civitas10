@@ -50,7 +50,8 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.match(routes, /governance\/access-policy\/role-names/);
   assert.match(routes, /governance\/preview/);
   assert.match(routes, /governance\/audit/);
-  assert.match(page, /WorkspaceShell/);
+  assert.doesNotMatch(page, /WorkspaceShell|SectionNavigation|GovernanceSectionNav/);
+  assert.match(page, /<section className="min-w-0"/);
   assert.match(workspaceContract, /Access policy/);
   assert.match(workspaceContract, /Organization model/);
   assert.match(workspaceContract, /Control and evidence/);
