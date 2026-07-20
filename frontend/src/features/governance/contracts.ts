@@ -49,6 +49,8 @@ export type GovernancePermissionMatrixRow = {
   roleId?: string;
   roleKey?: string;
   permission: PermissionKey;
+  displayName?: string;
+  description?: string;
   canonical: boolean;
   rolePotential: boolean | null;
   ownerAllowed: boolean | null;
@@ -120,6 +122,11 @@ export const validateGovernanceReadModel = (value: unknown): GovernanceContractV
   if (value.roles !== undefined && !Array.isArray(value.roles)) return fail("$.roles", version, "roles must be an array");
   if (value.members !== undefined && !Array.isArray(value.members)) return fail("$.members", version, "members must be an array");
   for (const key of ["permissionMatrix", "taxonomy", "units", "dataScopes", "accessPreviews", "auditEvents", "diagnostics"] as const) if (!Array.isArray(value[key])) return fail(`$.${key}`, version, `${key} must be an array`);
+  for (const [index, row] of value.permissionMatrix.entries()) {
+    if (!isRecord(row)) return fail(`$.permissionMatrix[${index}]`, version, "permission matrix row must be an object");
+    if (row.displayName !== undefined && typeof row.displayName !== "string") return fail(`$.permissionMatrix[${index}].displayName`, version, "displayName must be a string");
+    if (row.description !== undefined && typeof row.description !== "string") return fail(`$.permissionMatrix[${index}].description`, version, "description must be a string");
+  }
   if (!isRecord(value.aliasesNavigation)) return fail("$.aliasesNavigation", version, "aliasesNavigation must be an object");
   return { ok: true, value: value as GovernanceReadModel };
 };

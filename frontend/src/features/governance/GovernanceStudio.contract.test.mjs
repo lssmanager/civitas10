@@ -179,11 +179,33 @@ test("role names routes separate owner audit context from tenant alias editing",
   assert.match(page, /"role-names": "role-names"/);
 });
 
+
+test("permission group UX keeps groups collapsed and search scoped to selected role", () => {
+  assert.match(matrix, /expanded=\{expanded\[domain\] \?\? false\}/);
+  assert.doesNotMatch(matrix, /grouped\.size <= 3|pendingCount\} pending|setPending\(\{\}\); writeUrlState\(\{ filter/);
+  assert.match(matrix, /const roleRows = useMemo\(\(\) => rows\.filter\(\(row\) => row\.roleId === effectiveRoleId\)/);
+  assert.match(matrix, /row\.displayName/);
+  assert.match(matrix, /row\.description/);
+  assert.match(matrix, /toggleGroup\(allItems, enabled\)/);
+  assert.match(matrix, /\{pendingCount\} unsaved changes/);
+});
+
+test("permission group primitive uses compact independent expansion and toggle controls", () => {
+  const primitive = readFileSync(new URL("../../shared/ui/PermissionGroupAccordion.tsx", import.meta.url), "utf8");
+  assert.match(primitive, /aria-expanded=\{expanded\}/);
+  assert.match(primitive, /aria-controls=\{panelId\}/);
+  assert.match(primitive, /groupToggleActive = activeCount > 0/);
+  assert.doesNotMatch(primitive, /indeterminate|StatusPill/);
+  assert.match(primitive, /Permission name/);
+  assert.match(primitive, /Permission\/capability description/);
+  assert.match(primitive, /Toggle \{row\.label\} for \{roleLabel\}/);
+});
+
 test("role permissions editor is operational, single-role and endpoint-backed", () => {
   assert.match(matrix, /RoleSelector/);
   assert.match(matrix, /PermissionGroupAccordion/);
   assert.match(matrix, /FilterBar/);
-  assert.match(matrix, /Change summary/);
+  assert.match(matrix, /unsaved changes/);
   assert.match(matrix, /expectedPolicyVersion/);
   assert.match(matrix, /owner_ceiling_update/);
   assert.match(matrix, /tenant_activation_update/);
