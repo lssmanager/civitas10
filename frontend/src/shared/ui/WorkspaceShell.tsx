@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { Icon } from "@tabler/icons-react";
-import { StatusPill, type StatusPillStatus } from "./StatusPill";
+import { NavCollapse, type NavCollapseItem } from "./NavCollapse";
+import type { StatusPillStatus } from "./StatusPill";
 
 export type WorkspaceNavigationItem = {
   id: string;
@@ -34,6 +35,17 @@ export const WorkspaceShell = ({
   const selectId = useId();
   const navigate = useNavigate();
   const flatItems = groups.flatMap((group) => group.items.map((item) => ({ ...item, groupLabel: group.label })));
+  const navigationItems: NavCollapseItem[] = groups.map((group) => ({
+    label: group.label,
+    children: group.items.map((item) => ({
+      label: item.label,
+      path: item.href,
+      icon: item.icon,
+      match: () => item.id === activeId,
+      status: item.status,
+      statusTone: item.statusTone,
+    })),
+  }));
 
   return (
     <div className="civitas-workspace-shell" data-civitas-workspace-shell="true">
@@ -47,27 +59,10 @@ export const WorkspaceShell = ({
             {flatItems.map((item) => <option key={item.id} value={item.id}>{item.groupLabel} — {item.label}</option>)}
           </select>
         </div>
-        <nav className="hidden md:flex md:flex-col md:gap-5" aria-label={label}>
-          {groups.map((group) => (
-            <section key={group.id} aria-labelledby={`${group.id}-workspace-group`}>
-              <p id={`${group.id}-workspace-group`} className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{group.label}</p>
-              <div className="mt-3 flex flex-col gap-1">
-                {group.items.map((item) => {
-                  const active = item.id === activeId;
-                  const Icon = item.icon;
-                  const informativeStatus = item.status && ["planned", "not_configured", "stopped"].includes(item.status.toLowerCase());
-                  return (
-                    <Link key={item.id} to={item.href} aria-current={active ? "page" : undefined} className={active ? "civitas-nav-link civitas-nav-link-active" : "civitas-nav-link"}>
-                      {Icon ? <Icon className="civitas-nav-link-icon" aria-hidden="true" /> : null}
-                      <span className="min-w-0 flex-1">{item.label}</span>
-                      {informativeStatus ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : <span className="civitas-status-dot" data-status={item.statusTone || "neutral"} aria-hidden="true" />}
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
-        </nav>
+        <div className="hidden md:block">
+          <p className="civitas-workspace-nav-title">{label}</p>
+          <NavCollapse items={navigationItems} label={label} />
+        </div>
       </aside>
       <section className="min-w-0" aria-labelledby="workspace-section-title">
         {children}

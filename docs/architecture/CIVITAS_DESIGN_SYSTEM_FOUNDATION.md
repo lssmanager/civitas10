@@ -388,6 +388,10 @@ Regla de uso: todo elemento con chevron visual debe tener el toggle funcional ac
 
 Ningún bloque de resumen, diff o detalle técnico se renderiza si no hay contenido real que resumir. Si el contador asociado (`pending`, `blockers`, `results`) es `0`, el bloque completo no se monta: no se muestra vacío, con placeholder ni con dumps de metadata.
 
+#### Regla transversal de reutilización de navegación
+
+Antes de construir una lista de navegación nueva — sidebar, tabs, breadcrumb, menú o sección colapsable — se debe revisar primero si el shell de la app ya expone un primitive equivalente. Si existe, se reutiliza o se extiende desde `shared/ui`; no se crea una segunda implementación visual del mismo patrón. En Phase 2, los sidebars y grupos de navegación deben consumir `NavCollapse`/tokens `civitas-nav-*` para mantener un único tratamiento de ícono, hover, activo y disclosure.
+
 #### Aplicación en gobernanza
 
 Este addendum aplica a todas las pantallas del sidebar de gobernanza: Role permissions, Role names, Scope assignments, Structure and classification, Groups and courses, People segmentation, Access explorer, Audit log, Overview y Operations. Al auditar cada pantalla restante, se debe usar esta jerarquía y estos estados antes de definir badges, disclosure o niveles de texto nuevos. Si una pantalla necesita un estado que no existe en la tabla semántica, primero se agrega aquí como token; no se introduce como badge suelto en el componente.
