@@ -15,6 +15,7 @@ export const routeCatalog = {
   ownerWorkerQueues: route("owner.system.worker_queues", appRoutes.ownerWorkerQueues.path, "owner", "platform"),
   account: route("account.profile", appRoutes.account.path, "account", "platform"),
   tenantGovernance: route("tenant.settings.governance", appRoutes.tenantGovernance.path, "tenant", "tenant"),
+  tenantGovernanceRoles: route("tenant.settings.governance.roles", appRoutes.tenantGovernanceRoles.path, "tenant", "tenant"),
   lmsGrades: route("tenant.lms.grades", appRoutes.tenantLmsGrades.path, "tenant", "tenant"),
   lmsGroups: route("tenant.lms.groups", appRoutes.tenantLmsGroups.path, "tenant", "tenant"),
 } as const;

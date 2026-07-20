@@ -74,6 +74,7 @@ function AppContent() {
       <Route path={appRoutes.ownerSystem.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-worker-queues"><OwnerWorkerQueuesPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-worker-queues"><OwnerWorkerQueuesPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.tenantGovernance.path} element={<TenantGovernanceRoute />} />
+      <Route path={appRoutes.tenantGovernanceRoles.path} element={<TenantGovernanceRoute />} />
       <Route path="/:orgId" element={<OrganizationPage />} />
     </Routes>
   );

@@ -27,7 +27,7 @@ const ownerOrganizationsRoute = staticRoute("/owner/organizations");
 const ownerCreateOrganizationRoute = staticRoute("/owner/create");
 const ownerOrganizationStateRoute = defineRoute("/owner/organizations/:organizationId");
 const ownerOrganizationGovernanceRoute = defineRoute("/owner/organizations/:organizationId/governance");
-const ownerOrganizationGovernanceRolesRoute = defineRoute("/owner/organizations/:organizationId/governance/roles");
+const ownerOrganizationGovernanceRolesRoute = defineRoute("/owner/organizations/:organizationId/governance/access-policy/roles");
 const ownerOrganizationGovernanceTaxonomyRoute = defineRoute("/owner/organizations/:organizationId/governance/taxonomy");
 const ownerOrganizationGovernanceGroupsRoute = defineRoute("/owner/organizations/:organizationId/governance/groups");
 const ownerOrganizationGovernanceDataScopesRoute = defineRoute("/owner/organizations/:organizationId/governance/data-scopes");
@@ -37,6 +37,7 @@ const ownerOrganizationGovernanceAuditRoute = defineRoute("/owner/organizations/
 const ownerOrganizationGovernancePeopleSegmentationRoute = defineRoute("/owner/organizations/:organizationId/governance/people-segmentation");
 const ownerOrganizationOperationsRoute = defineRoute("/owner/organizations/:organizationId/operations");
 const tenantGovernanceRoute = defineRoute("/o/:organizationId/settings/governance");
+const tenantGovernanceRolesRoute = defineRoute("/o/:organizationId/settings/governance/access-policy/roles");
 const tenantLmsGradesRoute = defineRoute("/o/:organizationId/lms/grades");
 const tenantLmsGroupsRoute = defineRoute("/o/:organizationId/lms/groups");
 const ownerLogsRoute = staticRoute("/owner/logs");
@@ -68,6 +69,7 @@ export const appRoutes = {
   ownerOrganizationGovernancePeopleSegmentation: appRoute(ownerOrganizationGovernancePeopleSegmentationRoute, "People segmentation", "governance", "Pending tenant-safe people segmentation grammar and privacy contract.", false),
   ownerOrganizationOperations: appRoute(ownerOrganizationOperationsRoute, "Operations", "operations", "Operational health and capability runtime for the selected organization."),
   tenantGovernance: appRoute(tenantGovernanceRoute, "Governance", "governance", "Studio tenant para activaciones, asignaciones y navegación restrictiva dentro de la organización."),
+  tenantGovernanceRoles: appRoute(tenantGovernanceRolesRoute, "Role permissions", "governance", "Tenant activation editor for role permissions within Owner Ceiling."),
   tenantLmsGrades: appRoute(tenantLmsGradesRoute, "Grades", "grades", "Superficie tenant LMS para calificaciones bajo contexto organizacional."),
   tenantLmsGroups: appRoute(tenantLmsGroupsRoute, "Groups", "groups", "LMS groups visible through server-side group leadership authorization."),
   ownerLogs: appRoute(ownerLogsRoute, "Audit / diagnostics", "operations", "Trazabilidad global de eventos operativos owner.", false),
@@ -126,6 +128,7 @@ export const routeMetadata: Record<string, RouteMetadata> = {
   [appRoutes.ownerPlatformSettings.path]: { label: appRoutes.ownerPlatformSettings.label, parentPath: "/owner/settings-section" },
   [appRoutes.account.path]: { label: appRoutes.account.label },
   [appRoutes.tenantGovernance.path]: { label: appRoutes.tenantGovernance.label },
+  [appRoutes.tenantGovernanceRoles.path]: { label: appRoutes.tenantGovernanceRoles.label, parentPath: appRoutes.tenantGovernance.path },
   [appRoutes.tenantLmsGroups.path]: { label: appRoutes.tenantLmsGroups.label },
   [appRoutes.tenantLmsGrades.path]: { label: appRoutes.tenantLmsGrades.label },
 };

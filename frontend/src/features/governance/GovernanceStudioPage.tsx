@@ -55,6 +55,7 @@ const workspaceItemById = Object.fromEntries(workspaceItems.map((item) => [item.
 const workspacePath = (surface: GovernanceSurface, organizationId: string, itemId: GovernanceWorkspaceItemId) => {
   const item = workspaceItemById[itemId] ?? workspaceItems[0];
   if (surface === "owner") return appRoutes[item.routeKey].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
+  if (item.id === "role-permissions") return appRoutes.tenantGovernanceRoles.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
   return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
 };
 
@@ -93,11 +94,11 @@ const UnavailableWorkspacePanel = ({ title, description }: { title: string; desc
   </SectionCard>
 );
 
-const GovernanceModules = ({ activeItemId, model, previewOwnerAccess, previewTenantAccess }: { activeItemId: GovernanceWorkspaceItemId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"] }) => {
+const GovernanceModules = ({ activeItemId, model, previewOwnerAccess, previewTenantAccess, updateOwnerCeilings, updateTenantActivations }: { activeItemId: GovernanceWorkspaceItemId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; updateOwnerCeilings: ReturnType<typeof useGovernanceApi>["updateOwnerCeilings"]; updateTenantActivations: ReturnType<typeof useGovernanceApi>["updateTenantActivations"] }) => {
   const item = workspaceItemById[activeItemId] ?? workspaceItems[0];
   const activeModule = item.moduleKey as GovernanceModuleKey | "unavailable";
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
-  if (activeModule === "permissions") return <PermissionMatrixModule rows={model.permissionMatrix} surface={model.surface} />;
+  if (activeModule === "permissions") return <PermissionMatrixModule organizationId={model.organizationId} rows={model.permissionMatrix} roles={model.roles || []} surface={model.surface} versions={model.versions} onSaveOwnerCeilings={(input) => updateOwnerCeilings(model.organizationId, input)} onSaveTenantActivations={(input) => updateTenantActivations(model.organizationId, input)} />;
   if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
   if (activeModule === "taxonomy") return <><TaxonomyModule items={model.taxonomy} /><UnitsModule units={model.units} /></>;
   if (activeModule === "units") return <UnitsModule units={model.units} />;
@@ -160,7 +161,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
       <WorkspaceShell label="Governance workspace" groups={navigationGroups} activeId={activeItemId}>
         <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
-        <GovernanceModules activeItemId={activeItemId} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} />
+        <GovernanceModules activeItemId={activeItemId} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} />
       </WorkspaceShell>
       <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={organizationSurfacePath}>Open organization surface</Link>. Visibility is resolved by the screen/action registry and backend decisions; this workspace never evaluates roles or JWT claims in the presentation layer.</p>
     </Layout>

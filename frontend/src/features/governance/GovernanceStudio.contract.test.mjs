@@ -41,7 +41,7 @@ test("context scopes preserve owner platform access and tenant organization enfo
 });
 
 test("governance sections are route-backed vertical navigation", () => {
-  assert.match(routes, /governance\/roles/);
+  assert.match(routes, /governance\/access-policy\/roles/);
   assert.match(routes, /governance\/taxonomy/);
   assert.match(routes, /governance\/groups/);
   assert.match(routes, /governance\/data-scopes/);
@@ -74,7 +74,7 @@ test("governance read model keeps concepts and reason versions separated", () =>
   assert.match(matrix, /formatSourceVersions/);
   assert.match(matrix + reasonFormat, /not_canonical/);
   assert.match(matrix + reasonFormat, /ceiling_not_authorized/);
-  assert.match(matrix, /Not applicable/);
+  assert.match(matrix, /role_permission_missing/);
   assert.match(contracts, /taxonomyIds/);
   assert.match(contracts, /unitIds/);
   assert.match(dataScope, /DataTable/);
@@ -107,6 +107,37 @@ test("governance modules are feature-owned and responsive-neutral", () => {
   assert.doesNotMatch(page, /OverviewModule/);
 });
 
+
+test("role permissions editor is operational, single-role and endpoint-backed", () => {
+  assert.match(matrix, /RoleSelector/);
+  assert.match(matrix, /PermissionGroupAccordion/);
+  assert.match(matrix, /FilterBar/);
+  assert.match(matrix, /Change summary/);
+  assert.match(matrix, /expectedPolicyVersion/);
+  assert.match(matrix, /owner_ceiling_update/);
+  assert.match(matrix, /tenant_activation_update/);
+  assert.match(matrix, /owner_ceiling_denied/);
+  assert.match(matrix, /rowEligible/);
+  assert.match(matrix, /row\.reason\.code === "owning_operation_not_mounted"/);
+  assert.match(matrix, /params\.set\("role"/);
+  assert.match(matrix, /params\.set\("filter"/);
+  assert.doesNotMatch(matrix, /DataTable|role ===|roles\.includes|fetch\(/);
+  assert.match(api, /updateOwnerCeilings/);
+  assert.match(api, /governance\/entitlement-ceilings/);
+  assert.match(api, /allowed: change\.enabled/);
+  assert.match(api, /updateTenantActivations/);
+  assert.match(api, /governance\/role-activations/);
+  assert.match(api, /enabled: change\.enabled/);
+  assert.match(page, /onSaveOwnerCeilings/);
+  assert.match(page, /onSaveTenantActivations/);
+});
+
+test("role permissions routes distinguish owner ceilings from tenant activations", () => {
+  assert.match(routes, /ownerOrganizationGovernanceRolesRoute = defineRoute\("\/owner\/organizations\/:organizationId\/governance\/access-policy\/roles"\)/);
+  assert.match(routes, /tenantGovernanceRolesRoute = defineRoute\("\/o\/:organizationId\/settings\/governance\/access-policy\/roles"\)/);
+  assert.match(routeCatalogSource, /tenantGovernanceRoles: route\("tenant\.settings\.governance\.roles"/);
+  assert.match(appSource, /appRoutes\.tenantGovernanceRoles\.path/);
+});
 
 test("governance unavailable operations prevent blind fetches", () => {
   const capabilities = readFileSync(new URL("./governance-capabilities.ts", import.meta.url), "utf8");
