@@ -38,6 +38,7 @@ const ownerPathSegmentToItem: Record<string, GovernanceWorkspaceItemId> = {
   groups: "groups-courses",
   "data-scopes": "scope-assignments",
   navigation: "role-names",
+  "role-names": "role-names",
   preview: "access-explorer",
   audit: "audit-log",
   "people-segmentation": "people-segmentation",
@@ -56,6 +57,7 @@ const workspacePath = (surface: GovernanceSurface, organizationId: string, itemI
   const item = workspaceItemById[itemId] ?? workspaceItems[0];
   if (surface === "owner") return appRoutes[item.routeKey].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
   if (item.id === "role-permissions") return appRoutes.tenantGovernanceRoles.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
+  if (item.id === "role-names") return appRoutes.tenantGovernanceRoleNames.build?.({ organizationId }) ?? `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
   return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?section=${encodeURIComponent(item.tenantTab)}`;
 };
 
@@ -103,7 +105,7 @@ const GovernanceModules = ({ activeItemId, model, previewOwnerAccess, previewTen
   if (activeModule === "taxonomy") return <><TaxonomyModule items={model.taxonomy} /><UnitsModule units={model.units} /></>;
   if (activeModule === "units") return <UnitsModule units={model.units} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;
-  if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} />;
+  if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} surface={model.surface} />;
   if (activeModule === "access-preview") {
     if (!isGovernanceOperationActive(model.surface, "governance.accessPreview")) return <AccessPreviewUnavailable />;
     return <AccessPreviewModule organizationId={model.organizationId} surface={model.surface} previews={model.accessPreviews} onPreview={previewModel.surface === "owner" ? previewOwnerAccess : previewTenantAccess} />;

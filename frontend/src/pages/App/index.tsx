@@ -67,7 +67,7 @@ function AppContent() {
       <Route path={appRoutes.ownerOrganizationGovernanceTaxonomy.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernanceGroups.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernanceDataScopes.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
-      <Route path={appRoutes.ownerOrganizationGovernanceNavigation.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
+      <Route path={appRoutes.ownerOrganizationGovernanceRoleNames.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernancePreview.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernanceAudit.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
       <Route path={appRoutes.ownerOrganizationGovernancePeopleSegmentation.path} element={<OwnerRouteGuard><OwnerOrganizationContextRoute><ScreenGate screenId="owner-governance"><GovernanceStudioPage surface="owner" /></ScreenGate></OwnerOrganizationContextRoute></OwnerRouteGuard>} />
@@ -75,6 +75,7 @@ function AppContent() {
       <Route path={appRoutes.ownerWorkerQueues.path} element={<OwnerRouteGuard><ScreenGate screenId="owner-worker-queues"><OwnerWorkerQueuesPage /></ScreenGate></OwnerRouteGuard>} />
       <Route path={appRoutes.tenantGovernance.path} element={<TenantGovernanceRoute />} />
       <Route path={appRoutes.tenantGovernanceRoles.path} element={<TenantGovernanceRoute />} />
+      <Route path={appRoutes.tenantGovernanceRoleNames.path} element={<TenantGovernanceRoute />} />
       <Route path="/:orgId" element={<OrganizationPage />} />
     </Routes>
   );

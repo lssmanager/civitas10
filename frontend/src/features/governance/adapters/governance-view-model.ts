@@ -65,7 +65,7 @@ export const configurationCoverage = (model: GovernanceReadModel) => [
   { label: "Taxonomy values", count: model.taxonomy.length, tab: "taxonomy" },
   { label: "Groups", count: model.units.length, tab: "groups" },
   { label: "Data scopes", count: model.dataScopes.length, tab: "data-scopes" },
-  { label: "Aliases", count: model.aliasesNavigation.visualPreferences.length, tab: "aliases-navigation" },
+  { label: "Role names", count: model.aliasesNavigation.aliases?.length ?? 0, tab: "role-names" },
   { label: "Audit events", count: model.auditEvents.length, tab: "audit-diagnostics" },
 ] as const;
 

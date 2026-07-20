@@ -8,6 +8,7 @@ const api = readFileSync(new URL("./api.ts", import.meta.url), "utf8");
 const routes = readFileSync(new URL("../../navigation/routes.ts", import.meta.url), "utf8");
 const registry = readFileSync(new URL("./visual/governance.screen.ts", import.meta.url), "utf8");
 const matrix = readFileSync(new URL("./modules/permission-matrix/PermissionMatrixModule.tsx", import.meta.url), "utf8");
+const roleNames = readFileSync(new URL("./modules/aliases-navigation/AliasesNavigationModule.tsx", import.meta.url), "utf8");
 const reasonFormat = readFileSync(new URL("./modules/permission-matrix/reason-format.ts", import.meta.url), "utf8");
 const dataScope = readFileSync(new URL("./modules/data-scope/DataScopeModule.tsx", import.meta.url), "utf8");
 const accessPreview = readFileSync(new URL("./modules/access-preview/AccessPreviewModule.tsx", import.meta.url), "utf8");
@@ -45,7 +46,7 @@ test("governance sections are route-backed vertical navigation", () => {
   assert.match(routes, /governance\/taxonomy/);
   assert.match(routes, /governance\/groups/);
   assert.match(routes, /governance\/data-scopes/);
-  assert.match(routes, /governance\/navigation/);
+  assert.match(routes, /governance\/access-policy\/role-names/);
   assert.match(routes, /governance\/preview/);
   assert.match(routes, /governance\/audit/);
   assert.match(page, /WorkspaceShell/);
@@ -107,6 +108,30 @@ test("governance modules are feature-owned and responsive-neutral", () => {
   assert.doesNotMatch(page, /OverviewModule/);
 });
 
+
+test("role names screen is aliases-only and never a navigation or authorization editor", () => {
+  assert.match(roleNames, /Role names/);
+  assert.match(roleNames, /FilterBar/);
+  assert.match(roleNames, /DataTable/);
+  assert.match(roleNames, /Tenant alias preview/);
+  assert.match(roleNames, /Immutable canonical ID/);
+  assert.match(roleNames, /Save alias/);
+  assert.match(roleNames, /disabled title="Alias write endpoint unavailable"/);
+  assert.match(roleNames, /never change role IDs, permissions, scopes, Logto mappings or route eligibility/);
+  assert.doesNotMatch(roleNames, /visualPreferences|navigationTenantEditable|hidden|order|routeId|authorizationEffect/);
+  assert.doesNotMatch(roleNames, /role ===|roles\.includes|ownerAllowed|tenantEnabled|fetch\(/);
+  assert.match(contracts, /defaultLabel\?/);
+  assert.match(contracts, /lastChangedAt\?/);
+});
+
+test("role names routes separate owner audit context from tenant alias editing", () => {
+  assert.match(routes, /ownerOrganizationGovernanceRoleNamesRoute = defineRoute\("\/owner\/organizations\/:organizationId\/governance\/access-policy\/role-names"\)/);
+  assert.match(routes, /tenantGovernanceRoleNamesRoute = defineRoute\("\/o\/:organizationId\/settings\/governance\/access-policy\/role-names"\)/);
+  assert.match(workspaceContract, /routeKey: "ownerOrganizationGovernanceRoleNames"/);
+  assert.match(routeCatalogSource, /tenantGovernanceRoleNames: route\("tenant\.settings\.governance\.role_names"/);
+  assert.match(appSource, /appRoutes\.tenantGovernanceRoleNames\.path/);
+  assert.match(page, /item\.id === "role-names"/);
+});
 
 test("role permissions editor is operational, single-role and endpoint-backed", () => {
   assert.match(matrix, /RoleSelector/);
