@@ -12,6 +12,7 @@ const sectionCard = readFileSync(new URL("./SectionCard.tsx", import.meta.url), 
 const dataTable = readFileSync(new URL("./DataTable.tsx", import.meta.url), "utf8");
 const appShell = readFileSync(new URL("../../layouts/AppShell.tsx", import.meta.url), "utf8");
 const navCollapse = readFileSync(new URL("./NavCollapse.tsx", import.meta.url), "utf8");
+const workspaceShell = readFileSync(new URL("./WorkspaceShell.tsx", import.meta.url), "utf8");
 const ownerRegistry = readFileSync(new URL("../../features/owner/organizations/organizations.screen.ts", import.meta.url), "utf8");
 const stylesIndex = readFileSync(new URL("../../styles/index.css", import.meta.url), "utf8");
 const actionButtons = readFileSync(new URL("../../components/layout/TopBar/ActionButtons.tsx", import.meta.url), "utf8");
@@ -87,6 +88,8 @@ test("mobile and tablet action buttons keep accessible labels while hiding visua
 test("navigation is provided by the shared NavCollapse primitive", () => {
   assert.match(barrel, /NavCollapse/);
   assert.match(appShell, /<NavCollapse/);
+  assert.match(workspaceShell, /<NavCollapse items=\{navigationItems\} label=\{label\}/);
+  assert.doesNotMatch(workspaceShell, /<Link key=\{item\.id\}/);
   assert.match(tokensCss, /--civitas-nav-item-padding-x: var\(--civitas-space-3\);/);
   assert.match(layoutCss, /\.civitas-nav-link\s*{[^}]*padding: var\(--civitas-space-2\) var\(--civitas-nav-item-padding-x\);/s);
   assert.doesNotMatch(appShell, /<nav className="civitas-primary-nav"/);
@@ -143,7 +146,7 @@ test("authenticated shell has explicit desktop and mobile scroll containers", ()
   assert.match(stylesIndex, /html,\s*body,\s*#root\s*{[^}]*height: 100%;[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-sidebar\s*{[^}]*height: 100vh;[^}]*height: var\(--civitas-viewport-height\);[^}]*overflow: hidden;/s);
-  assert.match(layoutCss, /\.civitas-sidebar \.civitas-nav-row\s*{[^}]*min-height: 0;[^}]*overflow-y: auto;/s);
+  assert.match(layoutCss, /\.civitas-sidebar \.civitas-nav-row,\s*\.civitas-workspace-shell \.civitas-nav-row\s*{[^}]*min-height: 0;[^}]*overflow-y: auto;/s);
   assert.match(layoutCss, /@media \(max-width: 768px\) \{[\s\S]*?\.civitas-sidebar\s*\{[\s\S]*?height: var\(--civitas-nav-mobile-max-height\);[\s\S]*?overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-shell-content\s*{[^}]*overflow: hidden;/s);
   assert.match(layoutCss, /\.civitas-main\s*{[^}]*overflow-y: auto;[^}]*scrollbar-width: thin;/s);

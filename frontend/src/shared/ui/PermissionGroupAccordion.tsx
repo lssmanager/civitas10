@@ -35,17 +35,18 @@ export const PermissionGroupAccordion = ({
     <section className="civitas-card civitas-card-flush" data-civitas-primitive="permission-group-accordion">
       <div className="civitas-card-header">
         <button type="button" className="civitas-button" aria-expanded={expanded} aria-controls={panelId} onClick={() => onExpandedChange(!expanded)}>
-          <span>{domain}</span><StatusPill status={mixed ? "warning" : checked ? "success" : "neutral"} noDot>{enabledCount}/{rows.length}</StatusPill>
+          <span>{domain}</span>
+          <span aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
         </button>
-        <label className="civitas-form-field-label">
-          <input type="checkbox" checked={checked} ref={(node) => { if (node) node.indeterminate = mixed; }} disabled={disabled} onChange={(event) => onToggleGroup(event.target.checked)} />
-          Toggle group
+        <label className="inline-flex items-center gap-2 text-xs font-semibold text-muted-strong" title={`Select all ${domain} permissions`}>
+          <input type="checkbox" aria-label={`Select all ${domain} permissions`} checked={checked} ref={(node) => { if (node) node.indeterminate = mixed; }} disabled={disabled} onChange={(event) => onToggleGroup(event.target.checked)} />
+          <StatusPill status={mixed ? "warning" : checked ? "success" : "neutral"} noDot>{enabledCount}/{rows.length}</StatusPill>
         </label>
       </div>
       {expanded ? <div id={panelId} className="civitas-list-stack">
         {rows.map((row) => <label key={row.permissionId} className="civitas-list-row">
           <input type="checkbox" checked={row.checked} disabled={disabled || row.disabled || row.loading} onChange={(event) => onTogglePermission(row.permissionId, event.target.checked)} />
-          <span className="min-w-0 flex-1"><span className="block truncate">{row.label}</span><span className="block text-xs text-muted">{row.permissionId}{row.reason ? ` · ${row.reason}` : ""}</span></span>
+          <span className="min-w-0 flex-1"><span className="block truncate" title={row.permissionId}>{row.label}</span>{row.reason ? <span className="block text-xs text-muted" title={`${row.permissionId} · ${row.reason}`}>{row.reason}</span> : null}</span>
         </label>)}
       </div> : null}
     </section>
