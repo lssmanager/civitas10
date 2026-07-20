@@ -339,6 +339,59 @@ Durante Phase 2 `NavCollapse` no expone rail contraído desktop, tooltips de rai
 - `ConfirmDialog` futuro: si usa una capa flotante no modal o panel auxiliar, debe consumir `--civitas-popover-*`; si usa scrim, el scrim consume `--civitas-overlay-backdrop`, no el panel.
 - `Tooltip` futuro: debe consumir `--civitas-tooltip-*` y `--civitas-z-tooltip`.
 
+### 4.4 Addendum — jerarquía de texto, estado semántico y disclosure
+
+Este addendum extiende la foundation visual para pantallas densas en datos y estado, especialmente las vistas del sidebar de gobernanza. Role permissions confirmó tres huecos que no deben resolverse pantalla por pantalla:
+
+- un string técnico (`lms.course_offerings.read`) y un label humano (`lms · course_offerings · read`) no pueden competir con el mismo peso visual;
+- cada pantalla no debe inventar badges o paletas ad-hoc para estados como `planned`, `not_configured` o `role_permission_missing`;
+- todo chevron visible debe representar un disclosure funcional, no decoración.
+
+#### Jerarquía de texto
+
+| Token | Uso | Ejemplo |
+|---|---|---|
+| `text-primary` | Label legible que el usuario usa para tomar una decisión | `lms · course_offerings · read`, `Director de Primaria` |
+| `text-secondary` | Contexto visible de apoyo, sin protagonismo | subtítulos de pantalla, descripciones de una línea |
+| `text-technical` | Identificadores técnicos, IDs, strings dotted y nombres canónicos | `lms.course_offerings.read`, `43dbzvydh55qsbdkntsvn`, `organization_payroll` |
+
+Regla de uso: `text-technical` nunca se muestra en la vista default con el mismo tamaño, peso o jerarquía que `text-primary`. Debe vivir en `title`/tooltip al hover, un ícono de información expandible o una vista de detalle técnico abierta explícitamente por el usuario. No se coloca inline por default en la vista principal.
+
+#### Estado semántico unificado
+
+| Estado | Color | Forma por default | Cuándo usar |
+|---|---|---|---|
+| `status-ok` | verde | `status-dot` sin texto | Todo conforme, sin acción pendiente |
+| `status-warn` | ámbar | `status-dot`; pill textual solo si el label agrega información, como `planned` | Requiere atención pero no bloquea |
+| `status-missing` | gris/ámbar tenue | pill textual con label humano, nunca código snake_case crudo | Algo no está concedido o configurado; reemplaza códigos como `role_permission_missing` y `not_configured` |
+| `status-blocked` | rojo | pill textual | Bloqueador real que requiere acción |
+| `status-planned` | ámbar/violeta | pill textual `planned` | Feature o sección todavía no disponible |
+
+Reglas de uso:
+
+- En navegación, sidebar y nav-items: usar solo `status-dot`; no reintroducir pills textuales repetidas por cada item.
+- En contenido principal, cards y filas de tabla: se permiten pills textuales, pero el label siempre debe estar en lenguaje humano. Ejemplo: `role_permission_missing` se presenta como `Sin conceder a este rol` o equivalente de producto.
+- Un mismo estado conserva el mismo significado cromático en todas las pantallas. Si `Access explorer` usa verde para una decisión efectiva `ALLOW`, `Audit log` no puede usar ese mismo verde para una semántica distinta.
+
+#### Disclosure: acordeón y colapsables
+
+| Token | Uso |
+|---|---|
+| `disclosure-chevron-collapsed` | Chevron en rotación base `0°` |
+| `disclosure-chevron-expanded` | Chevron rotado según una única convención del producto: `90°` o `180°`, definida una vez y aplicada en todos los disclosure |
+| `disclosure-surface-collapsed` | `surface`, elevación base |
+| `disclosure-surface-expanded` | `surface-raised`, una elevación por encima para diferenciar visualmente el grupo abierto |
+
+Regla de uso: todo elemento con chevron visual debe tener el toggle funcional acoplado al estado expandido/colapsado. Nunca se permite un chevron puramente decorativo. El default de expansión se decide por volumen real de items, no por token fijo: pocas secciones pueden iniciar abiertas; listas largas deben iniciar colapsadas para evitar scroll infinito.
+
+#### Regla transversal de resumen condicional
+
+Ningún bloque de resumen, diff o detalle técnico se renderiza si no hay contenido real que resumir. Si el contador asociado (`pending`, `blockers`, `results`) es `0`, el bloque completo no se monta: no se muestra vacío, con placeholder ni con dumps de metadata.
+
+#### Aplicación en gobernanza
+
+Este addendum aplica a todas las pantallas del sidebar de gobernanza: Role permissions, Role names, Scope assignments, Structure and classification, Groups and courses, People segmentation, Access explorer, Audit log, Overview y Operations. Al auditar cada pantalla restante, se debe usar esta jerarquía y estos estados antes de definir badges, disclosure o niveles de texto nuevos. Si una pantalla necesita un estado que no existe en la tabla semántica, primero se agrega aquí como token; no se introduce como badge suelto en el componente.
+
 ## 5. Component Library Actual
 
 Los exports actuales de `frontend/src/shared/ui/index.ts` son:
