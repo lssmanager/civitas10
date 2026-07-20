@@ -109,6 +109,26 @@ test("governance modules are feature-owned and responsive-neutral", () => {
 });
 
 
+test("scope assignments screen is role-path bound and backend-contract driven", () => {
+  assert.match(dataScope, /RoleSelector/);
+  assert.match(dataScope, /FilterBar/);
+  assert.match(dataScope, /DataTable/);
+  assert.match(dataScope, /DecisionState/);
+  assert.match(dataScope, /membershipId/);
+  assert.match(dataScope, /canonicalRoleId/);
+  assert.match(dataScope, /scopeTemplateId/);
+  assert.match(dataScope, /writeUrlState/);
+  assert.match(dataScope, /beforeunload/);
+  assert.match(dataScope, /Missing scope fails closed/);
+  assert.match(dataScope, /Cross-tenant, stale and template-incompatible targets must be rejected by the backend/);
+  assert.match(dataScope, /disabled title="Data-scope assignment mutation endpoint unavailable"/);
+  assert.doesNotMatch(dataScope, /ownerAllowed|tenantEnabled|role ===|roles\.includes|evaluate|allow\(|fetch\(/);
+  assert.match(contracts, /membershipId\?/);
+  assert.match(contracts, /canonicalRoleId\?/);
+  assert.match(contracts, /scopeTemplateId\?/);
+  assert.match(page, /<DataScopeModule assignments=\{model\.dataScopes\} roles=\{model\.roles \|\| \[\]\}/);
+});
+
 test("role names screen is aliases-only and never a navigation or authorization editor", () => {
   assert.match(roleNames, /Role names/);
   assert.match(roleNames, /FilterBar/);

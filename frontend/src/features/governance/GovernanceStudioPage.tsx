@@ -104,7 +104,7 @@ const GovernanceModules = ({ activeItemId, model, previewOwnerAccess, previewTen
   if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
   if (activeModule === "taxonomy") return <><TaxonomyModule items={model.taxonomy} /><UnitsModule units={model.units} /></>;
   if (activeModule === "units") return <UnitsModule units={model.units} />;
-  if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;
+  if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} roles={model.roles || []} />;
   if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} surface={model.surface} />;
   if (activeModule === "access-preview") {
     if (!isGovernanceOperationActive(model.surface, "governance.accessPreview")) return <AccessPreviewUnavailable />;
