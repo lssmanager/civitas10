@@ -1,0 +1,86 @@
+{
+  "preferredCorrelation": "connectionId + upstream issuer/provider identity + immutable upstream subject",
+  "blocker": "If Logto does not expose this tuple, #154 mapping engine is blocked pending upstream directory fallback.",
+  "rows": [
+    {
+      "identifier": "Logto user ID",
+      "classification": "canonical_identity",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "Logto organization ID",
+      "classification": "canonical_identity",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "upstream issuer",
+      "classification": "stable_external_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "upstream subject",
+      "classification": "stable_external_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "connector ID",
+      "classification": "stable_external_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "SSO identity ID",
+      "classification": "stable_external_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "external tenant ID",
+      "classification": "organization_scoped_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": false,
+      "notes": "Requires remote evidence."
+    },
+    {
+      "identifier": "email",
+      "classification": "mutable_attribute",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": false,
+      "notes": "Do not use unverified/mutable email as primary correlation."
+    },
+    {
+      "identifier": "username",
+      "classification": "mutable_attribute",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": false,
+      "notes": "Do not use mutable username as primary correlation."
+    },
+    {
+      "identifier": "provider profile ID",
+      "classification": "stable_external_correlation",
+      "observable": null,
+      "evidence": "verification_required",
+      "safeAsPrimary": true,
+      "notes": "Requires remote evidence."
+    }
+  ]
+}

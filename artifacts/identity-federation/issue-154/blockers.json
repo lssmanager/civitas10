@@ -1,0 +1,70 @@
+{
+  "discovery_status": "incomplete_remote_verification",
+  "blockers": [
+    {
+      "owner": "#154",
+      "blocker": "remote Logto version/edition not observed",
+      "status": "verification_required"
+    },
+    {
+      "owner": "#154",
+      "blocker": "Management API SSO/JIT endpoint response shapes not observed",
+      "status": "verification_required"
+    },
+    {
+      "owner": "#154",
+      "blocker": "Custom Token Script context not verified for upstream claims/groups",
+      "status": "verification_required"
+    },
+    {
+      "owner": "#154",
+      "blocker": "stable correlation tuple not confirmed from Logto objects",
+      "status": "verification_required"
+    },
+    {
+      "owner": "#161",
+      "blocker": "do not invent identity.* permissions; future permissions must be canonical and planned until complete evidence",
+      "status": "unsafe_to_assume"
+    },
+    {
+      "owner": "#162",
+      "blocker": "Admin-org/Student-org/external groups cannot be canonical role model",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#163",
+      "blocker": "external attributes/groups cannot become Data Scope directly",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#164",
+      "blocker": "future mapping engine cannot authorize by itself",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#165",
+      "blocker": "no Logto materialization except active-only governed outputs; discovery executes no apply",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#166",
+      "blocker": "CI must detect direct group-to-role mapping, planned materialization, partial-claims removal, and discovery writes",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#155",
+      "blocker": "SCIM desired state authority and provenance not implemented",
+      "status": "verification_required"
+    },
+    {
+      "owner": "#156",
+      "blocker": "identity observed != membership active != seat allocated != role materialized != authorization allowed",
+      "status": "confirmed"
+    },
+    {
+      "owner": "#180",
+      "blocker": "directory fetch/reconciliation/materialization/deprovision/credential rotation need operation resources/outbox-inbox design",
+      "status": "verification_required"
+    }
+  ]
+}

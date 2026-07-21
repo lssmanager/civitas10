@@ -1,0 +1,69 @@
+{
+  "normalizedConcept": "type ExternalGroupEvidence = { groupIds: readonly string[]; claimsComplete: boolean; incompletenessReason: 'none' | 'overage' | 'pagination_required' | 'provider_omitted' | 'scope_missing' | 'not_observable' | 'unknown'; observedAt: string; source: string; sourceVersion: string; }",
+  "rule": "claimsComplete != true -> destructive reconciliation prohibited",
+  "prohibitedWhenIncomplete": [
+    "remove roles",
+    "remove memberships",
+    "release Data Scope",
+    "disable access because groups are absent",
+    "treat partial list as desired state"
+  ],
+  "signals": [
+    " _claim_names",
+    "_claim_sources",
+    "hasgroups",
+    "groups overage",
+    "groups omitted",
+    "distributed claims",
+    "pagination",
+    "transitive groups unavailable",
+    "provider-specific incompleteness"
+  ],
+  "rows": [
+    {
+      "provider": "Microsoft Entra",
+      "groupsObservable": null,
+      "complete": null,
+      "overageSignals": "verification_required",
+      "pagination": "verification_required",
+      "transitiveGroups": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "provider": "Google Workspace",
+      "groupsObservable": null,
+      "complete": null,
+      "overageSignals": "verification_required",
+      "pagination": "verification_required",
+      "transitiveGroups": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "provider": "Okta",
+      "groupsObservable": null,
+      "complete": null,
+      "overageSignals": "verification_required",
+      "pagination": "verification_required",
+      "transitiveGroups": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "provider": "generic OIDC/SAML",
+      "groupsObservable": null,
+      "complete": null,
+      "overageSignals": "verification_required",
+      "pagination": "verification_required",
+      "transitiveGroups": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "provider": "SCIM",
+      "groupsObservable": null,
+      "complete": null,
+      "overageSignals": "verification_required",
+      "pagination": "verification_required",
+      "transitiveGroups": "verification_required",
+      "decision": "verification_required"
+    }
+  ]
+}
