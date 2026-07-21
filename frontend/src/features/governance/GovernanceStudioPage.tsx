@@ -176,10 +176,12 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
       <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={displayName} breadcrumb={<><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></>} status={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} actions={<Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link>} description="Operational governance workspace for access policy, organization model, control and evidence. The overview and operations share this persistent organization shell." />
       {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={selectOrganizationPath}>Open organization surface</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
-      <section className="min-w-0" aria-labelledby="workspace-section-title">
-        <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
-        <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} />
-      </section>
+      {!loading && !error ? (
+        <section className="min-w-0" aria-labelledby="workspace-section-title">
+          <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
+          <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} />
+        </section>
+      ) : null}
       <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={organizationSurfacePath}>Open organization surface</Link>. Visibility is resolved by the screen/action registry and backend decisions; this workspace never evaluates roles or JWT claims in the presentation layer.</p>
     </Layout>
   );
