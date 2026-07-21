@@ -2,7 +2,7 @@ import type { ActionId, PermissionKey, ScreenId } from "../../authorization/cont
 import type { VisualDecisionReason } from "../../authorization/contracts/visual-decision";
 
 export type GovernanceSurface = "owner" | "tenant";
-export type GovernanceModuleKey = "overview" | "permissions" | "members" | "taxonomy" | "units" | "data-scope" | "aliases-navigation" | "access-preview" | "audit";
+export type GovernanceModuleKey = "overview" | "permissions" | "members" | "taxonomy" | "units" | "lms-groups" | "data-scope" | "aliases-navigation" | "access-preview" | "audit";
 
 export const GOVERNANCE_READ_MODEL_CONTRACT_VERSION = "2026-07-civitas10-governance-read-model-v1" as const;
 export const GOVERNANCE_OPERATION_REGISTRY_VERSION = "2026-07-civitas10-governance-operations-v1" as const;
@@ -49,6 +49,8 @@ export type GovernancePermissionMatrixRow = {
   roleId?: string;
   roleKey?: string;
   permission: PermissionKey;
+  displayName?: string;
+  description?: string;
   canonical: boolean;
   rolePotential: boolean | null;
   ownerAllowed: boolean | null;
@@ -58,9 +60,10 @@ export type GovernancePermissionMatrixRow = {
 };
 
 export type GovernanceTaxonomyItem = { id: string; dimension: string; stableKey?: string; label: string; parentId?: string; status: "draft" | "active" | "deprecating" | "archived"; assignable: boolean; sourceVersion?: string };
-export type GovernanceUnitItem = { id: string; label: string; stableKey?: string; unitType?: string; hierarchyKey?: string; parentId?: string; status: "draft" | "active" | "archived"; memberCount?: number; relationshipCount?: number; capabilityGroupCount?: number; reconciliationStatus?: string; sourceVersion?: string };
-export type GovernanceDataScopeAssignment = { id?: string; principalId: string; roleId?: string | null; capability: string; action?: string; scopeType?: string; taxonomyIds: string[]; unitIds: string[]; resourceSummary: string; effective: boolean; source?: string; reason: string; unresolvedReason?: string | null; sourceVersion?: string };
-export type GovernanceAliasNavigationPolicy = { aliasesTenantEditable: boolean; navigationTenantEditable: boolean; aliases?: Array<{ roleId: string; canonicalKey: string; displayName: string; editableBy?: "owner" | "tenant" }>; visualPreferences: Array<{ screenId: ScreenId; canonicalLabel?: string; routeId?: string; hidden?: boolean; order?: number; locked: boolean; hideable?: boolean; authorizationEffect?: "presentation_only" }> ; version?: string; updatedAt?: string };
+export type GovernanceManagementLevel = "organization" | "strategic" | "tactical" | "coordination" | "operational" | "administrative";
+export type GovernanceUnitItem = { id: string; label: string; stableKey?: string; unitType?: string; managementLevel?: GovernanceManagementLevel; levelOrder?: number; hierarchyKey?: string; validation?: { state: "valid" | "invalid" | "reconciliation_required"; reasons: string[] }; parentId?: string; status: "draft" | "active" | "archived"; memberCount?: number; relationshipCount?: number; capabilityGroupCount?: number; reconciliationStatus?: string; sourceVersion?: string };
+export type GovernanceDataScopeAssignment = { id?: string; principalId: string; membershipId?: string | null; roleId?: string | null; canonicalRoleId?: string | null; scopeTemplateId?: string; scopeTemplateVersion?: string; strategy?: string; targetKind?: "dimension" | "unit" | "resource" | "relationship"; dimensionValueId?: string | null; unitId?: string | null; relationshipKey?: string | null; capability: string; action?: string; scopeType?: string; taxonomyIds: string[]; unitIds: string[]; resourceSummary: string; effective: boolean; source?: string; reason: string; unresolvedReason?: string | null; sourceVersion?: string; changedBy?: string; changedAt?: string };
+export type GovernanceAliasNavigationPolicy = { aliasesTenantEditable: boolean; navigationTenantEditable: boolean; aliases?: Array<{ roleId: string; canonicalKey: string; displayName: string; editableBy?: "owner" | "tenant"; defaultLabel?: string; description?: string; status?: "active" | "deprecated" | "planned"; updatedAt?: string; lastChangedAt?: string }>; visualPreferences: Array<{ screenId: ScreenId; canonicalLabel?: string; routeId?: string; hidden?: boolean; order?: number; locked: boolean; hideable?: boolean; authorizationEffect?: "presentation_only" }> ; version?: string; updatedAt?: string };
 export type GovernanceAccessPreview = { contractVersion?: string; generatedAt?: string; organizationId?: string; surface?: GovernanceSurface; subjectId: string; actionId?: ActionId; screenId?: ScreenId; decision: { allowed: boolean; reason: VisualDecisionReason | PermissionMatrixReasonCode | string; sourceVersions: PermissionMatrixReason["sourceVersions"] & { visualVersion?: string; readModelVersion?: string } }; provenance?: unknown; diagnostics?: unknown; mutated?: false };
 export type GovernanceAuditEvent = { id: string; actorId: string; organizationId: string; target: string; targetType?: string; targetId?: string | null; action: string; before?: unknown; after?: unknown; result?: string; reason: string; contractVersion: string; createdAt: string };
 
@@ -118,7 +121,14 @@ export const validateGovernanceReadModel = (value: unknown): GovernanceContractV
   }
   if (value.roles !== undefined && !Array.isArray(value.roles)) return fail("$.roles", version, "roles must be an array");
   if (value.members !== undefined && !Array.isArray(value.members)) return fail("$.members", version, "members must be an array");
-  for (const key of ["permissionMatrix", "taxonomy", "units", "dataScopes", "accessPreviews", "auditEvents", "diagnostics"] as const) if (!Array.isArray(value[key])) return fail(`$.${key}`, version, `${key} must be an array`);
+  const permissionMatrix = value.permissionMatrix;
+  if (!Array.isArray(permissionMatrix)) return fail("$.permissionMatrix", version, "permissionMatrix must be an array");
+  for (const [index, row] of permissionMatrix.entries()) {
+    if (!isRecord(row)) return fail(`$.permissionMatrix[${index}]`, version, "permission matrix row must be an object");
+    if (row.displayName !== undefined && typeof row.displayName !== "string") return fail(`$.permissionMatrix[${index}].displayName`, version, "displayName must be a string");
+    if (row.description !== undefined && typeof row.description !== "string") return fail(`$.permissionMatrix[${index}].description`, version, "description must be a string");
+  }
+  for (const key of ["taxonomy", "units", "dataScopes", "accessPreviews", "auditEvents", "diagnostics"] as const) if (!Array.isArray(value[key])) return fail(`$.${key}`, version, `${key} must be an array`);
   if (!isRecord(value.aliasesNavigation)) return fail("$.aliasesNavigation", version, "aliasesNavigation must be an object");
   return { ok: true, value: value as GovernanceReadModel };
 };

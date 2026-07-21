@@ -18,6 +18,6 @@ test("OwnerOrganizationOperationalPage keeps polling when the contract asks for 
 test("OwnerOrganizationOperationalPage renders the owner capability surface returned by the backend", () => {
   assert.match(source, /CapabilityCard/);
   assert.match(source, /viewState\.organization\.capabilities\.map/);
-  assert.match(source, /Owner capability surface returned by the backend contract/);
+  assert.match(source, /Owner capability surface returned by the backend/);
   assert.match(source, /BlockCard title="Worker"/);
 });

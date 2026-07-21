@@ -14,3 +14,14 @@ export { FormGrid } from "./FormGrid";
 export { NavCollapse, type NavCollapseItem } from "./NavCollapse";
 export { Tabs, type TabItem } from "./Tabs";
 export { SectionNavigation, type SectionNavigationItem } from "./SectionNavigation";
+
+export { WorkspaceShell, type WorkspaceNavigationGroup, type WorkspaceNavigationItem } from "./WorkspaceShell";
+export { OrganizationContextHeader } from "./OrganizationContextHeader";
+export { GovernanceSectionNav, type GovernanceSectionNavGroup } from "./GovernanceSectionNav";
+export { RoleSelector, type RoleSelectorOption } from "./RoleSelector";
+export { PermissionGroupAccordion, type PermissionToggleRow } from "./PermissionGroupAccordion";
+export { FilterBar } from "./FilterBar";
+export { SplitView } from "./SplitView";
+export { MetricStrip, type MetricStripItem } from "./MetricStrip";
+export { DecisionState, type DecisionStateKind } from "./DecisionState";
+export { EntityWorkspace, SettingsWorkbench, MasterDetail, GroupedToggleList, HierarchyWorkbench, FilterToolbar, FormDrawer, ResponsiveDataView } from "./patterns";

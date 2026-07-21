@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { Icon } from "@tabler/icons-react";
 import { IconChevronRight } from "@tabler/icons-react";
+import { StatusPill, type StatusPillStatus } from "./StatusPill";
 
 const NAV_TREE_STORAGE_KEY = "civitas:nav-tree-expanded";
 
@@ -12,6 +13,8 @@ export type NavCollapseItem = {
   match?: (pathname: string) => boolean;
   level?: number;
   children?: NavCollapseItem[];
+  status?: string;
+  statusTone?: StatusPillStatus;
 };
 
 const itemKey = (item: NavCollapseItem) => `${item.label}-${item.path || "group"}`;
@@ -60,10 +63,12 @@ export const NavCollapse = ({ items, label }: { items: NavCollapseItem[]; label:
   const renderLink = (item: NavCollapseItem, depth = 0) => {
     const active = itemCanBeSelfActive(item, location.pathname);
     const Icon = item.icon;
+    const informativeStatus = item.status && ["planned", "not_configured", "stopped"].includes(item.status.toLowerCase());
     return (
       <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-has-children="false">
-        {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
+        {Icon ? <Icon className="civitas-nav-link-icon" aria-hidden="true" /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
+        {item.status ? informativeStatus ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : <><span className="civitas-status-dot" data-status={item.statusTone || "neutral"} aria-hidden="true" /><span className="sr-only">{item.status}</span></> : null}
       </Link>
     );
   };
@@ -79,7 +84,7 @@ export const NavCollapse = ({ items, label }: { items: NavCollapseItem[]; label:
     return (
       <div key={key} className="civitas-nav-tree-group" data-civitas-nav-expanded={expanded} data-depth={depth}>
         <button type="button" className={`civitas-nav-link civitas-nav-tree-parent ${selfActive ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={selfActive} data-branch-active={branchActive} data-expanded={expanded} data-has-children="true" aria-expanded={expanded} onClick={() => toggleExpanded(key)}>
-          {Icon ? <Icon className="civitas-nav-link-icon" /> : null}
+          {Icon ? <Icon className="civitas-nav-link-icon" aria-hidden="true" /> : null}
           <span className="civitas-nav-link-label">{item.label}</span>
           <span className="civitas-nav-tree-caret" aria-hidden="true"><IconChevronRight className="civitas-nav-tree-caret-icon" /></span>
         </button>

@@ -72,7 +72,7 @@ La ingeniería de Phase 2 debe partir del código real ya fusionado, especialmen
 |---|---|---|
 | API resource | `https://civitas.didaxus.com/api` en [`civitas-shared.contract.cjs`](https://github.com/lssmanager/civitas10/blob/main/core/shared/civitas-shared.contract.cjs) | Conservar como resource indicator canónico. |
 | JWT | [`backend/middleware/auth.js`](https://github.com/lssmanager/civitas10/blob/main/backend/middleware/auth.js) usa `jose`, JWKS remoto, issuer y audience | Reutilizar; endurecer contrato y separar global/organization. |
-| Tenant isolation | El middleware compara `req.params.organizationId` con el contexto verificado | Conservar como invariant obligatorio en todas las rutas `/o/:organizationId/*`. |
+| Tenant isolation | El middleware compara `req.params.organization_id` con el contexto verificado | Conservar como invariant obligatorio en todas las rutas `/o/:organization_id/*`. |
 | PostgreSQL/Drizzle | `drizzle-orm`, `drizzle-kit`, `pg`; schema en [`backend/db/schema/index.js`](https://github.com/lssmanager/civitas10/blob/main/backend/db/schema/index.js) | Extender con módulos de schema; no seguir ampliando indefinidamente un solo archivo. |
 | Auditoría | Tabla `audit_logs` | Reutilizar y ampliar metadata/versiones; no crear un log paralelo. |
 | Operaciones | `operational_operations`, steps e idempotency records | Reutilizar para cambios asíncronos y reconciliación. |
@@ -86,7 +86,7 @@ La ingeniería de Phase 2 debe partir del código real ya fusionado, especialmen
 |---|---|---|
 | `ROLE_PERMISSIONS` local en `backend/authorization/roles.js` | Dos fuentes de verdad; wildcard `owner_global: ['*']` | Retirar mediante #75 después del bootstrap y token contract. |
 | `requirePermission.js` consulta roles locales | Una asignación de Logto puede no coincidir con el mapa local | Sustituir por scope verificado + policy/effective-context. |
-| Scopes legacy `owner:read`, `owner:write`, `organization:read`, etc. | Nombres ambiguos y fuera de #74/#93 | Migrar con compatibilidad instrumentada; no corte ciego. |
+| Scopes legacy `owner-colon-read`, `owner-colon-write`, `organization-colon-read`, etc. | Nombres ambiguos y fuera de #74/#93 | Migrar con compatibilidad instrumentada; no corte ciego. |
 | `rbacMatrix.ts` y `ownerScopes.ts` | Frontend basado en roles/scopes legacy y rutas fijas | Eliminar y sustituir por action registry + authorization context. |
 | `routes.ts` y `AppShell.tsx` estáticos | Duplicación y navegación construida por área/rol | Registry modular; rutas estables y navegación filtrada. |
 | Schema Drizzle monolítico | Archivo interminable y alta colisión de cambios | Separar por bounded context y agregar barrel de exportación. |
@@ -124,8 +124,8 @@ La documentación de [Authorization de Logto](https://docs.logto.io/authorizatio
 
 Logto distingue tres escenarios: recursos globales, permisos organizacionales no API y recursos API con contexto organizacional. Civitas utiliza dos superficies:
 
-- `/owner/*`: token global con permisos `owner.*` y sin `organization_id`;
-- `/o/:organizationId/*`: organization-level API token con scopes de negocio y `organization_id`.
+- `/owner/*`: token global con permisos `owner dot wildcard` y sin `organization_id`;
+- `/o/:organization_id/*`: organization-level API token con scopes de negocio y `organization_id`.
 
 **Consecuencia:** un path `/owner/...` no vuelve global un token organizacional, y un rol `owner_global` no debe usarse como sustituto de audience/scope.
 
@@ -254,11 +254,11 @@ Por tanto:
 
 ### 4.1 Invariantes no negociables
 
-1. Roles tenant conservan prefijo `organization_*`; permisos tenant usan `org.*` cuando pertenecen al core organizacional.
-2. `organization.*` está deprecated; no se mezcla con `org.*`.
-3. No se persisten wildcards como `lms.*` o `org.members.*`.
-4. `owner_global` recibe solo permisos globales `owner.*`.
-5. Roles organizacionales nunca reciben `owner.*`.
+1. Roles tenant conservan prefijo `organization_*`; permisos tenant usan `org dot wildcard` cuando pertenecen al core organizacional.
+2. `organization dot wildcard` está deprecated; no se mezcla con `org dot wildcard`.
+3. No se persisten wildcards como `lms dot wildcard` o `org.members dot wildcard`.
+4. `owner_global` recibe solo permisos globales `owner dot wildcard`.
+5. Roles organizacionales nunca reciben `owner dot wildcard`.
 6. Un grupo no concede permisos.
 7. Un rol no implica automáticamente data scope.
 8. Un data scope no crea un rol.
@@ -294,9 +294,9 @@ Ejemplos inválidos:
 
 ```text
 read                         # sin dominio/recurso
-owner:write                  # legacy ambiguo
+owner-colon-write                  # legacy ambiguo
 org.impersonate              # operación sin recurso/acción clara
-lms.*                        # wildcard
+lms dot wildcard                        # wildcard
 lms.math.grades.manage       # taxonomía mezclada con permiso
 organization_math_teacher    # taxonomía mezclada con rol
 ```
@@ -445,7 +445,7 @@ El API devuelve 401 para token ausente/inválido/expirado; 403 para identidad v�
 | Token | Uso | Claims/validaciones mínimas |
 |---|---|---|
 | User global API token | `/owner/*` | firma, `iss`, `aud`, `exp`, `sub`, `scope`; ausencia de `organization_id` |
-| User organization API token | `/o/:organizationId/*` | firma, `iss`, `aud`, `exp`, `sub`, `scope`, `organization_id`; match con path |
+| User organization API token | `/o/:organization_id/*` | firma, `iss`, `aud`, `exp`, `sub`, `scope`, `organization_id`; match con path |
 | M2M Management token | bootstrap/drift y mutaciones Logto autorizadas | client credentials, audience Management API, mínimos scopes |
 | M2M organization token | automatización sobre una org cuando aplique | `resource`, `organization_id`, exact scopes; nunca privilegio global implícito |
 | Internal worker identity | ejecutar jobs Civitas | identidad de servicio interna; no reutiliza bearer token del usuario |
@@ -871,7 +871,7 @@ La documentación oficial de [BullMQ Workers](https://docs.bullmq.io/guide/worke
 type AuthorizationJobPayload = {
   operationId: string;
   eventId: string;
-  organizationId?: string;
+  organization_id?: string;
   actor: {
     subjectId: string;
     actorType: 'user' | 'service';
@@ -938,7 +938,7 @@ type AuthorizationDecision = {
   decisionId: string;
   permission: string;
   actionId?: string;
-  organizationId?: string;
+  organization_id?: string;
   rolePath?: string;
   policyVersion: string;
   reasonCode?: string;
@@ -979,13 +979,13 @@ Registry por `lms`, `crm`, `support`, `scheduling`; nunca por Moodle/BuddyBoss/e
 ### 12.1 Authorization context
 
 ```http
-GET /o/:organizationId/me/authorization-context
+GET /o/:organization_id/me/authorization-context
 ```
 
 ```json
 {
   "subject": "logto-user-id",
-  "organizationId": "logto-org-id",
+  "organization_id": "logto-org-id",
   "tokenPermissions": ["lms.grades.read", "lms.grades.manage"],
   "effectivePermissions": ["lms.grades.read"],
   "effectiveActions": ["grades.view"],
@@ -1006,20 +1006,20 @@ No devuelve assignments completos ni permite que el navegador decida si un resou
 
 ```text
 GET   /owner/authorization/catalog
-GET   /owner/organizations/:organizationId/governance
-PATCH /owner/organizations/:organizationId/entitlement-limits
-POST  /owner/organizations/:organizationId/access-preview
+GET   /owner/organizations/:organization_id/governance
+PATCH /owner/organizations/:organization_id/entitlement-limits
+POST  /owner/organizations/:organization_id/access-preview
 ```
 
 ### 12.3 Tenant governance
 
 ```text
-GET   /o/:organizationId/governance
-PATCH /o/:organizationId/role-permission-activations
-GET   /o/:organizationId/members/:userId/authorization-scopes
-POST  /o/:organizationId/members/:userId/authorization-scopes
-DELETE /o/:organizationId/members/:userId/authorization-scopes/:assignmentId
-POST  /o/:organizationId/access-preview
+GET   /o/:organization_id/governance
+PATCH /o/:organization_id/role-permission-activations
+GET   /o/:organization_id/members/:userId/authorization-scopes
+POST  /o/:organization_id/members/:userId/authorization-scopes
+DELETE /o/:organization_id/members/:userId/authorization-scopes/:assignmentId
+POST  /o/:organization_id/access-preview
 ```
 
 Endpoints de taxonomy/units/navigation pertenecen a sus servicios, no a un mega-controller.
@@ -1054,7 +1054,7 @@ Crear:
 
 ```text
 GradesPage
-/o/:organizationId/lms/grades
+/o/:organization_id/lms/grades
 ```
 
 La diferencia está en datos y acciones autorizadas.
@@ -1136,14 +1136,14 @@ Responsive puede cambiar layout, densidad, ubicación del menú o mover botones 
 Owner:
 
 ```text
-/owner/organizations/:organizationId/governance
+/owner/organizations/:organization_id/governance
 Overview | Roles & ceilings | Taxonomy | Units | Data scope | Navigation | Preview | Audit
 ```
 
 Tenant:
 
 ```text
-/o/:organizationId/settings/governance
+/o/:organization_id/settings/governance
 Active permissions | Members & roles | Data assignments | Taxonomy | Units | Navigation | Preview
 ```
 
@@ -1161,7 +1161,7 @@ capability: lms
 resource: grades
 screens:
   - screenId: lms-grades
-    route: /o/:organizationId/lms/grades
+    route: /o/:organization_id/lms/grades
     enterAction: grades.view
     visibility: hideable
 actions:
@@ -1241,12 +1241,12 @@ No se crea `lms.grades.primary.manage` ni `lms.grades.math.manage`.
 ### 15.4 Backend
 
 ```text
-GET /o/:organizationId/lms/grades
+GET /o/:organization_id/lms/grades
 → require action grades.view
 → apply list data scope
 → return only authorized rows
 
-PATCH /o/:organizationId/lms/grades/:gradeId
+PATCH /o/:organization_id/lms/grades/:gradeId
 → require action grades.update
 → load resource tenant-scoped
 → assert resource data scope
@@ -1261,7 +1261,7 @@ Un `gradeId` enviado por el frontend nunca sustituye la validación de tenant/se
 
 ### 16.1 Facturación y sillas
 
-`organization_director` puede ver toda la organización académica y aun así no recibir `billing.*`. “Ver toda la organización” es data scope, no permiso universal.
+`organization_director` puede ver toda la organización académica y aun así no recibir `billing dot wildcard`. “Ver toda la organización” es data scope, no permiso universal.
 
 Para cambio de sillas debe cerrarse un workflow inequívoco:
 
@@ -1274,7 +1274,7 @@ owner.seat_change_requests.approve
 owner.seat_change_requests.reject
 ```
 
-No activar `billing.seats.request_modify`. El workflow canónico pertenece a [#100](https://github.com/lssmanager/civitas10/issues/100) y utiliza request scopes tenant y approve/reject scopes `owner.*`. #92 no gobierna este proceso porque solo trata delegación de roles.
+No activar `billing.seats.request_modify`. El workflow canónico pertenece a [#100](https://github.com/lssmanager/civitas10/issues/100) y utiliza request scopes tenant y approve/reject scopes `owner dot wildcard`. #92 no gobierna este proceso porque solo trata delegación de roles.
 
 ### 16.2 Connectors
 
@@ -1310,7 +1310,7 @@ Cada cambio sensible registra:
 {
   "action": "authz.organization_role_permission_activation.updated",
   "actor": "logto-user-id",
-  "organizationId": "logto-org-id",
+  "organization_id": "logto-org-id",
   "targetType": "role_permission_activation",
   "targetId": "role-id:lms.grades.manage",
   "before": { "enabled": false },
@@ -1381,8 +1381,8 @@ Métricas mínimas:
 
 - permisos duplicados, desconocidos, orphan, planned asignados o deprecated sin replacement;
 - wildcards rechazados;
-- ningún `owner.*` en organization role;
-- ningún `org.*` en owner global;
+- ningún `owner dot wildcard` en organization role;
+- ningún `org dot wildcard` en owner global;
 - action/screen/menu IDs únicos;
 - todas las referencias apuntan a catálogo activo;
 - ausencia de `if role ===` como autorización funcional;

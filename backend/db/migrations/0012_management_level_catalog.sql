@@ -1,0 +1,87 @@
+-- ADR #140: frozen Owner-published management level catalog for organization_units.
+-- The organization level is a virtual root only; persisted units may only use levels 1..5.
+-- management_level is presentation metadata and structural validation only; it is not an authorization input.
+
+ALTER TABLE organization_units
+  ADD COLUMN IF NOT EXISTS management_level varchar(32) NOT NULL DEFAULT 'strategic';
+
+-- Backfill management_level using recursive CTE that traverses each hierarchy from root units.
+-- This ensures parent-child ordering satisfies the trigger immediately.
+WITH RECURSIVE hierarchy_depths AS (
+  -- Start with root units (no parent)
+  SELECT id, logto_organization_id, hierarchy_key, parent_unit_id, management_level, 1 AS depth
+    FROM organization_units
+   WHERE parent_unit_id IS NULL
+     AND status <> 'archived'
+  UNION ALL
+  -- Recursively add children
+  SELECT child.id, child.logto_organization_id, child.hierarchy_key, child.parent_unit_id, child.management_level, parent.depth + 1
+    FROM organization_units child
+    JOIN hierarchy_depths parent ON child.parent_unit_id = parent.id
+                                  AND child.logto_organization_id = parent.logto_organization_id
+                                  AND child.hierarchy_key = parent.hierarchy_key
+   WHERE child.status <> 'archived'
+),
+level_assignments AS (
+  SELECT id,
+         CASE depth
+           WHEN 1 THEN 'strategic'
+           WHEN 2 THEN 'tactical'
+           WHEN 3 THEN 'coordination'
+           WHEN 4 THEN 'operational'
+           ELSE 'administrative'
+         END AS computed_level
+    FROM hierarchy_depths
+)
+UPDATE organization_units ou
+   SET management_level = la.computed_level
+  FROM level_assignments la
+ WHERE ou.id = la.id
+   AND (ou.management_level IS NULL OR ou.management_level = 'organization');
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'organization_units_management_level_check') THEN
+    ALTER TABLE organization_units
+      ADD CONSTRAINT organization_units_management_level_check
+      CHECK (management_level IN ('strategic','tactical','coordination','operational','administrative'));
+  END IF;
+END $$;
+
+DROP INDEX IF EXISTS organization_units_one_root_management_level_uidx;
+
+CREATE OR REPLACE FUNCTION organization_units_management_level_order(level varchar) RETURNS integer
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE level
+    WHEN 'organization' THEN 0
+    WHEN 'strategic' THEN 1
+    WHEN 'tactical' THEN 2
+    WHEN 'coordination' THEN 3
+    WHEN 'operational' THEN 4
+    WHEN 'administrative' THEN 5
+  END
+$$;
+
+CREATE OR REPLACE FUNCTION organization_units_guard_parent() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE found_cycle boolean; parent_level varchar; parent_order integer;
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended(new.logto_organization_id || ':' || new.hierarchy_key, 0));
+  IF new.management_level = 'organization' THEN RAISE EXCEPTION 'management_level_root_reserved'; END IF;
+  IF new.parent_unit_id IS NULL THEN
+    IF organization_units_management_level_order(new.management_level) <= 0 THEN RAISE EXCEPTION 'management_level_order_invalid'; END IF;
+    RETURN new;
+  END IF;
+  SELECT p.management_level INTO parent_level FROM organization_units p WHERE p.id = new.parent_unit_id AND p.logto_organization_id = new.logto_organization_id AND p.hierarchy_key = new.hierarchy_key AND p.status <> 'archived';
+  IF parent_level IS NULL THEN RAISE EXCEPTION 'organization_unit_parent_invalid'; END IF;
+  parent_order := organization_units_management_level_order(parent_level);
+  IF organization_units_management_level_order(new.management_level) <= parent_order THEN RAISE EXCEPTION 'management_level_order_invalid'; END IF;
+  WITH RECURSIVE ancestors AS (
+    SELECT id, parent_unit_id, ARRAY[id] AS path FROM organization_units WHERE id = new.parent_unit_id AND logto_organization_id = new.logto_organization_id AND hierarchy_key = new.hierarchy_key
+    UNION ALL
+    SELECT p.id, p.parent_unit_id, a.path || p.id FROM organization_units p JOIN ancestors a ON p.id = a.parent_unit_id WHERE p.logto_organization_id = new.logto_organization_id AND p.hierarchy_key = new.hierarchy_key AND NOT p.id = ANY(a.path)
+  ) SELECT EXISTS(SELECT 1 FROM ancestors WHERE id = new.id LIMIT 1) INTO found_cycle;
+  IF found_cycle THEN RAISE EXCEPTION 'organization_unit_cycle_detected'; END IF;
+  RETURN new;
+END $$;
+DROP TRIGGER IF EXISTS organization_units_parent_guard_trigger ON organization_units;
+CREATE CONSTRAINT TRIGGER organization_units_parent_guard_trigger AFTER INSERT OR UPDATE OF parent_unit_id, logto_organization_id, hierarchy_key, management_level ON organization_units DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION organization_units_guard_parent();

@@ -1,40 +1,92 @@
-import { DataTable, EmptyState, SectionCard, StatusPill, type DataTableColumn } from "../../../../shared/ui";
-import type { GovernanceAliasNavigationPolicy } from "../../contracts";
+import { useMemo } from "react";
+import { EmptyState, SectionCard } from "../../../../shared/ui";
+import type { GovernanceAliasNavigationPolicy, GovernanceRoleSummary, GovernanceSurface } from "../../contracts";
 
-const ownerManagedCopy = "This organization can view these settings, but only an owner can change them.";
 type AliasRow = NonNullable<GovernanceAliasNavigationPolicy["aliases"]>[number];
-type PreferenceRow = GovernanceAliasNavigationPolicy["visualPreferences"][number];
 
-const aliasColumns: DataTableColumn<AliasRow>[] = [
-  { key: "canonical", header: "Canonical role", render: (alias) => <span className="font-medium text-text">{alias.canonicalKey}</span> },
-  { key: "display", header: "Display alias", render: (alias) => alias.displayName },
-  { key: "owner", header: "Edit owner", render: (alias) => <StatusPill status={alias.editableBy === "tenant" ? "success" : "neutral"}>{alias.editableBy === "tenant" ? "Tenant editable" : "Owner controlled"}</StatusPill> },
-];
+type RoleNameRow = {
+  roleId: string;
+  canonicalKey: string;
+  defaultLabel: string;
+  alias: string;
+  assignedMemberCount: number;
+  orphaned?: false;
+};
 
-const preferenceColumns: DataTableColumn<PreferenceRow>[] = [
-  { key: "screen", header: "Canonical screen", render: (preference) => <span className="font-medium text-text">{preference.canonicalLabel || preference.screenId}</span> },
-  { key: "id", header: "Screen ID", render: (preference) => <span className="text-xs text-muted">{preference.screenId}</span> },
-  { key: "state", header: "Preference", render: (preference) => <StatusPill status={preference.locked ? "neutral" : preference.hidden ? "warning" : "success"}>{preference.locked ? "Locked" : preference.hidden ? "Hidden" : `Order ${preference.order ?? "default"}`}</StatusPill> },
-  { key: "authority", header: "Authorization effect", render: (preference) => preference.authorizationEffect === "presentation_only" ? "Presentation only" : "No authorization change" },
-];
+const aliasValue = (row: RoleNameRow) => row.alias || row.defaultLabel || row.canonicalKey;
+const isOrganizationRole = (role: GovernanceRoleSummary) => role.canonicalKey !== "owner_global" && role.canonicalKey.startsWith("organization_");
 
-export const AliasesNavigationModule = ({ policy }: { policy: GovernanceAliasNavigationPolicy }) => (
-  <>
-    <div className="civitas-grid-2">
-      <SectionCard title="Aliases" description="Canonical roles stay stable; aliases only change organization-facing labels.">
-        <StatusPill status={policy.aliasesTenantEditable ? "success" : "neutral"}>{policy.aliasesTenantEditable ? "Organization editable" : "Owner managed"}</StatusPill>
-        {!policy.aliasesTenantEditable ? <p className="mt-3 text-sm text-muted-strong">{ownerManagedCopy}</p> : null}
+export const AliasesNavigationModule = ({ roles = [], policy, surface }: { roles?: readonly GovernanceRoleSummary[]; policy: GovernanceAliasNavigationPolicy; surface?: GovernanceSurface }) => {
+  const aliasesByRoleId = useMemo(() => new Map<string, AliasRow>((policy.aliases ?? []).map((alias) => [alias.roleId, alias])), [policy.aliases]);
+  const organizationRoles = useMemo(() => roles.filter(isOrganizationRole), [roles]);
+  const rows = useMemo<RoleNameRow[]>(() => organizationRoles.map((role) => {
+    const alias = aliasesByRoleId.get(role.id);
+    return {
+      roleId: role.id,
+      canonicalKey: role.canonicalKey,
+      defaultLabel: role.displayName,
+      alias: alias?.displayName ?? role.displayName,
+      assignedMemberCount: role.assignedMemberCount,
+    };
+  }), [aliasesByRoleId, organizationRoles]);
+  const orphanAliases = useMemo(() => (policy.aliases ?? []).filter((alias) => !organizationRoles.some((role) => role.id === alias.roleId)), [organizationRoles, policy.aliases]);
+  const duplicateCanonicalKeys = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const role of organizationRoles) counts.set(role.canonicalKey, (counts.get(role.canonicalKey) ?? 0) + 1);
+    return [...counts.entries()].filter(([, count]) => count > 1).map(([key]) => key);
+  }, [organizationRoles]);
+  const stale = surface && policy.version && policy.version !== "current";
+
+  if (!rows.length) {
+    return (
+      <SectionCard title="Role names" description="Alias visuales para roles organizacionales canónicos de Logto (ID inmutable).">
+        <EmptyState message="No organization roles returned by the governance read model">
+          <p className="text-sm text-muted-strong">The backend did not return organization-scoped Logto roles for this organization. This is distinct from an empty alias override list.</p>
+        </EmptyState>
       </SectionCard>
-      <SectionCard title="Navigation preferences" description="Registered menu preferences may hide or reorder eligible items, but never authorize a route.">
-        <StatusPill status={policy.navigationTenantEditable ? "success" : "neutral"}>{policy.navigationTenantEditable ? "Organization editable" : "Owner managed"}</StatusPill>
-        <p className="mt-3 text-sm text-muted-strong">Version {policy.version ?? "unversioned"}. Hidden-menu/direct-URL access still uses server authorization.</p>
-      </SectionCard>
-    </div>
-    <SectionCard title="Role aliases" description="Display canonical identity beside tenant-facing labels.">
-      <DataTable columns={aliasColumns} data={policy.aliases ?? []} getKey={(alias) => alias.roleId} emptyState={<EmptyState message="No aliases"><p className="text-sm text-muted-strong">No role alias preferences were returned for this organization.</p></EmptyState>} />
+    );
+  }
+
+  return (
+    <SectionCard title="Role names" description="Alias visuales para roles organizacionales canónicos de Logto (ID inmutable).">
+      <div className="civitas-workspace-stack">
+        {orphanAliases.length || duplicateCanonicalKeys.length || stale ? <div className="civitas-card civitas-pad-tight" role="status" aria-live="polite">
+          <p className="text-sm font-semibold text-text">Role catalog diagnostics</p>
+          <ul className="mt-2 grid gap-1 text-sm text-muted-strong">
+            {orphanAliases.map((alias) => <li key={alias.roleId}>Alias references missing Logto role: <code>{alias.roleId}</code>.</li>)}
+            {duplicateCanonicalKeys.map((key) => <li key={key}>Duplicate canonical role key returned by Logto: <code>{key}</code>.</li>)}
+            {stale ? <li>Alias policy version is stale; refresh the governance read model before changing role labels.</li> : null}
+          </ul>
+        </div> : null}
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                <th scope="col" className="px-3 py-2">Canonical role (Logto)</th>
+                <th scope="col" className="px-3 py-2">Default label</th>
+                <th scope="col" className="px-3 py-2">Visual alias</th>
+                <th scope="col" className="px-3 py-2">Members</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.roleId} className="border-b border-border last:border-b-0">
+                  <td className="px-3 py-3 align-middle font-mono text-xs text-muted-strong" title={row.roleId}>{row.canonicalKey}</td>
+                  <td className="px-3 py-3 align-middle text-muted-strong">{row.defaultLabel}</td>
+                  <td className="px-3 py-3 align-middle">
+                    <input className="civitas-field" value={aliasValue(row)} maxLength={80} readOnly aria-readonly="true" aria-label={`Visual alias for ${row.canonicalKey}`} />
+                  </td>
+                  <td className="px-3 py-3 align-middle text-muted-strong">{row.assignedMemberCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="civitas-action-bar">
+          <p className="text-sm text-muted-strong">Alias editing is read-only until the audited alias write API is mounted. No frontend Logto Management API calls are made.</p>
+          <button type="button" className="civitas-primary-button" disabled title="Alias write API is not mounted yet.">Save aliases</button>
+        </div>
+      </div>
     </SectionCard>
-    <SectionCard title="Navigation preview" description="Preferences only affect presentation; access continues to be decided by authorization.">
-      <DataTable columns={preferenceColumns} data={[...policy.visualPreferences]} getKey={(preference) => preference.screenId} emptyState={<EmptyState message="No navigation preferences"><p className="text-sm text-muted-strong">No visual navigation preferences were returned for this organization.</p></EmptyState>} />
-    </SectionCard>
-  </>
-);
+  );
+};

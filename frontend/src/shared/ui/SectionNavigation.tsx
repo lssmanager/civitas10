@@ -25,7 +25,7 @@ export const SectionNavigation = ({ label, items, activeId }: { label: string; i
       </div>
       <nav className="hidden md:block" aria-label={label}>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{label}</p>
-        <div className="mt-3 flex max-h-[calc(100vh-14rem)] flex-col gap-1 overflow-y-auto pr-1">
+        <div className="civitas-section-navigation-list">
           {items.map((item) => {
             const active = item.id === activeId;
             return (

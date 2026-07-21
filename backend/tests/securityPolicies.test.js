@@ -21,7 +21,7 @@ test("sensitive endpoints in index.js are registered through policy profiles ins
   assert.match(source, /secureRoute\.assertAllRegisteredRoutesHavePolicies\(\)/);
   assert.match(source, /secureRoute\.post\(\["\/owner\/organizations", "\/organizations"\], "ownerSensitiveWrite"/);
   assert.match(source, /secureRoute\.post\("\/owner\/system\/operations", "operationalTrigger"/);
-  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite"/);
+  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWriteLegacyRejected"/);
 });
 
 test("rate limiter enforces profile limits using pluggable store", async () => {

@@ -305,7 +305,7 @@
         "pattern": "/owner/organizations/{organizationId}/access-preview",
         "expressPattern": "/owner/organizations/:organizationId/access-preview",
         "surface": "owner",
-        "permission": "governance.preview.read",
+        "permission": "owner.profile.read",
         "policies": [
           "authorization-snapshot-current",
           "preview-only"
@@ -320,7 +320,7 @@
         "pattern": "/o/{organizationId}/access-preview",
         "expressPattern": "/o/:organizationId/access-preview",
         "surface": "tenant",
-        "permission": "governance.preview.read",
+        "permission": "org.documents.read",
         "policies": [
           "same-organization",
           "authorization-snapshot-current",
@@ -651,7 +651,7 @@
       "module": "overview",
       "repository": "backend/services/governanceReadModel.js",
       "service": "buildGovernanceReadModel",
-      "permission": "owner.profile.read|org.documents.read",
+      "permission": "owner.profile.read",
       "policies": [
         "owner_global",
         "same-organization",
@@ -660,13 +660,20 @@
       "mountedOperation": "governance.readModel",
       "version": "2026-07-civitas10-governance-read-model-v1",
       "status": "active",
-      "reason": "aggregate_read_model_mounted"
+      "reason": "aggregate_read_model_mounted",
+      "permissionRequirement": {
+        "mode": "any",
+        "permissions": [
+          "owner.profile.read",
+          "org.documents.read"
+        ]
+      }
     },
     {
       "module": "permissions",
       "repository": "backend/authorization/entitlements",
       "service": "roles ceilings activations permission matrix",
-      "permission": "owner.runtime.operations.execute|org.documents.create",
+      "permission": "owner.runtime.operations.execute",
       "policies": [
         "owner_global",
         "same-organization",
@@ -675,7 +682,14 @@
       "mountedOperation": "governance.entitlementCeilings|governance.roleActivations",
       "version": "2026-07-civitas10-governance-roles-v1",
       "status": "active",
-      "reason": "roles_entitlements_and_permission_matrix_mounted"
+      "reason": "roles_entitlements_and_permission_matrix_mounted",
+      "permissionRequirement": {
+        "mode": "any",
+        "permissions": [
+          "owner.runtime.operations.execute",
+          "org.documents.create"
+        ]
+      }
     },
     {
       "module": "members",
@@ -739,7 +753,7 @@
       "module": "aliases-navigation",
       "repository": "backend/services/governanceOperationsReadModel.js",
       "service": "organization aliases and navigation preferences",
-      "permission": "owner.profile.read|org.documents.create",
+      "permission": "owner.profile.read",
       "policies": [
         "owner_global",
         "same-organization",
@@ -748,13 +762,20 @@
       "mountedOperation": "governance.navigationPreferences",
       "version": "2026-07-civitas10-governance-operations-v1",
       "status": "active",
-      "reason": "aliases_navigation_preferences_mounted"
+      "reason": "aliases_navigation_preferences_mounted",
+      "permissionRequirement": {
+        "mode": "any",
+        "permissions": [
+          "owner.profile.read",
+          "org.documents.create"
+        ]
+      }
     },
     {
       "module": "access-preview",
       "repository": "backend/authorization/diagnostics.js",
       "service": "read-only authorization simulator",
-      "permission": "governance.preview.read",
+      "permission": "owner.profile.read",
       "policies": [
         "authorization-snapshot-current",
         "preview-only",
@@ -763,13 +784,20 @@
       "mountedOperation": "governance.accessPreview",
       "version": "2026-07-civitas10-governance-operations-v1",
       "status": "active",
-      "reason": "access_preview_handler_mounted"
+      "reason": "access_preview_handler_mounted",
+      "permissionRequirement": {
+        "mode": "any",
+        "permissions": [
+          "owner.profile.read",
+          "org.documents.read"
+        ]
+      }
     },
     {
       "module": "audit",
       "repository": "backend/services/governanceOperationsReadModel.js",
       "service": "redacted governance audit diagnostics",
-      "permission": "owner.profile.read|org.documents.read",
+      "permission": "owner.profile.read",
       "policies": [
         "owner_global",
         "same-organization",
@@ -778,7 +806,14 @@
       "mountedOperation": "governance.audit",
       "version": "2026-07-civitas10-governance-operations-v1",
       "status": "active",
-      "reason": "governance_audit_endpoint_mounted"
+      "reason": "governance_audit_endpoint_mounted",
+      "permissionRequirement": {
+        "mode": "any",
+        "permissions": [
+          "owner.profile.read",
+          "org.documents.read"
+        ]
+      }
     }
   ]
 }

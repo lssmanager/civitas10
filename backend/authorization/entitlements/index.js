@@ -1,5 +1,6 @@
 "use strict";
 module.exports = {
+  ...require("./bootstrapProfileService"),
   ...require("./entitlementReasonCodes"),
   ...require("./entitlementValidation"),
   ...require("./entitlementRepository"),

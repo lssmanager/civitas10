@@ -127,7 +127,7 @@ const Dashboard = () => {
             <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
               <div className="text-sm font-medium text-muted">Organizations in API</div>
               <div className="mt-3 text-2xl font-semibold text-text">{loading ? "…" : summary.totalOrganizations}</div>
-              <div className="mt-2 text-sm text-muted-strong">Fetched from the owner organizations endpoint backed by canonical Logto organizations.</div>
+              <div className="mt-2 text-sm text-muted-strong">Fetched from canonical Logto organizations.</div>
             </div>
             <div className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
               <div className="text-sm font-medium text-muted">Global roles</div>

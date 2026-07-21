@@ -1,64 +1,80 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
-import { PageHeader, SectionCard, SectionNavigation, StateRegion, StatusPill, type SectionNavigationItem } from "../../shared/ui";
+import { OrganizationContextHeader, SectionCard, StateRegion, StatusPill } from "../../shared/ui";
+import { useOwnerApi } from "../../api/owner";
+import { validateOperationalResponse, type ConsolidatedOperationalResponse } from "../../contracts/operational";
+import { isInvalidOrganizationId, OperationalModules, OperationalOverview } from "../owner/organization/operationalCards";
 import { useGovernanceApi } from "./api";
 import { appRoutes } from "../../navigation/routes";
 import { governanceModuleStatus, isGovernanceOperationActive } from "./governance-capabilities";
 import type { GovernanceModuleKey, GovernanceReadModel, GovernanceSurface } from "./contracts";
-import { OverviewModule } from "./modules/overview/OverviewModule";
 import { PermissionMatrixModule } from "./modules/permission-matrix/PermissionMatrixModule";
-import { TaxonomyModule } from "./modules/taxonomy/TaxonomyModule";
 import { MembersRoleAssignmentsModule } from "./modules/members/MembersRoleAssignmentsModule";
 import { UnitsModule } from "./modules/units/UnitsModule";
 import { DataScopeModule } from "./modules/data-scope/DataScopeModule";
 import { AliasesNavigationModule } from "./modules/aliases-navigation/AliasesNavigationModule";
 import { AccessPreviewModule, AccessPreviewUnavailable } from "./modules/access-preview/AccessPreviewModule";
 import { AuditDiagnosticsModule } from "./modules/audit/AuditDiagnosticsModule";
-import { governanceDisplayName, moduleStatusLabel, moduleStatusTone } from "./adapters/governance-view-model";
+import { governanceDisplayName } from "./adapters/governance-view-model";
+import { flattenGovernanceWorkspaceItems, type GovernanceWorkspaceItemId } from "./governance-workspace-contract";
 
-type GovernanceSectionId = "overview" | "roles" | "taxonomy" | "groups" | "data-scopes" | "navigation" | "preview" | "audit" | "members";
-type GovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
-const ownerGovernanceSections: GovernanceSectionId[] = ["overview", "roles", "taxonomy", "groups", "data-scopes", "navigation", "preview", "audit"];
-const tenantGovernanceSections: GovernanceSectionId[] = ["roles", "members", "data-scopes", "taxonomy", "groups", "navigation", "preview"];
-const sectionLabels: Record<GovernanceSectionId, string> = { overview: "Overview", roles: "Roles and permissions", members: "Members", taxonomy: "Taxonomy", groups: "Groups", "data-scopes": "Data scopes", navigation: "Aliases and navigation", preview: "Access preview", audit: "Audit and diagnostics" };
-const sectionToModuleKey: Record<GovernanceSectionId, GovernanceModuleKey> = { overview: "overview", roles: "permissions", members: "members", taxonomy: "taxonomy", groups: "units", "data-scopes": "data-scope", navigation: "aliases-navigation", preview: "access-preview", audit: "audit" };
-const sectionToTab: Record<GovernanceSectionId, GovernanceTabId> = { overview: "overview", roles: "roles-permissions", members: "members", taxonomy: "taxonomy", groups: "groups", "data-scopes": "data-scopes", navigation: "aliases-navigation", preview: "access-preview", audit: "audit-diagnostics" };
-const tabToSection: Record<GovernanceTabId, GovernanceSectionId> = { overview: "overview", "roles-permissions": "roles", members: "members", taxonomy: "taxonomy", groups: "groups", "data-scopes": "data-scopes", "aliases-navigation": "navigation", "access-preview": "preview", "audit-diagnostics": "audit" };
-const sectionsForSurface = (surface: GovernanceSurface) => surface === "owner" ? ownerGovernanceSections : tenantGovernanceSections;
+type LegacyGovernanceTabId = "overview" | "roles-permissions" | "taxonomy" | "structure" | "groups" | "data-scopes" | "aliases-navigation" | "access-preview" | "audit-diagnostics" | "members";
+
+const legacyTabToWorkspaceItem: Record<LegacyGovernanceTabId, GovernanceWorkspaceItemId> = {
+  overview: "organization-overview",
+  "roles-permissions": "role-permissions",
+  members: "role-names",
+  taxonomy: "structure-classification",
+  structure: "structure-classification",
+  groups: "groups-courses",
+  "data-scopes": "scope-assignments",
+  "aliases-navigation": "role-names",
+  "access-preview": "access-explorer",
+  "audit-diagnostics": "audit-log",
+};
+
+const ownerPathSegmentToItem: Record<string, GovernanceWorkspaceItemId> = {
+  roles: "role-permissions",
+  taxonomy: "structure-classification",
+  structure: "structure-classification",
+  groups: "groups-courses",
+  "data-scopes": "scope-assignments",
+  navigation: "role-names",
+  "role-names": "role-names",
+  preview: "access-explorer",
+  audit: "audit-log",
+  "people-segmentation": "people-segmentation",
+  operations: "operations",
+};
+
+
 const buildOrganizationSurfacePath = (surface: GovernanceSurface, organizationId: string) => {
   if (!organizationId) return appRoutes.ownerOrganizations.path;
   return surface === "owner" ? appRoutes.ownerOrganizationState.build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path : `/o/${encodeURIComponent(organizationId)}`;
 };
 
-const ownerSectionRoute: Record<Exclude<GovernanceSectionId, "members">, keyof typeof appRoutes> = {
-  overview: "ownerOrganizationGovernance",
-  roles: "ownerOrganizationGovernanceRoles",
-  taxonomy: "ownerOrganizationGovernanceTaxonomy",
-  groups: "ownerOrganizationGovernanceGroups",
-  "data-scopes": "ownerOrganizationGovernanceDataScopes",
-  navigation: "ownerOrganizationGovernanceNavigation",
-  preview: "ownerOrganizationGovernancePreview",
-  audit: "ownerOrganizationGovernanceAudit",
-};
+const workspaceItems = flattenGovernanceWorkspaceItems();
+const workspaceItemById = Object.fromEntries(workspaceItems.map((item) => [item.id, item])) as Record<GovernanceWorkspaceItemId, (typeof workspaceItems)[number]>;
 
-const sectionPath = (surface: GovernanceSurface, organizationId: string, section: GovernanceSectionId) => {
-  if (surface === "owner" && section !== "members") return appRoutes[ownerSectionRoute[section]].build?.({ organizationId }) ?? appRoutes.ownerOrganizations.path;
-  const tab = sectionToTab[section];
-  return `${appRoutes.tenantGovernance.build?.({ organizationId }) ?? `/o/${encodeURIComponent(organizationId)}/settings/governance`}?tab=${encodeURIComponent(tab)}`;
-};
 
-const activeSectionFromLocation = (surface: GovernanceSurface, pathname: string, search: string): GovernanceSectionId => {
+
+const activeItemFromLocation = (surface: GovernanceSurface, pathname: string, search: string): GovernanceWorkspaceItemId => {
   if (surface === "tenant") {
-    const tab = new URLSearchParams(search).get("tab") as GovernanceTabId | null;
-    return tab && tabToSection[tab] ? tabToSection[tab] : sectionsForSurface(surface)[0];
+    const params = new URLSearchParams(search);
+    const tab = (params.get("section") || params.get("tab")) as LegacyGovernanceTabId | GovernanceWorkspaceItemId | null;
+    if (tab && workspaceItemById[tab as GovernanceWorkspaceItemId]) return tab as GovernanceWorkspaceItemId;
+    if (tab && legacyTabToWorkspaceItem[tab as LegacyGovernanceTabId]) return legacyTabToWorkspaceItem[tab as LegacyGovernanceTabId];
+    return "role-permissions";
   }
   const pathParts = pathname.split("/").filter(Boolean);
-  const last = pathParts[pathParts.length - 1] || "governance";
-  if (last === "governance") return "overview";
-  if (["roles", "taxonomy", "groups", "data-scopes", "navigation", "preview", "audit"].includes(last)) return last as GovernanceSectionId;
-  return "overview";
+  if (pathParts.includes("governance")) {
+    const last = pathParts[pathParts.length - 1] || "governance";
+    return ownerPathSegmentToItem[last] ?? "role-permissions";
+  }
+  const last = pathParts[pathParts.length - 1] || "";
+  return ownerPathSegmentToItem[last] ?? "organization-overview";
 };
 
 const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface): GovernanceReadModel => ({
@@ -77,33 +93,55 @@ const emptyGovernanceModel = (organizationId: string, surface: GovernanceSurface
   diagnostics: [{ code: "read_model_pending", severity: "info", message: "Governance read model has not been loaded." }],
 });
 
-const GovernanceModules = ({ activeSection, model, previewOwnerAccess, previewTenantAccess, onSelectSection }: { activeSection: GovernanceSectionId; model: GovernanceReadModel; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; onSelectSection: (section: GovernanceSectionId) => void }) => {
-  const activeModule = sectionToModuleKey[activeSection];
+const UnavailableWorkspacePanel = ({ title, description }: { title: string; description: string }) => (
+  <SectionCard title={title} description={description}>
+    <p className="text-sm text-muted-strong">This workspace task is not available yet. No data is loaded for planned capabilities.</p>
+  </SectionCard>
+);
+
+const GovernanceModules = ({ activeItemId, model, operationalModel, previewOwnerAccess, previewTenantAccess, updateOwnerCeilings, updateTenantActivations, refetchReadModel }: { activeItemId: GovernanceWorkspaceItemId; model: GovernanceReadModel; operationalModel: ConsolidatedOperationalResponse | null; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; updateOwnerCeilings: ReturnType<typeof useGovernanceApi>["updateOwnerCeilings"]; updateTenantActivations: ReturnType<typeof useGovernanceApi>["updateTenantActivations"]; refetchReadModel: () => Promise<void> }) => {
+  const item = workspaceItemById[activeItemId] ?? workspaceItems[0];
+  const activeModule = item.moduleKey as GovernanceModuleKey | "unavailable" | "organization-overview" | "operations";
+  if (activeModule === "organization-overview") return operationalModel ? <OperationalOverview organization={operationalModel} /> : <StateRegion><p className="text-sm text-muted-strong">Preparing organization overview...</p></StateRegion>;
+  if (activeModule === "operations") return operationalModel ? <OperationalModules organization={operationalModel} /> : <StateRegion><p className="text-sm text-muted-strong">Preparing operations...</p></StateRegion>;
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
-  if (activeModule === "overview") return <OverviewModule model={model} onSelectTab={(tab) => onSelectSection(tabToSection[tab as GovernanceTabId] ?? "overview")} />;
-  if (activeModule === "permissions") return <PermissionMatrixModule rows={model.permissionMatrix} surface={model.surface} />;
+  if (activeModule === "permissions") return <PermissionMatrixModule organizationId={model.organizationId} rows={model.permissionMatrix} roles={model.roles || []} surface={model.surface} versions={model.versions} onSaveOwnerCeilings={async (input) => { await updateOwnerCeilings(model.organizationId, input); await refetchReadModel(); }} onSaveTenantActivations={async (input) => { await updateTenantActivations(model.organizationId, input); await refetchReadModel(); }} />;
   if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
-  if (activeModule === "taxonomy") return <TaxonomyModule items={model.taxonomy} />;
-  if (activeModule === "units") return <UnitsModule units={model.units} />;
-  if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} />;
-  if (activeModule === "aliases-navigation") return <AliasesNavigationModule policy={model.aliasesNavigation} />;
+  if (activeModule === "taxonomy") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
+  if (activeModule === "units") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
+  if (activeModule === "lms-groups") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
+  if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} roles={model.roles || []} />;
+  if (activeModule === "aliases-navigation") return <AliasesNavigationModule roles={model.roles ?? []} policy={model.aliasesNavigation} surface={model.surface} />;
   if (activeModule === "access-preview") {
     if (!isGovernanceOperationActive(model.surface, "governance.accessPreview")) return <AccessPreviewUnavailable />;
     return <AccessPreviewModule organizationId={model.organizationId} surface={model.surface} previews={model.accessPreviews} onPreview={previewModel.surface === "owner" ? previewOwnerAccess : previewTenantAccess} />;
   }
-  return <AuditDiagnosticsModule events={model.auditEvents} />;
+  if (activeModule === "audit") return <AuditDiagnosticsModule events={model.auditEvents} />;
+  return <UnavailableWorkspacePanel title={item.label} description="People segmentation is not available yet." />;
 };
 
 export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }) => {
   const params = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const organizationId = params.organizationId ?? params.orgId ?? "";
   const governanceApi = useGovernanceApi();
-  const activeSection = activeSectionFromLocation(surface, location.pathname, location.search);
+  const ownerApi = useOwnerApi();
+  const activeItemId = activeItemFromLocation(surface, location.pathname, location.search);
   const [model, setModel] = useState<GovernanceReadModel>(() => emptyGovernanceModel(organizationId, surface));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [operationalModel, setOperationalModel] = useState<ConsolidatedOperationalResponse | null>(null);
+
+  const refetchGovernanceReadModel = useCallback(() => {
+    if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) return Promise.resolve();
+    setLoading(true);
+    setError(null);
+    const load = surface === "owner" ? governanceApi.getOwnerGovernance : governanceApi.getTenantGovernance;
+    return load(organizationId)
+      .then((response) => { setModel(response); })
+      .catch((caught) => { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); })
+      .finally(() => { setLoading(false); });
+  }, [governanceApi, organizationId, surface]);
 
   useEffect(() => {
     let active = true;
@@ -111,7 +149,7 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     setError(null);
     if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) {
       setModel(emptyGovernanceModel(organizationId, surface));
-      setError(!organizationId ? "Choose an organization from Directory to open its Governance sections." : null);
+      setError(!organizationId ? "Choose an organization from Directory to open its Governance workspace." : null);
       setLoading(false);
       return () => { active = false; };
     }
@@ -123,28 +161,38 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
     return () => { active = false; };
   }, [governanceApi, organizationId, surface]);
 
+
+  useEffect(() => {
+    let active = true;
+    if (surface !== "owner" || isInvalidOrganizationId(organizationId)) {
+      setOperationalModel(null);
+      return () => { active = false; };
+    }
+    void ownerApi.getOrganizationOperationalState(organizationId)
+      .then((response) => {
+        const contract = validateOperationalResponse(response);
+        if (active) setOperationalModel(contract.ok ? contract.value : null);
+      })
+      .catch(() => { if (active) setOperationalModel(null); });
+    return () => { active = false; };
+  }, [organizationId, ownerApi, surface]);
+
   const Layout = surface === "owner" ? OwnerLayout : OrganizationLayout;
   const displayName = governanceDisplayName(model, organizationId);
-  const sectionItems: SectionNavigationItem[] = useMemo(() => sectionsForSurface(surface).map((section) => {
-    const key = sectionToModuleKey[section];
-    return { id: section, label: sectionLabels[section], href: sectionPath(surface, organizationId, section), status: moduleStatusLabel(model, key), statusTone: moduleStatusTone(model, key) };
-  }), [model, organizationId, surface]);
-  const selectSection = (section: GovernanceSectionId) => navigate(sectionPath(surface, organizationId, section));
+  const activeItem = workspaceItemById[activeItemId] ?? workspaceItems[0];
+  const organizationSurfacePath = buildOrganizationSurfacePath(surface, organizationId);
+  const selectOrganizationPath = surface === "owner" ? appRoutes.ownerOrganizations.path : organizationSurfacePath;
 
   return (
     <Layout organizationId={organizationId} isAdmin={surface === "tenant"}>
-      <PageHeader eyebrow="Organizations / Governance" title={displayName} description="Governance overview for catalog health, permissions, groups, data scopes, aliases and audit." actions={<><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Back to Directory</Link><StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill></>} />
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-strong"><Link to={appRoutes.ownerOrganizations.path} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{sectionLabels[activeSection]}</span></nav>
-      {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Open Directory</Link></SectionCard> : null}
+      <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={displayName} breadcrumb={<><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></>} status={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} actions={<Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link>} description="Operational governance workspace for access policy, organization model, control and evidence. The overview and operations share this persistent organization shell." />
+      {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={selectOrganizationPath}>Open organization surface</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
-      <div className="grid gap-4 md:grid-cols-[16rem_minmax(0,1fr)]">
-        <SectionNavigation label="Governance" items={sectionItems} activeId={activeSection} />
-        <section className="min-w-0" aria-labelledby="governance-section-title">
-          <h2 id="governance-section-title" className="sr-only">{sectionLabels[activeSection]}</h2>
-          <GovernanceModules activeSection={activeSection} model={model} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} onSelectSection={selectSection} />
-        </section>
-      </div>
-      <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={buildOrganizationSurfacePath(surface, organizationId)}>Open organization surface</Link>.</p>
+      <section className="min-w-0" aria-labelledby="workspace-section-title">
+        <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
+        <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} refetchReadModel={refetchGovernanceReadModel} />
+      </section>
+      <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={organizationSurfacePath}>Open organization surface</Link>. Visibility is resolved by the screen/action registry and backend decisions; this workspace never evaluates roles or JWT claims in the presentation layer.</p>
     </Layout>
   );
 };

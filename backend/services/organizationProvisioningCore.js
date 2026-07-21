@@ -13,6 +13,7 @@ const {
   buildLogtoUsername,
 } = require("./organizationProvisioningPayloads");
 const { normalizeProvisioningSettings } = require("./organizationProvisioningSettings");
+const { assertProvisionedRoleAllowed } = require("../authorization/provisioningGuard");
 
 const emptyToNull = (value) =>
   typeof value === "string" && value.trim() ? value.trim() : null;
@@ -20,6 +21,7 @@ const emptyToNull = (value) =>
 const normalizeRoleNames = (value) => {
   const input = Array.isArray(value) ? value : [];
   const roles = input.map((role) => (typeof role === "string" ? role.trim() : "")).filter(Boolean);
+  for (const role of roles) assertProvisionedRoleAllowed({ roleName: role, source: "jit_default_roles" });
   return Array.from(new Set(roles));
 };
 
@@ -178,6 +180,9 @@ function normalizeProvisioningInput(body = {}) {
     }
     if (!contact.organizationRoleName) {
       errors.push({ field: `administrativeContacts.${index}.organizationRoleName`, message: "Administrative contact role is required" });
+    } else {
+      try { assertProvisionedRoleAllowed({ roleName: contact.organizationRoleName, source: "wizard_admin_contact" }); }
+      catch (error) { errors.push({ field: `administrativeContacts.${index}.organizationRoleName`, message: error.code }); }
     }
   });
 

@@ -71,7 +71,7 @@ Tenant no puede crear roles, cambiar IDs semánticos, ampliar potencial RBAC, su
 Los roles son IDs estables, no etiquetas visuales. Logto es el proveedor de identidad y de asignación de roles; el backend confirma que cualquier rol recibido pertenece al catálogo conocido.
 
 - Rol global: `owner_global`.
-- Roles de organización: `organization_admin`, `organization_director`, `organization_headdirector`, `organization_headteacher`, `organization_teacher`, `organization_student`, `organization_parent`, `organization_secretary`, `organization_accountant`, `organization_billing`, `organization_payroll`, `organization_member`.
+- Roles de organización: `organization_admin`, `organization_director`, `organization_headdirector`, `organization_headteacher`, `organization_groupleader`, `organization_teacher`, `organization_student`, `organization_parent`, `organization_secretary`, `organization_accountant`, `organization_billing`, `organization_payroll`, `organization_member`.
 
 El tenant puede cambiar el nombre que se muestra (“Rector”, “Coordinador académico”, etc.), pero no el ID ni el potencial del rol. Crear un rol nuevo es un cambio de Owner: catálogo, configuración Logto, permisos, contrato, migración, tests y version bump.
 
@@ -394,3 +394,60 @@ No se permite crear el rol en Logto, agregarlo a un selector de UI ni asignarlo 
 7. migraciones, auditoría, razón de denegación y pruebas completas.
 
 Así, añadir roles se vuelve un flujo repetible y parametrizado: se completan datos de una plantilla; no se rediseña la arquitectura ni se conceden permisos implícitos.
+
+## Normative amendment: Logto provisioning is identity input, not effective authorization
+
+Default organization roles, email-domain provisioning, and Enterprise SSO/JIT provisioning may create or reconcile organization membership, assign approved canonical organization roles, and emit token role/scope claims. Those artifacts are only identity inputs and RBAC candidates. They never bypass deny-by-default and never create Owner Ceilings, Tenant Activations, or Data Scopes by themselves.
+
+Every protected operation still evaluates the complete path: active catalog, valid Logto token/identity, canonical role RBAC potential, Owner Ceiling, Tenant Activation, and ABAC Data Scope over the resource. Missing any layer denies with an observable same-tenant reason code. Domain or SSO origin does not alter the result.
+
+The initial organization wizard may use an explicitly selected Owner Bootstrap Profile for onboarding. The profile is finite and versioned: it can create the initial membership/role binding, materialize only listed Owner Ceilings, materialize only listed Tenant Activations, enable only listed scope templates, and audit `profileId`, catalog version, actor, wizard source, and policy version. New onboarding capabilities require a profile/catalog change; no Logto default role implicitly activates all admin permissions.
+
+Provisioning controls are mandatory: JIT/domain mappings can only assign pre-approved canonical `organization_*` roles; they cannot assign `owner_global` or Owner privileges; domain/IdP bindings must be verified, tenant-scoped, and idempotent; external claims cannot inject permissions, action IDs, Owner Ceilings, Tenant Activations, or Data Scopes; membership/role provisioning changes audit and refresh authorization context; post-bootstrap default roles gain RBAC potential only, not extra activations.
+
+Scope subject is `organizationId + membershipId + canonicalRoleId`. Each membership-role binding is evaluated as a complete path. Generic mutable role scopes and privilege/scope borrowing across roles or memberships are not supported.
+
+### Implementation note: scope-template persistence
+
+The Phase 2 implementation persists Owner scope templates in `owner_scope_templates` and tenant-local enablement/labels in `tenant_scope_configurations`. Data-scope assignment rows may reference `scope_template_id` and `scope_template_version`; the server validates assignments against the Owner-published immutable semantics before writing any target. Tenant labels remain presentation-only and cannot alter strategy, capability, role applicability, target kind, dimension keys or relationship keys.
+
+
+### Canonical role: organization_groupleader
+
+`organization_groupleader` is an Owner-governed canonical organization role for group leadership. Its Phase 2 RBAC potential is limited to approved LMS read capabilities (`lms.groups.read`, `lms.group_members.read` and `lms.course_offerings.read` in the active catalog); it does not receive `lms.grades.update`, `lms.grades.manage`, Owner permissions, wildcards or planned permissions. Its ABAC strategy is `group_leadership`, which only accepts tenant-scoped `leads` relationships to the relevant group/course/unit resource and denies closed when no valid `leads` relationship exists. Tenant aliases such as “Director de grupo” are presentation-only and never replace the canonical role ID.
+
+### Implementation note: management-level virtual root
+
+`managementLevel: "organization"` is reserved for the virtual, non-editable organization root in hierarchy projections. Persisted `organization_units` rows may only use `strategic`, `tactical`, `coordination`, `operational` or `administrative`; top-level persisted units have `parentUnitId = null` and are validated as children of the virtual root with order `0`. `levelOrder` is derived from the Owner catalog and returned as read-only metadata; clients never submit it.
+
+### Implementation note: active operation requirements and planned capabilities
+
+Active operation registry entries use one canonical `permission` and, when owner and tenant surfaces are alternatives for the same module, an explicit `permissionRequirement` object with `mode: "any" | "all"` and canonical permission IDs. Composite permission strings are forbidden because they hide whether each branch is active and catalogued. Planned operations remain unavailable until they have an active canonical permission, mounted server handler, durable adapter, contract test and frontend consumer; the frontend may display a pending/unavailable state but must not mount a real mutation or fetch for planned capabilities.
+
+### Implementation note: fail-closed scope-template availability
+
+Owner scope templates are not globally available by default. A data-scope assignment can reference a template only when the template is published, explicitly available for the organization, and backed by an enabled tenant scope configuration for the same `scopeTemplateId` and version. Missing template availability returns `scope_template_not_available_for_tenant`; missing tenant configuration returns `tenant_scope_configuration_missing`; disabled configuration returns `tenant_scope_configuration_disabled`; invalid target/role/relationship semantics return `scope_target_invalid`.
+
+### Implementation note: bootstrap and provisioning runtime requirements
+
+Bootstrap profile application requires a transaction port, data-scope service, audit runtime and idempotency key. The operation validates profile references before mutation, writes membership, Owner Ceiling, Tenant Activation and ABAC scopes inside one transaction, audits the result, and returns the prior result on an idempotent retry. JIT/domain provisioning validates exact canonical organization role IDs rather than prefixes, rejects Owner roles and unknown roles, and sanitizes external claims that try to inject permissions, actions, tenant IDs, ceilings, activations or data scopes.
+
+### Canonical Group Leader capability (#128)
+
+`organization_groupleader` is now a business LMS reader, not a surrogate for document access. Its active RBAC potential is limited to `lms.groups.read`, `lms.group_members.read` and `lms.course_offerings.read`; `lms.student_profiles.read` remains planned until a dedicated redaction endpoint exists. The role never receives grade mutation, Owner, wildcard, governance, ceiling, activation or scope-management permissions.
+
+Effective access for each LMS Groups endpoint is the full Phase 2 path: token scope for the exact LMS permission, `organization_groupleader` RBAC potential, Owner Ceiling, Tenant Activation and the `group_leadership` ABAC strategy. `group_leadership` only accepts tenant-scoped `leads(groupId)` provenance. `manages`, `teaches`, simple membership, cross-tenant relationships and stale relationship rows fail closed and do not widen to organization-level access.
+
+The supported endpoint contract is:
+
+- `GET /o/:organizationId/lms/groups` with `lms.groups.read`, returning only groups visible through valid `leads` targets.
+- `GET /o/:organizationId/lms/groups/:groupId` with `lms.groups.read`, asserting the requested tenant group is in the allowed target set and including course offerings only when `lms.course_offerings.read` also completes the full path.
+- `GET /o/:organizationId/lms/groups/:groupId/members` with `lms.group_members.read`, asserting the requested tenant group is in the allowed target set before returning membership rows.
+
+Audit records for these reads include actor, organization, target group, action, result, reason code, timestamp and contract version. Frontend LMS Groups views consume these server responses and reason codes; they do not evaluate role names, JWT claims or local scope derivations.
+
+## Governance workspace operational topology (#129)
+
+The organization Governance surface is an operational workspace under the selected organization, not a second organization overview. The only organization overview remains `/owner/organizations/:organizationId`; `/owner/organizations/:organizationId/governance` and `/o/:organizationId/settings/governance` route into task groups: Access policy (Role permissions, Role names, Scope assignments), Organization model (Structure and classification, Groups and courses, People segmentation), and Control and evidence (Access explorer, Audit log).
+
+Every workspace item declares a route/action/permission/source-of-truth contract before it is rendered as an available task. Planned work, including People segmentation until its grammar/privacy contract is approved, must render an unavailable state and must not mount a fetch. The frontend consumes the screen/action registry and server decisions; it never derives access from a role name, JWT claim, hidden control, local tab state, or client graph layout.

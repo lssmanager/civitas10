@@ -141,5 +141,13 @@
   --civitas-z-popover: 1000;
   --civitas-z-tooltip: 1400;
   --civitas-z-sidebar-mobile: var(--civitas-z-overlay);
+
+  --civitas-section-nav-max-height: calc(var(--civitas-viewport-height) - var(--civitas-topbar-height) - var(--civitas-space-10));
+  --civitas-workspace-rail-width: 17rem;
+  --civitas-workspace-gap: var(--civitas-space-4);
+  --civitas-workspace-stack-gap: var(--civitas-space-4);
+  --civitas-split-detail-width: 24rem;
+  --civitas-form-drawer-width: 28rem;
   --civitas-border-width: thin;
+  --civitas-shadow-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }

@@ -1,6 +1,79 @@
 "use strict";
-const {DATA_SCOPE_REASON_CODES,dataScopeError}=require("./dataScopeReasonCodes"); const {validateDimensionAssignment}=require("./taxonomyScopeAdapter"); const {validateRelationshipKey}=require("./relationshipScopeAdapter");
-function isEffectiveAssignment(a,now=new Date()){return a.status==="active"&&new Date(a.validFrom)<=now&&(!a.validUntil||new Date(a.validUntil)>now);}
-function validateTarget(input){const n=[input.dimensionValueId,input.unitId,input.resourceRef].filter(Boolean).length; if(n!==1) throw dataScopeError("data_scope_exactly_one_target_required"); if(input.scopeKind==="dimension"&&(!input.dimensionKey||!input.dimensionValueId||input.relationshipKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.DIMENSION_UNKNOWN); if(input.scopeKind==="unit"&&(!input.relationshipKey||!input.unitId||input.dimensionKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.UNIT_UNKNOWN); if(input.scopeKind==="resource"&&(!input.relationshipKey||!input.resourceRef||input.dimensionKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.RESOURCE_UNKNOWN);}
-function createDataScopeAssignmentService({repository,taxonomyPort,unitPort,runtimeConsistencyPort}={}){ async function emit(event){let pv=runtimeConsistencyPort?.incrementPolicyVersion?await runtimeConsistencyPort.incrementPolicyVersion(event):await repository.incrementPolicyVersion(); const out={...event,policyVersion:pv}; if(runtimeConsistencyPort?.enqueueOutbox) await runtimeConsistencyPort.enqueueOutbox(out); else await repository.recordOutbox(out); if(runtimeConsistencyPort?.audit) await runtimeConsistencyPort.audit(out); else await repository.audit({action:event.eventType,...out}); return pv;} return{isEffectiveAssignment,async previewAssignment(input){validateTarget(input); if(input.scopeKind==="dimension") await validateDimensionAssignment({taxonomyPort,organizationId:input.organizationId,dimensionKey:input.dimensionKey,dimensionValueId:input.dimensionValueId,capability:input.capability}); if(input.scopeKind!=="dimension") validateRelationshipKey(input.relationshipKey); return{valid:true,wouldGrant:{capability:input.capability,scopeKind:input.scopeKind,dimensionKey:input.dimensionKey,relationshipKey:input.relationshipKey,dimensionValueId:input.dimensionValueId,unitId:input.unitId,resourceRef:input.resourceRef},warnings:[],mutated:false,policyVersion:await repository.getPolicyVersion(input.organizationId)}} ,async createAssignment(input){validateTarget(input); if(input.expectedPolicyVersion&&Number(input.expectedPolicyVersion)!==Number(await repository.getPolicyVersion(input.organizationId))) throw dataScopeError(DATA_SCOPE_REASON_CODES.POLICY_VERSION_CONFLICT); if(input.scopeKind==="dimension") await validateDimensionAssignment({taxonomyPort,organizationId:input.organizationId,dimensionKey:input.dimensionKey,dimensionValueId:input.dimensionValueId,capability:input.capability}); if(input.scopeKind!=="dimension") validateRelationshipKey(input.relationshipKey); const now=input.validFrom||new Date().toISOString(); const saved=await repository.insertAssignment({logtoOrganizationId:input.organizationId,logtoUserId:input.userId,logtoRoleId:input.logtoRoleId,capability:input.capability,scopeKind:input.scopeKind,dimensionKey:input.dimensionKey,relationshipKey:input.relationshipKey,dimensionValueId:input.dimensionValueId,unitId:input.unitId,resourceRef:input.resourceRef,sourceType:input.sourceType||"explicit",sourceRef:input.sourceRef,sourceVersion:input.sourceVersion,status:new Date(now)<=new Date()?"active":"scheduled",assignedByLogtoUserId:input.actorLogtoUserId,reason:input.reason,validFrom:now,validUntil:input.validUntil}); const policyVersion=await emit({eventType:"authz.data_scope_assignment.created",organizationId:input.organizationId,assignmentId:saved.id,actorLogtoUserId:input.actorLogtoUserId}); return{assignment:saved,policyVersion};},async revokeAssignment({organizationId,assignmentId,actorLogtoUserId,reason}={}){const a=await repository.getAssignment(assignmentId); if(!a||a.logtoOrganizationId!==organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.ASSIGNMENT_MISSING); const saved=await repository.updateAssignment(assignmentId,{status:"revoked",revokedAt:new Date().toISOString(),revokedByLogtoUserId:actorLogtoUserId,reason:reason||a.reason}); const policyVersion=await emit({eventType:"authz.data_scope_assignment.revoked",organizationId,assignmentId,actorLogtoUserId}); return{assignment:saved,policyVersion};}};}
-module.exports={createDataScopeAssignmentService,isEffectiveAssignment,validateTarget};
+
+const { DATA_SCOPE_REASON_CODES, dataScopeError } = require("./dataScopeReasonCodes");
+const { validateDimensionAssignment } = require("./taxonomyScopeAdapter");
+const { validateRelationshipKey } = require("./relationshipScopeAdapter");
+const { assertAssignmentMatchesTemplate } = require("./scopeTemplateRegistry");
+
+function isEffectiveAssignment(assignment, now = new Date()) {
+  return assignment.status === "active" && new Date(assignment.validFrom) <= now && (!assignment.validUntil || new Date(assignment.validUntil) > now);
+}
+
+function validateTarget(input) {
+  const targetCount = [input.dimensionValueId, input.unitId, input.resourceRef].filter(Boolean).length;
+  if (targetCount !== 1) throw dataScopeError("data_scope_exactly_one_target_required");
+  if (input.scopeKind === "dimension" && (!input.dimensionKey || !input.dimensionValueId || input.relationshipKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.DIMENSION_UNKNOWN);
+  if (input.scopeKind === "unit" && (!input.relationshipKey || !input.unitId || input.dimensionKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.UNIT_UNKNOWN);
+  if (input.scopeKind === "resource" && (!input.relationshipKey || !input.resourceRef || input.dimensionKey)) throw dataScopeError(DATA_SCOPE_REASON_CODES.RESOURCE_UNKNOWN);
+}
+
+async function validateScopeTemplate({ input, templateRegistry }) {
+  if (!input.scopeTemplateId && !templateRegistry) return null;
+  const template = templateRegistry?.getTemplate({ scopeTemplateId: input.scopeTemplateId, scopeTemplateVersion: input.scopeTemplateVersion });
+  assertAssignmentMatchesTemplate({ assignment: input, template, organizationId: input.organizationId, templateRegistry });
+  return template;
+}
+
+function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeConsistencyPort, templateRegistry, membershipPort } = {}) {
+  async function emit(event) {
+    const policyVersion = runtimeConsistencyPort?.incrementPolicyVersion ? await runtimeConsistencyPort.incrementPolicyVersion(event) : await repository.incrementPolicyVersion();
+    const out = { ...event, policyVersion };
+    if (runtimeConsistencyPort?.enqueueOutbox) await runtimeConsistencyPort.enqueueOutbox(out); else await repository.recordOutbox(out);
+    if (runtimeConsistencyPort?.audit) await runtimeConsistencyPort.audit(out); else await repository.audit({ action: event.eventType, ...out });
+    return policyVersion;
+  }
+
+  async function validateMembershipBinding(input) {
+    if (!membershipPort) return;
+    const binding = await membershipPort.getMembershipRoleBinding?.({ organizationId: input.organizationId, membershipId: input.membershipId, canonicalRoleId: input.canonicalRoleId || input.logtoRoleId, userId: input.userId });
+    if (!binding) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.organizationId && binding.organizationId !== input.organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.userId && binding.userId !== input.userId) throw dataScopeError(DATA_SCOPE_REASON_CODES.ROLE_MISMATCH);
+    if (binding.membershipId && binding.membershipId !== input.membershipId) throw dataScopeError(DATA_SCOPE_REASON_CODES.MEMBERSHIP_NOT_FOUND);
+    if (binding.canonicalRoleId && binding.canonicalRoleId !== (input.canonicalRoleId || input.logtoRoleId)) throw dataScopeError(DATA_SCOPE_REASON_CODES.ROLE_MISMATCH);
+  }
+
+  async function validateAssignmentInput(input) {
+    validateTarget(input);
+    await validateMembershipBinding(input);
+    const template = await validateScopeTemplate({ input, templateRegistry });
+    if (input.scopeKind === "dimension") await validateDimensionAssignment({ taxonomyPort, organizationId: input.organizationId, dimensionKey: input.dimensionKey, dimensionValueId: input.dimensionValueId, capability: input.capability });
+    if (input.scopeKind !== "dimension") validateRelationshipKey(input.relationshipKey);
+    return template;
+  }
+
+  return {
+    isEffectiveAssignment,
+    async previewAssignment(input) {
+      const template = await validateAssignmentInput(input);
+      return { valid: true, wouldGrant: { capability: input.capability, scopeKind: input.scopeKind, scopeTemplateId: template?.id || input.scopeTemplateId, scopeTemplateVersion: template?.version || input.scopeTemplateVersion, dimensionKey: input.dimensionKey, relationshipKey: input.relationshipKey, dimensionValueId: input.dimensionValueId, unitId: input.unitId, resourceRef: input.resourceRef }, warnings: [], mutated: false, policyVersion: await repository.getPolicyVersion(input.organizationId) };
+    },
+    async createAssignment(input) {
+      const template = await validateAssignmentInput(input);
+      if (input.expectedPolicyVersion && Number(input.expectedPolicyVersion) !== Number(await repository.getPolicyVersion(input.organizationId))) throw dataScopeError(DATA_SCOPE_REASON_CODES.POLICY_VERSION_CONFLICT);
+      const now = input.validFrom || new Date().toISOString();
+      const saved = await repository.insertAssignment({ logtoOrganizationId: input.organizationId, logtoUserId: input.userId, membershipId: input.membershipId, logtoRoleId: input.logtoRoleId, canonicalRoleId: input.canonicalRoleId || input.logtoRoleId, scopeTemplateId: template?.id || input.scopeTemplateId, scopeTemplateVersion: template?.version || input.scopeTemplateVersion, capability: input.capability, scopeKind: input.scopeKind, dimensionKey: input.dimensionKey, relationshipKey: input.relationshipKey, dimensionValueId: input.dimensionValueId, unitId: input.unitId, resourceRef: input.resourceRef, sourceType: input.sourceType || "explicit", sourceRef: input.sourceRef, sourceVersion: input.sourceVersion, status: new Date(now) <= new Date() ? "active" : "scheduled", assignedByLogtoUserId: input.actorLogtoUserId, reason: input.reason, validFrom: now, validUntil: input.validUntil });
+      const policyVersion = await emit({ eventType: "authz.data_scope_assignment.created", organizationId: input.organizationId, assignmentId: saved.id, actorLogtoUserId: input.actorLogtoUserId });
+      return { assignment: saved, policyVersion };
+    },
+    async revokeAssignment({ organizationId, assignmentId, actorLogtoUserId, reason } = {}) {
+      const assignment = await repository.getAssignment(assignmentId);
+      if (!assignment || assignment.logtoOrganizationId !== organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.ASSIGNMENT_MISSING);
+      const saved = await repository.updateAssignment(assignmentId, { status: "revoked", revokedAt: new Date().toISOString(), revokedByLogtoUserId: actorLogtoUserId, reason: reason || assignment.reason });
+      const policyVersion = await emit({ eventType: "authz.data_scope_assignment.revoked", organizationId, assignmentId, actorLogtoUserId });
+      return { assignment: saved, policyVersion };
+    },
+  };
+}
+
+module.exports = { createDataScopeAssignmentService, isEffectiveAssignment, validateTarget };
