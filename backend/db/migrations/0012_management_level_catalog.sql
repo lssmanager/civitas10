@@ -5,9 +5,39 @@
 ALTER TABLE organization_units
   ADD COLUMN IF NOT EXISTS management_level varchar(32) NOT NULL DEFAULT 'strategic';
 
-UPDATE organization_units
-   SET management_level = 'strategic'
- WHERE management_level IS NULL OR management_level = 'organization';
+-- Backfill management_level using recursive CTE that traverses each hierarchy from root units.
+-- This ensures parent-child ordering satisfies the trigger immediately.
+WITH RECURSIVE hierarchy_depths AS (
+  -- Start with root units (no parent)
+  SELECT id, logto_organization_id, hierarchy_key, parent_unit_id, management_level, 1 AS depth
+    FROM organization_units
+   WHERE parent_unit_id IS NULL
+     AND status <> 'archived'
+  UNION ALL
+  -- Recursively add children
+  SELECT child.id, child.logto_organization_id, child.hierarchy_key, child.parent_unit_id, child.management_level, parent.depth + 1
+    FROM organization_units child
+    JOIN hierarchy_depths parent ON child.parent_unit_id = parent.id
+                                  AND child.logto_organization_id = parent.logto_organization_id
+                                  AND child.hierarchy_key = parent.hierarchy_key
+   WHERE child.status <> 'archived'
+),
+level_assignments AS (
+  SELECT id,
+         CASE depth
+           WHEN 1 THEN 'strategic'
+           WHEN 2 THEN 'tactical'
+           WHEN 3 THEN 'coordination'
+           WHEN 4 THEN 'operational'
+           ELSE 'administrative'
+         END AS computed_level
+    FROM hierarchy_depths
+)
+UPDATE organization_units ou
+   SET management_level = la.computed_level
+  FROM level_assignments la
+ WHERE ou.id = la.id
+   AND (ou.management_level IS NULL OR ou.management_level = 'organization');
 
 DO $$
 BEGIN

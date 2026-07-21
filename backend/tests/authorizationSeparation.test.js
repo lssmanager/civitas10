@@ -21,8 +21,8 @@ test("owner routes use global access while tenant routes keep organization acces
   assert.match(source, /secureRoute\.get\("\/owner\/organizations", "ownerRead", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.ownerOrganizationsRead\] \}\), requireGlobalOwner/);
   assert.match(source, /secureRoute\.post\("\/owner\/organization-drafts", "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.ownerOrganizationsCreate\] \}\), requireGlobalOwner/);
   assert.match(source, /secureRoute\.post\(\["\/owner\/organizations", "\/organizations"\], "ownerSensitiveWrite", requireGlobalAccess\(\{ resource: API_RESOURCE, requiredScopes: \[OWNER_AUTHZ.ownerOrganizationsCreate\] \}\), requireGlobalOwner/);
-  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberRead", requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ.documentsRead\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.member\), requirePermission\(ORG_AUTHZ.documentsRead\)/);
-  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWrite", requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ.documentsCreate\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.admin\), requirePermission\(ORG_AUTHZ.documentsCreate\)/);
+  assert.match(source, /secureRoute\.get\("\/documents", "organizationMemberReadLegacyRedirect", requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ.documentsRead\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.member\), requirePermission\(ORG_AUTHZ.documentsRead\)/);
+  assert.match(source, /secureRoute\.post\("\/documents", "organizationAdminWriteLegacyRejected", requireOrganizationAccess\(\{ requiredAllScopes: \[ORG_AUTHZ.documentsCreate\] \}\), requireOrg, requireOrganizationRole\(SHARED_AUTH.organization.roles.admin\), requirePermission\(ORG_AUTHZ.documentsCreate\)/);
 });
 
 test("Logto management service uses deployment kernel configuration explicitly", () => {

@@ -126,10 +126,10 @@ export const PermissionMatrixModule = ({
   });
   const save = async () => {
     const writer = surface === "owner" ? onSaveOwnerCeilings : onSaveTenantActivations;
-    if (!writer || !effectiveRoleId || pendingCount === 0) return;
+    if (!writer || !effectiveRoleId || pendingCount === 0 || !versions?.policyVersion) return;
     setFeedback({ state: "saving", message: "Saving permission policy changes…" });
     try {
-      await writer({ roleId: effectiveRoleId, expectedPolicyVersion: versions?.policyVersion, changes: pendingList, reason: surface === "owner" ? "owner_ceiling_update" : "tenant_activation_update" });
+      await writer({ roleId: effectiveRoleId, expectedPolicyVersion: versions.policyVersion, changes: pendingList, reason: surface === "owner" ? "owner_ceiling_update" : "tenant_activation_update" });
       setPending({});
       setFeedback({ state: "saved", message: "Policy changes saved. Refresh the read model to see the new policy version." });
     } catch (error) {
@@ -145,6 +145,7 @@ export const PermissionMatrixModule = ({
         <RoleSelector id="governance-role-selector" label="Canonical role" value={effectiveRoleId} roles={roleOptions} onChange={(roleId) => { setSelectedRoleId(roleId); setPending({}); writeUrlState({ role: roleId }); }} />
         <FilterBar searchLabel="Search permissions" searchValue={filter} onSearchChange={(value) => { setFilter(value); writeUrlState({ filter: value }); }} onReset={() => { setFilter(""); writeUrlState({ filter: "" }); }}>
         </FilterBar>
+        {grouped.size === 0 ? <EmptyState message="No permissions match the current filter"><p className="text-sm text-muted-strong">Adjust the search filter or select a different role to view permissions.</p></EmptyState> : null}
         {[...grouped.entries()].map(([domain, items]) => {
           const allItems = allGrouped.get(domain) || [];
           const activeCount = allItems.filter(({ item }) => item.checked).length;

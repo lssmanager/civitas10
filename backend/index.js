@@ -476,11 +476,11 @@ function principalFromRequest(req) {
   const subject = req.auth?.subject || req.user?.sub || req.user?.id;
   const scopes = req.auth?.scopes instanceof Set ? req.auth.scopes : new Set(req.user?.scopes || []);
   const organizationRoles = req.auth?.organizationRoles || req.user?.organizationRoles || [];
-  const rolePaths = organizationRoles.map((role) => ({ rolePathId: `${role}:${subject || "subject"}`, logtoRoleId: role, canonicalRoleId: role, roleNameCache: role, roleKey: role, membershipId: req.auth?.claims?.membership_id || req.user?.claims?.membership_id || `${subject || "subject"}:${role}`, tokenScopePresent: scopes.has(role) || true }));
+  const rolePaths = organizationRoles.map((role) => ({ rolePathId: `${role}:${subject || "subject"}`, logtoRoleId: role, canonicalRoleId: role, roleNameCache: role, roleKey: role, membershipId: req.auth?.claims?.membership_id || req.user?.claims?.membership_id || `${subject || "subject"}:${role}`, tokenScopePresent: scopes.has(role) }));
   return { subject, scopes, organizationRoles, rolePaths, claims: req.auth?.claims || req.user?.claims || {} };
 }
 function lmsGroupService() {
-  return createLmsGroupLeadershipService({ entitlementRepository, dataScopeRepository, roleIdToName: { organization_groupleader: "organization_groupleader" }, auditPort: { async audit(event) { console.info(JSON.stringify({ type: "audit", ...event })); } } });
+  return createLmsGroupLeadershipService({ entitlementRepository, dataScopeRepository, roleIdToName: roleMapFromRoles, auditPort: { async audit(event) { console.info(JSON.stringify({ type: "audit", ...event })); } } });
 }
 function sendLmsGroupError(res, error) {
   return res.status(error.status || 403).json({ error: "Forbidden", code: error.code || "resource_forbidden", reasonCode: error.code || "resource_forbidden" });
