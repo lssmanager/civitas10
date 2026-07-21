@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertStrip, EmptyState, OrganizationContextHeader, StateRegion, StatusPill } from "../shared/ui";
-import { MetricCard, OwnerBadge, OwnerShell, ownerToneFromSeverity } from "../components/owner/OwnerUI";
-import { BlockCard, CapabilityCard } from "../features/owner/organization/operationalCards";
+import { OwnerShell } from "../components/owner/OwnerUI";
+import { OperationalOverview, OperationalModules } from "../features/owner/organization/operationalCards";
 import { ApiRequestError } from "../api/base";
 import { useOwnerApi } from "../api/owner";
 import { appRoutes } from "../navigation/routes";
@@ -92,7 +92,7 @@ const OwnerOrganizationOperationalPage = ({ initialSection = "overview" }: { ini
       {viewState.status === "not-found" ? <EmptyState message="Organization not found. The selected organization does not exist or is no longer available."><Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></EmptyState> : null}
       {viewState.status === "denied" ? <StateRegion><AlertStrip variant="warning" title="Access denied">{viewState.message}</AlertStrip></StateRegion> : null}
       {viewState.status === "error" ? <StateRegion><AlertStrip variant="danger" title={`Organization detail error · ${viewState.error.code}`}>{viewState.error.humanMessage}{retry ? <button type="button" className="civitas-secondary-button" onClick={retry}>Try again</button> : null}<Link className="civitas-secondary-button" to={appRoutes.ownerOrganizations.path}>Return to Directory</Link></AlertStrip></StateRegion> : null}
-      {viewState.status === "loaded" ? <><section id="operations" className="grid gap-4 md:grid-cols-4"><MetricCard label="Summary" detail={viewState.organization.summary.humanMessage || "Capability surface loaded."}><OwnerBadge tone={ownerToneFromSeverity(viewState.organization.summary.severity || "info")}>{viewState.organization.summary.status || "available"}</OwnerBadge></MetricCard><MetricCard label="Capabilities" value={viewState.organization.capabilities.length} detail="Owner capability surface returned by the backend." /><MetricCard label="Blockers" value={viewState.organization.blockers.length} detail="Aggregated capability blockers." /><MetricCard label="Polling" value={viewState.organization.polling.shouldPoll ? `${viewState.organization.polling.intervalSeconds}s` : "stopped"} detail={viewState.organization.polling.reason || "-"} /></section><section className="grid gap-4 lg:grid-cols-2">{viewState.organization.capabilities.map((capability) => <CapabilityCard key={capability.capability} capability={capability} />)}{viewState.organization.worker ? <BlockCard title="Worker" block={viewState.organization.worker} /> : null}</section></> : null}
+      {viewState.status === "loaded" ? (initialSection === "overview" ? <OperationalOverview organization={viewState.organization} /> : <OperationalModules organization={viewState.organization} />) : null}
     </OwnerShell>
   );
 };

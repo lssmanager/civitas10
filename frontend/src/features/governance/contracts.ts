@@ -2,7 +2,7 @@ import type { ActionId, PermissionKey, ScreenId } from "../../authorization/cont
 import type { VisualDecisionReason } from "../../authorization/contracts/visual-decision";
 
 export type GovernanceSurface = "owner" | "tenant";
-export type GovernanceModuleKey = "overview" | "permissions" | "members" | "taxonomy" | "units" | "data-scope" | "aliases-navigation" | "access-preview" | "audit";
+export type GovernanceModuleKey = "overview" | "permissions" | "members" | "taxonomy" | "units" | "lms-groups" | "data-scope" | "aliases-navigation" | "access-preview" | "audit";
 
 export const GOVERNANCE_READ_MODEL_CONTRACT_VERSION = "2026-07-civitas10-governance-read-model-v1" as const;
 export const GOVERNANCE_OPERATION_REGISTRY_VERSION = "2026-07-civitas10-governance-operations-v1" as const;

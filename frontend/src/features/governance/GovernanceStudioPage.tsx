@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { OwnerLayout } from "../../layouts/OwnerLayout";
 import { OrganizationLayout } from "../../layouts/OrganizationLayout";
@@ -99,16 +99,17 @@ const UnavailableWorkspacePanel = ({ title, description }: { title: string; desc
   </SectionCard>
 );
 
-const GovernanceModules = ({ activeItemId, model, operationalModel, previewOwnerAccess, previewTenantAccess, updateOwnerCeilings, updateTenantActivations }: { activeItemId: GovernanceWorkspaceItemId; model: GovernanceReadModel; operationalModel: ConsolidatedOperationalResponse | null; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; updateOwnerCeilings: ReturnType<typeof useGovernanceApi>["updateOwnerCeilings"]; updateTenantActivations: ReturnType<typeof useGovernanceApi>["updateTenantActivations"] }) => {
+const GovernanceModules = ({ activeItemId, model, operationalModel, previewOwnerAccess, previewTenantAccess, updateOwnerCeilings, updateTenantActivations, refetchReadModel }: { activeItemId: GovernanceWorkspaceItemId; model: GovernanceReadModel; operationalModel: ConsolidatedOperationalResponse | null; previewOwnerAccess: ReturnType<typeof useGovernanceApi>["previewOwnerAccessReadOnly"]; previewTenantAccess: ReturnType<typeof useGovernanceApi>["previewTenantAccessReadOnly"]; updateOwnerCeilings: ReturnType<typeof useGovernanceApi>["updateOwnerCeilings"]; updateTenantActivations: ReturnType<typeof useGovernanceApi>["updateTenantActivations"]; refetchReadModel: () => Promise<void> }) => {
   const item = workspaceItemById[activeItemId] ?? workspaceItems[0];
   const activeModule = item.moduleKey as GovernanceModuleKey | "unavailable" | "organization-overview" | "operations";
   if (activeModule === "organization-overview") return operationalModel ? <OperationalOverview organization={operationalModel} /> : <StateRegion><p className="text-sm text-muted-strong">Preparing organization overview...</p></StateRegion>;
   if (activeModule === "operations") return operationalModel ? <OperationalModules organization={operationalModel} /> : <StateRegion><p className="text-sm text-muted-strong">Preparing operations...</p></StateRegion>;
   const previewModel = { ...model, previewOwnerAccess, previewTenantAccess };
-  if (activeModule === "permissions") return <PermissionMatrixModule organizationId={model.organizationId} rows={model.permissionMatrix} roles={model.roles || []} surface={model.surface} versions={model.versions} onSaveOwnerCeilings={(input) => updateOwnerCeilings(model.organizationId, input)} onSaveTenantActivations={(input) => updateTenantActivations(model.organizationId, input)} />;
+  if (activeModule === "permissions") return <PermissionMatrixModule organizationId={model.organizationId} rows={model.permissionMatrix} roles={model.roles || []} surface={model.surface} versions={model.versions} onSaveOwnerCeilings={async (input) => { await updateOwnerCeilings(model.organizationId, input); await refetchReadModel(); }} onSaveTenantActivations={async (input) => { await updateTenantActivations(model.organizationId, input); await refetchReadModel(); }} />;
   if (activeModule === "members") return <MembersRoleAssignmentsModule members={model.members || []} />;
   if (activeModule === "taxonomy") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
   if (activeModule === "units") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
+  if (activeModule === "lms-groups") return <UnitsModule units={model.units} taxonomy={model.taxonomy} surface={model.surface} />;
   if (activeModule === "data-scope") return <DataScopeModule assignments={model.dataScopes} roles={model.roles || []} />;
   if (activeModule === "aliases-navigation") return <AliasesNavigationModule roles={model.roles ?? []} policy={model.aliasesNavigation} surface={model.surface} />;
   if (activeModule === "access-preview") {
@@ -130,6 +131,17 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [operationalModel, setOperationalModel] = useState<ConsolidatedOperationalResponse | null>(null);
+
+  const refetchGovernanceReadModel = useCallback(() => {
+    if (!organizationId || !isGovernanceOperationActive(surface, "governance.readModel")) return Promise.resolve();
+    setLoading(true);
+    setError(null);
+    const load = surface === "owner" ? governanceApi.getOwnerGovernance : governanceApi.getTenantGovernance;
+    return load(organizationId)
+      .then((response) => { setModel(response); })
+      .catch((caught) => { setError(caught instanceof Error ? caught.message : "Governance read model unavailable."); })
+      .finally(() => { setLoading(false); });
+  }, [governanceApi, organizationId, surface]);
 
   useEffect(() => {
     let active = true;
@@ -176,12 +188,10 @@ export const GovernanceStudioPage = ({ surface }: { surface: GovernanceSurface }
       <OrganizationContextHeader eyebrow="Organizations / Governance" organizationName={displayName} breadcrumb={<><Link to={selectOrganizationPath} className="text-primary-strong">Organizations</Link> / <span>{displayName}</span> / <span>Governance</span> / <span>{activeItem.label}</span></>} status={<StatusPill status={model.versions.runtimeStatus === "current" ? "success" : "warning"}>{model.versions.runtimeStatus ?? "pending"}</StatusPill>} actions={<Link className="civitas-secondary-button" to={selectOrganizationPath}>{surface === "owner" ? "Back to Directory" : "Open organization"}</Link>} description="Operational governance workspace for access policy, organization model, control and evidence. The overview and operations share this persistent organization shell." />
       {error ? <SectionCard title="Select an organization" description={error}><Link className="civitas-secondary-button" to={selectOrganizationPath}>Open organization surface</Link></SectionCard> : null}
       {loading ? <StateRegion><p className="text-sm text-muted-strong">Preparing governance data...</p></StateRegion> : null}
-      {!loading && !error ? (
-        <section className="min-w-0" aria-labelledby="workspace-section-title">
-          <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
-          <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} />
-        </section>
-      ) : null}
+      <section className="min-w-0" aria-labelledby="workspace-section-title">
+        <h2 id="workspace-section-title" className="sr-only">{activeItem.label}</h2>
+        <GovernanceModules activeItemId={activeItemId} model={model} operationalModel={operationalModel} previewOwnerAccess={governanceApi.previewOwnerAccessReadOnly} previewTenantAccess={governanceApi.previewTenantAccessReadOnly} updateOwnerCeilings={governanceApi.updateOwnerCeilings} updateTenantActivations={governanceApi.updateTenantActivations} refetchReadModel={refetchGovernanceReadModel} />
+      </section>
       <p className="text-xs text-muted">Need operational context? <Link className="text-primary-strong" to={organizationSurfacePath}>Open organization surface</Link>. Visibility is resolved by the screen/action registry and backend decisions; this workspace never evaluates roles or JWT claims in the presentation layer.</p>
     </Layout>
   );

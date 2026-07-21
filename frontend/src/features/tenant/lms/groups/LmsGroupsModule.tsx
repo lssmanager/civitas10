@@ -16,7 +16,7 @@ export const LmsGroupsModule = ({ model }: { model: LmsGroupsState }) => {
   if (model.state === "loading") return <SectionCard title="Groups"><p className="text-sm text-muted-strong" aria-live="polite">Loading authorized groups…</p></SectionCard>;
   if (model.state === "denied") return <SectionCard title="Groups"><AlertStrip variant="warning" title="Access denied">You do not have access to this group. Reason: {model.reasonCode || "resource_forbidden"}.</AlertStrip></SectionCard>;
   if (model.state === "error") return <SectionCard title="Groups"><AlertStrip variant="danger" title="Groups unavailable">We could not load authorized groups. Try again later.</AlertStrip></SectionCard>;
-  return <SectionCard title="Groups" description="Solo ves grupos donde eres líder. This view is read-only and never grants grade editing or permission management.">
+  return <SectionCard title="Groups" description="You only see groups where you are a leader. This view is read-only and never grants grade editing or permission management.">
     <DataTable columns={columns} data={[...model.groups]} getKey={(group) => group.id} emptyState={<EmptyState message="No led groups"><p className="text-sm text-muted-strong">No groups were returned by the authorized endpoint for your current scope.</p></EmptyState>} />
     {model.selectedGroup ? <section aria-labelledby="selected-group-title" className="mt-4 rounded-lg border border-border p-4">
       <h3 id="selected-group-title" className="text-base font-semibold text-text">{model.selectedGroup.displayName}</h3>

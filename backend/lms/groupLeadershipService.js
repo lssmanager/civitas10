@@ -18,7 +18,8 @@ function groupMatchesTarget(group, ref) { return [group.id, group.unitId, group.
 function normalizeRolePaths(principal = {}) {
   if (Array.isArray(principal.rolePaths) && principal.rolePaths.length) return principal.rolePaths;
   const roles = Array.isArray(principal.organizationRoles) ? principal.organizationRoles : [];
-  return roles.map((role) => ({ rolePathId: `${role}:self`, logtoRoleId: role, canonicalRoleId: role, roleNameCache: role, roleKey: role, membershipId: principal.membershipId || principal.claims?.membership_id || `${principal.subject || "subject"}:${role}`, tokenScopePresent: true }));
+  const scopes = principal.scopes instanceof Set ? principal.scopes : new Set(Array.isArray(principal.scopes) ? principal.scopes : []);
+  return roles.map((role) => ({ rolePathId: `${role}:self`, logtoRoleId: role, canonicalRoleId: role, roleNameCache: role, roleKey: role, membershipId: principal.membershipId || principal.claims?.membership_id || `${principal.subject || "subject"}:${role}`, tokenScopePresent: scopes.has(role) }));
 }
 
 function createPostgresLmsGroupRepository({ query = queryPostgres } = {}) {

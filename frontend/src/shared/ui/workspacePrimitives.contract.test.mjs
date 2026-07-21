@@ -2,14 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const sharedRoot = new URL("./", import.meta.url);
+const sharedRootPath = fileURLToPath(sharedRoot);
 const index = readFileSync(new URL("./index.ts", import.meta.url), "utf8");
 const primitivesCss = readFileSync(new URL("../../styles/primitives.css", import.meta.url), "utf8");
 const tokensCss = readFileSync(new URL("../../styles/tokens.css", import.meta.url), "utf8");
 const patternFixtures = readFileSync(new URL("./patterns/fixtures.ts", import.meta.url), "utf8");
 
-const readSharedFiles = (dir = sharedRoot.pathname) => readdirSync(dir).flatMap((entry) => {
+const readSharedFiles = (dir = sharedRootPath) => readdirSync(dir).flatMap((entry) => {
   const path = join(dir, entry);
   const stat = statSync(path);
   if (stat.isDirectory()) return readSharedFiles(path);
@@ -25,7 +27,7 @@ test("#130 exports all governance primitives and contractual patterns from share
 test("workspace primitives use semantic Civitas CSS contracts instead of raw visual decisions", () => {
   const files = readSharedFiles();
   for (const file of files) {
-    const rel = relative(sharedRoot.pathname, file);
+    const rel = relative(sharedRootPath, file);
     const text = readFileSync(file, "utf8");
     assert.doesNotMatch(text, /#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\(|shadow-\[|grid-cols-\[/, `${rel} must not contain raw color or arbitrary layout values`);
     assert.doesNotMatch(text, /from "\.\.\/\.\.\/features|fetch\(|useLogto|role ===|roles\.includes/, `${rel} must remain feature/authz agnostic`);

@@ -68,7 +68,7 @@ export const NavCollapse = ({ items, label }: { items: NavCollapseItem[]; label:
       <Link key={itemKey(item)} to={item.path || "#"} className={`civitas-nav-link ${active ? "civitas-nav-link-active" : ""}`} data-depth={depth} data-active={active} data-has-children="false">
         {Icon ? <Icon className="civitas-nav-link-icon" aria-hidden="true" /> : null}
         <span className="civitas-nav-link-label">{item.label}</span>
-        {item.status ? informativeStatus ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : <span className="civitas-status-dot" data-status={item.statusTone || "neutral"} aria-hidden="true" /> : null}
+        {item.status ? informativeStatus ? <StatusPill status={item.statusTone || "neutral"} noDot>{item.status}</StatusPill> : <><span className="civitas-status-dot" data-status={item.statusTone || "neutral"} aria-hidden="true" /><span className="sr-only">{item.status}</span></> : null}
       </Link>
     );
   };
