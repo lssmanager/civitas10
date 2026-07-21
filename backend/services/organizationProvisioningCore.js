@@ -18,10 +18,16 @@ const { assertProvisionedRoleAllowed } = require("../authorization/provisioningG
 const emptyToNull = (value) =>
   typeof value === "string" && value.trim() ? value.trim() : null;
 
-const normalizeRoleNames = (value) => {
+const normalizeRoleNames = (value, errors = []) => {
   const input = Array.isArray(value) ? value : [];
   const roles = input.map((role) => (typeof role === "string" ? role.trim() : "")).filter(Boolean);
-  for (const role of roles) assertProvisionedRoleAllowed({ roleName: role, source: "jit_default_roles" });
+  for (const role of roles) {
+    try {
+      assertProvisionedRoleAllowed({ roleName: role, source: "jit_default_roles" });
+    } catch (error) {
+      errors.push({ field: "jitProvisioning.defaultRoleNames", message: error.code });
+    }
+  }
   return Array.from(new Set(roles));
 };
 
@@ -154,9 +160,9 @@ function normalizeProvisioningInput(body = {}) {
       organizationLists: segmentation.lists || [],
     },
   }));
-  const jitDefaultRoleNames = normalizeRoleNames(body.jitProvisioning?.defaultRoleNames);
 
   const errors = [];
+  const jitDefaultRoleNames = normalizeRoleNames(body.jitProvisioning?.defaultRoleNames, errors);
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const description = typeof body.description === "string" ? body.description.trim() : undefined;
 
