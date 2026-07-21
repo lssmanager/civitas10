@@ -1,0 +1,56 @@
+openapi: 3.1.0
+info:
+  title: Civitas API
+  version: 1.0.0
+  summary: Canonical synchronous API contract for the Civitas modular platform.
+  description: |
+    REST is the canonical synchronous surface for Civitas API v1. Operations are
+    organized by surface, explicit organization, module, and resource. All module
+    operations in this foundation are planned contracts until their permissions,
+    application services, runtime routes, and tests are active.
+servers:
+  - url: https://civitas.didaxus.com/api/v1
+    description: Canonical production API base.
+tags:
+  - name: lms
+  - name: crm
+  - name: marketing
+  - name: community
+  - name: payments
+  - name: hr
+  - name: scheduling
+  - name: support
+  - name: analytics
+  - name: reports
+paths:
+  /o/{organizationId}/lms/courses:
+    $ref: ./modules/lms.yaml#/paths/~1o~1{organizationId}~1lms~1courses
+  /o/{organizationId}/crm/contacts:
+    $ref: ./modules/crm.yaml#/paths/~1o~1{organizationId}~1crm~1contacts
+  /o/{organizationId}/marketing/campaigns:
+    $ref: ./modules/marketing.yaml#/paths/~1o~1{organizationId}~1marketing~1campaigns
+  /o/{organizationId}/community/groups:
+    $ref: ./modules/community.yaml#/paths/~1o~1{organizationId}~1community~1groups
+  /o/{organizationId}/payments/invoices:
+    $ref: ./modules/payments.yaml#/paths/~1o~1{organizationId}~1payments~1invoices
+  /o/{organizationId}/hr/employees:
+    $ref: ./modules/hr.yaml#/paths/~1o~1{organizationId}~1hr~1employees
+  /o/{organizationId}/scheduling/bookings:
+    $ref: ./modules/scheduling.yaml#/paths/~1o~1{organizationId}~1scheduling~1bookings
+  /o/{organizationId}/support/tickets:
+    $ref: ./modules/support.yaml#/paths/~1o~1{organizationId}~1support~1tickets
+  /o/{organizationId}/analytics/organization-overviews/current:
+    $ref: ./modules/analytics.yaml#/paths/~1o~1{organizationId}~1analytics~1organization-overviews~1current
+  /o/{organizationId}/reports/executive-summaries/current:
+    $ref: ./modules/reports.yaml#/paths/~1o~1{organizationId}~1reports~1executive-summaries~1current
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: ./common/security.yaml#/components/securitySchemes/bearerAuth
+  schemas:
+    Problem:
+      $ref: ./common/schemas.yaml#/components/schemas/Problem
+    Page:
+      $ref: ./common/schemas.yaml#/components/schemas/Page
+    Meta:
+      $ref: ./common/schemas.yaml#/components/schemas/Meta

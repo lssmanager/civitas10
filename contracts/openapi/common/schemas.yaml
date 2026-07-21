@@ -1,0 +1,54 @@
+components:
+  schemas:
+    Meta:
+      type: object
+      required: [correlationId]
+      properties:
+        correlationId:
+          type: string
+    Page:
+      type: object
+      required: [hasMore]
+      properties:
+        nextCursor:
+          type: [string, 'null']
+        hasMore:
+          type: boolean
+    Problem:
+      type: object
+      required: [type, title, status, code, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+        correlationId:
+          type: string
+        decisionId:
+          type: string
+    OperationAccepted:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [operationId, status]
+          properties:
+            operationId:
+              type: string
+            status:
+              type: string
+              enum: [accepted, queued]
+        meta:
+          $ref: '#/components/schemas/Meta'

@@ -1,0 +1,44 @@
+paths:
+  /o/{organizationId}/analytics/organization-overviews/current:
+    get:
+      tags: [analytics]
+      summary: Planned canonical read operation for analytics.organization-overview.
+      operationId: analyticsOrganizationOverviewRead
+      x-civitas-module: analytics
+      x-civitas-capability: analytics.organization-overview
+      x-civitas-route-id: analytics.organization-overview.read
+      x-civitas-action-id: analytics.organization-overview.read
+      x-civitas-surface: organization
+      x-civitas-status: planned
+      x-civitas-permission: analytics.dashboards.read
+      x-civitas-policies: [same-organization, membership-required, authorization-snapshot-current]
+      x-civitas-audit: read
+      x-civitas-idempotency: forbidden
+      x-civitas-execution: synchronous
+      parameters:
+        - $ref: ../common/parameters.yaml#/components/parameters/OrganizationId
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Canonical successful response.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrganizationAnalyticsOverviewEnvelope' }
+        '401': { $ref: ../common/responses.yaml#/components/responses/Unauthorized }
+        '403': { $ref: ../common/responses.yaml#/components/responses/Forbidden }
+components:
+  securitySchemes:
+    bearerAuth: { $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth }
+  schemas:
+    OrganizationAnalyticsOverview:
+      type: object
+      required: [id, generatedAt]
+      properties:
+        id: { type: string }
+        generatedAt: { type: string, format: date-time }
+    OrganizationAnalyticsOverviewEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/OrganizationAnalyticsOverview' }
+        meta: { $ref: ../common/schemas.yaml#/components/schemas/Meta }
