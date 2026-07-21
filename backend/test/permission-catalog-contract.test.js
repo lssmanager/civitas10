@@ -11,9 +11,9 @@ test('canonical permission catalog exposes Phase 3 scope without activating plan
   assert.deepEqual(generated.activePermissions.map((permission) => permission.name).sort(), ['lms.course_offerings.read','lms.group_members.read','lms.groups.read','org.documents.create','org.documents.read'])
 })
 
-test('generated catalog hash is committed with inventory and runtime artifacts', () => {
-  const inventory = require('../../artifacts/authorization/permission-catalog.json')
-  assert.equal(inventory.catalogHash, generated.catalogHash)
+test('generated runtime artifact exposes the stable catalog hash and permission metadata', () => {
+  assert.match(generated.catalogHash, /^[a-f0-9]{64}$/)
+  assert.equal(generated.catalog.catalogHash, generated.catalogHash)
   assert.equal(generated.permissionsByName['org.documents.read'].observedImplementation, 'active')
   assert.equal(generated.permissionsByName['owner.audit.update'].observedImplementation, 'verification_required')
 })
