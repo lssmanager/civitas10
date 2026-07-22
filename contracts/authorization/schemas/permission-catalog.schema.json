@@ -1,1 +1,337 @@
-{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Civitas Canonical Permission Catalog","type":"object","required":["contractVersion","phase3Namespaces","organizationRoles","permissions","legacyDecisions"],"additionalProperties":false,"properties":{"contractVersion":{"type":"string"},"phase3Namespaces":{"type":"array","items":{"type":"string"}},"organizationRoles":{"type":"array","items":{"type":"string"}},"permissions":{"type":"array","items":{"type":"object","required":["name","namespace","moduleId","capabilityId","surface","targetStatus","observedImplementation","dataScopeStrategy","risk","consumers","policyRequirements","screenActionIds"],"additionalProperties":false,"properties":{"name":{"type":"string"},"namespace":{"type":"string"},"moduleId":{"type":["string","null"]},"capabilityId":{"type":"string"},"surface":{"enum":["owner","organization","account","public","webhook"]},"targetStatus":{"enum":["planned","active","deprecated","removed"]},"observedImplementation":{"enum":["active","declared_planned","absent","verification_required"]},"dataScopeStrategy":{"type":"string"},"risk":{"enum":["standard","high","restricted","critical"]},"consumers":{"type":"array","items":{"type":"string"}},"policyRequirements":{"type":"array","items":{"type":"string"}},"screenActionIds":{"type":"array","items":{"type":"string"}},"replacement":{"type":"string"},"compatibility":{"enum":["none","alias","blocked","compatibility-only"]}}}},"legacyDecisions":{"type":"array","items":{"type":"object","required":["legacyId","decision","reason"],"additionalProperties":false,"properties":{"legacyId":{"type":"string"},"decision":{"enum":["rename","compatibility-only","blocked"]},"canonicalName":{"type":["string","null"]},"reason":{"type":"string"}}}}}}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Civitas Canonical Permission Catalog",
+  "type": "object",
+  "required": [
+    "contractVersion",
+    "phase3Namespaces",
+    "organizationRoles",
+    "permissions",
+    "legacyDecisions",
+    "reconciliation",
+    "legacyBaselineObserved"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contractVersion": {
+      "type": "string"
+    },
+    "phase3Namespaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "organizationRoles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "required": [
+        "baseRef",
+        "baseSha",
+        "catalogSourceSha",
+        "foundationSourceSha",
+        "mergeBase",
+        "catalogHashAlgorithm",
+        "roleModelVersion",
+        "contractVersion",
+        "baselineAudit"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "baseRef": {
+          "type": "string"
+        },
+        "baseSha": {
+          "type": "string"
+        },
+        "catalogSourceSha": {
+          "type": "string"
+        },
+        "foundationSourceSha": {
+          "type": "string"
+        },
+        "mergeBase": {
+          "type": "string"
+        },
+        "catalogHashAlgorithm": {
+          "type": "string"
+        },
+        "roleModelVersion": {
+          "type": "string"
+        },
+        "contractVersion": {
+          "type": "string"
+        },
+        "baselineAudit": {
+          "type": "string"
+        },
+        "catalogHash": {
+          "type": "string"
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "namespace",
+          "moduleId",
+          "capabilityId",
+          "surface",
+          "targetStatus",
+          "observedImplementation",
+          "dataScopeStrategy",
+          "risk",
+          "consumers",
+          "policyRequirements",
+          "screenActionIds"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "moduleId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "capabilityId": {
+            "type": "string"
+          },
+          "surface": {
+            "enum": [
+              "owner",
+              "organization",
+              "account",
+              "public",
+              "webhook"
+            ]
+          },
+          "targetStatus": {
+            "enum": [
+              "planned",
+              "active",
+              "deprecated"
+            ]
+          },
+          "observedImplementation": {
+            "enum": [
+              "active",
+              "declared_planned",
+              "absent",
+              "verification_required"
+            ]
+          },
+          "dataScopeStrategy": {
+            "type": "string"
+          },
+          "risk": {
+            "enum": [
+              "standard",
+              "high",
+              "restricted",
+              "critical"
+            ]
+          },
+          "consumers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "policyRequirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "screenActionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "compatibility": {
+            "enum": [
+              "none",
+              "alias",
+              "blocked",
+              "compatibility-only"
+            ]
+          },
+          "runtimePath": {
+            "type": "string"
+          },
+          "testEvidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "migrationWindow": {
+            "type": "string"
+          },
+          "rollbackId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "legacyDecisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/legacyDecision"
+      }
+    },
+    "legacyBaselineObserved": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/legacyBaselineDecision"
+      }
+    }
+  },
+  "$defs": {
+    "legacyDecision": {
+      "type": "object",
+      "required": [
+        "legacyId",
+        "decision",
+        "canonicalName",
+        "reason",
+        "owner",
+        "surface",
+        "targetStatus",
+        "compatibilityWindow",
+        "rollbackId",
+        "consumerEvidence",
+        "explicitDecision"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "legacyId": {
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "rename",
+            "compatibility-only",
+            "blocked"
+          ]
+        },
+        "canonicalName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string"
+        },
+        "targetStatus": {
+          "type": "string"
+        },
+        "compatibilityWindow": {
+          "type": "string"
+        },
+        "rollbackId": {
+          "type": "string"
+        },
+        "consumerEvidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "explicitDecision": {
+          "type": "boolean"
+        },
+        "blocker": {
+          "type": "string"
+        }
+      }
+    },
+    "legacyBaselineDecision": {
+      "type": "object",
+      "required": [
+        "legacyId",
+        "classification",
+        "canonicalName",
+        "explicitDecision",
+        "owner",
+        "surface",
+        "targetStatus",
+        "compatibilityWindow",
+        "rollbackId",
+        "consumerEvidence",
+        "reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "legacyId": {
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "migrated",
+            "blocked",
+            "not-incorporated"
+          ]
+        },
+        "canonicalName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "explicitDecision": {
+          "type": "boolean"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string"
+        },
+        "targetStatus": {
+          "type": "string"
+        },
+        "compatibilityWindow": {
+          "type": "string"
+        },
+        "rollbackId": {
+          "type": "string"
+        },
+        "consumerEvidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

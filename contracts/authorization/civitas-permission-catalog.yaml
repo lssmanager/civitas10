@@ -619,7 +619,11 @@
         "contract-test:lms.course_offerings.read"
       ],
       "screenActionIds": [],
-      "compatibility": "none"
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
     },
     {
       "name": "lms.course_offerings.read.extra",
@@ -713,7 +717,11 @@
         "contract-test:lms.group_members.read"
       ],
       "screenActionIds": [],
-      "compatibility": "none"
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
     },
     {
       "name": "lms.groups.manage",
@@ -747,7 +755,11 @@
         "contract-test:lms.groups.read"
       ],
       "screenActionIds": [],
-      "compatibility": "none"
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
     },
     {
       "name": "lms.outcomes.export",
@@ -991,7 +1003,11 @@
         "contract-test:org.documents.create"
       ],
       "screenActionIds": [],
-      "compatibility": "none"
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/guards.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
     },
     {
       "name": "org.documents.manage",
@@ -1025,7 +1041,11 @@
         "contract-test:org.documents.read"
       ],
       "screenActionIds": [],
-      "compatibility": "none"
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/guards.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
     },
     {
       "name": "org.enrollments.delete",
@@ -1245,7 +1265,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1260,7 +1280,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1275,7 +1295,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1290,7 +1310,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1305,7 +1325,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1320,7 +1340,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1335,7 +1355,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1350,7 +1370,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1365,7 +1385,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1380,7 +1400,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1395,7 +1415,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1410,7 +1430,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1425,7 +1445,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1440,7 +1460,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1455,7 +1475,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1470,7 +1490,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -1485,7 +1505,7 @@
       "surface": "owner",
       "targetStatus": "planned",
       "observedImplementation": "verification_required",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "global_owner",
       "risk": "critical",
       "consumers": [],
       "policyRequirements": [],
@@ -2070,7 +2090,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2085,7 +2105,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2100,7 +2120,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "high",
       "consumers": [],
       "policyRequirements": [],
@@ -2115,7 +2135,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "high",
       "consumers": [],
       "policyRequirements": [],
@@ -2130,7 +2150,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2145,7 +2165,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2160,7 +2180,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2175,7 +2195,7 @@
       "surface": "organization",
       "targetStatus": "planned",
       "observedImplementation": "absent",
-      "dataScopeStrategy": "platform",
+      "dataScopeStrategy": "organization",
       "risk": "standard",
       "consumers": [],
       "policyRequirements": [],
@@ -2458,61 +2478,462 @@
       "legacyId": "billing.seats.read",
       "decision": "rename",
       "canonicalName": "payments.seats.read",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "billing.seats.assign",
       "decision": "rename",
       "canonicalName": "payments.seats.assign",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "billing.seats.release",
       "decision": "rename",
       "canonicalName": "payments.seats.release",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "billing.payments.read",
       "decision": "rename",
       "canonicalName": "payments.payments.read",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "billing.payments.write",
       "decision": "rename",
       "canonicalName": "payments.payments.write",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "billing.payments.manage",
       "decision": "rename",
       "canonicalName": "payments.payments.manage",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Explicit billing.* to payments.* namespace migration; no ownership or tenant inference.",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-BILLING-PAYMENTS-ROLLBACK",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "connectors.registry.read",
       "decision": "compatibility-only",
       "canonicalName": "platform.registry.read",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Phase 3 namespace migration decision",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-LEGACY-ROLLBACK-001",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "connectors.registry.configure",
       "decision": "compatibility-only",
       "canonicalName": "platform.registry.configure",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Phase 3 namespace migration decision",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-LEGACY-ROLLBACK-001",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "notifications.preferences.read",
       "decision": "compatibility-only",
       "canonicalName": "account.notifications.read",
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Phase 3 namespace migration decision",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-LEGACY-ROLLBACK-001",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision"
     },
     {
       "legacyId": "communications.messages.read",
       "decision": "blocked",
       "canonicalName": null,
-      "reason": "Phase 3 namespace migration decision"
+      "reason": "Phase 3 namespace migration decision",
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "2026-07-22..2026-12-31",
+      "rollbackId": "P3-AUTHZ-LEGACY-ROLLBACK-001",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "explicitDecision": true,
+      "evidence": "Phase 3 namespace migration decision",
+      "blocker": "No canonical target can be selected without consumer ownership and tenant semantics evidence."
+    }
+  ],
+  "reconciliation": {
+    "baseRef": "work",
+    "baseSha": "3da660f",
+    "catalogSourceSha": "997a245",
+    "foundationSourceSha": "a51769d",
+    "mergeBase": "3da660f",
+    "catalogHashAlgorithm": "sha256:canonical-json",
+    "roleModelVersion": "2026-07-civitas-phase3-13-role-v1",
+    "contractVersion": "2026-07-civitas-permission-catalog-v1",
+    "baselineAudit": "#167 observed legacy baseline; target is canonical Phase 3 contract"
+  },
+  "legacyBaselineObserved": [
+    {
+      "legacyId": "billing.seats.read",
+      "classification": "migrated",
+      "canonicalName": "payments.seats.read",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "billing.seats.assign",
+      "classification": "migrated",
+      "canonicalName": "payments.seats.assign",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "billing.seats.release",
+      "classification": "migrated",
+      "canonicalName": "payments.seats.release",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "billing.payments.read",
+      "classification": "migrated",
+      "canonicalName": "payments.payments.read",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "billing.payments.write",
+      "classification": "migrated",
+      "canonicalName": "payments.payments.write",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "billing.payments.manage",
+      "classification": "migrated",
+      "canonicalName": "payments.payments.manage",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "owner.read",
+      "classification": "migrated",
+      "canonicalName": "owner.profile.read",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "owner",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "owner.write",
+      "classification": "migrated",
+      "canonicalName": "owner.runtime.operations.execute",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "owner",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "owner.system.read",
+      "classification": "migrated",
+      "canonicalName": "owner.runtime.read",
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "owner",
+      "targetStatus": "planned",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Explicit baseline-to-target migration mapping."
+    },
+    {
+      "legacyId": "account.profile.read",
+      "classification": "not-incorporated",
+      "canonicalName": null,
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "blocked",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Account profile was observed in baseline but is not incorporated into the 14-namespace target contract."
+    },
+    {
+      "legacyId": "governance.owner.read",
+      "classification": "blocked",
+      "canonicalName": null,
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "blocked",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Governance IDs are blocked pending explicit namespace decision; consumers must not infer target permissions."
+    },
+    {
+      "legacyId": "governance.tenant.read",
+      "classification": "blocked",
+      "canonicalName": null,
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "blocked",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Governance IDs are blocked pending explicit namespace decision; consumers must not infer target permissions."
+    },
+    {
+      "legacyId": "governance.preview.read",
+      "classification": "blocked",
+      "canonicalName": null,
+      "explicitDecision": true,
+      "owner": "authorization-platform",
+      "surface": "organization",
+      "targetStatus": "blocked",
+      "compatibilityWindow": "none",
+      "rollbackId": "P3-AUTHZ-LEGACY-BASELINE-167",
+      "consumerEvidence": [
+        "core/authz/catalog",
+        "core/authz/runtime/active-permissions.js",
+        "backend/test/permission-catalog-contract.test.js",
+        "frontend/src/features/governance",
+        "contracts/openapi"
+      ],
+      "reason": "Governance IDs are blocked pending explicit namespace decision; consumers must not infer target permissions."
     }
   ]
 }

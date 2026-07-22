@@ -7,16 +7,16 @@ const OWNER_SCOPE_TEMPLATE_VERSION = "2026-07-owner-scope-templates-v1";
 
 const OWNER_SCOPE_TEMPLATES = Object.freeze(Object.entries(DATA_SCOPE_STRATEGIES).flatMap(([roleKey, capabilities]) =>
   Object.entries(capabilities).map(([capability, strategy]) => Object.freeze({
-    id: `${capability}.${roleKey}.${strategy.strategy}`,
+    id: `${capability}.${roleKey}.${strategy.name || strategy.strategy}`,
     version: OWNER_SCOPE_TEMPLATE_VERSION,
     capability,
-    strategy: strategy.strategy,
-    allowedTargetKinds: Object.freeze(strategy.strategy === "dimensions" ? ["dimension"] : ["relationships", "group_leadership"].includes(strategy.strategy) ? ["unit", "resource"] : []),
+    strategy: strategy.name || strategy.strategy,
+    allowedTargetKinds: Object.freeze((strategy.name || strategy.strategy) === "organization_and_units" || strategy.strategy === "dimensions" ? ["dimension"] : strategy.resolverKind === "relationship" || ["relationships", "group_leadership"].includes(strategy.strategy) ? ["unit", "resource"] : []),
     allowedDimensionKeys: Object.freeze(strategy.requiredDimensionKeys || []),
     allowedRelationshipKeys: Object.freeze(strategy.relationshipKeys || []),
     allowedRoleKeys: Object.freeze([roleKey]),
     lifecycle: "published",
-    dataScopeSemanticsVersion: strategy.contractVersion || "2026-07-data-scope-v1",
+    dataScopeSemanticsVersion: strategy.version || strategy.contractVersion || "2026-07-data-scope-v1",
   }))
 ));
 

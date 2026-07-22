@@ -1,0 +1,21 @@
+{
+  "issue": 165,
+  "phase": 3,
+  "baselineHead": "d060ec8232b6285d41d60118672947ecbc5f4b1e",
+  "finalHead": "commit-containing-this-provenance-file",
+  "contractVersion": "2026-07-logto-authz-plan-v1",
+  "targetIdentifier": "https://civitas.didaxus.com/api",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+  "planArtifact": "artifacts/authorization/logto-plan.json",
+  "remoteStateStatusWithoutCredentials": "verification_required",
+  "logtoWritesPerformed": false,
+  "driftCategories": ["missing", "extra", "legacy", "wrongSurface", "plannedLeakage", "wrongResourceIndicator"],
+  "applyGuards": ["explicit confirmation", "successful preflight", "actor", "reason", "expected plan hash", "idempotency key", "remote fingerprint freshness"],
+  "validation": {
+    "logto:authz:contract-check": "passed",
+    "logto:authz:plan": "passed",
+    "npm test": "passed",
+    "git diff --check": "passed"
+  }
+}

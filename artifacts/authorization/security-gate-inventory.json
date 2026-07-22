@@ -1,0 +1,49 @@
+{
+  "_generated": {
+    "notice": "GENERATED — DO NOT EDIT",
+    "source": "scripts/authorization/security-contract-gate.mjs",
+    "command": "npm run authz:security-gate",
+    "generatedAt": "1970-01-01T00:00:00.000Z"
+  },
+  "gateVersion": "2026-07-civitas-phase3-security-gate-v1",
+  "ref": "work",
+  "sha": "runtime-git-sha-checked-by-gate",
+  "runtimeShaPolicy": "evaluated during gate execution and normalized for deterministic inventory",
+  "mergeBase": "unavailable",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+  "contractVersion": "2026-07-civitas-permission-catalog-v1",
+  "artifactHashes": {
+    "contracts/authorization/civitas-permission-catalog.yaml": "38648f3040aff7d5200f1ea29089c92bc0fb046b97e5bf5ff7df6354d429b4cc",
+    "contracts/authorization/schemas/permission-catalog.schema.json": "d6b8ab88f093ff370e4879a157338dfa83eda71f9f581d266c74a5e99dceed7d",
+    "contracts/authorization/civitas-role-bundles.json": "4a6d1f7babc62308e90a1af5d2531de9ce1ac3ed43ab29acbbfcd9662db05b8c",
+    "core/authz/catalog/generated/permission-catalog.js": "9997368825fa53bd097f47921ee66c6b3bff9246aa2081f65f652783b1d1e060",
+    "core/authz/roles/generated/role-model.js": "5c13a0acc449db09a7c2e625d817163a1953639a730c5169086ae5c63e692420",
+    "artifacts/authorization/permission-catalog.json": "70e028318384e5c7a4c683ebd789014cc775fa391648d75a5cd67ffb5b19ede4",
+    "artifacts/authorization/active-permissions.json": "aaa147d3630d0009ad605e8eeffc561365b995f820c8f0ed9155d943829dc61d",
+    "artifacts/authorization/ci-inventory.json": "d20c856af5863669f03a00786dd56432afb89235319045d38d27df4ed9d8df5f",
+    "artifacts/authorization/role-potential.json": "6fa7ae75c51db22cfebee1b62aea13cd5bf40f9bfe15ebaad3d1bb13affd06ef",
+    "artifacts/authorization/active-role-scopes.json": "7b6dd1aaf5eb1b00564b501f4fcc262d1cb1d09508b5dc7ed3d0e056b410aeeb",
+    "artifacts/authorization/logto-plan.json": "0e4f279debad89730ecd2debd53b23a7196b8b2e3dc0a4b421b298a45d7f3077"
+  },
+  "summary": {
+    "errors": 0,
+    "requiredArtifacts": 11,
+    "executableScanRoots": [
+      "frontend/src/authorization",
+      "frontend/src/features/governance/visual",
+      "frontend/src/features/owner",
+      "frontend/src/features/tenant/lms/groups",
+      "core/governance"
+    ],
+    "driftFixturesCovered": [
+      "governance.preview.read",
+      "billing legacy to payments ambiguity",
+      "wildcard/colon legacy IDs",
+      "12-role omission",
+      "planned executable leakage",
+      "wrong surface"
+    ]
+  },
+  "errors": []
+}

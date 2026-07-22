@@ -39,3 +39,33 @@ test("navigation is derived recursively and AppShell remains renderer-only", () 
   assert.doesNotMatch(shell, /defaultOwnerNavItems/);
   assert.match(shell, /<NavCollapse items=\{resolvedNavItems\}/);
 });
+
+const catalogs = readFileSync(new URL("./registry/catalogs.ts", import.meta.url), "utf8");
+const compiler = readFileSync(new URL("./registry/compile-visual-registry.ts", import.meta.url), "utf8");
+const validator = readFileSync(new URL("./registry/validate-visual-registry.ts", import.meta.url), "utf8");
+const ownerRuntimeScreen = readFileSync(new URL("../features/owner/runtime/runtime.screen.ts", import.meta.url), "utf8");
+const ownerRuntimeActions = readFileSync(new URL("../features/owner/runtime/runtime.actions.ts", import.meta.url), "utf8");
+const visualProvider = readFileSync(new URL("./components/VisualAuthorizationProvider.tsx", import.meta.url), "utf8");
+
+test("visual registry is catalog-bound and cannot elevate absent governance aliases", () => {
+  for (const legacyId of ["owner.read", "owner.write", "owner.system.read", "account.profile.read", "lms.grades.read", "lms.grades.manage", "analytics.reports.read", "governance.owner.read", "governance.tenant.read", "governance.preview.read"]) {
+    assert.doesNotMatch(registry + catalogs + visualProvider, new RegExp(legacyId.replaceAll(".", "\\.")));
+  }
+  assert.match(validator, /registry_catalog_mismatch/);
+  assert.match(validator, /consumer_surface_mismatch/);
+  assert.match(validator, /activePermissions\.has\(permission/);
+});
+
+test("visual registry carries catalog hash, role model version and snapshot provenance", () => {
+  assert.match(catalogs, /authorizationCatalogHash/);
+  assert.match(catalogs, /roleModelVersion/);
+  assert.match(compiler, /snapshotProvenance/);
+  assert.match(compiler, /catalogHash/);
+});
+
+test("owner runtime read and execution use independent visual guards", () => {
+  assert.match(ownerRuntimeScreen, /owner\.runtime\.read/);
+  assert.doesNotMatch(ownerRuntimeScreen, /owner\.runtime\.operations\.execute/);
+  assert.match(ownerRuntimeActions, /owner\.runtime\.operations\.execute/);
+  assert.doesNotMatch(ownerRuntimeActions, /owner\.runtime\.read/);
+});

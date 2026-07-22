@@ -1,0 +1,18 @@
+{
+  "issue": 166,
+  "phase": 3,
+  "baselineHead": "8f2095a3356fef8a64a660a9f81111eab96667a9",
+  "finalHead": "commit-containing-this-provenance-file",
+  "gateVersion": "2026-07-civitas-phase3-security-gate-v1",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+  "inventory": "artifacts/authorization/security-gate-inventory.json",
+  "checks": ["missing authored/generated artifacts", "14 namespaces", "13 roles including organization_groupleader", "160 permissions", "10 legacy decisions", "executable permission active/catalog-bound", "Logto plan drift buckets", "identity discovery network guardrails"],
+  "negativeFixtures": ["governance.preview.read active outside catalog", "12-role omission", "planned executable leakage", "wrong surface", "billing/payments explicit decision", "wildcard/colon legacy IDs"],
+  "validation": {
+    "authz:security-gate": "passed",
+    "authz:security-gate:check": "passed",
+    "npm test": "passed",
+    "git diff --check": "passed"
+  }
+}

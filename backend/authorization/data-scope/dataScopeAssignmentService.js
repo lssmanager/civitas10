@@ -24,7 +24,7 @@ async function validateScopeTemplate({ input, templateRegistry }) {
   return template;
 }
 
-function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeConsistencyPort, templateRegistry, membershipPort } = {}) {
+function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeConsistencyPort, templateRegistry, membershipPort, unitPort, resourcePort } = {}) {
   async function emit(event) {
     const policyVersion = runtimeConsistencyPort?.incrementPolicyVersion ? await runtimeConsistencyPort.incrementPolicyVersion(event) : await repository.incrementPolicyVersion();
     const out = { ...event, policyVersion };
@@ -49,6 +49,8 @@ function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeCon
     const template = await validateScopeTemplate({ input, templateRegistry });
     if (input.scopeKind === "dimension") await validateDimensionAssignment({ taxonomyPort, organizationId: input.organizationId, dimensionKey: input.dimensionKey, dimensionValueId: input.dimensionValueId, capability: input.capability });
     if (input.scopeKind !== "dimension") validateRelationshipKey(input.relationshipKey);
+    if (input.scopeKind === "unit" && unitPort?.getUnit) { const unit = await unitPort.getUnit({ organizationId: input.organizationId, unitId: input.unitId }); if (!unit) throw dataScopeError(DATA_SCOPE_REASON_CODES.UNIT_UNKNOWN); if (unit.organizationId !== input.organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.UNIT_WRONG_TENANT); if (unit.status && unit.status !== "active") throw dataScopeError(DATA_SCOPE_REASON_CODES.UNIT_INACTIVE); }
+    if (input.scopeKind === "resource" && resourcePort?.getResource) { const resource = await resourcePort.getResource({ organizationId: input.organizationId, resourceRef: input.resourceRef }); if (!resource) throw dataScopeError(DATA_SCOPE_REASON_CODES.RESOURCE_UNKNOWN); if (resource.organizationId !== input.organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.RESOURCE_WRONG_TENANT); if (resource.status && !["active","published"].includes(resource.status)) throw dataScopeError(DATA_SCOPE_REASON_CODES.RESOURCE_FORBIDDEN); }
     return template;
   }
 
@@ -62,14 +64,14 @@ function createDataScopeAssignmentService({ repository, taxonomyPort, runtimeCon
       const template = await validateAssignmentInput(input);
       if (input.expectedPolicyVersion && Number(input.expectedPolicyVersion) !== Number(await repository.getPolicyVersion(input.organizationId))) throw dataScopeError(DATA_SCOPE_REASON_CODES.POLICY_VERSION_CONFLICT);
       const now = input.validFrom || new Date().toISOString();
-      const saved = await repository.insertAssignment({ logtoOrganizationId: input.organizationId, logtoUserId: input.userId, membershipId: input.membershipId, logtoRoleId: input.logtoRoleId, canonicalRoleId: input.canonicalRoleId || input.logtoRoleId, scopeTemplateId: template?.id || input.scopeTemplateId, scopeTemplateVersion: template?.version || input.scopeTemplateVersion, capability: input.capability, scopeKind: input.scopeKind, dimensionKey: input.dimensionKey, relationshipKey: input.relationshipKey, dimensionValueId: input.dimensionValueId, unitId: input.unitId, resourceRef: input.resourceRef, sourceType: input.sourceType || "explicit", sourceRef: input.sourceRef, sourceVersion: input.sourceVersion, status: new Date(now) <= new Date() ? "active" : "scheduled", assignedByLogtoUserId: input.actorLogtoUserId, reason: input.reason, validFrom: now, validUntil: input.validUntil });
+      const saved = await repository.insertAssignment({ logtoOrganizationId: input.organizationId, logtoUserId: input.userId, membershipId: input.membershipId, logtoRoleId: input.logtoRoleId, canonicalRoleId: input.canonicalRoleId || input.logtoRoleId, scopeTemplateId: template?.id || input.scopeTemplateId, scopeTemplateVersion: template?.version || input.scopeTemplateVersion, capability: input.capability, scopeKind: input.scopeKind, dimensionKey: input.dimensionKey, relationshipKey: input.relationshipKey, dimensionValueId: input.dimensionValueId, unitId: input.unitId, resourceRef: input.resourceRef, sourceType: input.sourceType || input.source || "explicit", sourceRef: input.sourceRef, sourceVersion: input.sourceVersion || "manual-v1", status: new Date(now) <= new Date() ? "active" : "scheduled", state: new Date(now) <= new Date() ? "active" : "scheduled", assignedByLogtoUserId: input.actorLogtoUserId || input.actorId, actorId: input.actorId || input.actorLogtoUserId, reason: input.reason || "scope assignment", validFrom: now, validUntil: input.validUntil });
       const policyVersion = await emit({ eventType: "authz.data_scope_assignment.created", organizationId: input.organizationId, assignmentId: saved.id, actorLogtoUserId: input.actorLogtoUserId });
       return { assignment: saved, policyVersion };
     },
     async revokeAssignment({ organizationId, assignmentId, actorLogtoUserId, reason } = {}) {
       const assignment = await repository.getAssignment(assignmentId);
       if (!assignment || assignment.logtoOrganizationId !== organizationId) throw dataScopeError(DATA_SCOPE_REASON_CODES.ASSIGNMENT_MISSING);
-      const saved = await repository.updateAssignment(assignmentId, { status: "revoked", revokedAt: new Date().toISOString(), revokedByLogtoUserId: actorLogtoUserId, reason: reason || assignment.reason });
+      const saved = await repository.updateAssignment(assignmentId, { status: "revoked", state: "revoked", revokedAt: new Date().toISOString(), revokedByLogtoUserId: actorLogtoUserId, reason: reason || assignment.reason });
       const policyVersion = await emit({ eventType: "authz.data_scope_assignment.revoked", organizationId, assignmentId, actorLogtoUserId });
       return { assignment: saved, policyVersion };
     },
