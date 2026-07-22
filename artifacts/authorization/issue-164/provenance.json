@@ -1,0 +1,28 @@
+{
+  "issue": 164,
+  "phase": 3,
+  "baselineHead": "2e2fece244b3fcb9957cefca221385d6b37a3b89",
+  "finalHead": "commit-containing-this-provenance-file",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+  "contractVersion": "2026-07-civitas-authz-pbac-contract-v1",
+  "changes": [
+    "authorize denies unknown, inactive/planned and consumer-surface mismatched permission IDs before policy evaluation",
+    "registry catalog hash mismatch produces registry_catalog_mismatch",
+    "decisions carry catalogHash, roleModelVersion and snapshot provenance",
+    "visual registry catalog is restricted to active permissions from the same catalogHash",
+    "owner runtime read and execute operation permissions are separated"
+  ],
+  "logtoWritesPerformed": false,
+  "plannedOrAbsentRegistryIdsFailClosed": ["governance.preview.read", "owner.read", "owner.write", "owner.system.read", "account.profile.read", "lms.grades.read", "lms.grades.manage", "analytics.reports.read"],
+  "validation": {
+    "authz:permission-catalog:check": "passed",
+    "authz:role-model:check": "passed",
+    "authz:naming:check": "passed",
+    "logto:authz:contract-check": "passed",
+    "authz:policy-contract-check": "passed",
+    "npm test": "passed",
+    "git diff --check": "passed"
+  },
+  "openFollowUps": ["#162", "#163", "#165", "#166", "#167"]
+}

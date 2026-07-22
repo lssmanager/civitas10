@@ -10,7 +10,7 @@ export const useVisualAuthorization = () => useContext(Context);
 
 export const visualAuthorizationContextFromOwnerMe = (me?: MeResponse, organizationId?: string): VisualAuthorizationContext => {
   const permissions: PermissionKey[] = [];
-  if (me?.auth.owner?.canReadOwner) permissions.push("owner.read" as PermissionKey, "owner.organizations.read" as PermissionKey, "owner.system.read" as PermissionKey, "account.profile.read" as PermissionKey, "governance.owner.read" as PermissionKey, "governance.preview.read" as PermissionKey);
-  if (me?.auth.owner?.canWriteOwner) permissions.push("owner.write" as PermissionKey, "owner.organizations.create" as PermissionKey);
-  return { status: me ? "ready" : "stale", organizationId, policyVersion: "owner-legacy-adapter", catalogVersion: "phase2-visual-contract", visualVersion: "96.0", effectivePermissions: new Set(permissions), availableDataScopeCapabilities: new Set(["owner"]), enabledFeatures: new Set(["owner-runtime"]), policyDecisions: new Map() };
+  if (me?.auth.owner?.canReadOwner) permissions.push("owner.profile.read" as PermissionKey, "owner.organizations.read" as PermissionKey, "owner.runtime.read" as PermissionKey);
+  if (me?.auth.owner?.canWriteOwner) permissions.push("owner.runtime.operations.execute" as PermissionKey, "owner.organizations.create" as PermissionKey);
+  return { status: me ? "ready" : "stale", organizationId, policyVersion: "owner-legacy-adapter", catalogVersion: "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d", visualVersion: "96.0", effectivePermissions: new Set(permissions), availableDataScopeCapabilities: new Set(["owner"]), enabledFeatures: new Set(["owner-runtime"]), policyDecisions: new Map() };
 };

@@ -1,9 +1,23 @@
 import type { VisualRegistry } from "./compile-visual-registry";
-import { activePermissions, knownCapabilities, knownFeatureFlags, knownIcons, knownPolicies } from "./catalogs";
-import type { MenuKey } from "../contracts/ids";
+import { activePermissions, authorizationCatalogHash, knownCapabilities, knownFeatureFlags, knownIcons, knownPolicies, permissionCatalog } from "./catalogs";
+import type { MenuKey, PermissionKey } from "../contracts/ids";
 
 const legacyPermission = /:|^organization\.|^impersonation\.|^runtime:|^worker-queues:/;
 const roleOrTaxonomy = /(organization_(admin|teacher|headdirector)|owner_global|primary|elementary|mathematics|social-studies|billing-department|moodle|freescout|listmonk|calcom)/i;
+
+const routeSurface = (path: string): "owner" | "organization" | "unknown" => {
+  if (path.startsWith("/owner")) return "owner";
+  if (path.startsWith("/o/")) return "organization";
+  return "unknown";
+};
+const validatePermission = (permission: string, consumerId: string, consumerKind: "screen" | "action", expectedSurface?: "owner" | "organization"): string[] => {
+  const errors: string[] = [];
+  const metadata = permissionCatalog.get(permission as PermissionKey);
+  if (!activePermissions.has(permission as PermissionKey) || metadata?.status !== "active" || metadata.catalogHash !== authorizationCatalogHash) errors.push(`registry_catalog_mismatch ${permission} on ${consumerKind} ${consumerId}`);
+  if (metadata && expectedSurface && metadata.surface !== expectedSurface) errors.push(`consumer_surface_mismatch ${permission} on ${consumerKind} ${consumerId}`);
+  if (legacyPermission.test(permission) || roleOrTaxonomy.test(permission)) errors.push(`legacy/role/taxonomy permission ${permission} on ${consumerKind} ${consumerId}`);
+  return errors;
+};
 
 export const validateVisualRegistry = (registry: Pick<VisualRegistry, "screens" | "actions">): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
@@ -18,10 +32,8 @@ export const validateVisualRegistry = (registry: Pick<VisualRegistry, "screens" 
     seenActions.add(action.actionId);
     if (!knownCapabilities.has(action.capability)) errors.push(`unknown capability ${action.capability} on action ${action.actionId}`);
     if (action.featureFlag && !knownFeatureFlags.has(action.featureFlag)) errors.push(`unknown featureFlag ${action.featureFlag} on action ${action.actionId}`);
-    for (const permission of [...(action.access.requiredAllPermissions ?? []), ...(action.access.requiredAnyPermissions ?? [])]) {
-      if (!activePermissions.has(permission)) errors.push(`unknown or inactive permission ${permission} on action ${action.actionId}`);
-      if (legacyPermission.test(permission) || roleOrTaxonomy.test(permission)) errors.push(`legacy/role/taxonomy permission ${permission} on action ${action.actionId}`);
-    }
+    const actionSurface = action.actionId.startsWith("owner.") ? "owner" : action.actionId.startsWith("tenant.") ? "organization" : undefined;
+    for (const permission of [...(action.access.requiredAllPermissions ?? []), ...(action.access.requiredAnyPermissions ?? [])]) errors.push(...validatePermission(permission, action.actionId, "action", actionSurface));
     for (const policy of action.access.policies ?? []) if (!knownPolicies.has(policy)) errors.push(`unknown policy ${policy} on action ${action.actionId}`);
   }
 
@@ -36,13 +48,10 @@ export const validateVisualRegistry = (registry: Pick<VisualRegistry, "screens" 
     if (screen.route.contextScope !== "tenant" && screen.access.requiresOrganizationContext) errors.push(`organization context required on non-tenant route ${screen.screenId}`);
     if (screen.route.path.startsWith("/owner") && screen.route.contextScope !== "platform") errors.push(`owner route must use platform context ${screen.screenId}`);
     if (screen.route.path.startsWith("/o/") && screen.route.contextScope !== "tenant") errors.push(`tenant route must use tenant context ${screen.screenId}`);
-    if (screen.route.path.startsWith("/owner") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("org."))) errors.push(`tenant permission on owner screen ${screen.screenId}`);
-    if (screen.route.path.startsWith("/o/") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("owner."))) errors.push(`owner permission on tenant screen ${screen.screenId}`);
+    if (screen.route.path.startsWith("/owner") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("org."))) errors.push(`consumer_surface_mismatch tenant permission on owner screen ${screen.screenId}`);
+    if (screen.route.path.startsWith("/o/") && [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])].some((permission) => permission.startsWith("owner."))) errors.push(`consumer_surface_mismatch owner permission on tenant screen ${screen.screenId}`);
     for (const actionId of screen.actions) if (!seenActions.has(actionId)) errors.push(`unknown action ${actionId} referenced by screen ${screen.screenId}`);
-    for (const permission of [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])]) {
-      if (!activePermissions.has(permission)) errors.push(`unknown or inactive permission ${permission} on screen ${screen.screenId}`);
-      if (legacyPermission.test(permission) || roleOrTaxonomy.test(permission)) errors.push(`legacy/role/taxonomy permission ${permission} on screen ${screen.screenId}`);
-    }
+    for (const permission of [...(screen.access.requiredAllPermissions ?? []), ...(screen.access.requiredAnyPermissions ?? [])]) errors.push(...validatePermission(permission, screen.screenId, "screen", routeSurface(screen.route.path) === "unknown" ? undefined : routeSurface(screen.route.path)));
     for (const policy of screen.access.policies ?? []) if (!knownPolicies.has(policy)) errors.push(`unknown policy ${policy} on screen ${screen.screenId}`);
     if (screen.featureFlag && !knownFeatureFlags.has(screen.featureFlag)) errors.push(`unknown featureFlag ${screen.featureFlag} on screen ${screen.screenId}`);
     if (screen.navigation) {

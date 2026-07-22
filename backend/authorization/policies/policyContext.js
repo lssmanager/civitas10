@@ -29,7 +29,7 @@ function buildPolicyContext(input) {
     decisionId,
     principal: normalizedPrincipal,
     request: Object.freeze({ surface: input.surface, operation: input.operation, routeId: input.routeId || "unknown", routeOrganizationId: input.organizationId || input.routeOrganizationId, requestId: input.requestId, ipHash: input.ipHash }),
-    authorization: Object.freeze({ permission: input.permission, actionId: input.actionId, requiredPolicies: Object.freeze([...(input.policies || [])]), policyVersion: input.policyVersion }),
+    authorization: Object.freeze({ permission: input.permission, actionId: input.actionId, requiredPolicies: Object.freeze([...(input.policies || [])]), policyVersion: input.policyVersion, snapshotVersion: input.snapshotVersion }),
     target: input.target ? Object.freeze({ ...input.target }) : undefined,
     resource: input.resource ? Object.freeze({ ...input.resource }) : undefined,
     rolePaths: buildRolePaths(normalizedPrincipal, input.permission),

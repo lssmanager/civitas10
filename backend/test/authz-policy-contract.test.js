@@ -141,3 +141,40 @@ test("HTTP middleware consumes req.auth without revalidating JWT and returns saf
   assert.equal(JSON.stringify(req.authorizationDecision).includes("bearer"), false);
   assert.equal(JSON.stringify(req.authorizationDecision).includes("claims"), false);
 });
+
+test("PBAC catalog gate denies unknown, planned, surface-mismatched and registry-hash drift", async () => {
+  const unknown = await authorize(base({ permission: "governance.preview.read", principal: { ...principal, scopes: new Set(["governance.preview.read"]) }, policies: [] }));
+  assert.equal(unknown.reasonCode, POLICY_REASON_CODES.PERMISSION_UNKNOWN);
+
+  const planned = await authorize(base({ permission: "lms.grades.export", principal: { ...principal, scopes: new Set(["lms.grades.export"]) }, policies: [] }));
+  assert.equal(planned.reasonCode, POLICY_REASON_CODES.PERMISSION_INACTIVE);
+
+  const surfaceMismatch = await authorize(base({ permission: "owner.runtime.read", surface: "organization", principal: { ...principal, scopes: new Set(["owner.runtime.read"]) }, policies: [] }));
+  assert.equal(surfaceMismatch.reasonCode, POLICY_REASON_CODES.CONSUMER_SURFACE_MISMATCH);
+
+  const hashMismatch = await authorize(base({ catalogHash: "sha256:not-the-runtime-catalog", policies: [] }));
+  assert.equal(hashMismatch.reasonCode, POLICY_REASON_CODES.REGISTRY_CATALOG_MISMATCH);
+});
+
+test("PBAC decisions include catalog, role-model and snapshot provenance", async () => {
+  const decision = await authorize(base({ policies: [], snapshotVersion: "snapshot-fixture-v1" }));
+  assert.equal(decision.allowed, true);
+  assert.match(decision.catalogHash, /^[a-f0-9]{64}$/);
+  assert.equal(decision.roleModelVersion, "2026-07-civitas-phase3-role-bundles-v1");
+  assert.equal(decision.snapshotProvenance.snapshotVersion, "snapshot-fixture-v1");
+  assert.equal(decision.snapshotProvenance.catalogHash, decision.catalogHash);
+});
+
+test("owner runtime read and operation execution are independent guards", async () => {
+  const ownerPrincipal = { subject: "owner", tokenType: "global", audience: ["https://civitas.didaxus.com/api"], scopes: new Set(["owner.runtime.read"]), globalRoleIds: ["owner_global"] };
+  const read = await authorize({ principal: ownerPrincipal, permission: "owner.runtime.read", surface: "owner", operation: "read", policies: [] });
+  assert.equal(read.allowed, true);
+  const execute = await authorize({ principal: ownerPrincipal, permission: "owner.runtime.operations.execute", surface: "owner", operation: "execute", policies: [] });
+  assert.equal(execute.allowed, false);
+  assert.equal(execute.reasonCode, POLICY_REASON_CODES.PERMISSION_MISSING);
+});
+
+test("module availability is part of the PBAC denial pipeline", async () => {
+  const unavailable = await authorize(base({ policies: [], providers: { ...delegationProviders(), moduleAvailabilityResolver: { resolve: async () => ({ status: "disabled", capability: "documents" }) } } }));
+  assert.equal(unavailable.reasonCode, POLICY_REASON_CODES.MODULE_DISABLED);
+});

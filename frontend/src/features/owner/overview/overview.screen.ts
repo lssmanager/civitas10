@@ -6,7 +6,7 @@ export const ownerOverviewScreen = defineScreen({
   capability: "owner",
   route: routeCatalog.ownerOverview,
   navigation: { menuKey: "owner.overview", labelKey: "navigation.owner.overview", breadcrumbKey: "breadcrumbs.owner.overview", iconKey: "overview", responsiveGroup: "owner", order: 10 },
-  access: { requiredAllPermissions: ["owner.read"], requiresOrganizationContext: false },
+  access: { requiredAllPermissions: ["owner.profile.read"], requiresOrganizationContext: false },
   organizationCustomization: { visibility: "locked", order: "locked" },
   actions: [],
 });

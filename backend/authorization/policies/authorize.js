@@ -1,16 +1,28 @@
 "use strict";
 
-const { permissionsByName } = require("../../../core/authz");
+const { catalogHash, permissionsByName, roleModel } = require("../../../core/authz");
 const { buildPolicyContext } = require("./policyContext");
 const { POLICY_REASON_CODES } = require("./reasonCodes");
 const { createDefaultPolicyRegistry } = require("./defaultRegistry");
 const { sanitizeMetadata } = require("./policyResult");
 
+function decisionProvenance(context) {
+  return Object.freeze({
+    catalogHash,
+    roleModelVersion: roleModel._generated?.roleModelVersion || roleModel.roleModelVersion,
+    snapshotProvenance: Object.freeze({
+      snapshotVersion: context.authorization.snapshotVersion || "unspecified",
+      policyVersion: context.authorization.policyVersion,
+      catalogHash,
+      roleModelVersion: roleModel._generated?.roleModelVersion || roleModel.roleModelVersion,
+    }),
+  });
+}
 function denyDecision(context, reasonCode, extra = {}) {
-  return Object.freeze({ allowed: false, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode, safeMetadata: sanitizeMetadata(extra) });
+  return Object.freeze({ allowed: false, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode, ...decisionProvenance(context), safeMetadata: sanitizeMetadata(extra) });
 }
 function allowDecision(context, matchedRolePathId) {
-  return Object.freeze({ allowed: true, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, matchedRolePathId, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode: POLICY_REASON_CODES.AUTHORIZATION_ALLOWED, safeMetadata: {} });
+  return Object.freeze({ allowed: true, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, matchedRolePathId, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode: POLICY_REASON_CODES.AUTHORIZATION_ALLOWED, ...decisionProvenance(context), safeMetadata: {} });
 }
 function sanitizeRolePaths(paths) {
   return (paths || []).map((path) => ({ rolePathId: path.rolePathId, logtoRoleId: path.logtoRoleId, tokenScopePresent: Boolean(path.tokenScopePresent), delegationDecision: path.delegationDecision ? { operation: path.delegationDecision.operation, targetRoleId: path.delegationDecision.targetRoleId, allowed: path.delegationDecision.allowed, reasonCode: path.delegationDecision.reasonCode } : undefined, entitlementDecision: path.entitlementDecision, dataScopeDecision: path.dataScopeDecision, policyResults: (path.policyResults || []).map((result) => ({ policyId: result.policyId, outcome: result.outcome, reasonCode: result.reasonCode })) }));
@@ -20,15 +32,43 @@ function surfaceMatches(context) {
   if (context.request.surface === "organization") return context.principal.tokenType === "organization" && Boolean(context.principal.organizationId);
   return Boolean(context.principal.subject);
 }
+function permissionSurfaceMatches(permission, requestSurface) {
+  if (requestSurface === "owner") return permission.surface === "owner" || permission.surface === "global";
+  if (requestSurface === "organization" || requestSurface === "tenant") return permission.surface === "organization" && !permission.name.startsWith("owner.");
+  if (requestSurface === "self") return permission.surface === "self" || permission.surface === "account";
+  return false;
+}
+async function resolveModuleAvailability(context, permission) {
+  const resolver = context.providers.moduleAvailabilityResolver;
+  if (!resolver?.resolve) return null;
+  const availability = await resolver.resolve({ permission: permission.name, capability: context.target?.capability || permission.domain || permission.name.split(".")[0], organizationId: context.request.routeOrganizationId, surface: context.request.surface });
+  if (!availability || availability.available === true || availability.status === "active") return null;
+  const status = availability.status || "unavailable";
+  const map = {
+    not_installed: POLICY_REASON_CODES.MODULE_NOT_INSTALLED,
+    disabled: POLICY_REASON_CODES.MODULE_DISABLED,
+    suspended: POLICY_REASON_CODES.MODULE_SUSPENDED,
+    capability_unavailable: POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE,
+    incompatible: POLICY_REASON_CODES.RUNTIME_INCOMPATIBLE,
+    unavailable: POLICY_REASON_CODES.RUNTIME_UNAVAILABLE,
+  };
+  return { reasonCode: map[status] || POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE, metadata: { status, capability: availability.capability } };
+}
 async function authorize(input) {
   const registry = input.registry || createDefaultPolicyRegistry();
   const context = buildPolicyContext(input);
   context.providers = input.providers || {};
   if (!context.principal.subject) return denyDecision(context, POLICY_REASON_CODES.SURFACE_MISMATCH);
+  const requiredCatalogHash = input.catalogHash || input.requiredCatalogHash;
+  if (requiredCatalogHash && requiredCatalogHash !== catalogHash) return denyDecision(context, POLICY_REASON_CODES.REGISTRY_CATALOG_MISMATCH, { requiredCatalogHash, catalogHash });
   const permission = permissionsByName[context.authorization.permission];
-  if (!permission || permission.status !== "active") return denyDecision(context, POLICY_REASON_CODES.PERMISSION_INACTIVE);
-  if (!context.principal.scopes.has(context.authorization.permission)) return denyDecision(context, POLICY_REASON_CODES.PERMISSION_MISSING);
+  if (!permission) return denyDecision(context, POLICY_REASON_CODES.PERMISSION_UNKNOWN);
+  if (permission.status !== "active") return denyDecision(context, POLICY_REASON_CODES.PERMISSION_INACTIVE, { status: permission.status });
+  if (!permissionSurfaceMatches(permission, context.request.surface)) return denyDecision(context, POLICY_REASON_CODES.CONSUMER_SURFACE_MISMATCH, { permissionSurface: permission.surface });
   if (!surfaceMatches(context)) return denyDecision(context, POLICY_REASON_CODES.SURFACE_MISMATCH);
+  if (!context.principal.scopes.has(context.authorization.permission)) return denyDecision(context, POLICY_REASON_CODES.PERMISSION_MISSING);
+  const moduleAvailability = await resolveModuleAvailability(context, permission);
+  if (moduleAvailability) return denyDecision(context, moduleAvailability.reasonCode, moduleAvailability.metadata);
   if (context.request.surface !== "self" && context.rolePaths.length === 0) return denyDecision(context, POLICY_REASON_CODES.ROLE_PATH_MISSING);
   let matchedRolePathId = context.rolePaths[0]?.rolePathId;
   for (const policyId of context.authorization.requiredPolicies) {
