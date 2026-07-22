@@ -1,0 +1,552 @@
+{
+  "discovery_status": "incomplete_remote_verification",
+  "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+  "credentialState": {
+    "credentialsPresent": false,
+    "credentialSource": "absent",
+    "managementAudiencePresent": false,
+    "endpointConfigured": false,
+    "remoteReadExplicitlyEnabled": false
+  },
+  "currentLogtoManagementCalls": [
+    {
+      "function": "createLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "POST",
+      "path": "/organizations",
+      "readOrWrite": "write",
+      "caller": "organization provisioning",
+      "productionReachability": "reachable via provisioning flow",
+      "authorizationExpected": "owner/platform provisioning auth expected",
+      "tenantInput": "organization payload",
+      "roleInput": "n/a",
+      "risk": "creates organization; forbidden in discovery",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/organizationProvisioningCore.js:376:  return require(\"./logtoManagement\").createLogtoOrganization(",
+        "backend/services/logtoManagement.js:336:async function createLogtoOrganization({ name, description, customData }) {",
+        "backend/services/logtoManagement.js:712:  createLogtoOrganization,"
+      ]
+    },
+    {
+      "function": "updateLogtoOrganizationCustomData",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PATCH",
+      "path": "/organizations/{organizationId}",
+      "readOrWrite": "write",
+      "caller": "organization update/provisioning",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "owner/platform provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "mutates customData; may duplicate authority",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:343:async function updateLogtoOrganizationCustomData({ organizationId, customData }) {",
+        "backend/services/logtoManagement.js:721:  updateLogtoOrganizationCustomData,"
+      ]
+    },
+    {
+      "function": "updateLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PATCH",
+      "path": "/organizations/{organizationId}",
+      "readOrWrite": "write",
+      "caller": "organization update",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "owner/platform provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "mutates org profile",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:343:async function updateLogtoOrganizationCustomData({ organizationId, customData }) {",
+        "backend/services/logtoManagement.js:350:async function updateLogtoOrganization({ organizationId, name, description, customData }) {",
+        "backend/services/logtoManagement.js:721:  updateLogtoOrganizationCustomData,",
+        "backend/services/logtoManagement.js:722:  updateLogtoOrganization,"
+      ]
+    },
+    {
+      "function": "getLogtoOrganizationById",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/organizations/{organizationId}",
+      "readOrWrite": "read",
+      "caller": "organization diagnostics/provisioning",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "authenticated management read",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "safe only through read-only harness",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/index.js:17:  getLogtoOrganizationById,",
+        "backend/index.js:352:    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);",
+        "backend/index.js:379:    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);",
+        "backend/index.js:516:    const logtoOrganization = await getLogtoOrganizationById(req.params.organizationId);",
+        "backend/services/logtoManagement.js:357:async function getLogtoOrganizationById(organizationId) {",
+        "backend/services/logtoManagement.js:731:  getLogtoOrganizationById,",
+        "backend/connectors/identity/logto/adapter.js:17:      if (action === \"identity.organization.get\") return client.getLogtoOrganizationById(input.organizationId || input.logtoOrganizationId);"
+      ]
+    },
+    {
+      "function": "addUserToLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "POST",
+      "path": "/organizations/{organizationId}/users",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core",
+      "productionReachability": "reachable during current provisioning",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "adds membership; billable/access risk",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:361:async function addUserToLogtoOrganization({ organizationId, userId }) {",
+        "backend/services/logtoManagement.js:710:  addUserToLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:2:  addUserToLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:252:    addUserToLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:339:        await deps.addUserToLogtoOrganization({ organizationId, userId });",
+        "backend/tests/organizationProvisioningResume.test.js:38:    async addUserToLogtoOrganization({ userId }) { calls.push([\"membership.add\", userId]); },",
+        "backend/tests/organizationProvisioningRoles.test.js:34:      async addUserToLogtoOrganization(input) { calls.push([\"addUserToLogtoOrganization\", input]); return {}; },"
+      ]
+    },
+    {
+      "function": "replaceJitEmailDomainsForLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PUT",
+      "path": "/organizations/{organizationId}/jit/email-domains",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core",
+      "productionReachability": "reachable during current provisioning when JIT domain provided",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "legacy JIT domain mutation",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/organizationProvisioningCore.js:8:  replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:254:    replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:321:        await deps.replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains: [input.canonical.jitProvisioning.domain] });",
+        "backend/services/logtoManagement.js:368:async function replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains }) {",
+        "backend/services/logtoManagement.js:709:  replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/tests/organizationProvisioningRoles.test.js:31:      async replaceJitEmailDomainsForLogtoOrganization(input) { calls.push([\"replaceJitEmailDomainsForLogtoOrganization\", input]); return {}; },",
+        "backend/tests/organizationProvisioningResume.test.js:35:    async replaceJitEmailDomainsForLogtoOrganization() { calls.push(\"jit.domains.replace\"); },"
+      ]
+    },
+    {
+      "function": "replaceJitDefaultRolesForLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PUT",
+      "path": "/organizations/{organizationId}/jit/roles",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core",
+      "productionReachability": "reachable during current provisioning",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "default role names resolved to IDs",
+      "risk": "legacy default JIT roles; Student-org risk if configured",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/tests/organizationProvisioningRoles.test.js:32:      async replaceJitDefaultRolesForLogtoOrganization(input) { calls.push([\"replaceJitDefaultRolesForLogtoOrganization\", input]); return {}; },",
+        "backend/tests/organizationProvisioningResume.test.js:36:    async replaceJitDefaultRolesForLogtoOrganization({ organizationRoleIds }) { calls.push([\"jit.roles.replace\", organizationRoleIds]); },",
+        "backend/services/logtoManagement.js:375:async function replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds }) {",
+        "backend/services/logtoManagement.js:708:  replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:7:  replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:255:    replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:326:      await deps.replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds: jitRoleIds });"
+      ]
+    },
+    {
+      "function": "listLogtoOrganizationRoles",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/organization-roles?page={page}&page_size={pageSize}",
+      "readOrWrite": "read",
+      "caller": "template validation/role lookup",
+      "productionReachability": "reachable during provisioning",
+      "authorizationExpected": "management read",
+      "tenantInput": "n/a",
+      "roleInput": "role names",
+      "risk": "read may verify Admin-org/Student-org existence",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/services/organizationProvisioningCore.js:6:  listLogtoOrganizationRoles,",
+        "backend/services/organizationProvisioningCore.js:249:    listLogtoOrganizationRoles,",
+        "backend/services/organizationProvisioningCore.js:295:      const roles = await deps.listLogtoOrganizationRoles();",
+        "backend/services/logtoManagement.js:382:async function listLogtoOrganizationRoles() {",
+        "backend/services/logtoManagement.js:406:  const roles = await listLogtoOrganizationRoles();",
+        "backend/services/logtoManagement.js:411:  const roles = await listLogtoOrganizationRoles();",
+        "backend/services/logtoManagement.js:735:  listLogtoOrganizationRoles,",
+        "backend/index.js:13:  listLogtoOrganizationRoles,",
+        "backend/index.js:300:    const roles = await listLogtoOrganizationRoles();",
+        "backend/index.js:380:    const roles = await listLogtoOrganizationRoles();",
+        "backend/index.js:401:    const roles = await listLogtoOrganizationRoles();",
+        "backend/index.js:517:    const roles = await listLogtoOrganizationRoles();"
+      ]
+    },
+    {
+      "function": "assignOrganizationRoleToUser",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "POST",
+      "path": "/organizations/{organizationId}/users/{userId}/roles",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core/backend route",
+      "productionReachability": "reachable during provisioning and route assignment",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "organizationRoleId/name",
+      "risk": "materializes role in Logto; blocked until #162/#165",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/index.js:16:  assignOrganizationRoleToUser,",
+        "backend/index.js:558:    await assignOrganizationRoleToUser({ organizationId: req.params.organizationId, userId, organizationRoleId: roleId });",
+        "backend/services/organizationProvisioningCore.js:3:  assignOrganizationRoleToUser,",
+        "backend/services/organizationProvisioningCore.js:253:    assignOrganizationRoleToUser,",
+        "backend/services/organizationProvisioningCore.js:340:        await deps.assignOrganizationRoleToUser({ organizationId, userId, organizationRoleId: roleId, organizationRoleName: contact.organizationRoleName });",
+        "backend/services/logtoManagement.js:457:async function assignOrganizationRoleToUser({ organizationId, userId, organizationRoleId, organizationRoleName }) {",
+        "backend/services/logtoManagement.js:711:  assignOrganizationRoleToUser,",
+        "backend/tests/organizationProvisioningRoles.test.js:35:      async assignOrganizationRoleToUser(input) { calls.push([\"assignOrganizationRoleToUser\", input]); return {}; },",
+        "backend/tests/organizationProvisioningRoles.test.js:78:  const assignCall = logto.calls.find(([name]) => name === \"assignOrganizationRoleToUser\");",
+        "backend/tests/organizationProvisioningResume.test.js:39:    async assignOrganizationRoleToUser({ userId, organizationRoleName }) {"
+      ]
+    },
+    {
+      "function": "getLogtoUserById",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/users/{userId}",
+      "readOrWrite": "read",
+      "caller": "user diagnostics/provisioning",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "management read",
+      "tenantInput": "n/a",
+      "roleInput": "n/a",
+      "risk": "could expose identities; use redacted probe only",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/services/logtoManagement.js:467:async function getLogtoUserById(userId) {",
+        "backend/services/logtoManagement.js:730:  getLogtoUserById,"
+      ]
+    },
+    {
+      "function": "updateLogtoUser",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PATCH",
+      "path": "/users/{userId}",
+      "readOrWrite": "write",
+      "caller": "createOrResolveLogtoUserByEmail",
+      "productionReachability": "reachable during current provisioning",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "n/a",
+      "roleInput": "n/a",
+      "risk": "PII mutation; forbidden in discovery",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:476:async function updateLogtoUser({ userId, email, primaryEmail, name, phone, primaryPhone, username, profile, customData }) {",
+        "backend/services/logtoManagement.js:659:      const updated = await updateLogtoUser({ userId, email, name, phone: phoneConflict ? null : phone, username, profile, customData });",
+        "backend/services/logtoManagement.js:723:  updateLogtoUser,"
+      ]
+    },
+    {
+      "function": "listLogtoUsers",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/users?search={search}",
+      "readOrWrite": "read",
+      "caller": "find user by email/phone/username",
+      "productionReachability": "reachable during provisioning",
+      "authorizationExpected": "management read",
+      "tenantInput": "n/a",
+      "roleInput": "n/a",
+      "risk": "query contains PII; avoid in discovery artifacts",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/services/logtoManagement.js:502:async function listLogtoUsers({ search } = {}) {",
+        "backend/services/logtoManagement.js:612:  const users = await listLogtoUsers({ search: normalizedEmail });",
+        "backend/services/logtoManagement.js:619:  const users = await listLogtoUsers({ search: normalizedPhone });",
+        "backend/services/logtoManagement.js:626:  const users = await listLogtoUsers({ search: normalizedUsername });",
+        "backend/services/logtoManagement.js:738:  listLogtoUsers,"
+      ]
+    },
+    {
+      "function": "listLogtoOrganizationUsers",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/organizations/{organizationId}/users",
+      "readOrWrite": "read",
+      "caller": "diagnostics/provisioning",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "management read",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "may expose PII and memberships",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/index.js:14:  listLogtoOrganizationUsers,",
+        "backend/index.js:381:    const members = await listLogtoOrganizationUsers({ organizationId: req.params.organizationId }).catch(() => []);",
+        "backend/index.js:518:    const members = await listLogtoOrganizationUsers({ organizationId: req.params.organizationId }).catch(() => []);",
+        "backend/services/logtoManagement.js:509:async function listLogtoOrganizationUsers({ organizationId }) {",
+        "backend/services/logtoManagement.js:736:  listLogtoOrganizationUsers,"
+      ]
+    },
+    {
+      "function": "listLogtoOrganizationUserRoles",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/organizations/{organizationId}/users/{userId}/roles",
+      "readOrWrite": "read",
+      "caller": "diagnostics/provisioning",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "management read",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "role evidence only, not authority",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/index.js:15:  listLogtoOrganizationUserRoles,",
+        "backend/index.js:382:    const memberRolesByUserId = new Map(await Promise.all(members.map(async (user) => [user.id || user.userId || user.logtoUserId, await listLogtoOrganizationUserRoles({ organizationId: req.params.organizationId, userId: user.id || user.userId || user.logtoUserId }).catch(() => [])])));",
+        "backend/index.js:519:    const memberRolesByUserId = new Map(await Promise.all(members.map(async (user) => [user.id || user.userId || user.logtoUserId, await listLogtoOrganizationUserRoles({ organizationId: req.params.organizationId, userId: user.id || user.userId || user.logtoUserId }).catch(() => [])])));",
+        "backend/services/logtoManagement.js:514:async function listLogtoOrganizationUserRoles({ organizationId, userId }) {",
+        "backend/services/logtoManagement.js:737:  listLogtoOrganizationUserRoles,"
+      ]
+    },
+    {
+      "function": "removeUserFromLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "DELETE",
+      "path": "/organizations/{organizationId}/users/{userId}",
+      "readOrWrite": "write",
+      "caller": "cleanup/deprovision helper",
+      "productionReachability": "reachable where imported",
+      "authorizationExpected": "management write",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "destructive membership removal",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:519:async function removeUserFromLogtoOrganization({ organizationId, userId }) {",
+        "backend/services/logtoManagement.js:719:  removeUserFromLogtoOrganization,"
+      ]
+    },
+    {
+      "function": "removeLogtoUserGlobalRole",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "DELETE",
+      "path": "/users/{userId}/roles/{roleId}",
+      "readOrWrite": "write",
+      "caller": "removeProhibitedLogtoUserGlobalRoles",
+      "productionReachability": "reachable if removeProhibitedRoles true",
+      "authorizationExpected": "management write",
+      "tenantInput": "n/a",
+      "roleInput": "roleId",
+      "risk": "destructive role removal",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:530:async function removeLogtoUserGlobalRole({ userId, roleId }) {",
+        "backend/services/logtoManagement.js:558:    await removeLogtoUserGlobalRole({ userId, roleId: role.id });",
+        "backend/services/logtoManagement.js:718:  removeLogtoUserGlobalRole,"
+      ]
+    },
+    {
+      "function": "createLogtoUser",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "POST",
+      "path": "/users",
+      "readOrWrite": "write",
+      "caller": "createOrResolveLogtoUserByEmail",
+      "productionReachability": "reachable during provisioning",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "n/a",
+      "roleInput": "n/a",
+      "risk": "creates identity with PII",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/logtoManagement.js:490:async function createLogtoUserPasswordResetRequest() {",
+        "backend/services/logtoManagement.js:635:async function createLogtoUser({ email, primaryEmail, name, phone, primaryPhone, username, profile, customData }) {",
+        "backend/services/logtoManagement.js:671:    return { user: await createLogtoUser(basePayload), created: true, source: phoneConflict ? \"create_user_phone_omitted\" : \"create_user\", reconciliation: baseReconciliation };",
+        "backend/services/logtoManagement.js:679:        return { user: await createLogtoUser({ email, name, username, profile, customData }), created: true, source: \"create_user_after_phone_validation_omitted\", reconciliation: retryReconciliation };",
+        "backend/services/logtoManagement.js:686:            return { user: await createLogtoUser({ ...basePayload, username: fallbackUsername, profile: { ...(profile || {}), preferredUsername: fallbackUsername } }), created: true, source: \"create_user_username_suffix\", username: fallbackUsername, reconciliation: baseReconciliation };",
+        "backend/services/logtoManagement.js:713:  createLogtoUser,",
+        "backend/services/logtoManagement.js:724:  createLogtoUserPasswordResetRequest,"
+      ]
+    },
+    {
+      "function": "validateOrganizationTemplate",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "GET",
+      "path": "/organization-roles",
+      "readOrWrite": "read",
+      "caller": "ensureOrganizationTemplate/provisioning",
+      "productionReachability": "reachable during provisioning",
+      "authorizationExpected": "management read",
+      "tenantInput": "n/a",
+      "roleInput": "required role names",
+      "risk": "legacy role model verification only",
+      "Phase3Disposition": "wrap",
+      "callSites": [
+        "backend/services/logtoManagement.js:410:async function validateOrganizationTemplate({ requiredRoleNames = REQUIRED_ORGANIZATION_ROLE_NAMES } = {}) {",
+        "backend/services/logtoManagement.js:429:  const template = await validateOrganizationTemplate({ requiredRoleNames });",
+        "backend/services/logtoManagement.js:739:  validateOrganizationTemplate,"
+      ]
+    },
+    {
+      "function": "readAuthorizationState",
+      "file": "scripts/logto/authorization-state-reader.js",
+      "HTTPMethod": "GET",
+      "path": "/api/resources, /api/resources/{id}/scopes, /api/roles, /api/organization-roles",
+      "readOrWrite": "read",
+      "caller": "logto plan-rbac/contract tooling",
+      "productionReachability": "script-only",
+      "authorizationExpected": "management read",
+      "tenantInput": "n/a",
+      "roleInput": "roles/scopes",
+      "risk": "authorization read; not identity federation evidence",
+      "Phase3Disposition": "retain",
+      "callSites": [
+        "scripts/logto/cli.js:8:const { emptyRemoteState, readAuthorizationState } = require('./authorization-state-reader')",
+        "scripts/logto/cli.js:23:  const remoteState = client ? await readAuthorizationState(client, { resourceIndicator: contract.manifest.resource }) : emptyRemoteState({ source: 'empty-no-credentials' })",
+        "scripts/logto/authorization-state-reader.js:2:async function readAuthorizationState(client, { resourceIndicator } = {}) {",
+        "scripts/logto/authorization-state-reader.js:19:module.exports = { emptyRemoteState, normalizeRemoteState, readAuthorizationState }"
+      ]
+    }
+  ],
+  "currentJitConfigurationMethods": [
+    {
+      "function": "replaceJitEmailDomainsForLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PUT",
+      "path": "/organizations/{organizationId}/jit/email-domains",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core",
+      "productionReachability": "reachable during current provisioning when JIT domain provided",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "n/a",
+      "risk": "legacy JIT domain mutation",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/services/organizationProvisioningCore.js:8:  replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:254:    replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:321:        await deps.replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains: [input.canonical.jitProvisioning.domain] });",
+        "backend/services/logtoManagement.js:368:async function replaceJitEmailDomainsForLogtoOrganization({ organizationId, emailDomains }) {",
+        "backend/services/logtoManagement.js:709:  replaceJitEmailDomainsForLogtoOrganization,",
+        "backend/tests/organizationProvisioningRoles.test.js:31:      async replaceJitEmailDomainsForLogtoOrganization(input) { calls.push([\"replaceJitEmailDomainsForLogtoOrganization\", input]); return {}; },",
+        "backend/tests/organizationProvisioningResume.test.js:35:    async replaceJitEmailDomainsForLogtoOrganization() { calls.push(\"jit.domains.replace\"); },"
+      ]
+    },
+    {
+      "function": "replaceJitDefaultRolesForLogtoOrganization",
+      "file": "backend/services/logtoManagement.js",
+      "HTTPMethod": "PUT",
+      "path": "/organizations/{organizationId}/jit/roles",
+      "readOrWrite": "write",
+      "caller": "organization provisioning core",
+      "productionReachability": "reachable during current provisioning",
+      "authorizationExpected": "provisioning auth expected",
+      "tenantInput": "organizationId",
+      "roleInput": "default role names resolved to IDs",
+      "risk": "legacy default JIT roles; Student-org risk if configured",
+      "Phase3Disposition": "blocked",
+      "callSites": [
+        "backend/tests/organizationProvisioningRoles.test.js:32:      async replaceJitDefaultRolesForLogtoOrganization(input) { calls.push([\"replaceJitDefaultRolesForLogtoOrganization\", input]); return {}; },",
+        "backend/tests/organizationProvisioningResume.test.js:36:    async replaceJitDefaultRolesForLogtoOrganization({ organizationRoleIds }) { calls.push([\"jit.roles.replace\", organizationRoleIds]); },",
+        "backend/services/logtoManagement.js:375:async function replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds }) {",
+        "backend/services/logtoManagement.js:708:  replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:7:  replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:255:    replaceJitDefaultRolesForLogtoOrganization,",
+        "backend/services/organizationProvisioningCore.js:326:      await deps.replaceJitDefaultRolesForLogtoOrganization({ organizationId, organizationRoleIds: jitRoleIds });"
+      ]
+    }
+  ],
+  "currentDefaultRoleAssumptions": [
+    {
+      "name": "ORGANIZATION_ADMIN_ROLE_NAME",
+      "value": "Admin-org",
+      "source": "backend/services/logtoManagement.js",
+      "classification": "legacy_jit_role_model",
+      "phase3Disposition": "blocked_until_#162_#165"
+    },
+    {
+      "name": "JIT_DEFAULT_ORGANIZATION_ROLE_NAME",
+      "value": "Student-org",
+      "source": "backend/services/logtoManagement.js",
+      "classification": "legacy_default_role_assignment",
+      "phase3Disposition": "blocked_until_#162_#165"
+    }
+  ],
+  "currentOrganizationProvisioningFlow": {
+    "source": "backend/services/organizationProvisioningCore.js",
+    "writes": [
+      "createLogtoOrganization",
+      "replaceJitEmailDomainsForLogtoOrganization",
+      "replaceJitDefaultRolesForLogtoOrganization",
+      "addUserToLogtoOrganization",
+      "assignOrganizationRoleToUser"
+    ],
+    "finding": "write_capable_management_client",
+    "phase3Disposition": "migration_required"
+  },
+  "currentCustomClaimsPlan": {
+    "source": "scripts/logto/bootstrap-custom-token-claims.js",
+    "claims": [
+      "https://civitas.didaxus.com/claims/organization_role_ids",
+      "https://civitas.didaxus.com/claims/authz_contract_version"
+    ],
+    "contextVerified": false,
+    "phase3Disposition": "verification_required"
+  },
+  "currentManagementApiResourceSeparation": {
+    "sources": [
+      "backend/services/logtoManagement.js",
+      "core/shared/civitas-shared.contract.cjs"
+    ],
+    "finding": "management resource separated from Civitas API resource in code guards",
+    "status": "confirmed"
+  },
+  "currentRedactionBehavior": {
+    "sources": [
+      "backend/services/logtoManagement.js",
+      "scripts/logto/redaction.js",
+      "scripts/discovery/logto-identity-federation-probe.mjs"
+    ],
+    "status": "confirmed_static_redaction_paths"
+  },
+  "currentTests": [
+    "docs/architecture/CIVITAS_AUTHORIZATION_POLICY_MODEL.md:76:El tenant puede cambiar el nombre que se muestra (“Rector”, “Coordinador académico”, etc.), pero no el ID ni el potencial del rol. Crear un rol nuevo es un cambio de Owner: catálogo, configuración Logto, permisos, contrato, migración, tests y version bump.",
+    "docs/architecture/organization-provisioning.md:37:The backend must not use hardcoded backend role lists as provisioning truth. Local role constants may exist for authorization helpers/tests, but organization bootstrap role validation uses Logto's current Management API response.",
+    "backend/test/authz-data-scope-contract.test.js:8:test(\"taxonomy status is enforced and identity.self is not stored as an assignment\",async()=>{const repo=createInMemoryDataScopeRepository(); const archived=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy(\"archived\")}); await assert.rejects(()=>archived.createAssignment({organizationId:\"org\",userId:\"u\",logtoRoleId:\"r\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}),/data_scope_dimension_value_archived/); const ok=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); await assert.rejects(()=>ok.createAssignment({organizationId:\"org\",userId:\"u\",logtoRoleId:\"r\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"identity.self\",dimensionValueId:\"self\",actorLogtoUserId:\"admin\"}),/data_scope_dimension_unknown/);});",
+    "backend/test/authz-data-scope-contract.test.js:10:test(\"partial uniqueness blocks active duplicates but revoked history allows reassignment\",async()=>{const repo=createInMemoryDataScopeRepository(); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); const input={organizationId:\"org\",userId:\"u\",logtoRoleId:\"role_headteacher\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}; const first=await svc.createAssignment(input); await assert.rejects(()=>svc.createAssignment(input),/data_scope_assignment_duplicate/); await svc.revokeAssignment({organizationId:\"org\",assignmentId:first.assignment.id,actorLogtoUserId:\"admin\"}); const second=await svc.createAssignment(input); assert.notEqual(second.assignment.id,first.assignment.id);});",
+    "backend/test/authz-data-scope-contract.test.js:12:test(\"dimension strategy composes OR within a dimension and AND between required dimensions\",async()=>{const repo=createInMemoryDataScopeRepository(); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",logtoRoleId:\"role_head\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.section\",dimensionValueId:\"primary\",actorLogtoUserId:\"admin\"}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",logtoRoleId:\"role_head\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.section\",dimensionValueId:\"preschool\",actorLogtoUserId:\"admin\"}); const evaluator=createDataScopeEvaluator({repository:repo,roleIdToKey:{role_head:\"organization_headdirector\"}}); const d=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"lms.grades.read\"],rolePaths:[{logtoRoleId:\"role_head\"}]},permission:\"lms.grades.read\",capability:\"lms\"}); assert.equal(d.allowed,true); assert.deepEqual(d.constraint.clauses[0].valueIds.sort(),[\"preschool\",\"primary\"]);});",
+    "backend/test/authz-data-scope-contract.test.js:14:test(\"multiple role paths do not mix permission from one path with scope from another\",async()=>{const repo=createInMemoryDataScopeRepository(); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",logtoRoleId:\"role_scope_only\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}); const evaluator=createDataScopeEvaluator({repository:repo,roleIdToKey:{role_permission_only:\"organization_headteacher\",role_scope_only:\"organization_headteacher\"}}); const d=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"lms.grades.read\"],rolePaths:[{logtoRoleId:\"role_permission_only\"},{logtoRoleId:\"role_scope_only\",tokenScopePresent:false}]},permission:\"lms.grades.read\",capability:\"lms\"}); assert.equal(d.allowed,false); assert.equal(d.reasonCode,DATA_SCOPE_REASON_CODES.MULTIPLE_ROLE_PATHS_INCOMPLETE);});",
+    "backend/test/authz-data-scope-contract.test.js:24:test(\"scope assignments are bound to membership role paths and cannot be borrowed by same role\",async()=>{const repo=createInMemoryDataScopeRepository(); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}); const evaluator=createDataScopeEvaluator({repository:repo,roleIdToKey:{role_headteacher:\"organization_headteacher\"}}); const denied=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"lms.grades.read\"],rolePaths:[{membershipId:\"membership_science\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\"}]},permission:\"lms.grades.read\",capability:\"lms\"}); assert.equal(denied.allowed,false); const allowed=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"lms.grades.read\"],rolePaths:[{membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\"}]},permission:\"lms.grades.read\",capability:\"lms\"}); assert.equal(allowed.allowed,true); assert.equal(allowed.rolePaths[0].assignmentIds.length,1);});",
+    "backend/test/authz-data-scope-contract.test.js:26:test(\"scope templates are owner-published semantics and tenant labels cannot change strategy\",async()=>{const {createOwnerScopeTemplateRegistry,OWNER_SCOPE_TEMPLATE_VERSION,templateKey}=require(\"../authorization/data-scope\"); const repo=createInMemoryDataScopeRepository(); const scopeTemplateId=\"lms.organization_headteacher.dimensions\"; const key=templateKey({organizationId:\"org\",scopeTemplateId,scopeTemplateVersion:OWNER_SCOPE_TEMPLATE_VERSION}); const templateRegistry=createOwnerScopeTemplateRegistry({availability:new Map([[key,true]]),tenantConfigurations:new Map([[key,{enabled:true,displayLabel:\"Ciclos académicos\",version:\"tenant-v1\"}]])}); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy(),templateRegistry}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",roleKey:\"organization_headteacher\",scopeTemplateId,scopeTemplateVersion:OWNER_SCOPE_TEMPLATE_VERSION,capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}); await assert.rejects(()=>svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_bad\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",roleKey:\"organization_headteacher\",scopeTemplateId,scopeTemplateVersion:OWNER_SCOPE_TEMPLATE_VERSION,capability:\"lms\",scopeKind:\"resource\",relationshipKey:\"academic.assigned_course\",resourceRef:\"course-1\",actorLogtoUserId:\"admin\"}),/scope_target_invalid/); const unavailable=createOwnerScopeTemplateRegistry(); const failClosed=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy(),templateRegistry:unavailable}); await assert.rejects(()=>failClosed.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",roleKey:\"organization_headteacher\",scopeTemplateId,scopeTemplateVersion:OWNER_SCOPE_TEMPLATE_VERSION,capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}),/scope_template_not_available_for_tenant/); const disabled=createOwnerScopeTemplateRegistry({availability:new Map([[key,true]]),tenantConfigurations:new Map([[key,{enabled:false}]])}); await assert.rejects(()=>createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy(),templateRegistry:disabled}).createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",roleKey:\"organization_headteacher\",scopeTemplateId,scopeTemplateVersion:OWNER_SCOPE_TEMPLATE_VERSION,capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}),/tenant_scope_configuration_disabled/);});",
+    "backend/test/authz-data-scope-contract.test.js:30:test(\"multi-role complete paths do not borrow group leadership scope\",async()=>{const repo=createInMemoryDataScopeRepository(); const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy()}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"head-math\",logtoRoleId:\"role_head\",canonicalRoleId:\"role_head\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"mathematics\",actorLogtoUserId:\"admin\"}); const provider={async listCandidates({logtoRoleId}){return[{candidateId:\"lead-7b\",organizationId:\"org\",subjectId:\"ana\",logtoRoleId:\"role_group\",capability:\"lms\",unitId:\"group-7b\",source:{relationshipType:\"leads\",id:\"rel-7b\"},validFrom:\"2026-01-01T00:00:00Z\"},{candidateId:\"teach-8a\",organizationId:\"org\",subjectId:\"ana\",logtoRoleId:\"role_teacher\",capability:\"lms\",unitId:\"group-8a\",source:{relationshipType:\"teaches\",id:\"rel-8a\"},validFrom:\"2026-01-01T00:00:00Z\"}].filter(c=>c.logtoRoleId===logtoRoleId)}}; const evaluator=createDataScopeEvaluator({repository:repo,scopeCandidateProvider:provider,roleIdToKey:{role_head:\"organization_headteacher\",role_group:\"organization_groupleader\",role_teacher:\"organization_teacher\"}}); const read=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"org.documents.read\"],rolePaths:[{membershipId:\"head-math\",logtoRoleId:\"role_head\",canonicalRoleId:\"role_head\"},{logtoRoleId:\"role_group\"},{logtoRoleId:\"role_teacher\"}]},permission:\"org.documents.read\",capability:\"lms\",now:new Date(\"2026-02-01T00:00:00Z\")}); assert.equal(read.allowed,true); assert.equal(JSON.stringify(read.constraint).includes(\"group-7b\"),true); const update=await evaluator.evaluate({organizationId:\"org\",principal:{subject:\"ana\",scopes:[\"lms.grades.update\"],rolePaths:[{membershipId:\"head-math\",logtoRoleId:\"role_head\",canonicalRoleId:\"role_head\",tokenScopePresent:false},{logtoRoleId:\"role_group\",tokenScopePresent:false},{logtoRoleId:\"role_teacher\",tokenScopePresent:false}]},permission:\"lms.grades.update\",capability:\"lms\"}); assert.equal(update.allowed,false);});",
+    "backend/test/authz-data-scope-contract.test.js:33:test(\"scope assignment write validates membership and canonical role binding before persistence\",async()=>{const repo=createInMemoryDataScopeRepository(); const membershipPort={async getMembershipRoleBinding({organizationId,membershipId,canonicalRoleId,userId}){ if(membershipId===\"membership_math\"&&canonicalRoleId===\"role_headteacher\") return {organizationId,membershipId,canonicalRoleId,userId}; return null; }}; const svc=createDataScopeAssignmentService({repository:repo,taxonomyPort:taxonomy(),membershipPort}); await svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_math\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"math\",actorLogtoUserId:\"admin\"}); await assert.rejects(()=>svc.createAssignment({organizationId:\"org\",userId:\"ana\",membershipId:\"membership_missing\",logtoRoleId:\"role_headteacher\",canonicalRoleId:\"role_headteacher\",capability:\"lms\",scopeKind:\"dimension\",dimensionKey:\"academic.subject\",dimensionValueId:\"science\",actorLogtoUserId:\"admin\"}),/data_scope_membership_not_found/); assert.equal((await repo.listAssignments({organizationId:\"org\"})).length,1);});",
+    "backend/test/authz-tenant-entitlement-contract.test.js:14:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 1, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", allowed: true, locked: false }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:15:  await service.upsertTenantActivations({ organizationId: \"orgA\", expectedPolicyVersion: 2, actorLogtoUserId: \"admin\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", enabled: true }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:59:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 1, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", allowed: false, locked: false }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:60:  await assert.rejects(() => service.upsertTenantActivations({ organizationId: \"orgA\", expectedPolicyVersion: 2, actorLogtoUserId: \"admin\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", enabled: true }] }), /tenant_activation_exceeds_owner_ceiling/);",
+    "backend/test/authz-tenant-entitlement-contract.test.js:61:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 2, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", allowed: true, locked: true }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:62:  await assert.rejects(() => service.upsertTenantActivations({ organizationId: \"orgA\", expectedPolicyVersion: 3, actorLogtoUserId: \"admin\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", enabled: false }] }), /tenant_activation_locked/);",
+    "backend/test/authz-tenant-entitlement-contract.test.js:72:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 3, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_admin\", permission: \"org.documents.create\", allowed: false, locked: false }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:104:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 1, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_teacher\", permission: \"org.documents.read\", allowed: true }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:117:  await service.upsertOwnerLimits({ organizationId: \"orgA\", expectedPolicyVersion: 1, actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_group\", permission: \"lms.groups.read\", allowed: true }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:121:  await service.upsertTenantActivations({ organizationId: \"orgA\", expectedPolicyVersion: 2, actorLogtoUserId: \"admin\", changes: [{ logtoRoleId: \"role_group\", permission: \"lms.groups.read\", enabled: true }] });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:138:  await assert.rejects(() => failing.applyProfile({ organizationId: \"org\", profile, actorLogtoUserId: \"owner\", initialUserId: \"admin\", initialRoleId: \"role_admin\", idempotencyKey: \"boot-1\" }), /scope_target_invalid/);",
+    "backend/test/authz-tenant-entitlement-contract.test.js:141:  await ok.applyProfile({ organizationId: \"org\", profile, actorLogtoUserId: \"owner\", initialUserId: \"admin\", initialRoleId: \"role_admin\", idempotencyKey: \"boot-2\" });",
+    "backend/test/authz-tenant-entitlement-contract.test.js:142:  await ok.applyProfile({ organizationId: \"org\", profile, actorLogtoUserId: \"owner\", initialUserId: \"admin\", initialRoleId: \"role_admin\", idempotencyKey: \"boot-2\" });",
+    "backend/test/lms-group-leadership-contract.test.js:12:async function seededEntitlements(permissions = [\"lms.groups.read\", \"lms.group_members.read\", \"lms.course_offerings.read\"]) { const repository = createInMemoryEntitlementRepository(); const service = createEntitlementService({ repository, runtimeConsistencyPort: runtimePort(), roleIdToName }); for (const permission of permissions) await service.upsertOwnerLimits({ organizationId: \"org\", expectedPolicyVersion: await repository.getPolicyVersion(\"org\"), actorLogtoUserId: \"owner\", changes: [{ logtoRoleId: \"role_group\", permission, allowed: true }] }); for (const permission of permissions) await service.upsertTenantActivations({ organizationId: \"org\", expectedPolicyVersion: await repository.getPolicyVersion(\"org\"), actorLogtoUserId: \"admin\", changes: [{ logtoRoleId: \"role_group\", permission, enabled: true }] }); return repository; }",
+    "backend/test/authz-organization-structure-contract.test.js:7:test(\"units are tenant scoped, hierarchy scoped, and use active taxonomy UUID links\",async()=>{const repo=createInMemoryOrganizationStructureRepository(); const svc=createUnitService({repository:repo,taxonomyPort:taxonomy(),runtimeConsistencyPort:rt()}); const div=await svc.createUnit({organizationId:\"org_a\",hierarchyKey:\"academic_structure\",unitType:\"academic_division\",stableKey:\"primary\",displayName:\"Primary\",actorLogtoUserId:\"u\",dimensionValueId:\"tax_section\"}); await svc.activateUnit({organizationId:\"org_a\",unitId:div.id,actorLogtoUserId:\"u\"}); const dept=await svc.createUnit({organizationId:\"org_a\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Mathematics\",parentUnitId:div.id,dimensionValueId:\"tax_math\",actorLogtoUserId:\"u\"}); assert.equal(dept.parentUnitId,div.id); const sameKey=await svc.createUnit({organizationId:\"org_b\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Math\",dimensionValueId:\"tax_math_b\",actorLogtoUserId:\"u\"}); assert.notEqual(sameKey.id,dept.id); await assert.rejects(()=>svc.createUnit({organizationId:\"org_a\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"bad\",displayName:\"Bad\",parentUnitId:sameKey.id,actorLogtoUserId:\"u\"}),/organization_unit_wrong_tenant/);});",
+    "backend/test/authz-organization-structure-contract.test.js:9:test(\"unit hierarchy rejects wrong hierarchy, invalid parent types, and cycles\",async()=>{const repo=createInMemoryOrganizationStructureRepository(); const svc=createUnitService({repository:repo,taxonomyPort:taxonomy(),runtimeConsistencyPort:rt()}); const div=await svc.createUnit({organizationId:\"org\",hierarchyKey:\"academic_structure\",unitType:\"academic_division\",stableKey:\"primary\",displayName:\"Primary\",actorLogtoUserId:\"u\"}); await svc.activateUnit({organizationId:\"org\",unitId:div.id,actorLogtoUserId:\"u\"}); const dept=await svc.createUnit({organizationId:\"org\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Math\",parentUnitId:div.id,actorLogtoUserId:\"u\"}); await svc.activateUnit({organizationId:\"org\",unitId:dept.id,actorLogtoUserId:\"u\"}); await assert.rejects(()=>svc.reparentUnit({organizationId:\"org\",unitId:div.id,parentUnitId:dept.id,actorLogtoUserId:\"u\"}),/organization_unit_parent_invalid|organization_unit_cycle_detected/); await assert.rejects(()=>svc.createUnit({organizationId:\"org\",hierarchyKey:\"administrative_structure\",unitType:\"academic_department\",stableKey:\"x\",displayName:\"X\",actorLogtoUserId:\"u\"}),/organization_unit_hierarchy_invalid/);});",
+    "backend/test/authz-organization-structure-contract.test.js:11:test(\"memberships are NULL-safe unique and never assign roles implicitly\",async()=>{const repo=createInMemoryOrganizationStructureRepository(); const svc=createUnitService({repository:repo,taxonomyPort:taxonomy(),runtimeConsistencyPort:rt()}); const memSvc=createUnitMembershipService({repository:repo,runtimeConsistencyPort:rt()}); const unit=await svc.createUnit({organizationId:\"org\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Math\",actorLogtoUserId:\"u\"}); await svc.activateUnit({organizationId:\"org\",unitId:unit.id,actorLogtoUserId:\"u\"}); await assert.rejects(()=>memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"ana\",relationshipType:\"leads\",actorLogtoUserId:\"u\"}),/organization_membership_role_required/); const m=await memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"ana\",logtoRoleId:\"role_headteacher\",relationshipType:\"leads\",actorLogtoUserId:\"u\"}); assert.equal(m.logtoRoleId,\"role_headteacher\"); await assert.rejects(()=>memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"ana\",logtoRoleId:\"role_headteacher\",relationshipType:\"leads\",actorLogtoUserId:\"u\"}),/organization_membership_duplicate/); const member=await memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"bob\",relationshipType:\"member\",actorLogtoUserId:\"u\"}); await assert.rejects(()=>memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"bob\",relationshipType:\"member\",actorLogtoUserId:\"u\"}),/organization_membership_duplicate/); assert.equal(member.logtoRoleId,null);});",
+    "backend/test/authz-organization-structure-contract.test.js:13:test(\"membership expiration is enforced by timestamps, not a worker\",async()=>{const repo=createInMemoryOrganizationStructureRepository(); const svc=createUnitService({repository:repo,taxonomyPort:taxonomy(),runtimeConsistencyPort:rt()}); const memSvc=createUnitMembershipService({repository:repo,runtimeConsistencyPort:rt()}); const unit=await svc.createUnit({organizationId:\"org\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Math\",actorLogtoUserId:\"u\"}); await svc.activateUnit({organizationId:\"org\",unitId:unit.id,actorLogtoUserId:\"u\"}); const m=await memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"ana\",logtoRoleId:\"role_teacher\",relationshipType:\"teaches\",validFrom:\"2026-01-01T00:00:00Z\",validUntil:\"2026-02-01T00:00:00Z\",actorLogtoUserId:\"u\"}); assert.equal(memSvc.isEffective(m,new Date(\"2026-01-15T00:00:00Z\")),true); assert.equal(memSvc.isEffective(m,new Date(\"2026-03-01T00:00:00Z\")),false);});",
+    "backend/test/authz-organization-structure-contract.test.js:15:test(\"scope candidates preserve role provenance and never grant final allow\",async()=>{const repo=createInMemoryOrganizationStructureRepository(); const svc=createUnitService({repository:repo,taxonomyPort:taxonomy(),runtimeConsistencyPort:rt()}); const memSvc=createUnitMembershipService({repository:repo,runtimeConsistencyPort:rt()}); const unit=await svc.createUnit({organizationId:\"org\",hierarchyKey:\"academic_structure\",unitType:\"academic_department\",stableKey:\"math\",displayName:\"Math\",dimensionValueId:\"math-tax-id\",actorLogtoUserId:\"u\"}); await svc.activateUnit({organizationId:\"org\",unitId:unit.id,actorLogtoUserId:\"u\"}); const m=await memSvc.assignMembership({organizationId:\"org\",unitId:unit.id,logtoUserId:\"ana\",logtoRoleId:\"role_teacher\",relationshipType:\"teaches\",actorLogtoUserId:\"u\"}); const resolver=createScopeCandidateResolver({repository:repo,taxonomyPort:taxonomy()}); const c=await resolver.resolveCandidatesForMembership({organizationId:\"org\",membershipId:m.id}); assert.equal(c.length,1); assert.equal(c[0].dimensionKey,\"academic.subject\"); assert.equal(c[0].logtoRoleId,\"role_teacher\"); assert.equal(c[0].source.type,\"unit_membership\"); assert.equal(c[0].allowed,undefined);});",
+    "backend/test/authz-organization-structure-contract.test.js:17:test(\"audience DSL is closed, bounded, and preview is redacted\",async()=>{const def={version:1,op:\"and\",children:[{predicate:\"unit_relationship_in\",relationshipTypes:[\"teaches\",\"leads\"]},{predicate:\"dimension_value_in\",dimensionKey:\"academic.subject\",valueIds:[\"math-tax-id\"]}]}; assert.equal(validateAudienceDefinition(def),true); assert.throws(()=>validateAudienceDefinition({version:1,predicate:\"raw_sql\",sql:\"select * from users\"}),/organization_audience_definition_invalid/); const repo=createInMemoryOrganizationStructureRepository(); await repo.insertAudience({logtoOrganizationId:\"org\",stableKey:\"math_teachers\",displayName:\"Math teachers\",definitionJson:def,createdByLogtoUserId:\"u\",updatedByLogtoUserId:\"u\"}); const previewSvc=createAudiencePreviewService({repository:repo}); const a=(await repo.listAudiences({organizationId:\"org\"}))[0]; const preview=await previewSvc.preview({organizationId:\"org\",audienceId:a.id}); assert.equal(preview.sample.length,0); assert.equal(preview.structureVersions.unitGraph,0);});"
+  ],
+  "currentWriteProtections": {
+    "productionClient": "write capable; not safe for discovery remote reads",
+    "discoveryHarness": "strict allowlist GET/HEAD/OPTIONS and token POST only"
+  }
+}

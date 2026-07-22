@@ -1,0 +1,59 @@
+{
+  "baseRef": "codex/discovery-issue-154-logto-federation",
+  "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+  "foundation144MergeSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+  "logtoVersion": null,
+  "logtoEdition": null,
+  "logtoEndpointHash": "621550dcd3c1973ed1116747a4c31e155ed1b168d74a24544b3025d57574e724",
+  "managementAudienceHash": null,
+  "remoteObservationPerformed": false,
+  "probeVersion": "2026-07-issue-154-phase-0-v1",
+  "probeHash": "bd166c8390a69da428e1d96766589534a6dfe238520c782be0711fde74b94044",
+  "generatedAt": "2026-07-21T23:20:20.970Z",
+  "credentialState": {
+    "credentialsPresent": false,
+    "credentialSource": "absent",
+    "managementAudiencePresent": false,
+    "endpointConfigured": false,
+    "remoteReadExplicitlyEnabled": false
+  },
+  "remoteReadGuard": "LOGTO_IDENTITY_DISCOVERY_ALLOW_REMOTE_READ=true required and not enabled",
+  "externalMutationEvidence": "No remote Management API call was executed by the generator; discovery harness tests use mocked transports.",
+  "validationResults": [
+    {
+      "command": "npm run logto:authz:contract-check",
+      "exitCode": 0,
+      "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+      "introducedFailure": false,
+      "failureClassification": "none"
+    },
+    {
+      "command": "npm run authz:permission-catalog:check",
+      "exitCode": 0,
+      "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+      "introducedFailure": false,
+      "failureClassification": "none"
+    },
+    {
+      "command": "npm run authz:naming:report",
+      "exitCode": 0,
+      "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+      "introducedFailure": false,
+      "failureClassification": "none_with_reported_legacy_violations"
+    },
+    {
+      "command": "npm test",
+      "exitCode": 1,
+      "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+      "introducedFailure": false,
+      "failureClassification": "pre_existing_legacy_naming"
+    },
+    {
+      "command": "node --test backend/test/logto-identity-federation-probe.test.js",
+      "exitCode": 0,
+      "baseSha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+      "introducedFailure": false,
+      "failureClassification": "none"
+    }
+  ]
+}

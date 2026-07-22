@@ -1,0 +1,103 @@
+{
+  "contextVerified": false,
+  "remoteObservationPerformed": false,
+  "repositoryEvidence": {
+    "source": "scripts/logto/bootstrap-custom-token-claims.js",
+    "warning": "Custom claims apply is separated from RBAC and remains blocked until Logto script context is verified."
+  },
+  "fields": [
+    {
+      "field": "user",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "user.identities",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "user.sso_identities",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "user.ssoIdentities",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "profile",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "profile.groups",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "organization",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "organization roles",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "connector",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "connectorId",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "issuer",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "subject",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    },
+    {
+      "field": "upstream claims",
+      "available": null,
+      "evidence": "verification_required",
+      "decision": "verification_required"
+    }
+  ],
+  "assessment": {
+    "receivesUpstreamClaims": null,
+    "receivesGroups": null,
+    "receivesCompleteGroups": null,
+    "requiresCopyToCustomData": "unsafe_to_assume",
+    "copyingClaimsRisk": [
+      "PII",
+      "stale data",
+      "duplicated authority"
+    ],
+    "tokenSizeLimit": "verification_required",
+    "resourceSpecificEmission": "verification_required",
+    "activeOrganizationAwareness": "verification_required",
+    "safeForMapping": "unsafe_to_assume"
+  }
+}
