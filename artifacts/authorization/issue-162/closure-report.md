@@ -10,8 +10,8 @@
 ## Role model contract
 
 - Role model version: `2026-07-civitas-phase3-role-bundles-v1`.
-- Catalog hash: `a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793`.
-- Role model hash: `00bcd8eb3276f873a4e6067acabb98ea09efb3e816574420bb61be993ed9d40e`.
+- Catalog hash: `57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d`.
+- Role model hash: `4edf94cc7fef6d97033ba2c4141eb1350cce96900a2ea764f230ab9382c73974`.
 - Canonical organization roles: `13`.
 - Canonical bundles: `49`.
 - Target potential counts: `81`, `57`, `53`, `68`, `36`, `45`, `17`, `17`, `28`, `17`, `12`, `11`, `15`.

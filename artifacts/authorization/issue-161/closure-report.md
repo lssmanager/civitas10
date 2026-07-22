@@ -13,7 +13,7 @@
 
 - Contract version: `2026-07-civitas-permission-catalog-v1`.
 - Role model version: `2026-07-civitas-phase3-13-role-v1`.
-- Catalog hash: `a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793`.
+- Catalog hash: `57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d`.
 - Namespaces: `owner`, `org`, `lms`, `planning`, `crm`, `marketing`, `community`, `payments`, `hr`, `scheduling`, `support`, `analytics`, `reports`, `platform`.
 - Organization roles: `organization_admin`, `organization_director`, `organization_headdirector`, `organization_headteacher`, `organization_groupleader`, `organization_teacher`, `organization_student`, `organization_parent`, `organization_secretary`, `organization_accountant`, `organization_billing`, `organization_payroll`, `organization_member`.
 - Target permissions: `160`.

@@ -7,7 +7,7 @@
   "pr170CatalogBaseline": { "sha": "997a245545a15065e80f336f6853acb864dbca93", "verifiedAncestor": true },
   "contractVersion": "2026-07-civitas-permission-catalog-v1",
   "roleModelVersion": "2026-07-civitas-phase3-13-role-v1",
-  "catalogHash": "a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
   "artifactHashes": {
     "contracts/authorization/civitas-permission-catalog.yaml": "19322f4cd8d72e10d167568374d6658fa3b99cc66ae525fa90dd340cf01f308c",
     "contracts/authorization/schemas/permission-catalog.schema.json": "d6b8ab88f093ff370e4879a157338dfa83eda71f9f581d266c74a5e99dceed7d",

@@ -4,6 +4,7 @@ import fs from 'node:fs'
 export const CATALOG_PATH = 'contracts/authorization/civitas-permission-catalog.yaml'
 export const SCHEMA_PATH = 'contracts/authorization/schemas/permission-catalog.schema.json'
 export const PHASE3_NAMESPACES = Object.freeze(['owner','org','lms','planning','crm','marketing','community','payments','hr','scheduling','support','analytics','reports','platform'])
+export const DATA_SCOPE_STRATEGY_NAMES = Object.freeze(['global_owner','organization','organization_and_units','self','self_or_organization','academic_relationship','teaching_assignments','planning_relationship','planning_editable','planning_owned','assigned_reviews','assigned_approvals','approved_plans','community_membership','community_moderation','hr_relationship','payroll_relationship','scheduling_relationship','support_relationship','communication_relationship'])
 export const ORGANIZATION_ROLES = Object.freeze(['organization_admin','organization_director','organization_headdirector','organization_headteacher','organization_groupleader','organization_teacher','organization_student','organization_parent','organization_secretary','organization_accountant','organization_billing','organization_payroll','organization_member'])
 const ENUMS = { surface: ['owner','organization','account','public','webhook'], targetStatus: ['planned','active','deprecated'], observedImplementation: ['active','declared_planned','absent','verification_required'], risk: ['standard','high','restricted','critical'], compatibility: ['none','alias','blocked','compatibility-only'] }
 const PROVIDERS = /(?:moodle|matomo|mautic)/i
@@ -33,6 +34,7 @@ export function validateCatalog(catalog) {
     if (permission.surface === 'owner' && permission.namespace !== 'owner') errors.push(`${prefix} owner surface mismatch`)
     if (permission.namespace === 'owner' && permission.surface !== 'owner') errors.push(`${prefix} owner namespace must use owner surface`)
     if (permission.targetStatus === 'active' && (permission.observedImplementation !== 'active' || permission.consumers.length === 0 || permission.policyRequirements.length === 0 || !permission.dataScopeStrategy || !permission.runtimePath || !Array.isArray(permission.testEvidence) || permission.testEvidence.length === 0)) errors.push(`${prefix} active entries require active observation, consumers, policies/data scope, runtime path and tests`)
+    if (!DATA_SCOPE_STRATEGY_NAMES.includes(permission.dataScopeStrategy)) errors.push(`${prefix} unknown dataScopeStrategy`)
     if (permission.namespace === 'planning' && permission.targetStatus !== 'planned') errors.push(`${prefix} planning permissions must remain planned`)
     if (permission.targetStatus === 'deprecated' && (!permission.replacement || !permission.compatibility || permission.compatibility === 'none' || !permission.migrationWindow || !permission.rollbackId)) errors.push(`${prefix} deprecated entries require replacement, compatibility window, migration window and rollback`)
   }
