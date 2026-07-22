@@ -12,7 +12,18 @@ type OwnerTokenDiagnostics = ReturnType<typeof getAccessTokenDiagnostics>;
 type OwnerRouteGuardState =
   | { status: "loading" }
   | { status: "authorized"; me: MeResponse }
-  | { status: "denied"; reason: "authentication" | "global-role" | "global-scopes" | "token"; message: string; missingScopes?: string[]; tokenDiagnostics?: OwnerTokenDiagnostics };
+  | { status: "denied"; reason: "authentication" | "global-role" | "global-scopes" | "token"; message: string; missingScopes?: string[]; tokenDiagnostics?: OwnerTokenDiagnostics }
+  | { status: "api-unavailable"; title: "API unavailable" | "Proxy routing error" | "Unexpected non-JSON response"; message: string };
+
+function classifyApiStartupError(error: unknown): OwnerRouteGuardState | null {
+  if (!(error instanceof Error)) return null;
+  const message = error.message;
+  if (/API_NON_JSON_RESPONSE|non-JSON response|Content-Type: text\/html|<!doctype html/i.test(message)) {
+    return { status: "api-unavailable", title: /text\/html|<!doctype html/i.test(message) ? "Proxy routing error" : "Unexpected non-JSON response", message };
+  }
+  if (/Failed to fetch|NetworkError|Load failed/i.test(message)) return { status: "api-unavailable", title: "API unavailable", message };
+  return null;
+}
 
 export function OwnerRouteGuard({ children }: { children: ReactNode }) {
   const { isAuthenticated, getAccessToken } = useLogto();
@@ -54,7 +65,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
         setState({ status: "authorized", me });
       } catch (error) {
         if (!active) return;
-        setState({ status: "denied", reason: "token", message: error instanceof Error ? `403 / Access denied: ${error.message}` : "403 / Access denied" });
+        setState(classifyApiStartupError(error) || { status: "denied", reason: "token", message: error instanceof Error ? `403 / Access denied: ${error.message}` : "403 / Access denied" });
       }
     }
     validateOwnerAccess();
@@ -62,6 +73,7 @@ export function OwnerRouteGuard({ children }: { children: ReactNode }) {
   }, [getAccessToken, isAuthenticated]);
 
   if (state.status === "loading") return <div className="p-6 text-sm text-muted-strong">Validando permisos...</div>;
+  if (state.status === "api-unavailable") return <div className="p-6"><h1 className="text-2xl font-semibold text-text">{state.title}</h1><p className="mt-2 text-sm text-muted-strong">{state.message}</p></div>;
   if (state.status === "denied") return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold text-text">403 / Access denied</h1>

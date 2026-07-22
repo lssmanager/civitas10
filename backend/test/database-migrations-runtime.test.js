@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   REQUIRED_OPERATIONAL_SCHEMA,
   assertOperationalSchema,
+  runSqlMigrations,
   shouldRunMigrations,
 } = require("../runtime/migrations");
 const { classifyDatabaseError, sanitizeDatabaseError } = require("../lib/db");
@@ -64,4 +65,38 @@ test("connector capability migration validates backfill before enforcing not nul
 
   assert.ok(validationIndex > 0, "0001 must raise an operable error for unbackfillable bindings");
   assert.ok(notNullIndex > validationIndex, "0001 must validate backfill before enforcing NOT NULL");
+});
+
+
+test("migration failures include filename, PostgreSQL code, phase and schema expectation", async () => {
+  const queries = [];
+  const pool = {
+    async query(sql) {
+      queries.push(sql);
+      if (String(sql).includes("0016 failure sentinel")) {
+        const error = new Error("column \"state\" does not exist");
+        error.code = "42703";
+        throw error;
+      }
+      return { rows: [] };
+    },
+  };
+  const fs = require("node:fs/promises");
+  const path = require("node:path");
+  const migrationPath = path.join(__dirname, "..", "db", "migrations", "0016_authorization_scope_assignments_contract.sql");
+  const original = await fs.readFile(migrationPath, "utf8");
+  await fs.writeFile(migrationPath, "-- 0016 failure sentinel");
+  try {
+    await assert.rejects(() => runSqlMigrations({ pool, logger: { log() {} } }), (error) => {
+      assert.equal(error.name, "DatabaseMigrationError");
+      assert.equal(error.details.migration, "0016_authorization_scope_assignments_contract.sql");
+      assert.equal(error.details.postgresCode, "42703");
+      assert.equal(error.details.statementPhase, "apply migration SQL");
+      assert.match(error.details.schemaExpectation, /status/);
+      return true;
+    });
+  } finally {
+    await fs.writeFile(migrationPath, original);
+  }
+  assert.ok(queries.length > 0);
 });

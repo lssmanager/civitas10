@@ -1,39 +1,45 @@
--- Issue #163: durable AuthorizationScopeAssignment contract guardrails.
--- Production repositories must enforce the same invariants as the service layer:
--- exactly one target among dimension_value_id, unit_id and resource_ref;
--- same-tenant references; active/published resource facts at evaluation time;
--- assignment state lifecycle; and policy snapshot invalidation on changes.
+-- Issue #163/#205: incremental AuthorizationScopeAssignment contract guardrails.
+-- 0010 creates authorization_scope_assignments with the persisted lifecycle column `status`.
+-- 0013 adds membership_id/canonical_role_id and the three scheduled/active uniqueness indexes.
+-- 0014 adds scope template columns/FK. This migration must be safe on an 0015 database.
 
-CREATE TABLE IF NOT EXISTS authorization_scope_assignments (
-  id text PRIMARY KEY,
-  logto_organization_id text NOT NULL,
-  logto_user_id text NOT NULL,
-  membership_id text,
-  logto_role_id text NOT NULL,
-  canonical_role_id text NOT NULL,
-  capability text NOT NULL,
-  scope_kind text NOT NULL CHECK (scope_kind IN ('dimension', 'unit', 'resource')),
-  dimension_key text,
-  relationship_key text,
-  dimension_value_id text,
-  unit_id text,
-  resource_ref text,
-  source_type text NOT NULL,
-  source_ref text,
-  source_version text NOT NULL,
-  state text NOT NULL CHECK (state IN ('active', 'revoked', 'expired')),
-  assigned_by_logto_user_id text NOT NULL,
-  reason text NOT NULL,
-  valid_from timestamptz NOT NULL,
-  valid_until timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  revoked_at timestamptz,
-  CONSTRAINT authorization_scope_assignments_exactly_one_target CHECK (
-    ((dimension_value_id IS NOT NULL)::int + (unit_id IS NOT NULL)::int + (resource_ref IS NOT NULL)::int) = 1
-  ),
-  CONSTRAINT authorization_scope_assignments_valid_window CHECK (valid_until IS NULL OR valid_until > valid_from)
-);
+ALTER TABLE authorization_scope_assignments
+  ADD COLUMN IF NOT EXISTS membership_id varchar(128),
+  ADD COLUMN IF NOT EXISTS canonical_role_id varchar(128),
+  ADD COLUMN IF NOT EXISTS scope_template_id varchar(160),
+  ADD COLUMN IF NOT EXISTS scope_template_version varchar(80);
 
-CREATE UNIQUE INDEX IF NOT EXISTS authorization_scope_assignments_active_unique
-  ON authorization_scope_assignments (logto_organization_id, coalesce(membership_id, logto_user_id), canonical_role_id, capability, scope_kind, coalesce(dimension_key, relationship_key), coalesce(dimension_value_id, unit_id, resource_ref))
-  WHERE state = 'active';
+UPDATE authorization_scope_assignments
+   SET membership_id = COALESCE(membership_id, logto_user_id || ':' || logto_role_id),
+       canonical_role_id = COALESCE(canonical_role_id, logto_role_id)
+ WHERE membership_id IS NULL OR canonical_role_id IS NULL;
+
+ALTER TABLE authorization_scope_assignments
+  ALTER COLUMN membership_id SET NOT NULL,
+  ALTER COLUMN canonical_role_id SET NOT NULL;
+
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_state_ck;
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_status_ck;
+ALTER TABLE authorization_scope_assignments
+  ADD CONSTRAINT authorization_scope_assignments_status_ck CHECK (status IN ('scheduled','active','expired','revoked','invalidated'));
+
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_exactly_one_target;
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_exactly_one_target_ck;
+ALTER TABLE authorization_scope_assignments
+  ADD CONSTRAINT authorization_scope_assignments_exactly_one_target_ck CHECK (num_nonnulls(dimension_value_id, unit_id, resource_ref) = 1);
+
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_valid_window;
+ALTER TABLE authorization_scope_assignments DROP CONSTRAINT IF EXISTS authorization_scope_assignments_valid_until_ck;
+ALTER TABLE authorization_scope_assignments
+  ADD CONSTRAINT authorization_scope_assignments_valid_until_ck CHECK (valid_until IS NULL OR valid_until > valid_from);
+
+DROP INDEX IF EXISTS authorization_scope_assignments_active_unique;
+
+CREATE INDEX IF NOT EXISTS authorization_scope_assignments_membership_role_idx
+  ON authorization_scope_assignments(logto_organization_id, membership_id, canonical_role_id, capability);
+CREATE INDEX IF NOT EXISTS authorization_scope_assignments_org_user_idx
+  ON authorization_scope_assignments(logto_organization_id, logto_user_id, status);
+CREATE INDEX IF NOT EXISTS authorization_scope_assignments_org_role_idx
+  ON authorization_scope_assignments(logto_organization_id, logto_role_id, status);
+CREATE INDEX IF NOT EXISTS authorization_scope_assignments_template_idx
+  ON authorization_scope_assignments(scope_template_id, scope_template_version);

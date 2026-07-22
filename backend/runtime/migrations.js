@@ -62,6 +62,15 @@ const REQUIRED_OPERATIONAL_SCHEMA = Object.freeze({
   audit_logs: Object.freeze(["id", "logto_organization_id", "actor_type", "action", "target_type", "target_id", "result", "metadata", "created_at"]),
 });
 
+class DatabaseMigrationError extends Error {
+  constructor(message, details = {}) {
+    super(message);
+    this.name = "DatabaseMigrationError";
+    this.code = "DATABASE_MIGRATION_FAILED";
+    this.details = details;
+  }
+}
+
 class DatabaseSchemaError extends Error {
   constructor(message, details = {}) {
     super(message);
@@ -83,14 +92,35 @@ async function listMigrationFiles() {
     .sort();
 }
 
+function schemaExpectationForMigration(file) {
+  if (path.basename(file) === "0016_authorization_scope_assignments_contract.sql") {
+    return "authorization_scope_assignments persists lifecycle in status; state is not required; 0013/0014 already provide membership_id, canonical_role_id and template columns";
+  }
+  return "migration SQL must be idempotent and leave the public schema compatible with subsequent migrations";
+}
+
 async function runSqlMigrations({ pool = getPool(), logger = console } = {}) {
   const files = await listMigrationFiles();
+  const applied = [];
   for (const file of files) {
     const sql = await fs.readFile(file, "utf8");
-    await pool.query(sql);
-    logger.log(JSON.stringify({ component: "database-migrations", status: "applied", migration: path.basename(file) }));
+    const migration = path.basename(file);
+    try {
+      await pool.query(sql);
+    } catch (error) {
+      throw new DatabaseMigrationError(`Backend startup failed while applying migration ${migration}: ${error.message}`, {
+        migration,
+        postgresCode: error.code || null,
+        statementPhase: "apply migration SQL",
+        schemaExpectation: schemaExpectationForMigration(file),
+        position: error.position || null,
+        detail: error.detail || null,
+      });
+    }
+    applied.push(migration);
+    logger.log(JSON.stringify({ component: "database-migrations", status: "applied", migration }));
   }
-  return { applied: files.map((file) => path.basename(file)) };
+  return { applied };
 }
 
 async function runSqlMigrationsIfEnabled(options = {}) {
@@ -149,6 +179,7 @@ async function prepareOperationalDatabase(options = {}) {
 }
 
 module.exports = {
+  DatabaseMigrationError,
   DatabaseSchemaError,
   REQUIRED_OPERATIONAL_SCHEMA,
   assertOperationalSchema,
