@@ -5,5 +5,10 @@
 !/artifacts/authorization/ci-inventory.json
 !/artifacts/authorization/active-role-scopes.json
 !/artifacts/authorization/role-potential.json
+!/artifacts/authorization/logto-plan.json
+!/artifacts/authorization/issue-162/
+!/artifacts/authorization/issue-163/
+!/artifacts/authorization/issue-164/
+!/artifacts/authorization/issue-165/
 !/artifacts/authorization/issue-161/
 !/artifacts/authorization/issue-161/provenance.json

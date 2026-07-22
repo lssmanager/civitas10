@@ -6,7 +6,7 @@
     "authz:naming:check": "node scripts/authorization/validate-authz-naming.js --check",
     "test:authz:naming": "node --test backend/test/authorization-naming-contract.test.js",
     "logto:authz": "node scripts/logto/cli.js",
-    "logto:authz:contract-check": "node scripts/logto/contract-check.js",
+    "logto:authz:contract-check": "node scripts/logto/contract-check.js && node --test backend/test/logto-authz-bootstrap.test.js",
     "test:logto:authz": "node --test backend/test/logto-authz-bootstrap.test.js",
     "authz:scope-contract-check": "node scripts/authorization/check-scope-only.js && node --test backend/test/foundation-authorization-middleware.test.js backend/test/authz-scope-delegation-contract.test.js backend/test/lms-group-leadership-contract.test.js",
     "authz:delegation-contract-check": "node --test backend/test/authz-scope-delegation-contract.test.js",
@@ -31,6 +31,7 @@
     "authz:permission-catalog:schema-check": "node scripts/authorization/schema-check-permission-catalog.mjs",
     "authz:role-model:generate": "node scripts/authorization/generate-role-model.mjs",
     "authz:role-model:check": "node scripts/authorization/generate-role-model.mjs --check && node --test backend/test/role-model-contract.test.js",
-    "authz:role-model:diff": "node scripts/authorization/diff-role-model.mjs"
+    "authz:role-model:diff": "node scripts/authorization/diff-role-model.mjs",
+    "logto:authz:plan": "node scripts/logto/cli.js plan-rbac"
   }
 }
