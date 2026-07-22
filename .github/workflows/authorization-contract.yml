@@ -1,0 +1,106 @@
+name: Authorization Contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: authorization-contract-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  canonical-authorization-security-gate:
+    name: Canonical authorization security gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Install root dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f package-lock.json ]]; then
+            echo "::notice::Installing root dependencies with npm ci."
+            npm ci
+          else
+            echo "::notice::No root package-lock.json; using npm install without generating a lockfile."
+            npm install --package-lock=false
+          fi
+
+      - name: Validate authorization workflow scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const scripts = require('./package.json').scripts || {};
+
+          const requiredScripts = [
+            'authz:permission-catalog:check',
+            'authz:role-model:check',
+            'authz:policy-contract-check',
+            'authz:data-scope-contract-check',
+            'authz:data-scope-migration-check',
+            'logto:authz:contract-check',
+            'authz:security-gate:check',
+            'authz:runtime-contract-check',
+            'test',
+          ];
+
+          const missingScripts = requiredScripts.filter(
+            (scriptName) => !scripts[scriptName],
+          );
+
+          if (missingScripts.length > 0) {
+            console.error(
+              `Missing required package scripts: ${missingScripts.join(', ')}`,
+            );
+            process.exit(1);
+          }
+
+          console.log('All required authorization workflow scripts exist.');
+          NODE
+
+      - name: Validate canonical permission catalog
+        run: npm run authz:permission-catalog:check
+
+      - name: Validate canonical role model
+        run: npm run authz:role-model:check
+
+      - name: Validate PBAC policy contracts
+        run: npm run authz:policy-contract-check
+
+      - name: Validate ABAC and Data Scope contracts
+        run: npm run authz:data-scope-contract-check
+
+      - name: Validate Data Scope migrations
+        run: npm run authz:data-scope-migration-check
+
+      - name: Validate Logto authorization contracts offline
+        run: npm run logto:authz:contract-check
+
+      - name: Run authorization security gate
+        run: npm run authz:security-gate:check
+
+      - name: Validate runtime authorization consistency
+        run: npm run authz:runtime-contract-check
+
+      - name: Run complete authorization matrix
+        run: npm test

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import crypto from 'node:crypto';
+import net from 'node:net';
 
 export const PROBE_VERSION = '2026-07-issue-154-phase-0-v1';
 export const DEFAULT_MAX_RESPONSE_BYTES = 128 * 1024;
@@ -30,13 +31,22 @@ export function detectCredentialState(env = process.env) {
   });
 }
 
-export function buildPolicy({ endpoint, tokenPath = '/oidc/token', allowedPaths = [], allowedHosts = [], maxResponseBytes = DEFAULT_MAX_RESPONSE_BYTES } = {}) {
+export function assertPublicHost(host) {
+  const candidate = String(host || '').split(':')[0];
+  const ipVersion = net.isIP(candidate);
+  if (!ipVersion) return true;
+  if (candidate === '127.0.0.1' || candidate === '0.0.0.0' || candidate.startsWith('10.') || candidate.startsWith('192.168.') || /^172\.(1[6-9]|2\d|3[0-1])\./.test(candidate) || candidate.startsWith('169.254.') || candidate === '::1' || candidate.startsWith('fc') || candidate.startsWith('fd') || candidate.startsWith('fe80:')) throw new ProbePolicyError('private or loopback host blocked before network', { hostHash: sha256(candidate) });
+  return true;
+}
+
+export function buildPolicy({ endpoint, tokenPath = '/oidc/token', allowedPaths = [], allowedHosts = [], allowedQueryKeys = [], maxResponseBytes = DEFAULT_MAX_RESPONSE_BYTES } = {}) {
   const endpointUrl = endpoint ? new URL(endpoint) : null;
   const endpointHost = endpointUrl?.host || null;
+  for (const host of [endpointHost, ...allowedHosts].filter(Boolean)) assertPublicHost(host);
   const hosts = new Set([endpointHost, ...allowedHosts].filter(Boolean));
   const normalizedPaths = new Set(allowedPaths.map((path) => normalizePath(path)));
   normalizedPaths.add(normalizePath(tokenPath));
-  return Object.freeze({ endpoint: endpointUrl?.origin || null, endpointHost, tokenPath: normalizePath(tokenPath), allowedHosts: [...hosts], allowedPaths: [...normalizedPaths], maxResponseBytes });
+  return Object.freeze({ endpoint: endpointUrl?.origin || null, endpointHost, tokenPath: normalizePath(tokenPath), allowedHosts: [...hosts], allowedPaths: [...normalizedPaths], allowedQueryKeys: [...allowedQueryKeys].sort(), maxResponseBytes });
 }
 
 export function normalizePath(path) {
@@ -49,7 +59,9 @@ export function assertRequestAllowed({ method, url, policy, isTokenRequest = fal
   const parsed = new URL(url, policy.endpoint || 'https://logto.invalid');
   const path = normalizePath(parsed.pathname);
   if (!policy.allowedHosts.includes(parsed.host)) throw new ProbePolicyError('unknown host blocked before network', { hostHash: sha256(parsed.host), method: upper, path });
+  assertPublicHost(parsed.hostname);
   if (!policy.allowedPaths.includes(path)) throw new ProbePolicyError('unknown path blocked before network', { method: upper, path });
+  for (const key of parsed.searchParams.keys()) if (!policy.allowedQueryKeys.includes(key)) throw new ProbePolicyError('unknown query parameter blocked before network', { method: upper, path, key });
   if (isTokenRequest) {
     if (upper !== 'POST' || path !== policy.tokenPath) throw new ProbePolicyError('only exact token endpoint may use POST', { method: upper, path });
     return true;
@@ -69,12 +81,31 @@ export async function guardedFetch(url, { method = 'GET', policy, isTokenRequest
       const redirect = new URL(location, url);
       if (!policy.allowedHosts.includes(redirect.host)) throw new ProbePolicyError('redirect to unknown host blocked', { hostHash: sha256(redirect.host) });
     }
-    const text = await response.text?.() ?? '';
-    if (Buffer.byteLength(text, 'utf8') > policy.maxResponseBytes) throw new ProbePolicyError('response above size limit blocked', { maxResponseBytes: policy.maxResponseBytes });
+    const text = await readBoundedResponseText(response, policy.maxResponseBytes);
     return { status: response.status, ok: response.ok, headers: redactHeaders(response.headers), bodyShape: summarizeShape(safeParseJson(text)) };
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export async function readBoundedResponseText(response, maxResponseBytes) {
+  if (response.body?.getReader) {
+    const reader = response.body.getReader();
+    const chunks = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = Buffer.from(value);
+      total += chunk.byteLength;
+      if (total > maxResponseBytes) { await reader.cancel?.(); throw new ProbePolicyError('response above size limit blocked during streaming', { maxResponseBytes }); }
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks).toString('utf8');
+  }
+  const text = await response.text?.() ?? '';
+  if (Buffer.byteLength(text, 'utf8') > maxResponseBytes) throw new ProbePolicyError('response above size limit blocked', { maxResponseBytes });
+  return text;
 }
 
 export function safeParseJson(text) {

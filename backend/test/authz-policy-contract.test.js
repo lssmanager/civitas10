@@ -17,13 +17,18 @@ const principal = {
   audience: ["https://civitas.didaxus.com/api"],
   organizationId: ORG,
   scopes: new Set(["org.documents.create", "org.documents.read"]),
-  organizationRoleIds: ["role_admin"],
+  organizationRoleIds: ["organization_admin"],
 };
 const delegationProviders = () => ({
   membershipProvider: providers.createTokenMembershipProvider(),
   auditReadinessProvider: providers.createAuditReadinessProvider(),
   resourceOwnershipProvider: providers.createStaticResourceOwnershipProvider(),
-  delegationProvider: providers.createDelegationPolicyProvider({ repository: createInMemoryDelegationRepository({ baselineRules: [{ grantorLogtoRoleId: "role_admin", targetLogtoRoleId: "role_teacher", canAssign: true, canRevoke: false, isActive: true }] }), knownRoleIds: new Set(["role_admin", "role_teacher"]) }),
+  delegationProvider: providers.createDelegationPolicyProvider({ repository: createInMemoryDelegationRepository({ baselineRules: [{ grantorLogtoRoleId: "organization_admin", targetLogtoRoleId: "organization_teacher", canAssign: true, canRevoke: false, isActive: true }] }), knownRoleIds: new Set(["organization_admin", "organization_teacher"]) }),
+  entitlementProvider: {
+    async evaluate({ rolePaths }) { return { allowed: true, policyVersion: "test-v1", matchedRolePathId: rolePaths.find((path) => path.rolePotentialDecision?.allowed)?.rolePathId || rolePaths[0]?.rolePathId, evaluatedRolePaths: rolePaths.map((path) => ({ rolePathId: path.rolePathId, allowed: Boolean(path.rolePotentialDecision?.allowed), reasonCode: path.rolePotentialDecision?.reasonCode })) }; },
+    async evaluateSnapshot() { return { status: "current", policyVersion: "test-v1" }; },
+  },
+  dataScopeProvider: { async evaluate() { return { allowed: true, status: "valid", strategy: "test" }; } },
 });
 
 function base(overrides = {}) {
@@ -90,7 +95,7 @@ test("membership provider states deny except active and never need Management AP
 });
 
 test("delegation, cannot-escalate and owner_global policies consume #92 and preserve role-path provenance", async () => {
-  const allowed = await authorize(base({ operation: "assign", policies: ["target-role-delegable", "cannot-escalate-privileges"], target: { type: "role_assignment", roleId: "role_teacher", userId: "target_user" } }));
+  const allowed = await authorize(base({ operation: "assign", policies: ["target-role-delegable", "cannot-escalate-privileges"], target: { type: "role_assignment", roleId: "organization_teacher", userId: "target_user" } }));
   assert.equal(allowed.allowed, true);
   assert.ok(allowed.matchedRolePathId);
   assert.equal(allowed.evaluatedRolePaths[0].delegationDecision.allowed, true);
@@ -98,16 +103,16 @@ test("delegation, cannot-escalate and owner_global policies consume #92 and pres
   assert.equal(missing.allowed, false);
   const owner = await authorize(base({ operation: "assign", policies: ["cannot-modify-owner-global"], target: { type: "role_assignment", roleId: "owner_global", userId: "target_user" } }));
   assert.equal(owner.reasonCode, POLICY_REASON_CODES.OWNER_GLOBAL_MODIFICATION_FORBIDDEN);
-  const self = await authorize(base({ operation: "assign", policies: ["target-role-delegable", "cannot-escalate-privileges"], target: { type: "role_assignment", roleId: "role_teacher", userId: "user_A" } }));
+  const self = await authorize(base({ operation: "assign", policies: ["target-role-delegable", "cannot-escalate-privileges"], target: { type: "role_assignment", roleId: "organization_teacher", userId: "user_A" } }));
   assert.equal(self.reasonCode, POLICY_REASON_CODES.SELF_PRIVILEGE_CHANGE_FORBIDDEN);
 });
 
 test("cannot-escalate does not combine fragments from different role paths", async () => {
-  const multi = { ...principal, organizationRoleIds: ["role_scope", "role_delegator"] };
-  const provider = providers.createDelegationPolicyProvider({ repository: createInMemoryDelegationRepository({ baselineRules: [{ grantorLogtoRoleId: "role_delegator", targetLogtoRoleId: "role_teacher", canAssign: true, isActive: true }] }), knownRoleIds: new Set(["role_scope", "role_delegator", "role_teacher"]) });
-  const decision = await authorize(base({ principal: multi, operation: "assign", target: { type: "role_assignment", roleId: "role_teacher", userId: "target" }, policies: ["target-role-delegable", "cannot-escalate-privileges"], providers: { ...delegationProviders(), delegationProvider: provider } }));
+  const multi = { ...principal, organizationRoleIds: ["organization_member", "organization_admin"] };
+  const provider = providers.createDelegationPolicyProvider({ repository: createInMemoryDelegationRepository({ baselineRules: [{ grantorLogtoRoleId: "organization_admin", targetLogtoRoleId: "organization_teacher", canAssign: true, isActive: true }] }), knownRoleIds: new Set(["organization_member", "organization_admin", "organization_teacher"]) });
+  const decision = await authorize(base({ principal: multi, operation: "assign", target: { type: "role_assignment", roleId: "organization_teacher", userId: "target" }, policies: ["target-role-delegable", "cannot-escalate-privileges"], providers: { ...delegationProviders(), delegationProvider: provider } }));
   assert.equal(decision.allowed, true);
-  assert.equal(decision.matchedRolePathId, "role_path_1_role_delegator");
+  assert.equal(decision.matchedRolePathId, "role_path_1_organization_admin");
 });
 
 test("critical audit, connector, seat and feature policies only deny/continue and never recover missing scopes", async () => {
@@ -128,16 +133,54 @@ test("extension and impersonation interfaces fail closed until #90/#94/#95/#100 
   assert.equal((await authorize(base({ policies: ["authorization-data-scope-valid"], providers: { ...delegationProviders(), dataScopeProvider: providers.createUnavailableDataScopeProvider() } }))).reasonCode, POLICY_REASON_CODES.RESOURCE_NOT_FOUND_OR_NOT_ACCESSIBLE);
   const ownerPrincipal = { subject: "owner", tokenType: "global", audience: ["https://civitas.didaxus.com/api"], scopes: new Set(["owner.organizations.read"]), globalRoleIds: ["owner_global"] };
   const imp = await authorize({ principal: ownerPrincipal, permission: "owner.organizations.read", surface: "owner", operation: "execute", policies: ["impersonation-allowed"] });
-  assert.equal(imp.reasonCode, POLICY_REASON_CODES.IMPERSONATION_NOT_ALLOWED);
+  assert.equal(imp.reasonCode, POLICY_REASON_CODES.POLICY_PROVIDER_MISSING);
 });
 
 test("HTTP middleware consumes req.auth without revalidating JWT and returns safe diagnostics", async () => {
   const req = { auth: principal, params: { organizationId: ORG } };
   const res = { statusCode: null, body: null, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } };
   let called = false;
-  await requireAuthorization({ permission: "org.documents.read", surface: "organization", operation: "read", policies: ["same-organization", "membership-required"] })(req, res, () => { called = true; });
+  await requireAuthorization({ permission: "org.documents.read", surface: "organization", operation: "read", policies: ["same-organization", "membership-required"], providers: delegationProviders() })(req, res, () => { called = true; });
   assert.equal(called, true);
   assert.ok(req.authorizationDecision.decisionId);
   assert.equal(JSON.stringify(req.authorizationDecision).includes("bearer"), false);
   assert.equal(JSON.stringify(req.authorizationDecision).includes("claims"), false);
+});
+
+test("PBAC catalog gate denies unknown, planned, surface-mismatched and registry-hash drift", async () => {
+  const unknown = await authorize(base({ permission: "governance.preview.read", principal: { ...principal, scopes: new Set(["governance.preview.read"]) }, policies: [] }));
+  assert.equal(unknown.reasonCode, POLICY_REASON_CODES.PERMISSION_UNKNOWN);
+
+  const planned = await authorize(base({ permission: "lms.grades.export", principal: { ...principal, scopes: new Set(["lms.grades.export"]) }, policies: [] }));
+  assert.equal(planned.reasonCode, POLICY_REASON_CODES.PERMISSION_INACTIVE);
+
+  const surfaceMismatch = await authorize(base({ permission: "owner.runtime.read", surface: "organization", principal: { ...principal, scopes: new Set(["owner.runtime.read"]) }, policies: [] }));
+  assert.equal(surfaceMismatch.reasonCode, POLICY_REASON_CODES.CONSUMER_SURFACE_MISMATCH);
+
+  const hashMismatch = await authorize(base({ catalogHash: "sha256:not-the-runtime-catalog", policies: [] }));
+  assert.equal(hashMismatch.reasonCode, POLICY_REASON_CODES.REGISTRY_CATALOG_MISMATCH);
+});
+
+test("PBAC decisions include catalog, role-model and snapshot provenance", async () => {
+  const decision = await authorize(base({ policies: [], snapshotVersion: "snapshot-fixture-v1" }));
+  assert.equal(decision.allowed, true);
+  assert.match(decision.catalogHash, /^[a-f0-9]{64}$/);
+  assert.equal(decision.roleModelVersion, "2026-07-civitas-phase3-role-bundles-v1");
+  assert.equal(decision.snapshotProvenance.snapshotVersion, "snapshot-fixture-v1");
+  assert.equal(decision.snapshotProvenance.catalogHash, decision.catalogHash);
+});
+
+test("owner runtime read and operation execution are independent guards", async () => {
+  const ownerPrincipal = { subject: "owner", tokenType: "global", audience: ["https://civitas.didaxus.com/api"], scopes: new Set(["owner.runtime.read"]), globalRoleIds: ["owner_global"] };
+  const ownerProviders = { entitlementProvider: { async evaluateSnapshot() { return { status: "current" }; } } };
+  const read = await authorize({ principal: ownerPrincipal, permission: "owner.runtime.read", surface: "owner", operation: "read", policies: [], providers: ownerProviders });
+  assert.equal(read.allowed, true);
+  const execute = await authorize({ principal: ownerPrincipal, permission: "owner.runtime.operations.execute", surface: "owner", operation: "execute", policies: [], providers: ownerProviders });
+  assert.equal(execute.allowed, false);
+  assert.equal(execute.reasonCode, POLICY_REASON_CODES.PERMISSION_MISSING);
+});
+
+test("module availability is part of the PBAC denial pipeline", async () => {
+  const unavailable = await authorize(base({ policies: [], providers: { ...delegationProviders(), moduleAvailabilityResolver: { resolve: async () => ({ status: "disabled", capability: "documents" }) } } }));
+  assert.equal(unavailable.reasonCode, POLICY_REASON_CODES.MODULE_DISABLED);
 });

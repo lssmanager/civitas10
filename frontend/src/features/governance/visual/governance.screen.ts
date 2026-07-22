@@ -6,9 +6,9 @@ export const ownerGovernanceScreen = defineScreen({
   capability: "owner",
   route: routeCatalog.ownerOrganizationGovernance,
   navigation: { menuKey: "owner.organizations.governance", parentMenuKey: "owner.organizations", labelKey: "navigation.owner.organizations.governance", breadcrumbKey: "breadcrumbs.owner.organizations.governance", iconKey: "governance", responsiveGroup: "governance", order: 20 },
-  access: { requiredAllPermissions: ["governance.owner.read"], policies: ["authorization-snapshot-current"], requiresOrganizationContext: false },
+  access: { requiredAllPermissions: ["owner.runtime.read"], policies: ["authorization-snapshot-current"], requiresOrganizationContext: false },
   organizationCustomization: { visibility: "locked", order: "locked" },
-  actions: ["governance.access.preview"],
+  actions: ["owner.governance.access.preview"],
 });
 
 export const tenantGovernanceScreen = defineScreen({
@@ -16,7 +16,7 @@ export const tenantGovernanceScreen = defineScreen({
   capability: "owner",
   route: routeCatalog.tenantGovernance,
   navigation: { menuKey: "tenant.governance", labelKey: "navigation.tenant.governance", breadcrumbKey: "breadcrumbs.tenant.governance", iconKey: "governance", responsiveGroup: "organizations", order: 20 },
-  access: { requiredAllPermissions: ["governance.tenant.read"], policies: ["same-organization", "authorization-snapshot-current"], requiresOrganizationContext: true },
+  access: { requiredAllPermissions: ["org.documents.read"], policies: ["same-organization", "authorization-snapshot-current"], requiresOrganizationContext: true },
   organizationCustomization: { visibility: "locked", order: "locked" },
-  actions: ["governance.access.preview"],
+  actions: ["tenant.governance.access.preview"],
 });

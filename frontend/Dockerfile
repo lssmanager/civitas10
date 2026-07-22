@@ -12,8 +12,8 @@ ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_LOGTO_ENDPOINT=$VITE_LOGTO_ENDPOINT
 ENV VITE_LOGTO_APP_ID=$VITE_LOGTO_APP_ID
 
-COPY frontend/package*.json ./
-RUN npm install --include=dev
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --include=dev
 
 COPY frontend/ ./
 COPY config/ /config/

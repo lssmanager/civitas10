@@ -45,3 +45,18 @@ test('probe rejects response above size limit', async () => {
   const response = { status: 200, ok: true, headers: new Map(), text: async () => 'x'.repeat(32) };
   await assert.rejects(() => mod.guardedFetch('https://auth.didaxus.com/api/users', { method: 'GET', policy: policy(mod), transport: async () => response }), /response above size limit/);
 });
+
+test('probe blocks private IP hosts and unexpected query parameters before transport', async () => {
+  const mod = await loadProbe();
+  assert.throws(() => mod.buildPolicy({ endpoint: 'https://127.0.0.1', allowedPaths: ['/api/users'] }), /private or loopback/);
+  let called = false;
+  await assert.rejects(() => mod.guardedFetch('https://auth.didaxus.com/api/users?unsafe=true', { method: 'GET', policy: policy(mod), transport: async () => { called = true; } }), /unknown query parameter/);
+  assert.equal(called, false);
+});
+
+test('probe enforces response size while streaming', async () => {
+  const mod = await loadProbe();
+  const encoder = new TextEncoder();
+  const response = { status: 200, ok: true, headers: new Map(), body: new ReadableStream({ start(controller) { controller.enqueue(encoder.encode('0123456789')); controller.enqueue(encoder.encode('overflow')); controller.close(); } }) };
+  await assert.rejects(() => mod.guardedFetch('https://auth.didaxus.com/api/users', { method: 'GET', policy: policy(mod), transport: async () => response }), /during streaming/);
+});

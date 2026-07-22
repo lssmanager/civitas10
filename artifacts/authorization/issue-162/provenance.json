@@ -1,0 +1,29 @@
+{
+  "issue": 162,
+  "head": "51eff244a5ef0c0bf70817033a089d821bad6026",
+  "branch": "work",
+  "updatedAt": "2026-07-22T00:00:00.000Z",
+  "evidence": [
+    "backend/authorization/policies/authorize.js",
+    "backend/authorization/data-scope/dataScopeRegistry.js",
+    "backend/test/authz-canonical-core-contract.test.js",
+    "backend/test/authz-policy-contract.test.js",
+    "backend/test/authz-tenant-entitlement-contract.test.js",
+    ".github/workflows/authorization-contract.yml",
+    "package.json"
+  ],
+  "commands": [
+    { "command": "npm test", "exitCode": 0 },
+    { "command": "npm run authz:policy-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-migration-check", "exitCode": 0, "note": "static mode; TEST_DATABASE_URL not set" },
+    { "command": "npm run authz:runtime-consistency-check", "exitCode": 0 },
+    { "command": "npm run authz:logto-plan-check", "exitCode": 0 },
+    { "command": "git diff --check", "exitCode": 0 }
+  ],
+  "minimumRegression": {
+    "scenario": "active permission + scope present + arbitrary role + policies=[]",
+    "expectedDecision": "deny",
+    "observedReasonCode": "organization_role_unknown"
+  }
+}

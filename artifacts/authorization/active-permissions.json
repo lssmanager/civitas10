@@ -1,0 +1,126 @@
+{
+  "_generated": {
+    "notice": "GENERATED — DO NOT EDIT",
+    "source": "contracts/authorization/civitas-permission-catalog.yaml",
+    "command": "npm run authz:permission-catalog:generate",
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d"
+  },
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "activePermissions": [
+    {
+      "name": "lms.course_offerings.read",
+      "namespace": "lms",
+      "moduleId": null,
+      "capabilityId": "lms.course_offerings",
+      "surface": "organization",
+      "targetStatus": "active",
+      "observedImplementation": "active",
+      "dataScopeStrategy": "organization",
+      "risk": "standard",
+      "consumers": [
+        "existing-runtime:lms.course_offerings.read"
+      ],
+      "policyRequirements": [
+        "contract-test:lms.course_offerings.read"
+      ],
+      "screenActionIds": [],
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
+    },
+    {
+      "name": "lms.group_members.read",
+      "namespace": "lms",
+      "moduleId": null,
+      "capabilityId": "lms.group_members",
+      "surface": "organization",
+      "targetStatus": "active",
+      "observedImplementation": "active",
+      "dataScopeStrategy": "organization",
+      "risk": "standard",
+      "consumers": [
+        "existing-runtime:lms.group_members.read"
+      ],
+      "policyRequirements": [
+        "contract-test:lms.group_members.read"
+      ],
+      "screenActionIds": [],
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
+    },
+    {
+      "name": "lms.groups.read",
+      "namespace": "lms",
+      "moduleId": null,
+      "capabilityId": "lms.groups",
+      "surface": "organization",
+      "targetStatus": "active",
+      "observedImplementation": "active",
+      "dataScopeStrategy": "organization",
+      "risk": "standard",
+      "consumers": [
+        "existing-runtime:lms.groups.read"
+      ],
+      "policyRequirements": [
+        "contract-test:lms.groups.read"
+      ],
+      "screenActionIds": [],
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/lmsGroupLeadership.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
+    },
+    {
+      "name": "org.documents.create",
+      "namespace": "org",
+      "moduleId": null,
+      "capabilityId": "org.documents",
+      "surface": "organization",
+      "targetStatus": "active",
+      "observedImplementation": "active",
+      "dataScopeStrategy": "organization",
+      "risk": "standard",
+      "consumers": [
+        "existing-runtime:org.documents.create"
+      ],
+      "policyRequirements": [
+        "contract-test:org.documents.create"
+      ],
+      "screenActionIds": [],
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/guards.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
+    },
+    {
+      "name": "org.documents.read",
+      "namespace": "org",
+      "moduleId": null,
+      "capabilityId": "org.documents",
+      "surface": "organization",
+      "targetStatus": "active",
+      "observedImplementation": "active",
+      "dataScopeStrategy": "organization",
+      "risk": "standard",
+      "consumers": [
+        "existing-runtime:org.documents.read"
+      ],
+      "policyRequirements": [
+        "contract-test:org.documents.read"
+      ],
+      "screenActionIds": [],
+      "compatibility": "none",
+      "runtimePath": "backend/authorization/guards.js",
+      "testEvidence": [
+        "backend/test/permission-catalog-contract.test.js"
+      ]
+    }
+  ]
+}

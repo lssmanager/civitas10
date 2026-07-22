@@ -1,7 +1,21 @@
 "use strict";
-const STRATEGY_TYPES=Object.freeze(["organization","dimensions","relationships","self","group_leadership","deny"]);
-const RELATIONSHIP_KEYS=Object.freeze(["academic.assigned_group","academic.assigned_course","academic.related_student"]);
+const {DATA_SCOPE_STRATEGY_REGISTRY,STRATEGY_NAMES,getDataScopeStrategy}=require("./dataScopeStrategyRegistry");
+const STRATEGY_TYPES=STRATEGY_NAMES;
+const RELATIONSHIP_KEYS=Object.freeze(["academic.assigned_group","academic.assigned_course","academic.related_student","planning.relationship","planning.editable","planning.owner","planning.assigned_review","planning.assigned_approval","planning.approved_plan","community.member","community.moderator","hr.managed_employee","hr.self","payroll.managed_employee","payroll.self","scheduling.participant","scheduling.owner","support.assignee","support.requester","communication.sender","communication.recipient"]);
 const TAXONOMY_DIMENSION_KEYS=Object.freeze(["academic.section","academic.subject","academic.grade_level","organization.campus","organization.department","administration.function"]);
-const DATA_SCOPE_STRATEGIES=Object.freeze({ organization_director:{ lms:{strategy:"organization",emptyBehavior:"organization",contractVersion:"2026-07-data-scope-v1"}}, organization_headdirector:{ lms:{strategy:"dimensions",requiredDimensionKeys:["academic.section"],emptyBehavior:"deny",contractVersion:"2026-07-data-scope-v1"}}, organization_headteacher:{ lms:{strategy:"dimensions",requiredDimensionKeys:["academic.subject"],emptyBehavior:"deny",contractVersion:"2026-07-data-scope-v1"}}, organization_groupleader:{ lms:{strategy:"group_leadership",relationshipKeys:["academic.assigned_group"],relationshipType:"leads",emptyBehavior:"deny",contractVersion:"2026-07-data-scope-v1"}}, organization_teacher:{ lms:{strategy:"relationships",relationshipKeys:["academic.assigned_group","academic.assigned_course"],emptyBehavior:"deny",contractVersion:"2026-07-data-scope-v1"}}, organization_student:{ lms:{strategy:"self",emptyBehavior:"self",contractVersion:"2026-07-data-scope-v1"}}, organization_parent:{ lms:{strategy:"relationships",relationshipKeys:["academic.related_student"],emptyBehavior:"deny",contractVersion:"2026-07-data-scope-v1"}} });
-function strategyFor({roleKey,capability}){return DATA_SCOPE_STRATEGIES[roleKey]?.[capability]||{strategy:"deny",emptyBehavior:"deny"};}
+const DATA_SCOPE_STRATEGIES=Object.freeze({
+  organization_director:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.organization}, analytics:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}, reports:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}},
+  organization_headdirector:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units,requiredDimensionKeys:Object.freeze(["academic.section"])}},
+  organization_headteacher:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units,requiredDimensionKeys:Object.freeze(["academic.subject"])}, planning:{...DATA_SCOPE_STRATEGY_REGISTRY.planning_relationship}},
+  organization_groupleader:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.academic_relationship,relationshipKeys:Object.freeze(["academic.assigned_group"]),relationshipType:"leads"}},
+  organization_teacher:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.teaching_assignments}},
+  organization_student:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.self}},
+  organization_parent:{ lms:{...DATA_SCOPE_STRATEGY_REGISTRY.academic_relationship,relationshipKeys:Object.freeze(["academic.related_student"])}},
+  organization_member:{ community:{...DATA_SCOPE_STRATEGY_REGISTRY.community_membership}, scheduling:{...DATA_SCOPE_STRATEGY_REGISTRY.scheduling_relationship}, support:{...DATA_SCOPE_STRATEGY_REGISTRY.support_relationship}},
+  organization_secretary:{ crm:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}, scheduling:{...DATA_SCOPE_STRATEGY_REGISTRY.scheduling_relationship}, support:{...DATA_SCOPE_STRATEGY_REGISTRY.support_relationship}},
+  organization_accountant:{ payments:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}, reports:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}},
+  organization_billing:{ payments:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}},
+  organization_payroll:{ hr:{...DATA_SCOPE_STRATEGY_REGISTRY.payroll_relationship}}
+});
+function strategyFor({roleKey,capability}){return DATA_SCOPE_STRATEGIES[roleKey]?.[capability]||null;}
 module.exports={STRATEGY_TYPES,RELATIONSHIP_KEYS,TAXONOMY_DIMENSION_KEYS,DATA_SCOPE_STRATEGIES,strategyFor};

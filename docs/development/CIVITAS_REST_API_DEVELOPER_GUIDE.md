@@ -134,7 +134,7 @@ The example is a target pattern. A permission must be active before mounting the
 async function listCoursesController(req, res, next) {
   try {
     const result = await req.services.lms.listCourses({
-      organizationId: req.org.logto_organization_id,
+      organization_id: req.org.logto_organization_id,
       principal: req.authorizationDecision.principal,
       page: req.validated.query,
       authorization: req.authorizationDecision,
