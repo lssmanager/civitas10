@@ -1,0 +1,71 @@
+{
+  "_generated": {
+    "notice": "GENERATED — DO NOT EDIT",
+    "source": "contracts/authorization/civitas-role-bundles.json",
+    "catalogSource": "contracts/authorization/civitas-permission-catalog.yaml",
+    "command": "npm run authz:role-model:generate",
+    "catalogHash": "a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793",
+    "roleModelHash": "00bcd8eb3276f873a4e6067acabb98ea09efb3e816574420bb61be993ed9d40e"
+  },
+  "catalogHash": "a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793",
+  "roleModelHash": "00bcd8eb3276f873a4e6067acabb98ea09efb3e816574420bb61be993ed9d40e",
+  "activeRoleScopes": {
+    "organization_admin": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "lms.groups.read",
+      "org.documents.create",
+      "org.documents.read"
+    ],
+    "organization_director": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "lms.groups.read",
+      "org.documents.read"
+    ],
+    "organization_headdirector": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "lms.groups.read",
+      "org.documents.read"
+    ],
+    "organization_headteacher": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "lms.groups.read",
+      "org.documents.read"
+    ],
+    "organization_groupleader": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "lms.groups.read",
+      "org.documents.read"
+    ],
+    "organization_teacher": [
+      "org.documents.read"
+    ],
+    "organization_student": [
+      "org.documents.read"
+    ],
+    "organization_parent": [
+      "lms.course_offerings.read",
+      "lms.group_members.read",
+      "org.documents.read"
+    ],
+    "organization_secretary": [
+      "org.documents.read"
+    ],
+    "organization_accountant": [
+      "org.documents.read"
+    ],
+    "organization_billing": [
+      "org.documents.read"
+    ],
+    "organization_payroll": [
+      "org.documents.read"
+    ],
+    "organization_member": [
+      "org.documents.read"
+    ]
+  }
+}

@@ -3,5 +3,7 @@
 !/artifacts/authorization/permission-catalog.json
 !/artifacts/authorization/active-permissions.json
 !/artifacts/authorization/ci-inventory.json
+!/artifacts/authorization/active-role-scopes.json
+!/artifacts/authorization/role-potential.json
 !/artifacts/authorization/issue-161/
 !/artifacts/authorization/issue-161/provenance.json

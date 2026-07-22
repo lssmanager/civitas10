@@ -1,0 +1,1589 @@
+{
+  "_generated": {
+    "notice": "GENERATED — DO NOT EDIT",
+    "source": "contracts/authorization/civitas-role-bundles.json",
+    "catalogSource": "contracts/authorization/civitas-permission-catalog.yaml",
+    "command": "npm run authz:role-model:generate",
+    "catalogHash": "a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793",
+    "roleModelHash": "00bcd8eb3276f873a4e6067acabb98ea09efb3e816574420bb61be993ed9d40e"
+  },
+  "roleModel": {
+    "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+    "contractVersion": "2026-07-civitas-permission-catalog-v1",
+    "catalogHash": "a3cbbad3cf4bb959eeb3a62404fb37b03aa1d0fb45e8a51c6fc0978d11eb1793",
+    "roleModelHash": "00bcd8eb3276f873a4e6067acabb98ea09efb3e816574420bb61be993ed9d40e",
+    "bundles": [
+      {
+        "key": "org_documents_reader",
+        "description": "org_documents_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.documents.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant",
+          "organization_admin",
+          "organization_billing",
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_member",
+          "organization_parent",
+          "organization_payroll",
+          "organization_secretary",
+          "organization_student",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_documents_editor",
+        "description": "org_documents_editor canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.documents.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_documents_admin",
+        "description": "org_documents_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.documents.manage",
+          "org.settings.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_members_reader",
+        "description": "org_members_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.members.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_members_operator",
+        "description": "org_members_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.members.invite"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_members_admin",
+        "description": "org_members_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.members.archive",
+          "org.roles.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_roles_operator",
+        "description": "org_roles_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.roles.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_governance_reader",
+        "description": "org_governance_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.settings.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_governance_admin",
+        "description": "org_governance_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.groups.approve",
+          "org.workflows.delete"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_audit_reader",
+        "description": "org_audit_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.analytics.export"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_authorization_reader",
+        "description": "org_authorization_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.reports.approve"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_authorization_admin",
+        "description": "org_authorization_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.groups.update",
+          "org.roles.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_units_reader",
+        "description": "org_units_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.groups.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "org_units_admin",
+        "description": "org_units_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.groups.approve"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "academic_reader",
+        "description": "academic_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.assignments.read",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "academic_manager",
+        "description": "academic_manager canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.attendance.manage",
+          "lms.grades.export",
+          "lms.groups.manage"
+        ],
+        "allowedRoleKeys": [
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "group_leader",
+        "description": "group_leader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_groupleader"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "teacher",
+        "description": "teacher canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.assignments.create",
+          "lms.quizzes.create",
+          "lms.rubrics.read",
+          "lms.submissions.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "student_self",
+        "description": "student_self canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.assignments.read",
+          "lms.rubrics.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_student"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "parent_linked",
+        "description": "parent_linked canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_parent"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_reader",
+        "description": "planning_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_reviewer",
+        "description": "planning_reviewer canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.budgets.approve",
+          "planning.budgets.update",
+          "planning.dependencies.approve",
+          "planning.dependencies.manage"
+        ],
+        "allowedRoleKeys": [
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_approver",
+        "description": "planning_approver canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.initiatives.archive",
+          "planning.initiatives.create",
+          "planning.milestones.read",
+          "planning.milestones.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_author",
+        "description": "planning_author canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.minutes.delete",
+          "planning.plans.manage",
+          "planning.plans.read",
+          "planning.proposals.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_admin",
+        "description": "planning_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.risks.delete",
+          "planning.risks.export",
+          "planning.roadmaps.export",
+          "planning.surveys.approve"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "planning_production",
+        "description": "planning_production canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "planning.tasks.create",
+          "planning.tasks.delete",
+          "planning.votes.archive",
+          "planning.votes.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "crm_reader",
+        "description": "crm_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "crm.contacts.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "crm_operator",
+        "description": "crm_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "crm.admin.export",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "community_member",
+        "description": "community_member canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "community.posts.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_groupleader",
+          "organization_member",
+          "organization_parent",
+          "organization_student",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "community_moderator",
+        "description": "community_moderator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "scheduling_user",
+        "description": "scheduling_user canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "scheduling.events.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_member",
+          "organization_parent",
+          "organization_secretary",
+          "organization_student",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "scheduling_operator",
+        "description": "scheduling_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "scheduling.admin.export",
+          "scheduling.events.create",
+          "scheduling.events.read",
+          "scheduling.exports.approve",
+          "scheduling.imports.delete",
+          "scheduling.reports.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_headteacher",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "support_user",
+        "description": "support_user canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "support.tickets.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_member",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "support_operator",
+        "description": "support_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "support.admin.export",
+          "support.exports.approve",
+          "support.imports.delete",
+          "support.reports.update",
+          "support.settings.create",
+          "support.tickets.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin",
+          "organization_secretary"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "analytics_reader",
+        "description": "analytics_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant",
+          "organization_admin",
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "reports_reader",
+        "description": "reports_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "reports.records.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant",
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_payroll"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "reports_generator",
+        "description": "reports_generator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update",
+          "reports.settings.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant",
+          "organization_admin",
+          "organization_director",
+          "organization_headdirector",
+          "organization_headteacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "platform_adapter_reader",
+        "description": "platform_adapter_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "platform.records.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "platform_adapter_admin",
+        "description": "platform_adapter_admin canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "platform.admin.export",
+          "platform.approvals.archive",
+          "platform.exports.approve",
+          "platform.imports.delete",
+          "platform.records.read",
+          "platform.reports.update",
+          "platform.requests.manage",
+          "platform.settings.create"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "communications_user",
+        "description": "communications_user canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.announcements.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_member",
+          "organization_parent",
+          "organization_secretary",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "communications_operator",
+        "description": "communications_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.announcements.read",
+          "org.forms.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_admin"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "notification_preferences_self",
+        "description": "notification_preferences_self canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "org.announcements.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant",
+          "organization_admin",
+          "organization_billing",
+          "organization_director",
+          "organization_groupleader",
+          "organization_headdirector",
+          "organization_headteacher",
+          "organization_member",
+          "organization_parent",
+          "organization_payroll",
+          "organization_secretary",
+          "organization_student",
+          "organization_teacher"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "accounting_reader",
+        "description": "accounting_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "payments.dashboards.read",
+          "payments.records.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "accounting_operator",
+        "description": "accounting_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "payments.metrics.export",
+          "payments.reports.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_accountant"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "subscription_billing_reader",
+        "description": "subscription_billing_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "payments.records.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_billing"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "subscription_billing_operator",
+        "description": "subscription_billing_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "payments.requests.manage",
+          "payments.tasks.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_billing"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "payroll_reader",
+        "description": "payroll_reader canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "hr.records.read"
+        ],
+        "allowedRoleKeys": [
+          "organization_payroll"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "payroll_operator",
+        "description": "payroll_operator canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "hr.requests.manage",
+          "hr.tasks.update"
+        ],
+        "allowedRoleKeys": [
+          "organization_payroll"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "key": "payroll_approver",
+        "description": "payroll_approver canonical Phase 3 role-potential bundle",
+        "permissionIds": [
+          "hr.approvals.archive",
+          "hr.files.approve"
+        ],
+        "allowedRoleKeys": [
+          "organization_payroll"
+        ],
+        "lifecycle": "planned",
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      }
+    ],
+    "roles": [
+      {
+        "roleKey": "organization_admin",
+        "displayName": "Organization Admin",
+        "description": "Full tenant administration potential without owner capabilities.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "org_documents_editor",
+          "org_documents_admin",
+          "org_members_reader",
+          "org_members_operator",
+          "org_members_admin",
+          "org_roles_operator",
+          "org_governance_reader",
+          "org_governance_admin",
+          "org_audit_reader",
+          "org_authorization_reader",
+          "org_authorization_admin",
+          "org_units_reader",
+          "org_units_admin",
+          "academic_reader",
+          "planning_reader",
+          "planning_admin",
+          "crm_reader",
+          "crm_operator",
+          "community_moderator",
+          "scheduling_operator",
+          "support_operator",
+          "analytics_reader",
+          "reports_reader",
+          "reports_generator",
+          "platform_adapter_reader",
+          "platform_adapter_admin",
+          "communications_operator",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "hr.exports.approve",
+          "hr.files.approve",
+          "hr.imports.delete",
+          "hr.policies.delete",
+          "hr.records.read",
+          "hr.reports.update",
+          "lms.assignments.read",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.analytics.export",
+          "org.announcements.read",
+          "org.documents.create",
+          "org.documents.manage",
+          "org.documents.read",
+          "org.forms.update",
+          "org.groups.approve",
+          "org.groups.update",
+          "org.members.archive",
+          "org.members.invite",
+          "org.members.read",
+          "org.reports.approve",
+          "org.roles.create",
+          "org.settings.read",
+          "org.workflows.delete",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.risks.delete",
+          "planning.risks.export",
+          "planning.roadmaps.export",
+          "planning.surveys.approve",
+          "platform.admin.export",
+          "platform.approvals.archive",
+          "platform.exports.approve",
+          "platform.imports.delete",
+          "platform.records.read",
+          "platform.reports.update",
+          "platform.requests.manage",
+          "platform.settings.create",
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update",
+          "reports.settings.create",
+          "scheduling.admin.export",
+          "scheduling.events.create",
+          "scheduling.events.read",
+          "scheduling.exports.approve",
+          "scheduling.imports.delete",
+          "scheduling.reports.update",
+          "support.admin.export",
+          "support.exports.approve",
+          "support.imports.delete",
+          "support.reports.update",
+          "support.settings.create",
+          "support.tickets.read"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.documents.create",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 81,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_director",
+        "displayName": "Organization Director",
+        "description": "Director potential across governance, planning review and reporting.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "org_members_reader",
+          "org_governance_reader",
+          "org_audit_reader",
+          "org_units_reader",
+          "academic_reader",
+          "planning_reader",
+          "planning_reviewer",
+          "planning_approver",
+          "crm_reader",
+          "community_moderator",
+          "scheduling_user",
+          "analytics_reader",
+          "reports_reader",
+          "reports_generator",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "hr.exports.approve",
+          "hr.files.approve",
+          "hr.imports.delete",
+          "hr.policies.delete",
+          "hr.records.read",
+          "hr.reports.update",
+          "lms.assignments.read",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.analytics.export",
+          "org.announcements.read",
+          "org.documents.read",
+          "org.groups.update",
+          "org.members.read",
+          "org.settings.read",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.budgets.approve",
+          "planning.budgets.update",
+          "planning.dependencies.approve",
+          "planning.dependencies.manage",
+          "planning.initiatives.archive",
+          "planning.initiatives.create",
+          "planning.milestones.read",
+          "planning.milestones.update",
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update",
+          "reports.settings.create",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 57,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_headdirector",
+        "displayName": "Organization Head Director",
+        "description": "Head director potential across academic and planning review surfaces.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "org_members_reader",
+          "org_governance_reader",
+          "org_units_reader",
+          "academic_reader",
+          "planning_reader",
+          "planning_reviewer",
+          "planning_approver",
+          "community_moderator",
+          "scheduling_user",
+          "analytics_reader",
+          "reports_reader",
+          "reports_generator",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "hr.exports.approve",
+          "hr.files.approve",
+          "hr.imports.delete",
+          "lms.assignments.read",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.announcements.read",
+          "org.documents.read",
+          "org.groups.update",
+          "org.members.read",
+          "org.settings.read",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.budgets.approve",
+          "planning.budgets.update",
+          "planning.dependencies.approve",
+          "planning.dependencies.manage",
+          "planning.initiatives.archive",
+          "planning.initiatives.create",
+          "planning.milestones.read",
+          "planning.milestones.update",
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update",
+          "reports.settings.create",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 53,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_headteacher",
+        "displayName": "Organization Head Teacher",
+        "description": "Head teacher potential for academic management and planning production.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "org_members_reader",
+          "org_units_reader",
+          "academic_reader",
+          "academic_manager",
+          "planning_reader",
+          "planning_reviewer",
+          "planning_approver",
+          "planning_admin",
+          "planning_production",
+          "community_moderator",
+          "scheduling_operator",
+          "analytics_reader",
+          "reports_reader",
+          "reports_generator",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "hr.exports.approve",
+          "hr.files.approve",
+          "hr.imports.delete",
+          "lms.assignments.read",
+          "lms.attendance.manage",
+          "lms.course_offerings.read",
+          "lms.grades.export",
+          "lms.group_members.read",
+          "lms.groups.manage",
+          "lms.groups.read",
+          "org.announcements.read",
+          "org.documents.read",
+          "org.groups.update",
+          "org.members.read",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.budgets.approve",
+          "planning.budgets.update",
+          "planning.dependencies.approve",
+          "planning.dependencies.manage",
+          "planning.initiatives.archive",
+          "planning.initiatives.create",
+          "planning.milestones.read",
+          "planning.milestones.update",
+          "planning.risks.delete",
+          "planning.risks.export",
+          "planning.roadmaps.export",
+          "planning.surveys.approve",
+          "planning.tasks.create",
+          "planning.tasks.delete",
+          "planning.votes.archive",
+          "planning.votes.create",
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update",
+          "reports.settings.create",
+          "scheduling.admin.export",
+          "scheduling.events.create",
+          "scheduling.events.read",
+          "scheduling.exports.approve",
+          "scheduling.imports.delete",
+          "scheduling.reports.update"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 68,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_groupleader",
+        "displayName": "Organization Group Leader",
+        "description": "Group leader potential for assigned LMS groups and planning review.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "group_leader",
+          "planning_reader",
+          "planning_reviewer",
+          "community_member",
+          "scheduling_user",
+          "analytics_reader",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.announcements.read",
+          "org.documents.read",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.budgets.approve",
+          "planning.budgets.update",
+          "planning.dependencies.approve",
+          "planning.dependencies.manage",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "lms.groups.read",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 36,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_teacher",
+        "displayName": "Organization Teacher",
+        "description": "Teacher potential for LMS instructional workflows and planning authoring.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "teacher",
+          "planning_reader",
+          "planning_author",
+          "community_member",
+          "scheduling_user",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "hr.admin.export",
+          "hr.approvals.archive",
+          "hr.dashboards.read",
+          "hr.events.create",
+          "hr.exports.approve",
+          "hr.files.approve",
+          "hr.imports.delete",
+          "hr.policies.delete",
+          "hr.records.read",
+          "hr.reports.update",
+          "hr.requests.manage",
+          "hr.settings.create",
+          "lms.assignments.create",
+          "lms.quizzes.create",
+          "lms.rubrics.read",
+          "lms.submissions.update",
+          "org.announcements.read",
+          "org.documents.read",
+          "planning.agora.manage",
+          "planning.agora.read",
+          "planning.approvals.archive",
+          "planning.approvals.export",
+          "planning.minutes.delete",
+          "planning.plans.manage",
+          "planning.plans.read",
+          "planning.proposals.update",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 45,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_student",
+        "displayName": "Organization Student",
+        "description": "Student self-service potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "student_self",
+          "community_member",
+          "scheduling_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "lms.assignments.read",
+          "lms.rubrics.read",
+          "org.announcements.read",
+          "org.documents.read",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 17,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_parent",
+        "displayName": "Organization Parent",
+        "description": "Parent linked-student potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "parent_linked",
+          "community_member",
+          "scheduling_user",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "community.settings.create",
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "org.announcements.read",
+          "org.documents.read",
+          "scheduling.events.read"
+        ],
+        "activeExecutableScopeIds": [
+          "lms.course_offerings.read",
+          "lms.group_members.read",
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 17,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_secretary",
+        "displayName": "Organization Secretary",
+        "description": "Secretary potential for members, CRM, scheduling and support operations.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "org_members_reader",
+          "org_members_operator",
+          "org_roles_operator",
+          "org_units_reader",
+          "crm_reader",
+          "crm_operator",
+          "scheduling_user",
+          "scheduling_operator",
+          "support_user",
+          "support_operator",
+          "communications_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "crm.admin.export",
+          "crm.contacts.read",
+          "crm.exports.approve",
+          "crm.imports.delete",
+          "crm.reports.update",
+          "crm.settings.create",
+          "org.announcements.read",
+          "org.documents.read",
+          "org.groups.update",
+          "org.members.invite",
+          "org.members.read",
+          "org.roles.create",
+          "scheduling.admin.export",
+          "scheduling.events.create",
+          "scheduling.events.read",
+          "scheduling.exports.approve",
+          "scheduling.imports.delete",
+          "scheduling.reports.update",
+          "support.admin.export",
+          "support.exports.approve",
+          "support.imports.delete",
+          "support.reports.update",
+          "support.settings.create",
+          "support.tickets.read"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 28,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_accountant",
+        "displayName": "Organization Accountant",
+        "description": "Accounting and reporting potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "accounting_reader",
+          "accounting_operator",
+          "reports_reader",
+          "reports_generator",
+          "analytics_reader",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "org.announcements.read",
+          "org.documents.read",
+          "payments.dashboards.read",
+          "payments.metrics.export",
+          "payments.records.read",
+          "payments.reports.update",
+          "reports.admin.export",
+          "reports.exports.approve",
+          "reports.imports.delete",
+          "reports.records.read",
+          "reports.reports.update"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 17,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_billing",
+        "displayName": "Organization Billing",
+        "description": "Subscription billing potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "subscription_billing_reader",
+          "subscription_billing_operator",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "org.announcements.read",
+          "org.documents.read",
+          "payments.records.read",
+          "payments.requests.manage",
+          "payments.tasks.update"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 12,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_payroll",
+        "displayName": "Organization Payroll",
+        "description": "Payroll potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "payroll_reader",
+          "payroll_operator",
+          "payroll_approver",
+          "reports_reader",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "hr.approvals.archive",
+          "hr.files.approve",
+          "hr.records.read",
+          "hr.requests.manage",
+          "hr.tasks.update",
+          "org.announcements.read",
+          "org.documents.read",
+          "reports.records.read"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 11,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      },
+      {
+        "roleKey": "organization_member",
+        "displayName": "Organization Member",
+        "description": "Default member collaboration potential.",
+        "surface": "organization",
+        "bundleKeys": [
+          "org_documents_reader",
+          "community_member",
+          "scheduling_user",
+          "communications_user",
+          "support_user",
+          "notification_preferences_self"
+        ],
+        "potentialPermissionIds": [
+          "analytics.admin.export",
+          "analytics.exports.approve",
+          "analytics.imports.delete",
+          "analytics.records.read",
+          "analytics.reports.update",
+          "analytics.settings.create",
+          "community.admin.export",
+          "community.exports.approve",
+          "community.imports.delete",
+          "community.posts.read",
+          "community.reports.update",
+          "org.announcements.read",
+          "org.documents.read",
+          "scheduling.events.read",
+          "support.tickets.read"
+        ],
+        "activeExecutableScopeIds": [
+          "org.documents.read"
+        ],
+        "expectedPotentialCount": 15,
+        "version": "2026-07-civitas-phase3-role-bundles-v1"
+      }
+    ]
+  }
+}
