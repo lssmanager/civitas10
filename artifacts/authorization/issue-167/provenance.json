@@ -1,0 +1,88 @@
+{
+  "issue": 167,
+  "mode": "read-only",
+  "repository": "lssmanager/civitas10",
+  "branch": "work",
+  "headSha": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+  "mainSha": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+  "foundation144Sha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+  "pr170Shas": [
+    "997a245545a15065e80f336f6853acb864dbca93"
+  ],
+  "mergeBase": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "authoredHash": "38648f3040aff7d5200f1ea29089c92bc0fb046b97e5bf5ff7df6354d429b4cc",
+  "generatedHash": "70e028318384e5c7a4c683ebd789014cc775fa391648d75a5cd67ffb5b19ede4",
+  "runtimeManifestHash": "aaa147d3630d0009ad605e8eeffc561365b995f820c8f0ed9155d943829dc61d",
+  "roleModelHash": "6fa7ae75c51db22cfebee1b62aea13cd5bf40f9bfe15ebaad3d1bb13affd06ef",
+  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
+  "contractVersion": "2026-07-civitas-permission-catalog-v1",
+  "sourceVersion": "verification_required",
+  "logtoPlanHash": "7521cd48cf80064634a1b0ee51094ab2bb65f1c8834559a5aa7c9d25d3fc35a7",
+  "commands": [
+    {
+      "command": "gh issue view 127 --repo lssmanager/civitas10 --comments",
+      "exitCode": 127,
+      "readOnly": true,
+      "result": "gh unavailable"
+    },
+    {
+      "command": "gh pr view 144 --repo lssmanager/civitas10 --comments --json number,title,state,baseRefName,headRefName,commits,files,mergeCommit",
+      "exitCode": 127,
+      "readOnly": true,
+      "result": "gh unavailable"
+    },
+    {
+      "command": "pwd; git status --short; git branch --show-current; git rev-parse HEAD; git log --oneline --decorate -20; git remote -v",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "baseline captured"
+    },
+    {
+      "command": "git merge-base --is-ancestor a51769d914b7cc831908d45115b46101fcc2bbe9 HEAD",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "PR #144 foundation included"
+    },
+    {
+      "command": "git merge-base --is-ancestor 997a245545a15065e80f336f6853acb864dbca93 HEAD",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "PR #170 commit included"
+    },
+    {
+      "command": "npm run",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "script inventory printed"
+    },
+    {
+      "command": "node -e \"console.log(JSON.stringify(require('./package.json').scripts || {}, null, 2))\"",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "script JSON inventory printed"
+    },
+    {
+      "command": "rg deterministic consumer scans",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "consumer evidence captured in /tmp/issue167"
+    },
+    {
+      "command": "sha256sum contracts/authorization/civitas-permission-catalog.yaml artifacts/authorization/permission-catalog.json artifacts/authorization/active-permissions.json artifacts/authorization/role-potential.json artifacts/authorization/logto-plan.json contracts/authorization/civitas-role-bundles.json",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "hashes captured"
+    },
+    {
+      "command": "npm run authz:permission-catalog:check && npm run authz:role-model:check && npm run authz:naming:check && npm run logto:authz:contract-check && npm run authz:scope-contract-check && npm run authz:delegation-contract-check && npm run authz:policy-contract-check && npm run authz:security-gate:check && npm run authz:tenant-contract-check && npm run authz:entitlement-contract-check",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "authorization checks passed"
+    }
+  ],
+  "externalWrites": false,
+  "bootstrapExecuted": false,
+  "applyExecuted": false,
+  "timestamp": "2026-07-22T22:45:27.076Z"
+}

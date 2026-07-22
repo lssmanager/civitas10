@@ -1,0 +1,2904 @@
+[
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.actions.ts",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.notifications.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.profile.load",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.screen.ts",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.invoices.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.payments.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.payments.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.payments.write",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.permissions.js",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change_requests.cancel",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change_requests.create",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change_requests.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.application_requested",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.applied",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.approved",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.cancelled",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.failed",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.rejected",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seat_change.submitted",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seats.assign",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seats.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seats.release",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "billing.seats.request_modify",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "communications.messages.",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "communications.messages.create",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "communications.messages.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "communications.permissions.js",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "email.split",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "email.trim",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "notifications.permissions.js",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "notifications.preferences.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.admin",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.approvals",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.checkout.completed.v1",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.dashboards",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.events",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.exports",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.files",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.imports",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.invoices.",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.invoices.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.invoices",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.metrics",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.payments.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.payments.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.payments.write",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.policies",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.records",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.reports",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.requests",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.seats.assign",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.seats.read",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.seats.release",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.settings",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.tasks",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required",
+      "technical_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "payments.yaml",
+    "functionalOwner": null,
+    "ownerEvidence": [],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": null
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.active",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.label",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.path",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.profile.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "account.profile",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.adapterId",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.config",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.configure",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.id",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.identity.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.identity.write",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.key",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.lastErrorJson",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.lastPingAt",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.permissions.js",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.registry.configure",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.registry.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.secretsRef",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "connectors.status",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "connectors code bounded context exists",
+        "path": "backend/connectors/registry.js",
+        "type": "bounded_context"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform adapters"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.analytics.reports.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.audit.logs.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.audit.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.audit.update",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.audit",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.billing.create",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.billing",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.canReadOwner",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.canWriteOwner",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.catalog.export",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.catalog",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.entitlement_limits.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.entitlement_limits.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.entitlements.approve",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.entitlements",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.governance.access.preview",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.governance",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.identity_federation.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.identity_federation.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.identity_federation.support",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.impersonation.archive",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.impersonation.execute",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.impersonation",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.json",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.label",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.me.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.operations.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.operations",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organization.create",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.create",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.governance",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.operational_state",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.operational-state",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations.state",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.organizations",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.overview",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.path",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.permissions.js",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.permissions",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.platform.approve",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.platform.settings.write",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.platform",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.policyVersion",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.profile.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.profile.write",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.push",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.reasonCode",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.reports.update",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.reports",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.roleMappings.reset",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.roleMappings.update",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.runtime.operations.execute",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.runtime.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.runtime.worker_queues",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.runtime.workerQueues",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.seat_change_requests.approve",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.seat_change_requests.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.seat_change_requests.reject",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.security.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.security",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.settings.delete",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.settings",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.support.delete",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.support",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.system.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.system.refresh",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.system.worker_queues",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.system.workerQueues",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.system",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.taxonomy.definitions.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.taxonomy.definitions.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.tenants.manage",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.tenants.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.tenants",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.ts",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.users.archive",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.users.create",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.users",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.webhooks.export",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.webhooks",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.worker_queues.read",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.worker_queues.write",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "Civitas platform authorization"
+  },
+  {
+    "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "blockers": [
+      "functional_owner_confirmation_required"
+    ],
+    "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+    "currentId": "owner.write",
+    "functionalOwner": null,
+    "ownerEvidence": [
+      {
+        "evidence": "authorization/navigation frontend paths owned by @lssmanager",
+        "path": ".github/CODEOWNERS",
+        "type": "CODEOWNERS"
+      },
+      {
+        "evidence": "owner_global permissions are owner-prefixed",
+        "path": "core/authz/roles/global-role-permissions.js",
+        "type": "contract"
+      }
+    ],
+    "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+    "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+    "technicalOwner": "@lssmanager"
+  }
+]
