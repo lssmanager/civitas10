@@ -176,7 +176,7 @@ El repositorio establece estas fronteras:
 - Moodle, CRM, Community, Analytics y demás sistemas son adapters de capacidades; no son fuentes canónicas del tenant.
 - El resource OAuth único es `https://civitas.didaxus.com/api`.
 - Los roles organizacionales usan claves `organization_*`.
-- Los permisos tenant usan prefijo `org.*` o permisos capability-scoped aprobados.
+- Los permisos tenant usan IDs canónicos con namespace `org` y segmentos semánticos aprobados; wildcards están prohibidos.
 - `owner_global` permanece separado de los roles de organización.
 
 El flujo existente de alta de organización cubre creación de la organización en Logto, bootstrap del administrador y asignación inicial del rol administrativo. No define la federación empresarial por organización, la interpretación de claims, el mapeo de grupos, el lifecycle de identidades ni la reconciliación.

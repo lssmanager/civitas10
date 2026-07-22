@@ -27,6 +27,7 @@
     "check:management-level-authz": "node scripts/authorization/check-management-level-is-not-authz-input.js",
     "authz:permission-catalog:validate": "node scripts/authorization/validate-permission-catalog.mjs",
     "authz:permission-catalog:generate": "node scripts/authorization/generate-permission-catalog.mjs",
-    "authz:permission-catalog:check": "node scripts/authorization/validate-permission-catalog.mjs && node scripts/authorization/generate-permission-catalog.mjs --check && node --test backend/test/permission-catalog-contract.test.js"
+    "authz:permission-catalog:check": "node scripts/authorization/schema-check-permission-catalog.mjs && node scripts/authorization/validate-permission-catalog.mjs && node scripts/authorization/generate-permission-catalog.mjs --check && node --test backend/test/permission-catalog-contract.test.js",
+    "authz:permission-catalog:schema-check": "node scripts/authorization/schema-check-permission-catalog.mjs"
   }
 }
