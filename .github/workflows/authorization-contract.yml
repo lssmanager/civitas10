@@ -1,0 +1,42 @@
+name: Authorization Contract
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  authorization-contract:
+    name: Canonical authorization security gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --package-lock=false; fi
+      - name: Generate deterministic authorization artifacts
+        run: |
+          npm run authz:permission-catalog:generate
+          npm run authz:role-model:generate
+      - name: Fail on stale generated artifacts
+        run: git diff --exit-code
+      - name: Catalog and root contract
+        run: npm run authz:catalog-check
+      - name: Role potential and bundles
+        run: npm run authz:role-potential-check
+      - name: PBAC negative runtime tests
+        run: npm run authz:policy-contract-check
+      - name: ABAC/Data Scope contract tests
+        run: npm run authz:data-scope-contract-check
+      - name: Data Scope migration checks
+        run: npm run authz:data-scope-migration-check
+      - name: Logto planner tests offline
+        run: npm run authz:logto-plan-check
+      - name: Security gate
+        run: npm run authz:security-gate:check
+      - name: Runtime consistency checks
+        run: npm run authz:runtime-consistency-check

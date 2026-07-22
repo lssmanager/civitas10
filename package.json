@@ -10,7 +10,7 @@
     "test:logto:authz": "node --test backend/test/logto-authz-bootstrap.test.js",
     "authz:scope-contract-check": "node scripts/authorization/check-scope-only.js && node --test backend/test/foundation-authorization-middleware.test.js backend/test/authz-scope-delegation-contract.test.js backend/test/lms-group-leadership-contract.test.js",
     "authz:delegation-contract-check": "node --test backend/test/authz-scope-delegation-contract.test.js",
-    "authz:policy-contract-check": "node scripts/authorization/check-policy-runtime.js && node --test backend/test/authz-policy-contract.test.js backend/test/governance-operation-registry-contract.test.js",
+    "authz:policy-contract-check": "node scripts/authorization/check-policy-runtime.js && node --test backend/test/authz-policy-contract.test.js backend/test/authz-canonical-core-contract.test.js backend/test/governance-operation-registry-contract.test.js",
     "authz:tenant-contract-check": "node scripts/authorization/check-tenant-routes.js && node --test backend/test/authz-tenant-entitlement-contract.test.js backend/test/lms-group-leadership-contract.test.js",
     "authz:entitlement-contract-check": "node scripts/authorization/check-entitlement-overlay.js && node --test backend/test/authz-tenant-entitlement-contract.test.js",
     "test": "npm run authz:permission-catalog:check && npm run authz:role-model:check && npm run authz:naming:check && npm run logto:authz:contract-check && npm run authz:scope-contract-check && npm run authz:delegation-contract-check && npm run authz:policy-contract-check && npm run authz:security-gate:check && npm run authz:tenant-contract-check && npm run authz:entitlement-contract-check",
@@ -34,6 +34,11 @@
     "authz:role-model:diff": "node scripts/authorization/diff-role-model.mjs",
     "logto:authz:plan": "node scripts/logto/cli.js plan-rbac",
     "authz:security-gate": "node scripts/authorization/security-contract-gate.mjs",
-    "authz:security-gate:check": "node scripts/authorization/security-contract-gate.mjs --check && node --test backend/test/security-contract-gate.test.js backend/test/logto-identity-federation-probe.test.js"
+    "authz:security-gate:check": "node scripts/authorization/security-contract-gate.mjs --check && node --test backend/test/security-contract-gate.test.js backend/test/logto-identity-federation-probe.test.js",
+    "authz:canonical-core-contract-check": "node --test backend/test/authz-canonical-core-contract.test.js",
+    "authz:catalog-check": "npm run authz:permission-catalog:check",
+    "authz:role-potential-check": "npm run authz:role-model:check",
+    "authz:runtime-consistency-check": "npm run authz:runtime-contract-check",
+    "authz:logto-plan-check": "npm run logto:authz:contract-check"
   }
 }

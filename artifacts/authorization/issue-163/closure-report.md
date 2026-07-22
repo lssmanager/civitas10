@@ -1,40 +1,53 @@
-# Issue #163 Closure Evidence — ABAC Data Scope strategy registry and resource-boundary enforcement
+# Issue #163 authorization closure evidence
 
-## Baseline
+## Objective
+Canonical authorization closure for issue #163 as part of PR #205, evaluated against the Civitas contract that Logto materializes scopes while Civitas remains the effective authorization authority.
 
-- Initial HEAD before Issue #163 work: `96af006`.
-- Local branch: `work`.
-- Consumes Issue #161 permission catalog hardening and Issue #162 generated role model.
-- No Logto writes, bootstrap apply, remote role mutation or permission provisioning was performed.
+## Implemented files
+- backend/authorization/policies/authorize.js: derives mandatory canonical policy plan server-side, validates active catalog permission, token materialization, canonical role potential, module availability, PBAC/ABAC policies and provenance before allow.
+- backend/authorization/data-scope/dataScopeRegistry.js: removes permissive fallback to organization strategy; unknown role/capability strategy now resolves missing and must deny through server-side providers.
+- backend/test/authz-canonical-core-contract.test.js: negative regressions for policies=[] bypass, role potential denial, missing PBAC providers, stale snapshot, missing ABAC/Data Scope, restrictive caller policies and planned permissions.
+- backend/test/authz-policy-contract.test.js and backend/test/authz-tenant-entitlement-contract.test.js: corrected legacy permissive expectations to canonical roles and mandatory PBAC/ABAC context.
+- .github/workflows/authorization-contract.yml and package.json: blocking authorization contract workflow and script aliases for catalog, role potential, PBAC, ABAC/Data Scope, migration, Logto offline planning, security gate and runtime consistency.
 
-## ABAC/Data Scope contract
+## Runtime integration
+The runtime authorize() path no longer trusts consumer-supplied policies as the complete control set. It unions caller restrictions with a canonical plan per surface, validates canonical role potential before PBAC/ABAC, and fails closed when providers, snapshot, ceilings, activations or ABAC/Data Scope are unavailable.
 
-- Strategy registry version: `2026-07-civitas-data-scope-strategies-v1`.
-- Registered strategies: `global_owner`, `organization`, `organization_and_units`, `self`, `self_or_organization`, `academic_relationship`, `teaching_assignments`, `planning_relationship`, `planning_editable`, `planning_owned`, `assigned_reviews`, `assigned_approvals`, `approved_plans`, `community_membership`, `community_moderation`, `hr_relationship`, `payroll_relationship`, `scheduling_relationship`, `support_relationship`, `communication_relationship`.
-- Catalog hash after strategy normalization: `57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d`.
-- Role model hash after catalog hash propagation: `4edf94cc7fef6d97033ba2c4141eb1350cce96900a2ea764f230ab9382c73974`.
-- Missing scope remains deny-by-default and never widens to organization-wide access.
-- Planning strategies are registered and testable but Planning permissions remain planned/non-executable.
-- `notifications.preferences.read`, `account.profile.read`, `governance.*`, and legacy baseline IDs remain non-executable unless a canonical permission, surface, owner and strategy are explicitly approved in the catalog.
+## Positive tests
+- npm test passed locally.
+- npm run authz:policy-contract-check passed locally.
+- npm run authz:data-scope-contract-check passed locally.
+- npm run authz:logto-plan-check passed locally without real Logto credentials.
 
-## Durable assignment and enforcement evidence
+## Negative tests
+- policies=[] plus arbitrary role denies with organization_role_unknown.
+- valid scope plus role without permission potential denies with role_permission_missing.
+- missing entitlement provider denies with policy_provider_missing.
+- stale authorization snapshot denies with authorization_snapshot_stale.
+- missing Data Scope provider denies with policy_provider_missing.
+- cross-organization resource with additional policy denies with resource_organization_mismatch.
+- planned permission with token scope denies with permission_inactive.
 
-- `AuthorizationScopeAssignment` persistence guardrails are represented in migration `0016_authorization_scope_assignments_contract.sql` with exactly-one-target and active uniqueness constraints.
-- Assignment service validates exactly one target, membership binding, taxonomy status, unit tenant/status and resource tenant/status before persistence.
-- Evaluator emits query constraints/resource assertions per complete role path and rejects privilege-fragment composition.
-- LMS adapter filters lists/counts/exports before pagination, denies direct-ID enumeration and marks bulk operations as all-or-nothing resource assertions.
-- Scope diagnostics are redacted while audit/outbox provenance is preserved.
+## Commands actually executed
+- npm run authz:canonical-core-contract-check: pass.
+- npm run authz:policy-contract-check: pass.
+- npm run authz:data-scope-contract-check: pass.
+- npm run authz:role-potential-check: pass.
+- npm run authz:catalog-check: pass.
+- npm run authz:logto-plan-check: pass.
+- npm test: pass.
+- npm run authz:data-scope-migration-check: pass (static; TEST_DATABASE_URL not set).
+- npm run authz:runtime-consistency-check: pass.
+- git diff --check: pass.
 
-## Validation results
+## Limitations pending
+The GitHub required-check configuration itself is repository settings outside this patch. Data Scope migration check used static mode because TEST_DATABASE_URL was not configured in this local environment.
 
-- `npm run authz:data-scope-contract-check`: passed.
-- `npm run authz:permission-catalog:check`: passed.
-- `npm run authz:role-model:check`: passed.
-- `npm test`: passed.
-- `git diff --check`: passed.
+## SHA / HEAD
+Inspected and implemented from HEAD 51eff244a5ef0c0bf70817033a089d821bad6026 on branch work.
 
-## Remaining follow-up scope
+## Relationship with other issues
+Issues #161-#166 are interdependent: catalog (#161), role potential (#162), ABAC/Data Scope (#163), PBAC engine (#164), Logto planner materialization (#165), and CI/security contract enforcement (#166) are validated together rather than as isolated documentary artifacts.
 
-- Issue #164 remains the PBAC decision engine integration layer.
-- Issue #165 remains Logto sync/dry-run/apply planning.
-- Issues #166 and #167 remain security regression and migration reconciliation follow-up.
+## Closure criterion
+This issue is considered complete only with implementation, negative tests, runtime integration and CI workflow evidence in this branch; no issue is automatically closed by this report.

@@ -1,37 +1,53 @@
-# Issue #164 PBAC authorization decision closure evidence
+# Issue #164 authorization closure evidence
 
-## Baseline
+## Objective
+Canonical authorization closure for issue #164 as part of PR #205, evaluated against the Civitas contract that Logto materializes scopes while Civitas remains the effective authorization authority.
 
-- Working branch: work.
-- Baseline HEAD before #164 hardening: `2e2fece244b3fcb9957cefca221385d6b37a3b89`.
-- Catalog hash: `57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d`.
-- Role model version: `2026-07-civitas-phase3-role-bundles-v1`.
+## Implemented files
+- backend/authorization/policies/authorize.js: derives mandatory canonical policy plan server-side, validates active catalog permission, token materialization, canonical role potential, module availability, PBAC/ABAC policies and provenance before allow.
+- backend/authorization/data-scope/dataScopeRegistry.js: removes permissive fallback to organization strategy; unknown role/capability strategy now resolves missing and must deny through server-side providers.
+- backend/test/authz-canonical-core-contract.test.js: negative regressions for policies=[] bypass, role potential denial, missing PBAC providers, stale snapshot, missing ABAC/Data Scope, restrictive caller policies and planned permissions.
+- backend/test/authz-policy-contract.test.js and backend/test/authz-tenant-entitlement-contract.test.js: corrected legacy permissive expectations to canonical roles and mandatory PBAC/ABAC context.
+- .github/workflows/authorization-contract.yml and package.json: blocking authorization contract workflow and script aliases for catalog, role potential, PBAC, ABAC/Data Scope, migration, Logto offline planning, security gate and runtime consistency.
 
-## Corrective decisions
+## Runtime integration
+The runtime authorize() path no longer trusts consumer-supplied policies as the complete control set. It unions caller restrictions with a canonical plan per surface, validates canonical role potential before PBAC/ABAC, and fails closed when providers, snapshot, ceilings, activations or ABAC/Data Scope are unavailable.
 
-- Unknown permission IDs now deny with `permission_unknown`; planned/deprecated/absent runtime candidates deny with `permission_inactive`.
-- Visual/operation registry catalog drift denies with `registry_catalog_mismatch`.
-- Consumer surface drift denies with `consumer_surface_mismatch`.
-- Owner runtime read uses `owner.runtime.read`; operation execution uses `owner.runtime.operations.execute`.
-- `governance.preview.read` remains absent from the active catalog and is covered as a fail-closed visual/API mismatch.
+## Positive tests
+- npm test passed locally.
+- npm run authz:policy-contract-check passed locally.
+- npm run authz:data-scope-contract-check passed locally.
+- npm run authz:logto-plan-check passed locally without real Logto credentials.
 
-## Provenance and registries
+## Negative tests
+- policies=[] plus arbitrary role denies with organization_role_unknown.
+- valid scope plus role without permission potential denies with role_permission_missing.
+- missing entitlement provider denies with policy_provider_missing.
+- stale authorization snapshot denies with authorization_snapshot_stale.
+- missing Data Scope provider denies with policy_provider_missing.
+- cross-organization resource with additional policy denies with resource_organization_mismatch.
+- planned permission with token scope denies with permission_inactive.
 
-- Authorization decisions include `catalogHash`, `roleModelVersion` and `snapshotProvenance`.
-- Governance operation inventory entries include catalog and role-model provenance.
-- The compiled visual registry carries catalog hash, role model version and snapshot provenance.
+## Commands actually executed
+- npm run authz:canonical-core-contract-check: pass.
+- npm run authz:policy-contract-check: pass.
+- npm run authz:data-scope-contract-check: pass.
+- npm run authz:role-potential-check: pass.
+- npm run authz:catalog-check: pass.
+- npm run authz:logto-plan-check: pass.
+- npm test: pass.
+- npm run authz:data-scope-migration-check: pass (static; TEST_DATABASE_URL not set).
+- npm run authz:runtime-consistency-check: pass.
+- git diff --check: pass.
 
-## Validation recorded
+## Limitations pending
+The GitHub required-check configuration itself is repository settings outside this patch. Data Scope migration check used static mode because TEST_DATABASE_URL was not configured in this local environment.
 
-- `npm run authz:permission-catalog:check`: passed.
-- `npm run authz:role-model:check`: passed.
-- `npm run authz:naming:check`: passed.
-- `npm run logto:authz:contract-check`: passed; no Logto writes performed.
-- `npm run authz:policy-contract-check`: passed.
-- `node --test frontend/src/authorization/visualContract.contract.test.mjs`: passed.
-- `npm test`: passed.
-- `git diff --check`: passed.
+## SHA / HEAD
+Inspected and implemented from HEAD 51eff244a5ef0c0bf70817033a089d821bad6026 on branch work.
 
-## Follow-up scope
+## Relationship with other issues
+Issues #161-#166 are interdependent: catalog (#161), role potential (#162), ABAC/Data Scope (#163), PBAC engine (#164), Logto planner materialization (#165), and CI/security contract enforcement (#166) are validated together rather than as isolated documentary artifacts.
 
-#162, #163, #165, #166 and #167 remain separate follow-up scopes. This closure evidence only covers #164 PBAC/catalog-bound authorization hardening.
+## Closure criterion
+This issue is considered complete only with implementation, negative tests, runtime integration and CI workflow evidence in this branch; no issue is automatically closed by this report.
