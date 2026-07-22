@@ -17,5 +17,5 @@ const DATA_SCOPE_STRATEGIES=Object.freeze({
   organization_billing:{ payments:{...DATA_SCOPE_STRATEGY_REGISTRY.organization_and_units}},
   organization_payroll:{ hr:{...DATA_SCOPE_STRATEGY_REGISTRY.payroll_relationship}}
 });
-function strategyFor({roleKey,capability}){return DATA_SCOPE_STRATEGIES[roleKey]?.[capability]||getDataScopeStrategy("organization")||{name:"organization",resolverKind:"organization"};}
+function strategyFor({roleKey,capability}){return DATA_SCOPE_STRATEGIES[roleKey]?.[capability]||null;}
 module.exports={STRATEGY_TYPES,RELATIONSHIP_KEYS,TAXONOMY_DIMENSION_KEYS,DATA_SCOPE_STRATEGIES,strategyFor};

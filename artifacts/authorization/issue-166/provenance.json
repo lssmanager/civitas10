@@ -1,18 +1,29 @@
 {
   "issue": 166,
-  "phase": 3,
-  "baselineHead": "8f2095a3356fef8a64a660a9f81111eab96667a9",
-  "finalHead": "commit-containing-this-provenance-file",
-  "gateVersion": "2026-07-civitas-phase3-security-gate-v1",
-  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
-  "roleModelVersion": "2026-07-civitas-phase3-role-bundles-v1",
-  "inventory": "artifacts/authorization/security-gate-inventory.json",
-  "checks": ["missing authored/generated artifacts", "14 namespaces", "13 roles including organization_groupleader", "160 permissions", "10 legacy decisions", "executable permission active/catalog-bound", "Logto plan drift buckets", "identity discovery network guardrails"],
-  "negativeFixtures": ["governance.preview.read active outside catalog", "12-role omission", "planned executable leakage", "wrong surface", "billing/payments explicit decision", "wildcard/colon legacy IDs"],
-  "validation": {
-    "authz:security-gate": "passed",
-    "authz:security-gate:check": "passed",
-    "npm test": "passed",
-    "git diff --check": "passed"
+  "head": "51eff244a5ef0c0bf70817033a089d821bad6026",
+  "branch": "work",
+  "updatedAt": "2026-07-22T00:00:00.000Z",
+  "evidence": [
+    "backend/authorization/policies/authorize.js",
+    "backend/authorization/data-scope/dataScopeRegistry.js",
+    "backend/test/authz-canonical-core-contract.test.js",
+    "backend/test/authz-policy-contract.test.js",
+    "backend/test/authz-tenant-entitlement-contract.test.js",
+    ".github/workflows/authorization-contract.yml",
+    "package.json"
+  ],
+  "commands": [
+    { "command": "npm test", "exitCode": 0 },
+    { "command": "npm run authz:policy-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-migration-check", "exitCode": 0, "note": "static mode; TEST_DATABASE_URL not set" },
+    { "command": "npm run authz:runtime-consistency-check", "exitCode": 0 },
+    { "command": "npm run authz:logto-plan-check", "exitCode": 0 },
+    { "command": "git diff --check", "exitCode": 0 }
+  ],
+  "minimumRegression": {
+    "scenario": "active permission + scope present + arbitrary role + policies=[]",
+    "expectedDecision": "deny",
+    "observedReasonCode": "organization_role_unknown"
   }
 }

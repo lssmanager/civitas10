@@ -1,0 +1,76 @@
+name: Authorization Contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-authorization-security-gate:
+    name: Canonical authorization security gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Install root dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f package-lock.json ]]; then
+            npm ci
+          else
+            echo "::notice::No root package-lock.json; using non-lockfile installation."
+            npm install --package-lock=false
+          fi
+
+      - name: Generate authorization artifacts
+        run: npm run authz:generate
+
+      - name: Verify generated artifacts are committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+
+      - name: Validate canonical catalog
+        run: npm run authz:catalog-check
+
+      - name: Validate role potential
+        run: npm run authz:role-potential-check
+
+      - name: Validate PBAC policy contracts
+        run: npm run authz:policy-contract-check
+
+      - name: Validate ABAC and Data Scope contracts
+        run: npm run authz:data-scope-contract-check
+
+      - name: Validate Data Scope migrations
+        run: npm run authz:data-scope-migration-check
+
+      - name: Validate Logto planning offline
+        run: npm run authz:logto-plan-check
+
+      - name: Run authorization security gate
+        run: npm run authz:security-gate:check
+
+      - name: Validate runtime consistency
+        run: npm run authz:runtime-consistency-check
+
+      - name: Run complete authorization matrix
+        run: npm test

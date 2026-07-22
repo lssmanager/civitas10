@@ -1,27 +1,29 @@
 {
   "issue": 163,
-  "initialHead": "96af006",
+  "head": "51eff244a5ef0c0bf70817033a089d821bad6026",
   "branch": "work",
-  "dataScopeStrategyVersion": "2026-07-civitas-data-scope-strategies-v1",
-  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
-  "roleModelHash": "4edf94cc7fef6d97033ba2c4141eb1350cce96900a2ea764f230ab9382c73974",
-  "strategies": ["global_owner", "organization", "organization_and_units", "self", "self_or_organization", "academic_relationship", "teaching_assignments", "planning_relationship", "planning_editable", "planning_owned", "assigned_reviews", "assigned_approvals", "approved_plans", "community_membership", "community_moderation", "hr_relationship", "payroll_relationship", "scheduling_relationship", "support_relationship", "communication_relationship"],
-  "artifactHashes": {
-    "contracts/authorization/civitas-permission-catalog.yaml": "38648f3040aff7d5200f1ea29089c92bc0fb046b97e5bf5ff7df6354d429b4cc",
-    "core/authz/catalog/generated/permission-catalog.js": "9997368825fa53bd097f47921ee66c6b3bff9246aa2081f65f652783b1d1e060",
-    "artifacts/authorization/permission-catalog.json": "70e028318384e5c7a4c683ebd789014cc775fa391648d75a5cd67ffb5b19ede4",
-    "core/authz/roles/generated/role-model.js": "5c13a0acc449db09a7c2e625d817163a1953639a730c5169086ae5c63e692420",
-    "artifacts/authorization/role-potential.json": "6fa7ae75c51db22cfebee1b62aea13cd5bf40f9bfe15ebaad3d1bb13affd06ef",
-    "backend/authorization/data-scope/dataScopeStrategyRegistry.js": "bea7a66d386ad4ac5087013e98c28fe5e186b28b19024e8ef50a7e6d343fd861",
-    "backend/db/migrations/0016_authorization_scope_assignments_contract.sql": "d1fc572a8deeb8e8fb49ce273bed0006dae992b8a486d4ef9e03b99f6ecacd40"
-  },
-  "logtoWritesPerformed": false,
-  "commands": {
-    "npm run authz:data-scope-contract-check": "passed",
-    "npm run authz:permission-catalog:check": "passed",
-    "npm run authz:role-model:check": "passed",
-    "npm test": "passed",
-    "git diff --check": "passed"
-  },
-  "followUpIssuesRemainOpen": [164, 165, 166, 167]
+  "updatedAt": "2026-07-22T00:00:00.000Z",
+  "evidence": [
+    "backend/authorization/policies/authorize.js",
+    "backend/authorization/data-scope/dataScopeRegistry.js",
+    "backend/test/authz-canonical-core-contract.test.js",
+    "backend/test/authz-policy-contract.test.js",
+    "backend/test/authz-tenant-entitlement-contract.test.js",
+    ".github/workflows/authorization-contract.yml",
+    "package.json"
+  ],
+  "commands": [
+    { "command": "npm test", "exitCode": 0 },
+    { "command": "npm run authz:policy-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-contract-check", "exitCode": 0 },
+    { "command": "npm run authz:data-scope-migration-check", "exitCode": 0, "note": "static mode; TEST_DATABASE_URL not set" },
+    { "command": "npm run authz:runtime-consistency-check", "exitCode": 0 },
+    { "command": "npm run authz:logto-plan-check", "exitCode": 0 },
+    { "command": "git diff --check", "exitCode": 0 }
+  ],
+  "minimumRegression": {
+    "scenario": "active permission + scope present + arbitrary role + policies=[]",
+    "expectedDecision": "deny",
+    "observedReasonCode": "organization_role_unknown"
+  }
 }
