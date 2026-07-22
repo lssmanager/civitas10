@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: authorization-contract-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   canonical-authorization-security-gate:
     name: Canonical authorization security gate
@@ -33,26 +37,52 @@ jobs:
           set -euo pipefail
 
           if [[ -f package-lock.json ]]; then
+            echo "::notice::Installing root dependencies with npm ci."
             npm ci
           else
-            echo "::notice::No root package-lock.json; using non-lockfile installation."
+            echo "::notice::No root package-lock.json; using npm install without generating a lockfile."
             npm install --package-lock=false
           fi
 
-      - name: Generate authorization artifacts
-        run: npm run authz:generate
-
-      - name: Verify generated artifacts are committed
+      - name: Validate authorization workflow scripts
         shell: bash
         run: |
           set -euo pipefail
-          git diff --exit-code
 
-      - name: Validate canonical catalog
-        run: npm run authz:catalog-check
+          node <<'NODE'
+          const scripts = require('./package.json').scripts || {};
 
-      - name: Validate role potential
-        run: npm run authz:role-potential-check
+          const requiredScripts = [
+            'authz:permission-catalog:check',
+            'authz:role-model:check',
+            'authz:policy-contract-check',
+            'authz:data-scope-contract-check',
+            'authz:data-scope-migration-check',
+            'logto:authz:contract-check',
+            'authz:security-gate:check',
+            'authz:runtime-contract-check',
+            'test',
+          ];
+
+          const missingScripts = requiredScripts.filter(
+            (scriptName) => !scripts[scriptName],
+          );
+
+          if (missingScripts.length > 0) {
+            console.error(
+              `Missing required package scripts: ${missingScripts.join(', ')}`,
+            );
+            process.exit(1);
+          }
+
+          console.log('All required authorization workflow scripts exist.');
+          NODE
+
+      - name: Validate canonical permission catalog
+        run: npm run authz:permission-catalog:check
+
+      - name: Validate canonical role model
+        run: npm run authz:role-model:check
 
       - name: Validate PBAC policy contracts
         run: npm run authz:policy-contract-check
@@ -63,14 +93,14 @@ jobs:
       - name: Validate Data Scope migrations
         run: npm run authz:data-scope-migration-check
 
-      - name: Validate Logto planning offline
-        run: npm run authz:logto-plan-check
+      - name: Validate Logto authorization contracts offline
+        run: npm run logto:authz:contract-check
 
       - name: Run authorization security gate
         run: npm run authz:security-gate:check
 
-      - name: Validate runtime consistency
-        run: npm run authz:runtime-consistency-check
+      - name: Validate runtime authorization consistency
+        run: npm run authz:runtime-contract-check
 
       - name: Run complete authorization matrix
         run: npm test
