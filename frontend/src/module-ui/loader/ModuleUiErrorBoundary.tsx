@@ -1,0 +1,4 @@
+import React from "react";
+import { moduleUiFallbackState } from "./fallbackStates.ts";
+import type { ModuleUiFailureCode } from "./contracts.ts";
+export class ModuleUiErrorBoundary extends React.Component<{ moduleId:string; screenId:string; children:React.ReactNode; onFailure?:(code:ModuleUiFailureCode)=>void }, { failed:boolean; code:ModuleUiFailureCode }>{ state={ failed:false, code:"remote_error" as ModuleUiFailureCode }; static getDerivedStateFromError(){ return { failed:true, code:"remote_error" as ModuleUiFailureCode }; } componentDidCatch(){ this.props.onFailure?.("remote_error"); } render(){ if(this.state.failed){ const f=moduleUiFallbackState(this.state.code); return <section role="alert" tabIndex={-1} aria-labelledby={`${this.props.screenId}-fallback-title`}><h1 id={`${this.props.screenId}-fallback-title`}>{f.titleKey}</h1><p>{f.descriptionKey}</p></section>; } return this.props.children; }}

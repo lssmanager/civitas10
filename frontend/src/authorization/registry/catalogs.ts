@@ -22,10 +22,12 @@ export const permissionCatalog = new Map<PermissionKey, CatalogPermissionMetadat
   ["lms.groups.read" as PermissionKey, organization()],
   ["org.documents.create" as PermissionKey, organization()],
   ["org.documents.read" as PermissionKey, organization()],
+  ["planning.plans.read" as PermissionKey, { status: "planned" as never, surface: "organization", catalogHash: authorizationCatalogHash }],
+  ["planning.plans.manage" as PermissionKey, { status: "planned" as never, surface: "organization", catalogHash: authorizationCatalogHash }],
 ]);
 
 export const activePermissions = new Set<PermissionKey>(permissionCatalog.keys());
 export const knownPolicies = new Set<PolicyKey>(["same-organization", "membership-required", "authorization-snapshot-current", "resource-belongs-to-organization"].map((item) => item as PolicyKey));
 export const knownFeatureFlags = new Set<FeatureFlagKey>(["lms-grades", "lms-groups", "owner-runtime"].map((item) => item as FeatureFlagKey));
-export const knownCapabilities = new Set<CapabilityKey>(["lms", "crm", "support", "scheduling", "payments", "email", "storage", "analytics", "notifications", "automation", "community", "owner", "account"]);
-export const knownIcons = new Set<IconKey>(["overview", "governance", "operations", "organizations", "directory", "create", "settings", "profile", "grades", "groups"]);
+export const knownCapabilities = new Set<CapabilityKey>(["lms", "crm", "support", "scheduling", "payments", "email", "storage", "analytics", "notifications", "automation", "community", "owner", "account", "planning"]);
+export const knownIcons = new Set<IconKey>(["overview", "governance", "operations", "organizations", "directory", "create", "settings", "profile", "grades", "groups", "planning"]);

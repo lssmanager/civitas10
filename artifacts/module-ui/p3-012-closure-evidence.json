@@ -1,0 +1,31 @@
+{
+  "branch": "codex/issue-182-module-ui-visual-registry",
+  "headSha": "ebc10bd2adeb89b35ef4514b9f1a67f7c4d0e306",
+  "baseSha": "9521bfad049975fe81d9c4eb655dcb634a047cbe",
+  "dependencyShas": {
+    "p3_011": "9521bfad049975fe81d9c4eb655dcb634a047cbe",
+    "visualAccess": "9521bfad049975fe81d9c4eb655dcb634a047cbe:frontend/docs/VISUAL_ACCESS_CONTRACT.md",
+    "routeCatalog": "9521bfad049975fe81d9c4eb655dcb634a047cbe:frontend/src/navigation/route-catalog.ts",
+    "screenActionRegistry": "9521bfad049975fe81d9c4eb655dcb634a047cbe:frontend/src/authorization/registry"
+  },
+  "contributionInventoryHash": "e8fe5f409595c520da4d2822b178dcfce2a88454314d25ee1b92b9276789cf28",
+  "registryHash": "23b067ed7ecf52dda5790474057baee27da696ff3c55a7c894a7fbb67f4078bd",
+  "testCommands": [
+    "npm run ui:p3-012:registry-check",
+    "npm run ui:p3-012:navigation-check",
+    "npm run ui:p3-012:route-safety-check",
+    "npm run ui:p3-012:authorization-parity-check",
+    "npm run ui:p3-012:lifecycle-check",
+    "npm run ui:p3-012:no-parallel-navigation-check",
+    "npm run ui:p3-012:no-frontend-authority-check",
+    "npm run ui:p3-012:inventory-check"
+  ],
+  "results": "passed",
+  "evidence": {
+    "directRouteParity": "route builder and navigation use same validated contribution route metadata",
+    "accessibility": "navigation/fallback decisions keep AppShell and route semantics",
+    "noWhiteScreen": "P3-011 boundary retained; P3-012 decisions fail closed before artifact load",
+    "rollback": "remove contribution or revert to previous P3-011 verified metadata",
+    "tenantIsolation": "organization route builder validates and encodes tenant segment"
+  }
+}
