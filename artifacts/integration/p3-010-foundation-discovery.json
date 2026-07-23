@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "civitas-p3-010-foundation-discovery/v1",
+  "branch": "codex/issue-180-integration-events-outbox-operations",
+  "headSha": "e8d361feeab6d7d2506f7283ecafb8138d0b285d",
+  "originMainSha": "141ac39df5e199e7bef99a6959a9f3563c15961a",
+  "mergeBase": "141ac39df5e199e7bef99a6959a9f3563c15961a",
+  "primitives": [
+    {
+      "name": "authorization_outbox_events",
+      "ownership": "authorization runtime consistency foundation primitive",
+      "table": "authorization_outbox_events",
+      "tenantKey": "logto_organization_id",
+      "statuses": "pending/publishing/published/failed",
+      "decision": "compatibility-adapter",
+      "notes": "history preserved; shared integration_outbox_events is the new envelope-backed foundation"
+    },
+    {
+      "name": "operational_operations",
+      "ownership": "operational foundation primitive",
+      "table": "operational_operations",
+      "tenantKey": "logto_organization_id",
+      "statuses": "accepted/queued/running/succeeded/partially_succeeded/failed/cancelled via operation_state",
+      "decision": "extend",
+      "notes": "extended as canonical operation resource; not duplicated"
+    },
+    {
+      "name": "audit_logs",
+      "ownership": "audit foundation primitive",
+      "table": "audit_logs",
+      "tenantKey": "logto_organization_id",
+      "decision": "reference",
+      "notes": "domain transactions can write audit and outbox atomically"
+    },
+    {
+      "name": "integration_outbox_events",
+      "ownership": "P3-010 integration foundation",
+      "table": "integration_outbox_events",
+      "tenantKey": "logto_organization_id",
+      "naturalKey": "event_id",
+      "decision": "extend"
+    },
+    {
+      "name": "integration_inbox_receipts",
+      "ownership": "P3-010 integration foundation",
+      "table": "integration_inbox_receipts",
+      "tenantKey": "logto_organization_id",
+      "naturalKey": "consumer_id+event_id",
+      "decision": "extend"
+    },
+    {
+      "name": "integration_dead_letters",
+      "ownership": "P3-010 integration foundation",
+      "table": "integration_dead_letters",
+      "tenantKey": "logto_organization_id",
+      "decision": "extend"
+    }
+  ]
+}

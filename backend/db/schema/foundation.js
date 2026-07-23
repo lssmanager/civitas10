@@ -10,6 +10,12 @@ const FOUNDATION_TABLES = Object.freeze([
   "registry_adapters",
   "registry_connectors",
   "registry_connector_bindings",
+  "module_catalog",
+  "module_versions",
+  "organization_modules",
+  "module_runtime_catalog",
+  "module_contract_compatibility",
+  "organization_module_runtime_bindings",
 ]);
 
 const FOUNDATION_SCHEMA_ORDER = Object.freeze({
@@ -24,6 +30,12 @@ const FOUNDATION_SCHEMA_ORDER = Object.freeze({
   registry_adapters: 9,
   registry_connectors: 10,
   registry_connector_bindings: 11,
+  module_catalog: 12,
+  module_versions: 13,
+  organization_modules: 14,
+  module_runtime_catalog: 15,
+  module_contract_compatibility: 16,
+  organization_module_runtime_bindings: 17,
 });
 
 const FOUNDATION_CAPABILITIES = Object.freeze([

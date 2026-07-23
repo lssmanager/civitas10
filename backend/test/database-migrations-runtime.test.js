@@ -26,7 +26,11 @@ test("operational schema guard requires operational_operations columns queried b
 
   await assert.rejects(() => assertOperationalSchema({ pool }), (error) => {
     assert.equal(error.name, "DatabaseSchemaError");
-    assert.deepEqual(error.details.missingTables.sort(), ["audit_logs", "operational_operation_steps", "organization_provisioning_drafts"].sort());
+    assert.ok(error.details.missingTables.includes("audit_logs"));
+    assert.ok(error.details.missingTables.includes("operational_operation_steps"));
+    assert.ok(error.details.missingTables.includes("organization_provisioning_drafts"));
+    assert.ok(error.details.missingTables.includes("module_catalog"));
+    assert.ok(error.details.missingTables.includes("organization_module_runtime_bindings"));
     assert.deepEqual(error.details.missingColumns.operational_operations, ["queue_name"]);
     assert.equal(error.details.expectedMigration, "backend/db/migrations/0000_foundation.sql");
     return true;

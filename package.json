@@ -39,6 +39,26 @@
     "authz:catalog-check": "npm run authz:permission-catalog:check",
     "authz:role-potential-check": "npm run authz:role-model:check",
     "authz:runtime-consistency-check": "npm run authz:runtime-contract-check",
-    "authz:logto-plan-check": "npm run logto:authz:contract-check"
+    "authz:logto-plan-check": "npm run logto:authz:contract-check",
+    "modules:catalog:generate": "node scripts/modules/module-catalog-v2.mjs --generate",
+    "modules:catalog:check": "node scripts/modules/module-catalog-v2.mjs --check && node --test backend/test/module-catalog-v2-contract.test.mjs",
+    "modules:p3-005:preflight": "node scripts/modules/p3-005-preflight.mjs",
+    "modules:p3-005:check": "npm run modules:catalog:check && npm run modules:p3-005:preflight && npm run modules:p3-005:no-memory-fallback-check && node --test backend/test/module-control-plane-contract.test.js",
+    "modules:p3-005:no-memory-fallback-check": "node scripts/modules/p3-005-no-memory-fallback-check.mjs",
+    "modules:p3-005:postgres-check": "node scripts/modules/p3-005-postgres-check.mjs",
+    "modules:p3-006:check": "node --test backend/test/module-availability-resolver-contract.test.js",
+    "modules:p3-006:postgres-check": "node scripts/modules/p3-006-postgres-check.mjs",
+    "modules:p3-006:resilience-check": "node scripts/modules/p3-006-resilience-check.mjs",
+    "integration:p3-010:check": "node scripts/integration-p3-010-check.mjs && node --test backend/test/integration-events-contract.test.js",
+    "integration:p3-010:postgres-check": "node scripts/integration-p3-010-postgres-check.mjs",
+    "integration:p3-010:resilience-check": "node scripts/integration-p3-010-resilience-check.mjs",
+    "integration:p3-010:redaction-check": "node scripts/integration-p3-010-redaction-check.mjs",
+    "integration:p3-010:no-parallel-outbox-check": "node scripts/integration-p3-010-no-parallel-outbox-check.mjs",
+    "integration:p3-010:operation-contract-check": "node scripts/integration-p3-010-operation-contract-check.mjs",
+    "integration:p3-010:inspect-outbox": "node scripts/integration-p3-010-reconcile.mjs --target outbox --dry-run",
+    "integration:p3-010:inspect-inbox": "node scripts/integration-p3-010-reconcile.mjs --target inbox --dry-run",
+    "integration:p3-010:inspect-dlq": "node scripts/integration-p3-010-reconcile.mjs --target dlq --dry-run",
+    "integration:p3-010:reconcile": "node scripts/integration-p3-010-reconcile.mjs --dry-run",
+    "integration:p3-010:verify-operations": "node scripts/integration-p3-010-reconcile.mjs --target operations --dry-run"
   }
 }

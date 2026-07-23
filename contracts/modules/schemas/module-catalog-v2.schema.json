@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://civitas.local/contracts/modules/module-catalog-v2.schema.json",
+  "title": "Civitas Module Catalog v2",
+  "type": "object",
+  "required": ["schemaVersion", "catalogVersion", "modules"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {"const":"civitas-module-manifest/v2"},
+    "catalogVersion": {"type":"string","pattern":"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"},
+    "modules": {"type":"array","minItems":11,"maxItems":11,"items":{"$ref":"module-manifest-v2.schema.json"}}
+  }
+}

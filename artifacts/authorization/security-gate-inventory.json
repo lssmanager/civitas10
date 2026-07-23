@@ -6,7 +6,7 @@
     "generatedAt": "1970-01-01T00:00:00.000Z"
   },
   "gateVersion": "2026-07-civitas-phase3-security-gate-v1",
-  "ref": "work",
+  "ref": "codex/issue-180-integration-events-outbox-operations",
   "sha": "runtime-git-sha-checked-by-gate",
   "runtimeShaPolicy": "evaluated during gate execution and normalized for deterministic inventory",
   "mergeBase": "unavailable",

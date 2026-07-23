@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "p3-005-closure-evidence/v1",
+  "branch": "codex/issue-176-persist-module-lifecycle-runtime-bindings",
+  "headShaAtEvidenceAuthoring": "09fcf34ac1f44f60dfc5e0995c572e82cd5bc257",
+  "originMainSha": "141ac39df5e199e7bef99a6959a9f3563c15961a",
+  "mergeBaseWithOriginMain": "141ac39df5e199e7bef99a6959a9f3563c15961a",
+  "catalogHash": "48be8d3d93d233f4c9d4dc5122014680556fcfe76328ec8b49ea5275c2cf60e4",
+  "migrationVersion": "0017_module_control_plane.sql",
+  "repositoryImplementation": {
+    "postgresFactory": "createPostgresModuleControlPlaneRepository",
+    "productionFactory": "createProductionModuleControlPlaneService",
+    "testDouble": "createInMemoryModuleControlPlaneRepository",
+    "genericServiceRequiresRepository": true,
+    "productiveMemoryFallbackAllowed": false
+  },
+  "schemaGuardTables": [
+    "module_catalog",
+    "module_versions",
+    "organization_modules",
+    "module_runtime_catalog",
+    "module_contract_compatibility",
+    "organization_module_runtime_bindings"
+  ],
+  "postgresqlIntegrationGate": {
+    "script": "npm run modules:p3-005:postgres-check",
+    "requiresDatabaseUrl": true,
+    "usesRealPostgreSQL": true,
+    "mocksOrPgMemAllowed": false,
+    "postgresqlVersion": "PostgreSQL 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+    "lastLocalExecution": "passed",
+    "lastLocalCommand": "DATABASE_URL=<redacted> npm run modules:p3-005:postgres-check"
+  },
+  "evidence": {
+    "twoTenantIsolation": "backend/integration/module-control-plane-postgres.integration.test.js",
+    "optimisticConcurrencySql": "backend/services/moduleControlPlane.js updateOrganizationModuleLifecycle/updateBindingStatus",
+    "auditOutboxAtomicity": "backend/integration/module-control-plane-postgres.integration.test.js",
+    "redactionResult": "secretsRef redacted in audit payloads; secret-like serviceRef and operationalConfig rejected before write"
+  },
+  "redactionStatus": "no DATABASE_URL, credentials, tokens, endpoints with credentials, or secret values recorded"
+}

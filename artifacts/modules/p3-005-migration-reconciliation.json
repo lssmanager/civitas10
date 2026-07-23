@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "p3-005-module-reconciliation/v1",
+  "branch": "codex/issue-180-integration-events-outbox-operations",
+  "commitSha": "e8d361feeab6d7d2506f7283ecafb8138d0b285d",
+  "mergeBase": null,
+  "catalog": {
+    "path": "contracts/modules/module-catalog.v2.json",
+    "hash": "48be8d3d93d233f4c9d4dc5122014680556fcfe76328ec8b49ea5275c2cf60e4",
+    "version": "2.0.0"
+  },
+  "counts": {
+    "registry_capabilities": "preflight-offline-structural",
+    "registry_adapters": "preflight-offline-structural",
+    "registry_connectors": "preflight-offline-structural",
+    "registry_connector_bindings": "preflight-offline-structural",
+    "organization_runtime_state": "preflight-offline-structural",
+    "operational_operations": "preflight-offline-structural",
+    "audit_logs": "preflight-offline-structural",
+    "idempotency_records": "preflight-offline-structural",
+    "module_catalog": "preflight-offline-structural",
+    "module_versions": "preflight-offline-structural",
+    "organization_modules": "preflight-offline-structural",
+    "module_runtime_catalog": "preflight-offline-structural",
+    "organization_module_runtime_bindings": "preflight-offline-structural",
+    "module_contract_compatibility": "preflight-offline-structural"
+  },
+  "mappings": {
+    "unambiguous": []
+  },
+  "blockers": [],
+  "manualReview": [],
+  "redactionStatus": "paths-only-no-secret-values",
+  "primitives": [
+    {
+      "primitive": "registry_capabilities",
+      "classification": "primitive-preserved",
+      "responsibility": "technical provider-neutral capabilities",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status",
+      "relationToP3005": "primitive-preserved",
+      "decision": "preserve"
+    },
+    {
+      "primitive": "registry_adapters",
+      "classification": "primitive-preserved",
+      "responsibility": "technical adapter implementations",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "capability_id + key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status/module_ref",
+      "relationToP3005": "primitive-preserved",
+      "decision": "preserve"
+    },
+    {
+      "primitive": "registry_connectors",
+      "classification": "primitive-preserved",
+      "responsibility": "configured connector instances",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "adapter_id + key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status/secrets_ref",
+      "relationToP3005": "primitive-preserved",
+      "decision": "preserve"
+    },
+    {
+      "primitive": "registry_connector_bindings",
+      "classification": "primitive-referenced",
+      "responsibility": "tenant capability-to-connector binding",
+      "tenantIdentity": "logto_organization_id",
+      "naturalKeys": "logto_organization_id + capability_id active",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status/is_active",
+      "relationToP3005": "primitive-referenced",
+      "decision": "reference"
+    },
+    {
+      "primitive": "organization_runtime_state",
+      "classification": "primitive-referenced",
+      "responsibility": "technical mappings and operational state",
+      "tenantIdentity": "logto_organization_id",
+      "naturalKeys": "logto_organization_id + capability + state_key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status",
+      "relationToP3005": "primitive-referenced",
+      "decision": "reference"
+    },
+    {
+      "primitive": "operational_operations",
+      "classification": "primitive-consumer",
+      "responsibility": "async operation tracking/idempotency",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "id/idempotency_key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status",
+      "relationToP3005": "primitive-consumer",
+      "decision": "compatibility"
+    },
+    {
+      "primitive": "audit_logs",
+      "classification": "primitive-consumer",
+      "responsibility": "audit record sink",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "id",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "action/result",
+      "relationToP3005": "primitive-consumer",
+      "decision": "compatibility"
+    },
+    {
+      "primitive": "idempotency_records",
+      "classification": "primitive-consumer",
+      "responsibility": "idempotent action records",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "idempotency_key",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status",
+      "relationToP3005": "primitive-consumer",
+      "decision": "compatibility"
+    },
+    {
+      "primitive": "module_catalog",
+      "classification": "primitive-extended",
+      "responsibility": "module identity control plane",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "module_id",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "catalog_status",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    },
+    {
+      "primitive": "module_versions",
+      "classification": "primitive-extended",
+      "responsibility": "manifest version control plane",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "module_id + semantic_version",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "contract_status",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    },
+    {
+      "primitive": "organization_modules",
+      "classification": "primitive-extended",
+      "responsibility": "tenant module installation lifecycle",
+      "tenantIdentity": "logto_organization_id",
+      "naturalKeys": "logto_organization_id + module_id",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "lifecycle/version",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    },
+    {
+      "primitive": "module_runtime_catalog",
+      "classification": "primitive-extended",
+      "responsibility": "business module runtime catalog",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "runtime_id",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "runtime_status/version",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    },
+    {
+      "primitive": "organization_module_runtime_bindings",
+      "classification": "primitive-extended",
+      "responsibility": "tenant business runtime binding",
+      "tenantIdentity": "logto_organization_id",
+      "naturalKeys": "logto_organization_id + organization_module_id + module_id active",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "status/version",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    },
+    {
+      "primitive": "module_contract_compatibility",
+      "classification": "primitive-extended",
+      "responsibility": "explicit module/runtime/host compatibility",
+      "tenantIdentity": "global/control-plane",
+      "naturalKeys": "module_version_id + runtime_id + versions",
+      "constraints": "see migration 0017 and existing schema guards",
+      "lifecycleStatus": "compatibility_status",
+      "relationToP3005": "primitive-extended",
+      "decision": "extend"
+    }
+  ]
+}

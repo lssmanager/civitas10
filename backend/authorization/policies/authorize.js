@@ -51,11 +51,16 @@ function decisionProvenance(context) {
     }),
   });
 }
+function availabilitySummary(context) {
+  if (!context.moduleAvailabilityDecision) return undefined;
+  const d = context.moduleAvailabilityDecision;
+  return { state: d.state, executable: d.executable, readOnly: d.readOnly, reasonCode: d.reasonCode, moduleVersion: d.moduleVersion, bindingVersion: d.bindingVersion, compatibilityVersion: d.compatibilityVersion, healthSnapshotVersion: d.healthSnapshotVersion, availabilityDecisionId: d.decisionId, availabilityVersion: d.schemaVersion };
+}
 function denyDecision(context, reasonCode, extra = {}) {
-  return Object.freeze({ allowed: false, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode, ...decisionProvenance(context), safeMetadata: sanitizeMetadata(extra) });
+  return Object.freeze({ allowed: false, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, authorizationSnapshotVersion: context.authorization.snapshotVersion || context.authorization.policyVersion || 'unspecified', moduleAvailability: availabilitySummary(context), reasonCode, ...decisionProvenance(context), safeMetadata: sanitizeMetadata(extra) });
 }
 function allowDecision(context, matchedRolePathId) {
-  return Object.freeze({ allowed: true, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, matchedRolePathId, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, reasonCode: POLICY_REASON_CODES.AUTHORIZATION_ALLOWED, ...decisionProvenance(context), safeMetadata: {} });
+  return Object.freeze({ allowed: true, decisionId: context.decisionId, permission: context.authorization.permission, actionId: context.authorization.actionId, surface: context.request.surface, organizationId: context.principal.organizationId || undefined, matchedRolePathId, evaluatedRolePaths: sanitizeRolePaths(context.rolePaths), policyVersion: context.authorization.policyVersion, authorizationSnapshotVersion: context.authorization.snapshotVersion || context.authorization.policyVersion || 'unspecified', moduleAvailability: availabilitySummary(context), reasonCode: POLICY_REASON_CODES.AUTHORIZATION_ALLOWED, ...decisionProvenance(context), safeMetadata: {} });
 }
 function sanitizeRolePaths(paths) {
   return (paths || []).map((path) => ({ rolePathId: path.rolePathId, logtoRoleId: path.logtoRoleId, tokenScopePresent: Boolean(path.tokenScopePresent), delegationDecision: path.delegationDecision ? { operation: path.delegationDecision.operation, targetRoleId: path.delegationDecision.targetRoleId, allowed: path.delegationDecision.allowed, reasonCode: path.delegationDecision.reasonCode } : undefined, entitlementDecision: path.entitlementDecision, dataScopeDecision: path.dataScopeDecision, rolePotentialDecision: path.rolePotentialDecision, policyResults: (path.policyResults || []).map((result) => ({ policyId: result.policyId, outcome: result.outcome, reasonCode: result.reasonCode })) }));
@@ -74,18 +79,24 @@ function permissionSurfaceMatches(permission, requestSurface) {
 async function resolveModuleAvailability(context, permission) {
   const resolver = context.providers.moduleAvailabilityResolver;
   if (!resolver?.resolve) return null;
-  const availability = await resolver.resolve({ permission: permission.name, capability: context.target?.capability || permission.domain || permission.name.split(".")[0], organizationId: context.request.routeOrganizationId, surface: context.request.surface });
-  if (!availability || availability.available === true || availability.status === "active") return null;
-  const status = availability.status || "unavailable";
+  const operation = context.request.operation || context.authorization.actionId || permission.name;
+  const capability = context.target?.capability || permission.domain || permission.name.split(".").slice(0,2).join(".");
+  const moduleId = context.target?.moduleId || permission.domain || permission.name.split(".")[0];
+  const decision = await resolver.resolve({ organizationId: context.request.routeOrganizationId || context.principal.organizationId, moduleId, capabilityId: capability, operationId: operation, executionKind: context.target?.executionKind || 'read' });
+  context.moduleAvailabilityDecision = decision;
+  if (!decision) return null;
+  if (decision.executable === true) return null;
+  if (decision.executable === undefined && decision.status === 'active') return null;
+  const normalizedAvailabilityReason = decision.reasonCode || (decision.status === 'disabled' ? 'module_disabled' : decision.status === 'suspended' ? 'module_suspended' : decision.status === 'not_installed' ? 'module_not_installed' : decision.status === 'incompatible' ? 'runtime_incompatible' : decision.status === 'unavailable' ? 'runtime_unavailable' : undefined);
   const map = {
-    not_installed: POLICY_REASON_CODES.MODULE_NOT_INSTALLED,
-    disabled: POLICY_REASON_CODES.MODULE_DISABLED,
-    suspended: POLICY_REASON_CODES.MODULE_SUSPENDED,
-    capability_unavailable: POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE,
-    incompatible: POLICY_REASON_CODES.RUNTIME_INCOMPATIBLE,
-    unavailable: POLICY_REASON_CODES.RUNTIME_UNAVAILABLE,
+    module_not_installed: POLICY_REASON_CODES.MODULE_NOT_INSTALLED,
+    module_disabled: POLICY_REASON_CODES.MODULE_DISABLED,
+    module_suspended: POLICY_REASON_CODES.MODULE_SUSPENDED,
+    capability_not_declared: POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE,
+    runtime_incompatible: POLICY_REASON_CODES.RUNTIME_INCOMPATIBLE,
+    runtime_unavailable: POLICY_REASON_CODES.RUNTIME_UNAVAILABLE,
   };
-  return { reasonCode: map[status] || POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE, metadata: { status, capability: availability.capability } };
+  return { reasonCode: map[normalizedAvailabilityReason] || POLICY_REASON_CODES.CAPABILITY_UNAVAILABLE, metadata: { status: decision.state || decision.status, capability: decision.capabilityId || decision.capability, availabilityDecisionId: decision.decisionId } };
 }
 async function authorize(input) {
   const registry = input.registry || createDefaultPolicyRegistry();
