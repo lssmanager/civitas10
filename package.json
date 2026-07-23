@@ -90,6 +90,7 @@
     "ui:p3-012:lifecycle-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs lifecycle",
     "ui:p3-012:no-parallel-navigation-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs no-parallel-navigation",
     "ui:p3-012:no-frontend-authority-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs no-frontend-authority",
-    "ui:p3-012:inventory-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs inventory"
+    "ui:p3-012:inventory-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs inventory",
+    "docker:contracts:smoke": "node scripts/modules/docker-contracts-smoke.mjs"
   }
 }

@@ -6,6 +6,8 @@ COPY backend/package*.json ./
 RUN npm install
 
 COPY backend/ ./
+COPY contracts/ /contracts/
+COPY scripts/modules/ /scripts/modules/
 COPY core/ /core/
 COPY scripts/authorization/ /scripts/authorization/
 COPY dist/ /dist/

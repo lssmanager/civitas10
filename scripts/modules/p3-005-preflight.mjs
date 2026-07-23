@@ -51,13 +51,17 @@ function sh(cmd) {
   }
 }
 
+function resolveMergeBase() {
+  return sh('git merge-base HEAD origin/main') || sh('git merge-base HEAD main') || null;
+}
+
 function buildReport({ reportWritten = false, reportDirectory = null } = {}) {
   const catalog = loadCatalog();
   return {
     schemaVersion: 'p3-005-module-reconciliation/v1',
     branch: sh('git branch --show-current'),
     commitSha: sh('git rev-parse HEAD'),
-    mergeBase: sh('git merge-base HEAD main'),
+    mergeBase: resolveMergeBase(),
     catalog,
     moduleCount: catalog.moduleCount,
     counts: Object.fromEntries(primitives.map((p) => [p[0], 'preflight-offline-structural'])),
