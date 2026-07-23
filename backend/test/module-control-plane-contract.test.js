@@ -1,7 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const { createModuleControlPlaneService, createInMemoryModuleControlPlaneRepository, assertNoSecrets, REASON_CODES, TRANSITIONS } = require('../services/moduleControlPlane');
 
 async function prepared(){ const repo=createInMemoryModuleControlPlaneRepository(); const service=createModuleControlPlaneService({ repository:repo }); await service.seedCatalogFromP3_002(); const planning=await service.resolveModuleVersion({ moduleId:'planning', semanticVersion:'0.1.0' }); const lms=await service.resolveModuleVersion({ moduleId:'lms', semanticVersion:'0.1.0' }); return { repo, service, planning, lms }; }
@@ -78,11 +80,85 @@ test('secret safety rejects values without logging secret value', () => {
   });
 });
 
+
+const repoRoot = path.join(__dirname, '..', '..');
+const preflightScript = path.join(repoRoot, 'scripts', 'modules', 'p3-005-preflight.mjs');
+const trackedPreflightArtifacts = [
+  path.join(repoRoot, 'artifacts', 'modules', 'p3-005-migration-reconciliation.json'),
+  path.join(repoRoot, 'artifacts', 'modules', 'p3-005-migration-reconciliation.md'),
+];
+
+function runPreflight(args = []) {
+  return execFileSync(process.execPath, [preflightScript, ...args], { cwd: repoRoot, encoding: 'utf8' });
+}
+
+function assertTrackedPreflightArtifactsAbsent() {
+  for (const artifactPath of trackedPreflightArtifacts) assert.equal(fs.existsSync(artifactPath), false, `${artifactPath} must not exist`);
+}
+
+function assertNoSecretValues(serializedReport) {
+  assert.doesNotMatch(serializedReport, /password=|api[_-]?key=|secret=|token=|authorization:|bearer\s+[a-z0-9._-]+|redacted-value|user:pass/i);
+}
+
 test('preflight artifacts use required terminology and contain provenance', () => {
-  const report = JSON.parse(fs.readFileSync(path.join(__dirname,'..','..','artifacts','modules','p3-005-migration-reconciliation.json'),'utf8'));
-  assert.equal(report.schemaVersion, 'p3-005-module-reconciliation/v1');
-  assert.ok(report.primitives.some(p => p.primitive === 'organization_runtime_state' && p.classification === 'primitive-referenced'));
-  assert.equal(report.redactionStatus, 'paths-only-no-secret-values');
+  const tempdir = fs.mkdtempSync(path.join(os.tmpdir(), 'civitas-p3-005-'));
+  try {
+    runPreflight(['--write-report', tempdir]);
+    const report = JSON.parse(fs.readFileSync(path.join(tempdir, 'p3-005-migration-reconciliation.json'), 'utf8'));
+    const markdown = fs.readFileSync(path.join(tempdir, 'p3-005-migration-reconciliation.md'), 'utf8');
+    const serializedReport = JSON.stringify(report);
+
+    assert.equal(report.schemaVersion, 'p3-005-module-reconciliation/v1');
+    assert.match(report.catalog.hash, /^[a-f0-9]{64}$/);
+    assert.equal(report.catalog.version, '2.0.0');
+    assert.equal(report.moduleCount, report.catalog.moduleCount);
+    assert.equal(report.moduleCount, 11);
+    if (report.branch) assert.match(markdown, new RegExp(`Branch: ${report.branch}`));
+    if (report.commitSha) {
+      assert.match(report.commitSha, /^[a-f0-9]{40}$/);
+      assert.match(markdown, new RegExp(`Commit SHA: ${report.commitSha}`));
+    }
+    if (report.mergeBase) {
+      assert.match(report.mergeBase, /^[a-f0-9]{40}$/);
+      assert.match(markdown, new RegExp(`Merge-base: ${report.mergeBase}`));
+    }
+    assert.ok(report.primitives.some(p => p.primitive === 'organization_runtime_state' && p.classification === 'primitive-referenced' && p.decision === 'reference'));
+    assert.ok(report.primitives.some(p => p.classification === 'primitive-preserved' && p.decision === 'preserve'));
+    assert.ok(report.primitives.some(p => p.classification === 'primitive-referenced' && p.decision === 'reference'));
+    assert.ok(report.primitives.some(p => p.classification === 'primitive-extended' && p.decision === 'extend'));
+    assert.equal(report.redactionStatus, 'paths-only-no-secret-values');
+    assert.match(markdown, /foundation|primitive-preserved|primitive-referenced|primitive-extended/);
+    assert.match(markdown, /preserve|reference|extend/);
+    assert.match(markdown, /Redaction: paths-only-no-secret-values/);
+    assertNoSecretValues(serializedReport);
+    assertNoSecretValues(markdown);
+  } finally {
+    fs.rmSync(tempdir, { recursive: true, force: true });
+  }
+});
+
+test('default preflight is read-only and does not create tracked artifacts', () => {
+  assertTrackedPreflightArtifactsAbsent();
+  const report = JSON.parse(runPreflight());
+  assert.equal(report.reportWritten, false);
+  assertTrackedPreflightArtifactsAbsent();
+});
+
+test('--write-report only writes expected files in requested directory', () => {
+  const tempdir = fs.mkdtempSync(path.join(os.tmpdir(), 'civitas-p3-005-'));
+  try {
+    assertTrackedPreflightArtifactsAbsent();
+    runPreflight(['--write-report', tempdir]);
+    assert.deepEqual(fs.readdirSync(tempdir).sort(), [
+      'p3-005-migration-reconciliation.json',
+      'p3-005-migration-reconciliation.md',
+    ]);
+    assert.equal(fs.statSync(path.join(tempdir, 'p3-005-migration-reconciliation.json')).isFile(), true);
+    assert.equal(fs.statSync(path.join(tempdir, 'p3-005-migration-reconciliation.md')).isFile(), true);
+    assertTrackedPreflightArtifactsAbsent();
+  } finally {
+    fs.rmSync(tempdir, { recursive: true, force: true });
+  }
 });
 
 test('production wiring requires an explicit repository and never falls back to in-memory maps', () => {
