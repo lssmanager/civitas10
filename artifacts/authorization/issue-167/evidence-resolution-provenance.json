@@ -1,0 +1,75 @@
+{
+  "applyExecuted": false,
+  "baselineHead": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+  "bootstrapExecuted": false,
+  "branch": "work",
+  "canonicalTargetInventoryHash": "9f98a823f26eae323e57cf3253e36f6ed1f6e1101bcd4fc64260c76d2c27bb84",
+  "catalogHash": "57adc4a7b28cb5ddb79bb7f66257d5d226cf27e174f22a7b0a19628aebf4e76d",
+  "commands": [
+    {
+      "command": "find scripts -type f | sort | grep -i logto; npm run | grep -i logto; sed/rg inspect read-only Logto state reader",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "Logto read-only script inspection completed"
+    },
+    {
+      "command": "gh issue/pr view normative set",
+      "exitCode": 127,
+      "readOnly": true,
+      "result": "githubEvidence unavailable: gh not installed"
+    },
+    {
+      "command": "git diff --exit-code -- artifacts/authorization/issue-167/ scripts/authorization/issue-167-evidence-resolution.mjs",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "no nondeterministic drift after second generator run"
+    },
+    {
+      "command": "git merge-base --is-ancestor 997a245545a15065e80f336f6853acb864dbca93 HEAD",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "PR #170 included"
+    },
+    {
+      "command": "git merge-base --is-ancestor a51769d914b7cc831908d45115b46101fcc2bbe9 HEAD",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "PR #144 included"
+    },
+    {
+      "command": "node scripts/authorization/issue-167-evidence-resolution.mjs (twice)",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "deterministic evidence artifacts generated"
+    },
+    {
+      "command": "node scripts/logto/cli.js plan-rbac",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "local desired plan generated; remoteStateStatus verification_required; untracked plan removed"
+    },
+    {
+      "command": "pwd; git status --short; git branch --show-current; git rev-parse HEAD; git log --oneline --decorate -20; git remote -v",
+      "exitCode": 0,
+      "readOnly": true,
+      "result": "baseline inspected"
+    }
+  ],
+  "consumerEvidenceHash": "50acc499cf5d4d78ba109e472c6925cc799709eb9810c25139826df11f69b118",
+  "evidenceResolutionMatrixHash": "acbbd5ab6bce862c6397a843fc7b45205b6d6a540dfb28cc431d7c0e5b020ce2",
+  "externalWrites": false,
+  "foundation144Sha": "a51769d914b7cc831908d45115b46101fcc2bbe9",
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "githubEvidence": "unavailable",
+  "headSha": "f9527cdef681a02f53155aacd4a6be64907a1d15",
+  "legacyInventoryHash": "19f7c2876a8fefe50c0a5a4adc6a1162223398b9ef1b663bae2e9693eca86ff2",
+  "ownershipMatrixHash": "172ba03765c9b0ef5336ff570425565f40bc4c128891c785a61a44e4d46cd19f",
+  "pr170Sha": "997a245545a15065e80f336f6853acb864dbca93",
+  "reconciliationMatrixHash": "c8b45912d980bffbd820253f5dfdd925e47bb4b2cf176015b64b1401871c8d83",
+  "remoteLogtoInventoryHash": "92e5230822e6ad930608553c23e4c1ac480d55e174c4fdccebfb15a31c7f9f36",
+  "remoteLogtoState": "verification_required",
+  "schemaVersion": "2026-07-issue-167-evidence-resolution-v1",
+  "secretsStored": false,
+  "sourceVersion": "a9a9d572c2a28cbf5b9cd292e30ba36bdd691290",
+  "zeroConsumerEvidenceHash": "a6f168462114184d2a222d87f7708b581821a883c6c68dc9ea57988f2982fb65"
+}
