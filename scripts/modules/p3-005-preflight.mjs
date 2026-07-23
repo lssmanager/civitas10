@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
-import { loadCatalogHash } from '../../backend/services/moduleControlPlane.js';
+import { createHash } from 'node:crypto';
+function loadCatalogHash(){ try { return fs.readFileSync('contracts/modules/generated/module-catalog-v2.inventory.sha256','utf8').trim(); } catch { return createHash('sha256').update(fs.readFileSync('contracts/modules/module-catalog.v2.json','utf8')).digest('hex'); } }
 
 const OUT_JSON = 'artifacts/modules/p3-005-migration-reconciliation.json';
 const OUT_MD = 'artifacts/modules/p3-005-migration-reconciliation.md';

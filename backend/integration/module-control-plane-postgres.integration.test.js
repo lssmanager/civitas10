@@ -12,8 +12,7 @@ if (!process.env.DATABASE_URL && process.env.P3_005_POSTGRES_CHECK === '1') {
 }
 if (!process.env.DATABASE_URL) {
   test('PostgreSQL module control-plane integration requires DATABASE_URL outside the dedicated postgres-check gate', { skip: 'DATABASE_URL is only mandatory for npm run modules:p3-005:postgres-check' }, () => {});
-  return;
-}
+} else {
 
 async function resetDatabase(pool) {
   await pool.query('drop schema if exists public cascade');
@@ -113,3 +112,5 @@ test('audit and outbox hooks are transactional and redact secretsRef', async () 
     await assert.rejects(() => ctx.service.registerModuleRuntime({ runtimeId:'lms-runtime-secret', moduleId:'lms', moduleOwner:'lms-runtime-boundary', deploymentMode:'embedded', runtimeContractVersion:'civitas-module-runtime/v1', serviceRef:'https://user:password@example.invalid' }));
   } finally { await pool.end(); }
 });
+
+}
