@@ -40,6 +40,7 @@ test('deterministic inventory and hash are reproducible', () => {
 
 const cases = [
   ['unknown module ID', (c) => { c.modules[0].id = 'identity'; }, 'MODULE_ID_SET'],
+  ['provider inside moduleId', (c) => { c.modules[0].id = 'moodle.lms'; }, 'MODULE_PROVIDER_LEAKAGE'],
   ['missing module', (c) => { c.modules.pop(); }, 'MODULE_COUNT'],
   ['module twelve', (c) => { c.modules.push({...c.modules[0], id:'extra'}); }, 'MODULE_COUNT'],
   ['duplicate module ID', (c) => { c.modules[1].id = c.modules[0].id; }, 'MODULE_DUPLICATE_ID'],
@@ -70,7 +71,10 @@ const cases = [
   ['planning active', (c) => { c.modules.find(m=>m.id==='planning').status='active'; }, 'MODULE_PLANNING_STATUS'],
   ['planning embedded', (c) => { c.modules.find(m=>m.id==='planning').deploymentMode='embedded'; }, 'MODULE_PLANNING_DEPLOYMENT'],
   ['planning runtime endpoint', (c) => { c.modules.find(m=>m.id==='planning').runtimeEndpoint='https://runtime'; }, 'MODULE_SECRET_OR_LIVE_FIELD'],
-  ['planning route mount', (c) => { c.modules.find(m=>m.id==='planning').routeMount='/planning'; }, 'MODULE_SECRET_OR_LIVE_FIELD']
+  ['planning route mount', (c) => { c.modules.find(m=>m.id==='planning').routeMount='/planning'; }, 'MODULE_SECRET_OR_LIVE_FIELD'],
+  ['extra top-level field', (c) => { c.generatedAt = '2026-07-23T00:00:00Z'; }, 'MODULE_EXTRA_FIELD'],
+  ['extra module field', (c) => { c.modules[0].unexpected = true; }, 'MODULE_EXTRA_FIELD'],
+  ['extra contribution field', (c) => { c.modules.find(m=>m.id==='planning').contributions[0].url = 'artifact-only'; }, 'MODULE_EXTRA_FIELD']
 ];
 for (const [name, mutate, code] of cases) test(`rejects ${name}`, () => { const c = valid(); mutate(c); assert.ok(errors(c).includes(code), `${code} not found in ${errors(c).join(',')}`); });
 

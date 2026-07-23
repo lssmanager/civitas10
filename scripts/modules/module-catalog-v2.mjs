@@ -22,6 +22,22 @@ const LIVE_VALUE = /https?:\/\/|callback|bearer\s+|set-cookie|runtime endpoint|h
 const PROVIDER = /^(agora|moodle|canvas|plasma|openai)\./i;
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
+const CATALOG_KEYS = new Set(['schemaVersion','catalogVersion','modules']);
+const MODULE_KEYS = new Set(['schemaVersion','id','version','kind','status','deploymentMode','businessBoundary','ownership','dataOwnership','capabilities','dependencies','contributions','compatibility','lifecycle','federated']);
+const OWNERSHIP_KEYS = new Set(['businessOwner','capabilityOwner','dataOwner','publicApiOwner','runtimeOwner','uiContributionOwner']);
+const DATA_OWNERSHIP_KEYS = new Set(['owner','transactionalSystem']);
+const DEPENDENCY_KEYS = new Set(['moduleId','version','optional']);
+const CONTRIBUTION_KEYS = new Set(['type','version','owner','artifact','status','contractVersion']);
+const COMPATIBILITY_KEYS = new Set(['policy','compatible','aliases']);
+const COMPATIBILITY_ALIAS_KEYS = new Set(['from','to','status','removalRequires']);
+const LIFECYCLE_KEYS = new Set(['supportsTenantLifecycle','storesTenantInstallationState']);
+const FEDERATED_KEYS = new Set(['runtimeContractVersion','audience','serviceIdentityRequired','uiContractVersion','uiEntryRef','compatibilityPolicy','productSurface']);
+function rejectExtraKeys(object, allowed, path, errors) {
+  if (!object || typeof object !== 'object' || Array.isArray(object)) return;
+  for (const key of Object.keys(object)) if (!allowed.has(key)) error(errors, 'MODULE_EXTRA_FIELD', `${path}/${key}`, 'extra field is not allowed by Module Manifest v2');
+}
+
+
 export function loadCatalog(path = CATALOG) { return JSON.parse(readFileSync(path, 'utf8')); }
 function error(errors, code, path, message) { errors.push({ code, path, message }); }
 function walk(value, path, errors) {
@@ -53,6 +69,7 @@ function assertTransition(from, to, evidence) {
 export function validateCatalog(catalog) {
   const errors = [];
   walk(catalog, '', errors);
+  rejectExtraKeys(catalog, CATALOG_KEYS, '', errors);
   if (catalog.schemaVersion !== 'civitas-module-manifest/v2') error(errors,'MODULE_SCHEMA_VERSION','/schemaVersion','schemaVersion must be civitas-module-manifest/v2');
   if (!SEMVER.test(catalog.catalogVersion ?? '')) error(errors,'MODULE_SEMVER','/catalogVersion','catalogVersion must be strict SemVer');
   if (!Array.isArray(catalog.modules)) return [{ code:'MODULE_SCHEMA', path:'/modules', message:'modules must be an array' }];
@@ -62,6 +79,13 @@ export function validateCatalog(catalog) {
   const seen = new Set(), owners = new Set(), caps = new Map();
   for (const [i, m] of catalog.modules.entries()) {
     const p = `/modules/${i}`;
+    rejectExtraKeys(m, MODULE_KEYS, p, errors);
+    rejectExtraKeys(m.ownership, OWNERSHIP_KEYS, `${p}/ownership`, errors);
+    rejectExtraKeys(m.dataOwnership, DATA_OWNERSHIP_KEYS, `${p}/dataOwnership`, errors);
+    rejectExtraKeys(m.compatibility, COMPATIBILITY_KEYS, `${p}/compatibility`, errors);
+    for (const [aIndex, alias] of (m.compatibility?.aliases ?? []).entries()) rejectExtraKeys(alias, COMPATIBILITY_ALIAS_KEYS, `${p}/compatibility/aliases/${aIndex}`, errors);
+    rejectExtraKeys(m.lifecycle, LIFECYCLE_KEYS, `${p}/lifecycle`, errors);
+    if (m.federated) rejectExtraKeys(m.federated, FEDERATED_KEYS, `${p}/federated`, errors);
     if (seen.has(m.id)) error(errors,'MODULE_DUPLICATE_ID',`${p}/id`,'duplicate module id'); seen.add(m.id);
     if (!EXPECTED.includes(m.id)) error(errors,'MODULE_UNKNOWN_ID',`${p}/id`,'unknown module id');
     if (PROVIDER.test(m.id)) error(errors,'MODULE_PROVIDER_LEAKAGE',`${p}/id`,'provider-shaped canonical module id');
@@ -76,11 +100,13 @@ export function validateCatalog(catalog) {
     }
     for (const [j, d] of (m.dependencies ?? []).entries()) {
       if (!EXPECTED.includes(d.moduleId)) error(errors,'MODULE_DEPENDENCY_UNKNOWN',`${p}/dependencies/${j}/moduleId`,'dependency must target an existing module');
+      rejectExtraKeys(d, DEPENDENCY_KEYS, `${p}/dependencies/${j}`, errors);
       if (d.moduleId === m.id) error(errors,'MODULE_DEPENDENCY_SELF',`${p}/dependencies/${j}/moduleId`,'self dependency is forbidden');
       if (PROVIDER.test(d.moduleId)) error(errors,'MODULE_PROVIDER_LEAKAGE',`${p}/dependencies/${j}/moduleId`,'provider-shaped dependency id');
     }
     for (const [j, c] of (m.contributions ?? []).entries()) {
       const cp = `${p}/contributions/${j}`;
+      rejectExtraKeys(c, CONTRIBUTION_KEYS, cp, errors);
       if (!CONTRIB.includes(c.type)) error(errors,'MODULE_CONTRIBUTION_TYPE',`${cp}/type`,'unknown contribution type');
       if (!SEMVER.test(c.version ?? '')) error(errors,'MODULE_CONTRIBUTION_REF',`${cp}/version`,'contribution version must be strict SemVer');
       if (!c.owner || !c.artifact || !c.status) error(errors,'MODULE_CONTRIBUTION_REF',cp,'contribution reference is incomplete');
