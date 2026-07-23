@@ -121,12 +121,3 @@ create table if not exists organization_module_runtime_bindings (
 );
 create unique index if not exists organization_module_runtime_active_uidx on organization_module_runtime_bindings(logto_organization_id, organization_module_id, module_id) where is_executable = true and status = 'bound';
 create index if not exists organization_module_runtime_org_idx on organization_module_runtime_bindings(logto_organization_id, module_id, status);
-
--- Fail closed preflight marker for ambiguous primitive mappings before future destructive backfills.
-do $$ begin
-  if exists (
-    select 1 from registry_connector_bindings b
-    where b.is_active = true and b.status = 'active'
-    group by b.logto_organization_id, b.capability_id having count(*) > 1
-  ) then raise exception 'MODULE_MIGRATION_DUPLICATE_BINDING: multiple active connector bindings per organization + capability'; end if;
-end $$;

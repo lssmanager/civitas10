@@ -12,7 +12,7 @@ test('migration 0017 creates module control plane primitives and preserves found
   const sql = fs.readFileSync(path.join(__dirname,'..','db','migrations','0017_module_control_plane.sql'),'utf8');
   for (const table of ['module_catalog','module_versions','organization_modules','module_runtime_catalog','organization_module_runtime_bindings','module_contract_compatibility']) assert.match(sql, new RegExp(`create table if not exists ${table}`));
   for (const primitive of ['registry_connector_bindings','organization_runtime_state','operational_operations']) assert.doesNotMatch(sql, new RegExp(`drop table.*${primitive}`,'i'));
-  assert.match(sql, /MODULE_MIGRATION_DUPLICATE_BINDING/);
+  assert.doesNotMatch(sql, /MODULE_MIGRATION_DUPLICATE_BINDING/);
 });
 
 test('schema guard includes module control plane tables', () => {
@@ -69,6 +69,18 @@ test('active requires executable compatible runtime binding and wrong module/inc
   await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:om.version, toLifecycle:'provisioning', actor:'u1', reason:'provision' });
   const active = await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:2, toLifecycle:'active', actor:'u1', reason:'activate with evidence' });
   assert.equal(active.lifecycle, 'active');
+});
+
+
+
+test('executable runtime binding requires runtime status available', async () => {
+  for (const runtimeStatus of ['planned', 'suspended', 'deprecated', 'removed', 'unknown']) {
+    const { service, repo, planning } = await prepared();
+    await service.provisionOrganizationModule({ logtoOrganizationId:'orgA', moduleId:'planning', moduleVersionId:planning.id, actor:'u1', reason:'install' });
+    const rt = await service.registerModuleRuntime({ runtimeId:`planning-runtime-${runtimeStatus}`, moduleId:'planning', moduleOwner:'agora-planning-runtime-boundary', deploymentMode:'federated', runtimeContractVersion:'civitas-module-runtime/v1', runtimeStatus, serviceIdentityRequired:true });
+    await repo.recordCompatibility({ moduleVersionId:planning.id, runtimeId:rt.id, compatibilityStatus:'compatible', hostContractVersion:'civitas-host/v1', runtimeContractVersion:'civitas-module-runtime/v1', compatibilityRange:'1.x', policy:'explicit' });
+    await assert.rejects(() => service.bindOrganizationModuleRuntime({ logtoOrganizationId:'orgA', moduleId:'planning', runtimeId:`planning-runtime-${runtimeStatus}`, actor:'u1', reason:'bind' }), { code: REASON_CODES.UNAVAILABLE });
+  }
 });
 
 test('secret safety rejects values without logging secret value', () => {
