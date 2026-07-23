@@ -1,0 +1,4 @@
+const { CONTRACT_VERSION } = require('./runtimeContractV1');
+const COMPATIBLE = new Set(['compatible','deprecated_compatible']);
+function selectPlanningRuntimeContractVersion({ platformSupported=[CONTRACT_VERSION], bindingVersion, runtimeSupported=[], compatibilityStatus }){ const runtimeSet=new Set(runtimeSupported.length?runtimeSupported:[bindingVersion]); const matches=platformSupported.filter(v=>v===bindingVersion && runtimeSet.has(v)); if(!COMPATIBLE.has(compatibilityStatus)) return { ok:false, reasonCode: compatibilityStatus==='upgrade_required'?'planning_contract_upgrade_required':'planning_contract_verification_required' }; if(matches.length!==1) return { ok:false, reasonCode:'planning_contract_no_exact_intersection' }; return { ok:true, version:matches[0] }; }
+module.exports={ selectPlanningRuntimeContractVersion };

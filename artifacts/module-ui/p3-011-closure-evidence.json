@@ -1,0 +1,35 @@
+{
+  "branch": "codex/issue-181-secure-module-ui-loader",
+  "headSha": "2e1c8e11783512cfc255c83b961c7adc744f6ea5",
+  "baseSha": "2e1c8e11783512cfc255c83b961c7adc744f6ea5",
+  "dependencyShas": {
+    "p3_002": "2e1c8e11783512cfc255c83b961c7adc744f6ea5:contracts/modules/module-catalog.v2.json",
+    "p3_006": "2e1c8e11783512cfc255c83b961c7adc744f6ea5:backend/services/moduleAvailabilityResolver.js",
+    "issue_164": "2e1c8e11783512cfc255c83b961c7adc744f6ea5:frontend/src/authorization",
+    "visualAccess": "2e1c8e11783512cfc255c83b961c7adc744f6ea5:frontend/docs/VISUAL_ACCESS_CONTRACT.md"
+  },
+  "schemaHash": "3cd4abc4bc7d331b88285e9b72d6f0b6a1ecd5b46c57f247b08d1e3a5577a5ea",
+  "adrStatus": "Accepted",
+  "loaderMechanism": "host-resolved immutable native ESM with full asset-manifest integrity",
+  "cspPolicyVersion": "civitas-module-ui-csp/v1",
+  "integrityProfile": "sha256 entrypoint plus sha256 asset graph manifest; optional ed25519 signature",
+  "hostApiVersion": "civitas-module-ui-host/v1",
+  "designSystemVersion": "civitas-design-system/v1",
+  "testCommands": [
+    "npm run ui:p3-011:contract-check",
+    "npm run ui:p3-011:loader-architecture-check",
+    "npm run ui:p3-011:origin-csp-check",
+    "npm run ui:p3-011:integrity-check",
+    "npm run ui:p3-011:compatibility-check",
+    "npm run ui:p3-011:rollback-check",
+    "npm run ui:p3-011:accessibility-check",
+    "npm run ui:p3-011:no-white-screen-check"
+  ],
+  "results": "passed",
+  "evidence": {
+    "noWhiteScreen": "safe fallback states and ModuleUiErrorBoundary keep AppShell-owned boundary",
+    "accessibility": "fallback role alert/tabIndex heading and focus restore API",
+    "rollback": "previous verified cache state only; revoked/quarantined excluded",
+    "security": "host API excludes tokens/private runtime/ModuleExecutionContext/unrestricted fetch"
+  }
+}

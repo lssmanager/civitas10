@@ -1,0 +1,48 @@
+{
+  "branch": "codex/issue-179-planning-remote-application-port",
+  "headSha": "2fae0ba838d33e447666407051fabcab2f58819a",
+  "baseSha": "bcaf077c1be54860e39878a81dfc3e08de386efe",
+  "mergeBase": "bcaf077c1be54860e39878a81dfc3e08de386efe",
+  "p3_006_sha": "bcaf077c1be54860e39878a81dfc3e08de386efe:backend/services/moduleAvailabilityResolver.js",
+  "p3_008_sha": "2fae0ba838d33e447666407051fabcab2f58819a:backend/planning/infrastructure/moduleExecutionContext.js",
+  "p3_010_sha": "bcaf077c1be54860e39878a81dfc3e08de386efe:artifacts/integration/p3-010-closure-evidence.json",
+  "portContractHash": "ade129bd70ebb516530d639ff033efd24fc3d7fd209d609e14e44b9ec5b0dfa0",
+  "runtimeSchemaHash": "387b657b38a0f5f94e49bd426c720e761543a0fc2e16773cdf5e6c80750b620c",
+  "resiliencePolicyHash": "6a53547bba72bf6fd2ff958c050e4dfb0c584683f6e8cbb3a6b65c0090e7b2bf",
+  "compatibilityProjectionHash": "59e95ea994792e6c4dbbfb5803ae3e50d2ec684b72e4a1ccb5c94f42a56fbf99",
+  "testCommands": {
+    "passed": [
+      "git diff --check",
+      "npm run modules:catalog:check",
+      "npm run modules:p3-005:check",
+      "npm run modules:p3-006:check",
+      "npm run modules:p3-006:resilience-check",
+      "npm run modules:p3-008:*",
+      "npm run integration:p3-010:check",
+      "npm run integration:p3-010:resilience-check",
+      "npm run federation:p3-009:*",
+      "npm run authz:runtime-contract-check",
+      "node scripts/api/validate-api-contract.mjs",
+      "node --test backend/test/planning-federated-gateway.test.js"
+    ],
+    "warnings": [
+      "npm run modules:p3-005:postgres-check: DATABASE_URL required",
+      "npm run modules:p3-006:postgres-check: DATABASE_URL required",
+      "npm run integration:p3-010:postgres-check: DATABASE_URL required"
+    ],
+    "failedPreexisting": [
+      "npm run authz:security-gate:check: inventory drift preexisting",
+      "npm test: authz:naming violations in integrationEvents preexisting"
+    ]
+  },
+  "evidence": {
+    "timeoutRetry": "bounded retry test with connection_reset then exhausted two attempts preserves idempotency key",
+    "circuit": "adapter consumes P3-006 readCircuitState/writeCircuitState and open returns no network call path",
+    "contextServiceIdentity": "fake runtime validates HMAC ModuleExecutionContext and service identity audience",
+    "noLoopback": "P3-009 no-loopback gate passed",
+    "noSdkLeakage": "P3-009 no-SDK gate passed",
+    "redaction": "typed problem mapper omits raw body/hostname/stack",
+    "tenantIsolation": "binding lookup tenant-scoped by logtoOrganizationId and context organization",
+    "rollback": "runbook documents circuit-open/binding-suspend rollback only"
+  }
+}
