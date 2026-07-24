@@ -108,7 +108,10 @@ test('audit and outbox hooks are transactional and redact secretsRef', async () 
     assert.ok(counts.rows[0].outbox > 0);
     const failing = makeService(pool, { auditWriter: async () => { throw new Error('audit failed'); } });
     await assert.rejects(() => failing.service.registerModuleRuntime({ runtimeId:'lms-runtime-rollback', moduleId:'lms', moduleOwner:'lms-runtime-boundary', deploymentMode:'embedded', runtimeContractVersion:'civitas-module-runtime/v1', runtimeStatus:'available' }));
-    assert.equal(await failing.repository.getRuntimeById('lms-runtime-rollback'), null);
+    assert.equal(await failing.repository.getRuntimeByRuntimeId('lms-runtime-rollback'), null);
+    const rollbackCounts = await pool.query("select (select count(*) from module_runtime_catalog where runtime_id='lms-runtime-rollback')::int as runtimes, (select count(*) from operational_operations where queue_name='module-control-plane' and input_json::text like '%lms-runtime-rollback%')::int as outbox");
+    assert.equal(rollbackCounts.rows[0].runtimes, 0);
+    assert.equal(rollbackCounts.rows[0].outbox, 0);
     await assert.rejects(() => ctx.service.registerModuleRuntime({ runtimeId:'lms-runtime-secret', moduleId:'lms', moduleOwner:'lms-runtime-boundary', deploymentMode:'embedded', runtimeContractVersion:'civitas-module-runtime/v1', serviceRef:'https://user:password@example.invalid' }));
   } finally { await pool.end(); }
 });

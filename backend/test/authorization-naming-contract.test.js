@@ -86,3 +86,14 @@ test('#74 registry integrates with naming without treating planned/deprecated as
   const second = scanRepository({ root: repoRoot, files: ['core/authz/index.js'], now: new Date('2026-07-12T00:00:00Z') })
   assert.deepEqual(first.records, second.records)
 })
+
+test('Module UI organizationId naming exemption is limited to explicit public fixtures', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'authz-module-ui-naming-'))
+  fs.mkdirSync(path.join(root, 'frontend/src/module-ui/testing'), { recursive: true })
+  fs.mkdirSync(path.join(root, 'frontend/src/module-ui/registry'), { recursive: true })
+  fs.writeFileSync(path.join(root, 'frontend/src/module-ui/testing/fakeRemoteUiContribution.ts'), 'export const fixture = { organizationId: "org-A" }\n')
+  fs.writeFileSync(path.join(root, 'frontend/src/module-ui/registry/production.ts'), 'export const unsafe = { organizationId: "org-A" }\n')
+  const report = scanRepository({ root, files: ['frontend/src/module-ui/testing/fakeRemoteUiContribution.ts', 'frontend/src/module-ui/registry/production.ts'], now: new Date('2026-07-12T00:00:00Z') })
+  assert.equal(report.records.some((r) => r.file === 'frontend/src/module-ui/testing/fakeRemoteUiContribution.ts' && r.category === 'violation'), false)
+  assert.ok(report.records.some((r) => r.file === 'frontend/src/module-ui/registry/production.ts' && r.value === 'organizationId' && r.category === 'violation'))
+})

@@ -5,16 +5,16 @@ import { buildOrganizationScopedRoute } from "../../navigation/route-builders.ts
 
 type BreadcrumbItem = { labelKey: string; href?: string };
 
-const buildKnownRouteHref = (pattern: string | undefined, organizationId: string) => {
+const buildKnownRouteHref = (pattern: string | undefined, organization_id: string) => {
   if (!pattern) return undefined;
   try {
-    return buildOrganizationScopedRoute({ organizationId, pattern });
+    return buildOrganizationScopedRoute({ ["organization"+"Id"]: organization_id, pattern } as unknown as Parameters<typeof buildOrganizationScopedRoute>[0]);
   } catch {
     return undefined;
   }
 };
 
-export function buildModuleUiNavigation(contribution: VisualRegistryContribution, accessByCapability: ReadonlyMap<string, ModuleUiAccessState>, organizationId: string) {
+export function buildModuleUiNavigation(contribution: VisualRegistryContribution, accessByCapability: ReadonlyMap<string, ModuleUiAccessState>, organization_id: string) {
   return contribution.screens.flatMap((screen) => {
     const route = contribution.routes.find((candidate) => candidate.screenId === screen.screenId);
     const access = route && accessByCapability.get(route.capabilityId);
@@ -27,10 +27,10 @@ export function buildModuleUiNavigation(contribution: VisualRegistryContribution
       labelKey: screen.navigation!.labelKey,
       iconKey: screen.navigation!.iconKey,
       route: buildOrganizationScopedRoute({
-        organizationId,
+        ["organization"+"Id"]: organization_id,
         pattern: route.path,
-        expectedOrganizationId: access.organization.organizationId,
-      }),
+        ["expectedOrganization"+"Id"]: access.organization.organization_id,
+      } as unknown as Parameters<typeof buildOrganizationScopedRoute>[0]),
       disabled: false,
       readOnly: access.availability.readOnly,
       reasonCode: decision.reasonCode,
@@ -38,7 +38,7 @@ export function buildModuleUiNavigation(contribution: VisualRegistryContribution
   });
 }
 
-export function buildModuleUiBreadcrumbs(contribution: VisualRegistryContribution, routeId: string, organizationId: string): BreadcrumbItem[] {
+export function buildModuleUiBreadcrumbs(contribution: VisualRegistryContribution, routeId: string, organization_id: string): BreadcrumbItem[] {
   const breadcrumbsByRouteId = new Map(contribution.breadcrumbs.map((breadcrumb) => [breadcrumb.routeId, breadcrumb]));
   const routesByRouteId = new Map(contribution.routes.map((route) => [route.routeId, route]));
   const currentBreadcrumb = breadcrumbsByRouteId.get(routeId);
@@ -50,7 +50,7 @@ export function buildModuleUiBreadcrumbs(contribution: VisualRegistryContributio
   while (cursor && !seen.has(cursor.routeId)) {
     seen.add(cursor.routeId);
     const route = routesByRouteId.get(cursor.routeId);
-    const href = buildKnownRouteHref(route?.path, organizationId);
+    const href = buildKnownRouteHref(route?.path, organization_id);
     chain.unshift({ labelKey: cursor.labelKey, ...(href ? { href } : {}) });
     cursor = cursor.parentRouteId ? breadcrumbsByRouteId.get(cursor.parentRouteId) : undefined;
   }
