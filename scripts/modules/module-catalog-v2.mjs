@@ -21,6 +21,8 @@ const SECRET_KEY = /(^|[-_.])(accessToken|refreshToken|token|password|secret|cli
 const LIVE_VALUE = /https?:\/\/|callback|bearer\s+|set-cookie|runtime endpoint|health snapshot|tenant binding|installation state/i;
 const PROVIDER = /^(agora|moodle|canvas|plasma|openai)\./i;
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+const ALIAS_ID = /^[a-z][a-z0-9-]*$/;
+const ALIAS_STATUSES = ['temporary'];
 
 const CATALOG_KEYS = new Set(['schemaVersion','catalogVersion','modules']);
 const MODULE_KEYS = new Set(['schemaVersion','id','version','kind','status','deploymentMode','businessBoundary','ownership','dataOwnership','capabilities','dependencies','contributions','compatibility','lifecycle','federated']);
@@ -47,6 +49,7 @@ function walk(value, path, errors) {
     if (SECRET_KEY.test(k)) error(errors, 'MODULE_SECRET_OR_LIVE_FIELD', p, 'secret-like or live runtime field is forbidden');
     walk(v, p, errors);
   }
+  if (typeof value === 'string' && value.includes('\n')) error(errors, 'MODULE_LITERAL_NEWLINE', path, 'literal newline inside versioned JSON string is forbidden');
   if (typeof value === 'string' && LIVE_VALUE.test(value)) error(errors, 'MODULE_SECRET_OR_LIVE_VALUE', path, 'live endpoint, callback, token, cookie or runtime state value is forbidden');
 }
 function canonicalize(value) {
@@ -76,14 +79,26 @@ export function validateCatalog(catalog) {
   if (catalog.modules.length !== 11) error(errors,'MODULE_COUNT','/modules','catalog must contain exactly 11 modules');
   const ids = catalog.modules.map((m) => m.id);
   if (JSON.stringify([...ids].sort()) !== JSON.stringify(EXPECTED)) error(errors,'MODULE_ID_SET','/modules','module IDs must match the ADR-003 eleven-module set');
-  const seen = new Set(), owners = new Set(), caps = new Map();
+  const seen = new Set(), owners = new Set(), caps = new Map(), aliases = new Map();
   for (const [i, m] of catalog.modules.entries()) {
     const p = `/modules/${i}`;
     rejectExtraKeys(m, MODULE_KEYS, p, errors);
     rejectExtraKeys(m.ownership, OWNERSHIP_KEYS, `${p}/ownership`, errors);
     rejectExtraKeys(m.dataOwnership, DATA_OWNERSHIP_KEYS, `${p}/dataOwnership`, errors);
     rejectExtraKeys(m.compatibility, COMPATIBILITY_KEYS, `${p}/compatibility`, errors);
-    for (const [aIndex, alias] of (m.compatibility?.aliases ?? []).entries()) rejectExtraKeys(alias, COMPATIBILITY_ALIAS_KEYS, `${p}/compatibility/aliases/${aIndex}`, errors);
+    for (const [aIndex, alias] of (m.compatibility?.aliases ?? []).entries()) {
+      const ap = `${p}/compatibility/aliases/${aIndex}`;
+      rejectExtraKeys(alias, COMPATIBILITY_ALIAS_KEYS, ap, errors);
+      if (!ALIAS_ID.test(alias.from ?? '')) error(errors,'MODULE_ALIAS_INVALID',`${ap}/from`,'alias from must be a canonical legacy module id');
+      if (!EXPECTED.includes(alias.to)) error(errors,'MODULE_ALIAS_UNKNOWN_TARGET',`${ap}/to`,'alias target must be an approved module id');
+      if (alias.to !== m.id) error(errors,'MODULE_ALIAS_AMBIGUOUS_OWNERSHIP',`${ap}/to`,'alias target must match the owning manifest id');
+      if (!ALIAS_STATUSES.includes(alias.status)) error(errors,'MODULE_ALIAS_INVALID_STATUS',`${ap}/status`,'alias status is invalid');
+      if (typeof alias.removalRequires !== 'string' || !ALIAS_ID.test(alias.removalRequires)) error(errors,'MODULE_ALIAS_INVALID',`${ap}/removalRequires`,'alias removalRequires must be a canonical evidence slug');
+      const existing = aliases.get(alias.from);
+      if (existing && existing !== alias.to) error(errors,'MODULE_ALIAS_AMBIGUOUS_OWNERSHIP',`${ap}/from`,'alias is claimed by multiple module owners');
+      else if (existing) error(errors,'MODULE_ALIAS_DUPLICATE',`${ap}/from`,'alias must be unique across the catalog');
+      aliases.set(alias.from, alias.to);
+    }
     rejectExtraKeys(m.lifecycle, LIFECYCLE_KEYS, `${p}/lifecycle`, errors);
     if (m.federated) rejectExtraKeys(m.federated, FEDERATED_KEYS, `${p}/federated`, errors);
     if (seen.has(m.id)) error(errors,'MODULE_DUPLICATE_ID',`${p}/id`,'duplicate module id'); seen.add(m.id);
@@ -91,6 +106,7 @@ export function validateCatalog(catalog) {
     if (PROVIDER.test(m.id)) error(errors,'MODULE_PROVIDER_LEAKAGE',`${p}/id`,'provider-shaped canonical module id');
     if (!SEMVER.test(m.version ?? '')) error(errors,'MODULE_SEMVER',`${p}/version`,'version must be strict SemVer');
     if (!STATUSES.includes(m.status)) error(errors,'MODULE_UNKNOWN_STATUS',`${p}/status`,'unknown status');
+    if (m.status === 'active') error(errors,'MODULE_ACTIVE_EVIDENCE_REQUIRED',`${p}/status`,'active modules require a consumer and complete evidence outside the Phase 3 catalog foundation');
     if (!MODES.includes(m.deploymentMode)) error(errors,'MODULE_UNKNOWN_DEPLOYMENT_MODE',`${p}/deploymentMode`,'unknown deploymentMode');
     const bo = m.ownership?.businessOwner; if (owners.has(bo)) error(errors,'MODULE_DUPLICATE_BUSINESS_OWNER',`${p}/ownership/businessOwner`,'business owner must be unique'); owners.add(bo);
     for (const [j, c] of (m.capabilities ?? []).entries()) {

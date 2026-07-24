@@ -94,7 +94,7 @@ function scanFile(file, root = process.cwd()) {
     }
     const keyRole = lineText.match(/^\s*(org_(?:admin|member|teacher|director)|organization[-.][A-Za-z0-9_-]+)\s*:/)
     if (keyRole) records.push(classify('role', keyRole[1], file, line, effectiveLineText, validateRoleName(keyRole[1])))
-    if (!isIntegrationEventPublicContractBoundary(file, lineText) && (/organization_id/.test(lineText) || ((file === 'backend/middleware/auth.js' || file === 'backend/authorization/guards.js' || file === 'backend/middleware/requireOrg.js' || file.includes('connectors/') || file.startsWith('frontend/src/module-ui/')) && /organizationId|org_id/.test(lineText)))) {
+    if (!isIntegrationEventPublicContractBoundary(file, lineText) && (/organization_id/.test(lineText) || ((file === 'backend/middleware/auth.js' || file === 'backend/authorization/guards.js' || file === 'backend/middleware/requireOrg.js' || file.includes('connectors/') || MODULE_UI_PUBLIC_ENVELOPE_ORGANIZATION_ID_FILES.has(file)) && /organizationId|org_id/.test(lineText)))) {
       for (const claim of ['organization_id','organizationId','org_id']) if (lineText.includes(claim)) records.push(classify('claim', claim, file, line, effectiveLineText, validateTokenClaimName(claim)))
     }
     for (const match of lineText.matchAll(ROUTE_PATTERN)) records.push(classify('route', match[1], file, line, effectiveLineText, validateRouteConvention(match[1])))

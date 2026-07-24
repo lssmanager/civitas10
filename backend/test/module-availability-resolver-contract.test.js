@@ -34,9 +34,16 @@ test('health and circuit states cover missing stale unavailable degraded open an
   assert.equal(staleDecision.state, 'unknown');
   const unavailable=(await fixture({health:'unavailable'})).resolver;
   assert.equal((await resolve(unavailable)).reasonCode, REASON_CODES.RUNTIME_UNAVAILABLE);
+  const unknown=(await fixture({health:'unknown'})).resolver;
+  assert.equal((await resolve(unknown)).reasonCode, REASON_CODES.HEALTH_SNAPSHOT_UNKNOWN);
+  assert.equal((await resolve(unknown)).state, 'unknown');
   const degradedDenied=(await fixture({health:'degraded', degradedPolicy:[{ moduleId:'planning', capabilityId:'planning.planned', mode:'unavailable' }]})).resolver;
   assert.equal((await resolve(degradedDenied)).reasonCode, REASON_CODES.MODULE_DEGRADED_OPERATION_DENIED);
   const degradedReadOnly=(await fixture({health:'degraded', degradedPolicy:[{ moduleId:'planning', capabilityId:'planning.planned', mode:'read_only', allowedExecutionKinds:['read'] }]})).resolver;
+  const degradedRead=await resolve(degradedReadOnly);
+  assert.equal(degradedRead.state, 'degraded');
+  assert.equal(degradedRead.executable, true);
+  assert.equal(degradedRead.readOnly, true);
   assert.equal((await resolve(degradedReadOnly,{operationId:'planning.write',executionKind:'write'})).reasonCode, REASON_CODES.MODULE_DEGRADED_READ_ONLY);
   const open=(await fixture({circuit:'open'})).resolver;
   assert.equal((await resolve(open)).reasonCode, REASON_CODES.RUNTIME_CIRCUIT_OPEN);
@@ -55,6 +62,8 @@ test('availability provenance boundary rejects arbitrary or sensitive metadata w
     { body:'secret-value' },
     { providerPayload:{ redacted:true } },
     { source:'https://user:password@example.invalid' },
+    { source:'http://127.0.0.1/health' },
+    { observedBy:'Error: boom at stack trace' },
     ['not-object']
   ];
   for (const bad of badCases) assert.throws(()=>assertSafeAvailabilityProvenance(bad), (error)=>String(error.message).includes('provenance') && !String(error.message).includes('secret-value') && !String(error.message).includes('password@example'));

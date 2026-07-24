@@ -77,6 +77,7 @@ test("migration failures include filename, PostgreSQL code, phase and schema exp
   const pool = {
     async query(sql) {
       queries.push(sql);
+      if (String(sql).startsWith("insert into schema_migrations")) return { rows: [{ migration: "claimed" }] };
       if (String(sql).includes("0016 failure sentinel")) {
         const error = new Error("column \"state\" does not exist");
         error.code = "42703";
@@ -103,4 +104,24 @@ test("migration failures include filename, PostgreSQL code, phase and schema exp
     await fs.writeFile(migrationPath, original);
   }
   assert.ok(queries.length > 0);
+});
+
+test("SQL migrator serializes backend and worker startup with a PostgreSQL advisory lock", async () => {
+  const queries = [];
+  const pool = {
+    async query(sql) {
+      queries.push(String(sql));
+      if (String(sql).startsWith("insert into schema_migrations")) return { rows: [{ migration: "claimed" }] };
+      return { rows: [] };
+    },
+  };
+
+  await Promise.all([
+    runSqlMigrations({ pool, logger: { log() {} } }),
+    runSqlMigrations({ pool, logger: { log() {} } }),
+  ]);
+
+  assert.equal(queries.filter((sql) => sql.includes("pg_advisory_lock")).length, 2);
+  assert.equal(queries.filter((sql) => sql.includes("pg_advisory_unlock")).length, 2);
+  assert.ok(queries.indexOf("select pg_advisory_lock(hashtext('civitas10:sql-migrations'))") < queries.indexOf("select pg_advisory_unlock(hashtext('civitas10:sql-migrations'))"));
 });

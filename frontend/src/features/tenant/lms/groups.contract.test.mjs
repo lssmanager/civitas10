@@ -8,7 +8,7 @@ const screenSource = readFileSync(new URL("./groups.screen.ts", import.meta.url)
 const actionSource = readFileSync(new URL("./groups.actions.ts", import.meta.url), "utf8");
 
 test("LMS Groups UI consumes endpoint decisions without local role or JWT authorization", () => {
-  assert.match(moduleSource, /Solo ves grupos donde eres líder/);
+  assert.match(moduleSource, /You only see groups where you are a leader/);
   assert.match(moduleSource, /Read only/);
   assert.doesNotMatch(moduleSource, /grades\.update|grades\.manage|Edit grades|Create grade/);
   assert.doesNotMatch(moduleSource, /organization_groupleader|role\s*===|jwt|claims/);

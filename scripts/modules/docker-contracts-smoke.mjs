@@ -32,7 +32,7 @@ function run(args, label) {
   return result;
 }
 
-run(['run', '--rm', '--entrypoint', 'node', image, '-e', script], 'contracts and backend modules');
+run(['run', '--rm', '--workdir', '/', '--entrypoint', 'node', image, '-e', script], 'contracts and backend modules');
 const preflight = run(['run', '--rm', '--workdir', '/', '--entrypoint', 'node', image, '/scripts/modules/p3-005-preflight.mjs'], 'read-only p3-005 preflight');
 const preflightOutput = `${preflight.stdout}\n${preflight.stderr}`;
 if (!/p3-005|module-reconciliation|preflight-offline-structural/i.test(preflightOutput)) throw new Error('p3-005 preflight did not produce execution evidence');
