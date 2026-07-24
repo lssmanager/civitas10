@@ -32,6 +32,21 @@ function repoFiles(root = process.cwd()) {
   const out = childProcess.execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
   return out.split('\n').filter(Boolean).filter((file) => !DEFAULT_EXCLUDES.some((re) => re.test(file))).filter((file) => TEXT_EXTENSIONS.has(path.extname(file)) || file.includes('.env'))
 }
+const MODULE_UI_PUBLIC_ENVELOPE_ORGANIZATION_ID_FILES = new Set([
+  'frontend/src/module-ui/testing/fakeRemoteUiContribution.ts',
+  'frontend/src/module-ui/registry/moduleUiRegistry.contract.test.mjs',
+])
+function isIntegrationEventPublicContractBoundary(file, lineText) {
+  // IntegrationEvent is a public envelope contract, not an authorization-token claim boundary.
+  // Keep this exception narrow: only camelCase organizationId in IntegrationEvent contracts,
+  // integration-event service/repository code, and explicit Module UI public-envelope fixtures.
+  return /organizationId/.test(lineText) && (
+    file.startsWith('contracts/integration/') ||
+    file === 'backend/services/integrationEvents.js' ||
+    file === 'backend/integration/integration-events-postgres.integration.test.js' ||
+    MODULE_UI_PUBLIC_ENVELOPE_ORGANIZATION_ID_FILES.has(file)
+  )
+}
 function isNegativeFixture(file, lineText) { return file.includes('contract-tests/') || file === 'core/authz/validation/validate-authz-contract.js' || file === 'docs/authorization/phase-2-authz-contract.md' || file === 'docs/authorization/naming-contract.md' || file === 'scripts/authorization/naming-contract.js' || file === 'scripts/authorization/scan-authorization-names.js' || file === 'scripts/logto/authorization-validator.js' || file === 'backend/test/logto-authz-bootstrap.test.js' || file === 'backend/test/foundation-authorization-middleware.test.js' || file === 'backend/test/authz-scope-delegation-contract.test.js' || file === 'backend/test/authz-policy-contract.test.js' || lineText.includes('negative fixture') || lineText.includes('formas prohibidas') || lineText.includes('Formas prohibidas') || lineText.includes('Debe rechazar') || /^Archived note:/i.test(lineText) }
 function allowlistEntry(kind, value, file) {
   return AUTHORIZATION_NAMING_ALLOWLIST.find((entry) => entry.kind === kind && entry.legacyValue === value && entry.allowedFiles.includes(file)) || null
@@ -79,7 +94,7 @@ function scanFile(file, root = process.cwd()) {
     }
     const keyRole = lineText.match(/^\s*(org_(?:admin|member|teacher|director)|organization[-.][A-Za-z0-9_-]+)\s*:/)
     if (keyRole) records.push(classify('role', keyRole[1], file, line, effectiveLineText, validateRoleName(keyRole[1])))
-    if (/organization_id/.test(lineText) || ((file === 'backend/middleware/auth.js' || file === 'backend/authorization/guards.js' || file === 'backend/middleware/requireOrg.js' || file.includes('connectors/')) && /organizationId|org_id/.test(lineText))) {
+    if (!isIntegrationEventPublicContractBoundary(file, lineText) && (/organization_id/.test(lineText) || ((file === 'backend/middleware/auth.js' || file === 'backend/authorization/guards.js' || file === 'backend/middleware/requireOrg.js' || file.includes('connectors/') || MODULE_UI_PUBLIC_ENVELOPE_ORGANIZATION_ID_FILES.has(file)) && /organizationId|org_id/.test(lineText)))) {
       for (const claim of ['organization_id','organizationId','org_id']) if (lineText.includes(claim)) records.push(classify('claim', claim, file, line, effectiveLineText, validateTokenClaimName(claim)))
     }
     for (const match of lineText.matchAll(ROUTE_PATTERN)) records.push(classify('route', match[1], file, line, effectiveLineText, validateRouteConvention(match[1])))

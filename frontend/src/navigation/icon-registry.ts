@@ -1,4 +1,4 @@
-import { IconBuilding, IconCirclePlus, IconLayoutDashboard, IconReportAnalytics, IconScale, IconUsersGroup, IconServer, IconSettings, IconUser, type Icon } from "@tabler/icons-react";
+import { IconBuilding, IconCirclePlus, IconLayoutDashboard, IconReportAnalytics, IconScale, IconUsersGroup, IconCalendarStats, IconServer, IconSettings, IconUser, type Icon } from "@tabler/icons-react";
 import type { IconKey } from "../authorization/contracts/ids";
 
 export const iconRegistry: Record<IconKey, Icon> = {
@@ -12,6 +12,7 @@ export const iconRegistry: Record<IconKey, Icon> = {
   profile: IconUser,
   grades: IconReportAnalytics,
   groups: IconUsersGroup,
+  planning: IconCalendarStats,
 };
 
 export const assertKnownIconKey = (iconKey: string): iconKey is IconKey => Object.prototype.hasOwnProperty.call(iconRegistry, iconKey);

@@ -26,7 +26,11 @@ test("operational schema guard requires operational_operations columns queried b
 
   await assert.rejects(() => assertOperationalSchema({ pool }), (error) => {
     assert.equal(error.name, "DatabaseSchemaError");
-    assert.deepEqual(error.details.missingTables.sort(), ["audit_logs", "operational_operation_steps", "organization_provisioning_drafts"].sort());
+    assert.ok(error.details.missingTables.includes("audit_logs"));
+    assert.ok(error.details.missingTables.includes("operational_operation_steps"));
+    assert.ok(error.details.missingTables.includes("organization_provisioning_drafts"));
+    assert.ok(error.details.missingTables.includes("module_catalog"));
+    assert.ok(error.details.missingTables.includes("organization_module_runtime_bindings"));
     assert.deepEqual(error.details.missingColumns.operational_operations, ["queue_name"]);
     assert.equal(error.details.expectedMigration, "backend/db/migrations/0000_foundation.sql");
     return true;
@@ -73,6 +77,7 @@ test("migration failures include filename, PostgreSQL code, phase and schema exp
   const pool = {
     async query(sql) {
       queries.push(sql);
+      if (String(sql).startsWith("insert into schema_migrations")) return { rows: [{ migration: "claimed" }] };
       if (String(sql).includes("0016 failure sentinel")) {
         const error = new Error("column \"state\" does not exist");
         error.code = "42703";
@@ -99,4 +104,24 @@ test("migration failures include filename, PostgreSQL code, phase and schema exp
     await fs.writeFile(migrationPath, original);
   }
   assert.ok(queries.length > 0);
+});
+
+test("SQL migrator serializes backend and worker startup with a PostgreSQL advisory lock", async () => {
+  const queries = [];
+  const pool = {
+    async query(sql) {
+      queries.push(String(sql));
+      if (String(sql).startsWith("insert into schema_migrations")) return { rows: [{ migration: "claimed" }] };
+      return { rows: [] };
+    },
+  };
+
+  await Promise.all([
+    runSqlMigrations({ pool, logger: { log() {} } }),
+    runSqlMigrations({ pool, logger: { log() {} } }),
+  ]);
+
+  assert.equal(queries.filter((sql) => sql.includes("pg_advisory_lock")).length, 2);
+  assert.equal(queries.filter((sql) => sql.includes("pg_advisory_unlock")).length, 2);
+  assert.ok(queries.indexOf("select pg_advisory_lock(hashtext('civitas10:sql-migrations'))") < queries.indexOf("select pg_advisory_unlock(hashtext('civitas10:sql-migrations'))"));
 });

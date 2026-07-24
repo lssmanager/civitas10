@@ -1,0 +1,70 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { createModuleControlPlaneService, createInMemoryModuleControlPlaneRepository } = require('../services/moduleControlPlane');
+const { createModuleAvailabilityResolver, createStaticOperationRegistry, createStaticDegradedPolicyRegistry, createInMemoryAvailabilityStateRepository, HEALTH_TARGETS, REASON_CODES, publicAvailabilityReadModel, assertSafeAvailabilityProvenance } = require('../services/moduleAvailabilityResolver');
+
+async function fixture({ lifecycle='active', health='healthy', circuit='closed', degradedPolicy=[] }={}) {
+  const repo=createInMemoryModuleControlPlaneRepository(); const service=createModuleControlPlaneService({ repository:repo }); await service.seedCatalogFromP3_002();
+  const planning=await service.resolveModuleVersion({ moduleId:'planning', semanticVersion:'0.1.0' });
+  const om=await service.provisionOrganizationModule({ logtoOrganizationId:'orgA', moduleId:'planning', moduleVersionId:planning.id, actor:'u1', reason:'install' });
+  const rt=await service.registerModuleRuntime({ runtimeId:'planning-runtime', moduleId:'planning', moduleOwner:'planning-runtime-boundary', deploymentMode:'federated', runtimeContractVersion:'civitas-module-runtime/v1', runtimeStatus:'available', serviceIdentityRequired:true });
+  await repo.recordCompatibility({ moduleVersionId:planning.id, runtimeId:rt.id, compatibilityStatus:'compatible', hostContractVersion:'civitas-host/v1', runtimeContractVersion:rt.runtimeContractVersion, compatibilityRange:'1.x', policy:'explicit' });
+  const binding=await service.bindOrganizationModuleRuntime({ logtoOrganizationId:'orgA', moduleId:'planning', runtimeId:rt.runtimeId, actor:'u1', reason:'bind' });
+  if(lifecycle==='degraded') { await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:om.version, toLifecycle:'provisioning', actor:'u1', reason:'start' }); await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:2, toLifecycle:'active', actor:'u1', reason:'active' }); await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:3, toLifecycle:'degraded', actor:'u1', reason:'degrade' }); }
+  else if(lifecycle==='active') { await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:om.version, toLifecycle:'provisioning', actor:'u1', reason:'start' }); await service.transitionOrganizationModuleLifecycle({ logtoOrganizationId:'orgA', moduleId:'planning', expectedVersion:2, toLifecycle:'active', actor:'u1', reason:'active' }); }
+  const state=createInMemoryAvailabilityStateRepository();
+  if(health) await state.recordHealthSnapshot({ logtoOrganizationId:'orgA', targetType:HEALTH_TARGETS.MODULE_RUNTIME_BINDING, targetBindingId:binding.id, moduleId:'planning', capabilityId:'planning.planned', observedState:health==='stale'?'healthy':health, observedAt:'2026-07-23T00:00:00.000Z', expiresAt: health==='stale'?'2026-07-23T00:00:01.000Z':'2026-07-23T00:10:00.000Z', provenance:{ source:'contract-test', checkId:'availability-fixture' } });
+  if(circuit) await state.writeCircuitState({ organizationId:'orgA', targetType:HEALTH_TARGETS.MODULE_RUNTIME_BINDING, targetBindingId:binding.id, moduleId:'planning', capabilityId:'planning.planned', state:circuit, provenance:{ source:'contract-test', checkId:'circuit-fixture' } });
+  const operations=createStaticOperationRegistry([{ moduleId:'planning', capabilityId:'planning.planned', operationId:'planning.read', actionId:'planning.read', permission:'planning.planned.read', executionKind:'read' }, { moduleId:'planning', capabilityId:'planning.planned', operationId:'planning.write', actionId:'planning.write', permission:'planning.planned.write', executionKind:'write' }]);
+  const resolver=createModuleAvailabilityResolver({ moduleControlPlaneService:service, operationRegistry:operations, stateRepository:state, degradedPolicyRegistry:createStaticDegradedPolicyRegistry(degradedPolicy), clock:()=>new Date('2026-07-23T00:05:00.000Z') });
+  return { resolver, binding };
+}
+async function resolve(resolver, overrides={}){ return resolver.resolve({ organizationId:'orgA', moduleId:'planning', capabilityId:'planning.planned', operationId:'planning.read', executionKind:'read', ...overrides }); }
+
+test('healthy federated runtime returns executable versioned availability decision and safe public model', async()=>{ const { resolver }=await fixture(); const d=await resolve(resolver); assert.equal(d.executable,true); assert.equal(d.state,'healthy'); assert.equal(d.runtimeContractVersion,'civitas-module-runtime/v1'); const pub=publicAvailabilityReadModel(d); assert.equal(pub.executable,true); assert.ok(!('runtimeContractVersion' in pub)); });
+test('unknown operation, missing install, stale health, open circuit and degraded writes fail closed', async()=>{ const { resolver }=await fixture(); assert.equal((await resolve(resolver,{operationId:'unknown'})).reasonCode, REASON_CODES.OPERATION_UNKNOWN); assert.equal((await resolve(resolver,{organizationId:'orgB'})).reasonCode, REASON_CODES.MODULE_NOT_INSTALLED); const stale=(await fixture({health:'stale'})).resolver; assert.equal((await resolve(stale)).reasonCode, REASON_CODES.HEALTH_SNAPSHOT_STALE); const open=(await fixture({circuit:'open'})).resolver; assert.equal((await resolve(open)).reasonCode, REASON_CODES.RUNTIME_CIRCUIT_OPEN); const degraded=(await fixture({lifecycle:'degraded', degradedPolicy:[{ moduleId:'planning', capabilityId:'planning.planned', mode:'read_only', allowedExecutionKinds:['read'] }]})).resolver; assert.equal((await resolve(degraded,{operationId:'planning.write',executionKind:'write'})).reasonCode, REASON_CODES.MODULE_DEGRADED_READ_ONLY); });
+
+
+test('health and circuit states cover missing stale unavailable degraded open and half-open decisions', async()=>{
+  const missing=(await fixture({health:null})).resolver;
+  assert.equal((await resolve(missing)).reasonCode, REASON_CODES.HEALTH_SNAPSHOT_MISSING);
+  const stale=(await fixture({health:'stale'})).resolver;
+  const staleDecision=await resolve(stale);
+  assert.equal(staleDecision.reasonCode, REASON_CODES.HEALTH_SNAPSHOT_STALE);
+  assert.equal(staleDecision.state, 'unknown');
+  const unavailable=(await fixture({health:'unavailable'})).resolver;
+  assert.equal((await resolve(unavailable)).reasonCode, REASON_CODES.RUNTIME_UNAVAILABLE);
+  const unknown=(await fixture({health:'unknown'})).resolver;
+  assert.equal((await resolve(unknown)).reasonCode, REASON_CODES.HEALTH_SNAPSHOT_UNKNOWN);
+  assert.equal((await resolve(unknown)).state, 'unknown');
+  const degradedDenied=(await fixture({health:'degraded', degradedPolicy:[{ moduleId:'planning', capabilityId:'planning.planned', mode:'unavailable' }]})).resolver;
+  assert.equal((await resolve(degradedDenied)).reasonCode, REASON_CODES.MODULE_DEGRADED_OPERATION_DENIED);
+  const degradedReadOnly=(await fixture({health:'degraded', degradedPolicy:[{ moduleId:'planning', capabilityId:'planning.planned', mode:'read_only', allowedExecutionKinds:['read'] }]})).resolver;
+  const degradedRead=await resolve(degradedReadOnly);
+  assert.equal(degradedRead.state, 'degraded');
+  assert.equal(degradedRead.executable, true);
+  assert.equal(degradedRead.readOnly, true);
+  assert.equal((await resolve(degradedReadOnly,{operationId:'planning.write',executionKind:'write'})).reasonCode, REASON_CODES.MODULE_DEGRADED_READ_ONLY);
+  const open=(await fixture({circuit:'open'})).resolver;
+  assert.equal((await resolve(open)).reasonCode, REASON_CODES.RUNTIME_CIRCUIT_OPEN);
+  const halfOpen=(await fixture({circuit:'half_open'})).resolver;
+  assert.equal((await resolve(halfOpen)).reasonCode, REASON_CODES.RUNTIME_CIRCUIT_HALF_OPEN);
+});
+
+test('availability provenance boundary rejects arbitrary or sensitive metadata without values', async()=>{
+  assert.deepEqual(assertSafeAvailabilityProvenance({ source:'probe', checkId:'health-1', observedBy:'runtime-control-plane' }), { source:'probe', checkId:'health-1', observedBy:'runtime-control-plane' });
+  const badCases=[
+    { token:'secret-value' },
+    { api_key:'secret-value' },
+    { headers:{ authorization:'secret-value' } },
+    { request:{ url:'https://example.invalid' } },
+    { response:{ status:200 } },
+    { body:'secret-value' },
+    { providerPayload:{ redacted:true } },
+    { source:'https://user:password@example.invalid' },
+    { source:'http://127.0.0.1/health' },
+    { observedBy:'Error: boom at stack trace' },
+    ['not-object']
+  ];
+  for (const bad of badCases) assert.throws(()=>assertSafeAvailabilityProvenance(bad), (error)=>String(error.message).includes('provenance') && !String(error.message).includes('secret-value') && !String(error.message).includes('password@example'));
+});

@@ -1,0 +1,234 @@
+{
+  "catalogVersion": "2.0.0",
+  "moduleCount": 11,
+  "moduleIds": [
+    "analytics",
+    "community",
+    "crm",
+    "hr",
+    "lms",
+    "marketing",
+    "payments",
+    "planning",
+    "reports",
+    "scheduling",
+    "support"
+  ],
+  "modules": [
+    {
+      "capabilities": [
+        "analytics.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "analytics",
+      "ownership": {
+        "businessOwner": "civitas-analytics-boundary",
+        "capabilityOwner": "civitas-analytics-boundary",
+        "dataOwner": "civitas-analytics-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "community.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "community",
+      "ownership": {
+        "businessOwner": "civitas-community-boundary",
+        "capabilityOwner": "civitas-community-boundary",
+        "dataOwner": "civitas-community-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "crm.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "crm",
+      "ownership": {
+        "businessOwner": "civitas-crm-boundary",
+        "capabilityOwner": "civitas-crm-boundary",
+        "dataOwner": "civitas-crm-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "hr.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "hr",
+      "ownership": {
+        "businessOwner": "civitas-hr-boundary",
+        "capabilityOwner": "civitas-hr-boundary",
+        "dataOwner": "civitas-hr-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "lms.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "lms",
+      "ownership": {
+        "businessOwner": "civitas-learning-boundary",
+        "capabilityOwner": "civitas-learning-boundary",
+        "dataOwner": "civitas-learning-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "marketing.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "marketing",
+      "ownership": {
+        "businessOwner": "civitas-marketing-boundary",
+        "capabilityOwner": "civitas-marketing-boundary",
+        "dataOwner": "civitas-marketing-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "payments.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "payments",
+      "ownership": {
+        "businessOwner": "civitas-payments-boundary",
+        "capabilityOwner": "civitas-payments-boundary",
+        "dataOwner": "civitas-payments-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "planning.planned"
+      ],
+      "contributions": [
+        {
+          "artifact": "module-runtime-contract:planning/v1",
+          "owner": "agora-planning-runtime-boundary",
+          "status": "planned",
+          "type": "runtime-contract",
+          "version": "1.0.0"
+        },
+        {
+          "artifact": "module-ui-contribution:planning/v1",
+          "owner": "agora-planning-ui-boundary",
+          "status": "planned",
+          "type": "ui",
+          "version": "1.0.0"
+        }
+      ],
+      "dependencies": [],
+      "deploymentMode": "federated",
+      "id": "planning",
+      "ownership": {
+        "businessOwner": "civitas-planning-boundary",
+        "capabilityOwner": "civitas-planning-boundary",
+        "dataOwner": "agora-planning-runtime-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "agora-planning-runtime-boundary",
+        "uiContributionOwner": "agora-planning-ui-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "reports.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "reports",
+      "ownership": {
+        "businessOwner": "civitas-reports-boundary",
+        "capabilityOwner": "civitas-reports-boundary",
+        "dataOwner": "civitas-reports-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "scheduling.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "scheduling",
+      "ownership": {
+        "businessOwner": "civitas-scheduling-boundary",
+        "capabilityOwner": "civitas-scheduling-boundary",
+        "dataOwner": "civitas-scheduling-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    },
+    {
+      "capabilities": [
+        "support.planned"
+      ],
+      "contributions": [],
+      "dependencies": [],
+      "deploymentMode": "embedded",
+      "id": "support",
+      "ownership": {
+        "businessOwner": "civitas-support-boundary",
+        "capabilityOwner": "civitas-support-boundary",
+        "dataOwner": "civitas-support-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "status": "planned"
+    }
+  ],
+  "schemaVersion": "civitas-module-manifest/v2",
+  "sourceDigest": "307863bf7294f0d20e180da998d8928f978ef5e08953fbefe9754dd50e9c9de7"
+}

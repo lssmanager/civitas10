@@ -269,6 +269,104 @@ const locationCities = pgTable("location_cities", {
   nameIdx: index("location_cities_name_idx").on(table.name),
 }));
 
+
+const moduleCatalog = pgTable("module_catalog", {
+  moduleId: varchar("module_id", { length: 80 }).primaryKey(),
+  kind: varchar("kind", { length: 40 }).notNull(),
+  businessOwner: varchar("business_owner", { length: 160 }).notNull(),
+  catalogStatus: varchar("catalog_status", { length: 40 }).notNull(),
+  catalogVersion: varchar("catalog_version", { length: 40 }).notNull(),
+  catalogHash: varchar("catalog_hash", { length: 64 }).notNull(),
+  provenance: jsonb("provenance").notNull().default(sql`'{}'::jsonb`),
+  ...timestamps,
+});
+
+const moduleVersions = pgTable("module_versions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  moduleId: varchar("module_id", { length: 80 }).notNull().references(() => moduleCatalog.moduleId),
+  semanticVersion: varchar("semantic_version", { length: 40 }).notNull(),
+  manifestSchemaVersion: varchar("manifest_schema_version", { length: 80 }).notNull(),
+  manifestHash: varchar("manifest_hash", { length: 64 }).notNull(),
+  deploymentMode: varchar("deployment_mode", { length: 40 }).notNull(),
+  contractStatus: varchar("contract_status", { length: 40 }).notNull(),
+  dataOwnership: jsonb("data_ownership").notNull().default(sql`'{}'::jsonb`),
+  contractRefs: jsonb("contract_refs").notNull().default(sql`'{}'::jsonb`),
+  compatibilityPolicy: varchar("compatibility_policy", { length: 160 }).notNull(),
+  manifestSnapshot: jsonb("manifest_snapshot").notNull(),
+  provenance: jsonb("provenance").notNull().default(sql`'{}'::jsonb`),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),
+  ...timestamps,
+}, (table) => ({ moduleVersionUidx: uniqueIndex("module_versions_module_semver_uidx").on(table.moduleId, table.semanticVersion), moduleHashUidx: uniqueIndex("module_versions_module_hash_uidx").on(table.moduleId, table.manifestHash) }));
+
+const organizationModules = pgTable("organization_modules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  logtoOrganizationId: varchar("logto_organization_id", { length: 128 }).notNull(),
+  moduleId: varchar("module_id", { length: 80 }).notNull().references(() => moduleCatalog.moduleId),
+  moduleVersionId: uuid("module_version_id").notNull().references(() => moduleVersions.id),
+  lifecycle: varchar("lifecycle", { length: 40 }).notNull().default("disabled"),
+  version: integer("version").notNull().default(1),
+  actorLogtoUserId: varchar("actor_logto_user_id", { length: 128 }).notNull(),
+  reason: text("reason").notNull(),
+  correlationId: varchar("correlation_id", { length: 160 }),
+  operationalProvenance: jsonb("operational_provenance").notNull().default(sql`'{}'::jsonb`),
+  installedAt: timestamp("installed_at", { withTimezone: true }),
+  lifecycleUpdatedAt: timestamp("lifecycle_updated_at", { withTimezone: true }).notNull().defaultNow(),
+  ...timestamps,
+}, (table) => ({ orgModuleUidx: uniqueIndex("organization_modules_org_module_uidx").on(table.logtoOrganizationId, table.moduleId), orgModuleIdx: index("organization_modules_org_idx").on(table.logtoOrganizationId, table.moduleId, table.lifecycle) }));
+
+const moduleRuntimeCatalog = pgTable("module_runtime_catalog", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  runtimeId: varchar("runtime_id", { length: 120 }).notNull().unique(),
+  moduleId: varchar("module_id", { length: 80 }).notNull().references(() => moduleCatalog.moduleId),
+  moduleOwner: varchar("module_owner", { length: 160 }).notNull(),
+  deploymentMode: varchar("deployment_mode", { length: 40 }).notNull(),
+  serviceRef: text("service_ref"),
+  runtimeContractVersion: varchar("runtime_contract_version", { length: 120 }).notNull(),
+  expectedAudience: varchar("expected_audience", { length: 160 }),
+  serviceIdentityRequired: boolean("service_identity_required").notNull().default(false),
+  healthPolicy: jsonb("health_policy").notNull().default(sql`'{}'::jsonb`),
+  secretsRef: varchar("secrets_ref", { length: 255 }),
+  compatibilityMetadata: jsonb("compatibility_metadata").notNull().default(sql`'{}'::jsonb`),
+  runtimeStatus: varchar("runtime_status", { length: 40 }).notNull().default("planned"),
+  provenance: jsonb("provenance").notNull().default(sql`'{}'::jsonb`),
+  version: integer("version").notNull().default(1),
+  ...timestamps,
+}, (table) => ({ runtimeModuleIdx: index("module_runtime_catalog_module_idx").on(table.moduleId, table.runtimeStatus) }));
+
+const moduleContractCompatibility = pgTable("module_contract_compatibility", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  moduleVersionId: uuid("module_version_id").notNull().references(() => moduleVersions.id),
+  runtimeId: uuid("runtime_id").notNull().references(() => moduleRuntimeCatalog.id),
+  hostContractVersion: varchar("host_contract_version", { length: 120 }).notNull(),
+  runtimeContractVersion: varchar("runtime_contract_version", { length: 120 }).notNull(),
+  uiContractVersion: varchar("ui_contract_version", { length: 120 }),
+  compatibilityStatus: varchar("compatibility_status", { length: 40 }).notNull(),
+  compatibilityRange: varchar("compatibility_range", { length: 120 }).notNull(),
+  policy: varchar("policy", { length: 160 }).notNull(),
+  evidence: jsonb("evidence").notNull().default(sql`'{}'::jsonb`),
+  provenance: jsonb("provenance").notNull().default(sql`'{}'::jsonb`),
+  ...timestamps,
+});
+
+const organizationModuleRuntimeBindings = pgTable("organization_module_runtime_bindings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  logtoOrganizationId: varchar("logto_organization_id", { length: 128 }).notNull(),
+  organizationModuleId: uuid("organization_module_id").notNull().references(() => organizationModules.id),
+  runtimeId: uuid("runtime_id").notNull().references(() => moduleRuntimeCatalog.id),
+  moduleId: varchar("module_id", { length: 80 }).notNull().references(() => moduleCatalog.moduleId),
+  selectedContractVersion: varchar("selected_contract_version", { length: 120 }).notNull(),
+  expectedContractVersion: varchar("expected_contract_version", { length: 120 }).notNull(),
+  status: varchar("status", { length: 40 }).notNull().default("planned"),
+  isExecutable: boolean("is_executable").notNull().default(false),
+  version: integer("version").notNull().default(1),
+  actorLogtoUserId: varchar("actor_logto_user_id", { length: 128 }).notNull(),
+  reason: text("reason").notNull(),
+  correlationId: varchar("correlation_id", { length: 160 }),
+  operationalConfig: jsonb("operational_config").notNull().default(sql`'{}'::jsonb`),
+  provenance: jsonb("provenance").notNull().default(sql`'{}'::jsonb`),
+  ...timestamps,
+}, (table) => ({ orgModuleRuntimeIdx: index("organization_module_runtime_org_idx").on(table.logtoOrganizationId, table.moduleId, table.status) }));
+
 const idempotencyRecords = pgTable("idempotency_records", {
   idempotencyKey: varchar("idempotency_key", { length: 220 }).primaryKey(),
   operationId: uuid("operation_id"),
@@ -287,4 +385,4 @@ const unitsSchema = require("./authz-units");
 const dataScopeSchema = require("./authz-data-scopes");
 const authorizationRuntimeSchema = require("./authorization-runtime");
 
-module.exports = { locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema, ...authorizationRuntimeSchema };
+module.exports = { moduleCatalog, moduleVersions, organizationModules, moduleRuntimeCatalog, organizationModuleRuntimeBindings, moduleContractCompatibility, locationImportRuns, locationCountries, locationStates, locationCities, localUsers, operationalTenants, auditLogs, operationalOperations, operationalOperationSteps, organizationProvisioningDrafts, organizationRuntimeState, capabilities, adapters, connectors, connectorBindings, capabilityRoleMappings, idempotencyRecords, roleDelegationRules, orgDelegationRestrictions, orgRoleEntitlementLimits, orgRolePermissionActivations, authorizationPolicyVersions, ...taxonomySchema, ...unitsSchema, ...dataScopeSchema, ...authorizationRuntimeSchema };

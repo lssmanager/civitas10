@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed for acceptance.
+Accepted
 
 ## Date
 
@@ -362,12 +362,12 @@ Those belong to implementation issues after this decision.
 
 ## Acceptance Criteria
 
-- [ ] Eleven canonical modules accepted.
-- [ ] Planning accepted as module ID eleven.
-- [ ] Embedded and federated modes accepted.
-- [ ] Civitas/Ágora ownership boundaries accepted.
-- [ ] Contract status separated from tenant lifecycle.
-- [ ] Source of truth strategy accepted.
-- [ ] Provider-neutral naming enforced.
-- [ ] Public REST boundary preserved.
+- [x] Eleven canonical modules accepted.
+- [x] Planning accepted as module ID eleven.
+- [x] Embedded and federated modes accepted.
+- [x] Civitas/Ágora ownership boundaries accepted.
+- [x] Contract status separated from tenant lifecycle.
+- [x] Source of truth strategy accepted.
+- [x] Provider-neutral naming enforced.
+- [x] Public REST boundary preserved.
 - [ ] Federated runtime boundary documented.

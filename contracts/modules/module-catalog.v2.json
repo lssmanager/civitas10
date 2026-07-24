@@ -1,0 +1,414 @@
+{
+  "schemaVersion": "civitas-module-manifest/v2",
+  "catalogVersion": "2.0.0",
+  "modules": [
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "analytics",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "analytics",
+      "ownership": {
+        "businessOwner": "civitas-analytics-boundary",
+        "capabilityOwner": "civitas-analytics-boundary",
+        "dataOwner": "civitas-analytics-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-analytics-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "analytics.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "community",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "community-engagement",
+      "ownership": {
+        "businessOwner": "civitas-community-boundary",
+        "capabilityOwner": "civitas-community-boundary",
+        "dataOwner": "civitas-community-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-community-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "community.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "crm",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "customer-relationship-management",
+      "ownership": {
+        "businessOwner": "civitas-crm-boundary",
+        "capabilityOwner": "civitas-crm-boundary",
+        "dataOwner": "civitas-crm-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-crm-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "crm.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "hr",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "human-resources",
+      "ownership": {
+        "businessOwner": "civitas-hr-boundary",
+        "capabilityOwner": "civitas-hr-boundary",
+        "dataOwner": "civitas-hr-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-hr-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "hr.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "lms",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "learning-management",
+      "ownership": {
+        "businessOwner": "civitas-learning-boundary",
+        "capabilityOwner": "civitas-learning-boundary",
+        "dataOwner": "civitas-learning-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-learning-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "lms.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "marketing",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "marketing-engagement",
+      "ownership": {
+        "businessOwner": "civitas-marketing-boundary",
+        "capabilityOwner": "civitas-marketing-boundary",
+        "dataOwner": "civitas-marketing-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-marketing-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "marketing.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "payments",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "payments",
+      "ownership": {
+        "businessOwner": "civitas-payments-boundary",
+        "capabilityOwner": "civitas-payments-boundary",
+        "dataOwner": "civitas-payments-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-payments-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "payments.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true,
+        "aliases": [
+          {
+            "from": "billing",
+            "to": "payments",
+            "status": "temporary",
+            "removalRequires": "zero-consumer-evidence"
+          }
+        ]
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "planning",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "federated",
+      "businessBoundary": "planning",
+      "ownership": {
+        "businessOwner": "civitas-planning-boundary",
+        "capabilityOwner": "civitas-planning-boundary",
+        "dataOwner": "agora-planning-runtime-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "agora-planning-runtime-boundary",
+        "uiContributionOwner": "agora-planning-ui-boundary"
+      },
+      "dataOwnership": {
+        "owner": "agora-planning-runtime-boundary",
+        "transactionalSystem": "agora-planning-runtime"
+      },
+      "capabilities": [
+        "planning.planned"
+      ],
+      "dependencies": [],
+      "contributions": [
+        {
+          "type": "ui",
+          "version": "1.0.0",
+          "owner": "agora-planning-ui-boundary",
+          "artifact": "module-ui-contribution:planning/v1",
+          "status": "planned",
+          "contractVersion": "civitas-module-ui/v1"
+        },
+        {
+          "type": "runtime-contract",
+          "version": "1.0.0",
+          "owner": "agora-planning-runtime-boundary",
+          "artifact": "module-runtime-contract:planning/v1",
+          "status": "planned",
+          "contractVersion": "civitas-module-runtime/v1"
+        }
+      ],
+      "compatibility": {
+        "policy": "federated-planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      },
+      "federated": {
+        "runtimeContractVersion": "civitas-module-runtime/v1",
+        "audience": "civitas.module.planning",
+        "serviceIdentityRequired": true,
+        "uiContractVersion": "civitas-module-ui/v1",
+        "uiEntryRef": "module-ui-contribution:planning/v1",
+        "compatibilityPolicy": "federated-planned-contract-only",
+        "productSurface": "agora"
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "reports",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "reports",
+      "ownership": {
+        "businessOwner": "civitas-reports-boundary",
+        "capabilityOwner": "civitas-reports-boundary",
+        "dataOwner": "civitas-reports-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-reports-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "reports.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "scheduling",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "scheduling",
+      "ownership": {
+        "businessOwner": "civitas-scheduling-boundary",
+        "capabilityOwner": "civitas-scheduling-boundary",
+        "dataOwner": "civitas-scheduling-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-scheduling-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "scheduling.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    },
+    {
+      "schemaVersion": "civitas-module-manifest/v2",
+      "id": "support",
+      "version": "0.1.0",
+      "kind": "business",
+      "status": "planned",
+      "deploymentMode": "embedded",
+      "businessBoundary": "support",
+      "ownership": {
+        "businessOwner": "civitas-support-boundary",
+        "capabilityOwner": "civitas-support-boundary",
+        "dataOwner": "civitas-support-boundary",
+        "publicApiOwner": "civitas-api-boundary",
+        "runtimeOwner": "civitas-runtime-boundary",
+        "uiContributionOwner": "civitas-appshell-boundary"
+      },
+      "dataOwnership": {
+        "owner": "civitas-support-boundary",
+        "transactionalSystem": "civitas"
+      },
+      "capabilities": [
+        "support.planned"
+      ],
+      "dependencies": [],
+      "contributions": [],
+      "compatibility": {
+        "policy": "planned-contract-only",
+        "compatible": true
+      },
+      "lifecycle": {
+        "supportsTenantLifecycle": true,
+        "storesTenantInstallationState": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "contractVersion": "civitas-module-ui/v1",
+  "moduleId": "planning",
+  "moduleVersion": "0.1.0",
+  "contributionVersion": "0.1.0",
+  "screens": [
+    "planning.plans.list"
+  ],
+  "actions": [
+    "planning.plans.create"
+  ],
+  "routes": [
+    "planning.plans"
+  ],
+  "capabilities": [
+    "planning.plans"
+  ],
+  "permissions": [
+    "planning.plans.manage",
+    "planning.plans.read"
+  ],
+  "statuses": {
+    "contribution": "active",
+    "screens": [
+      "active"
+    ],
+    "actions": [
+      "active"
+    ],
+    "routes": [
+      "active"
+    ]
+  },
+  "designSystemVersion": "civitas-design-system/v1",
+  "hostApiVersion": "civitas-module-ui-host/v1",
+  "integrityReference": "sha256-oSJa98cNrTFK0kEOjU8VJQmeCB2AxfHMyxWzyLB7wVQ",
+  "compatibilityState": "validated_by_p3_011",
+  "catalogHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}
