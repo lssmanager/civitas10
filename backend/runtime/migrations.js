@@ -117,23 +117,40 @@ function schemaExpectationForMigration(file) {
 async function runSqlMigrations({ pool = getPool(), logger = console } = {}) {
   const files = await listMigrationFiles();
   const applied = [];
-  for (const file of files) {
-    const sql = await fs.readFile(file, "utf8");
-    const migration = path.basename(file);
-    try {
-      await pool.query(sql);
-    } catch (error) {
-      throw new DatabaseMigrationError(`Backend startup failed while applying migration ${migration}: ${error.message}`, {
-        migration,
-        postgresCode: error.code || null,
-        statementPhase: "apply migration SQL",
-        schemaExpectation: schemaExpectationForMigration(file),
-        position: error.position || null,
-        detail: error.detail || null,
-      });
+  const client = typeof pool.connect === "function" ? await pool.connect() : pool;
+  await client.query("select pg_advisory_lock(hashtext('civitas10:sql-migrations'))");
+  try {
+    await client.query("create table if not exists schema_migrations (migration varchar(255) primary key, applied_at timestamptz not null default now())");
+    for (const file of files) {
+      const sql = await fs.readFile(file, "utf8");
+      const migration = path.basename(file);
+      let inserted = false;
+      try {
+        await client.query("begin");
+        const claim = await client.query("insert into schema_migrations(migration) values($1) on conflict do nothing returning migration", [migration]);
+        inserted = Boolean(claim.rows?.[0]);
+        if (inserted) await client.query(sql);
+        await client.query("commit");
+      } catch (error) {
+        try { await client.query("rollback"); } catch (_rollbackError) {}
+        throw new DatabaseMigrationError(`Backend startup failed while applying migration ${migration}: ${error.message}`, {
+          migration,
+          postgresCode: error.code || null,
+          statementPhase: inserted ? "apply migration SQL" : "claim migration",
+          schemaExpectation: schemaExpectationForMigration(file),
+          position: error.position || null,
+          detail: error.detail || null,
+        });
+      }
+      applied.push(migration);
+      logger.log(JSON.stringify({ component: "database-migrations", status: inserted ? "applied" : "skipped", migration }));
     }
-    applied.push(migration);
-    logger.log(JSON.stringify({ component: "database-migrations", status: "applied", migration }));
+  } finally {
+    try {
+      await client.query("select pg_advisory_unlock(hashtext('civitas10:sql-migrations'))");
+    } finally {
+      if (client !== pool && typeof client.release === "function") client.release();
+    }
   }
   return { applied };
 }

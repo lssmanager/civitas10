@@ -122,6 +122,47 @@
         },
         "compatible": {
           "type": "boolean"
+        },
+        "aliases": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "status",
+              "removalRequires"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "to": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "status": {
+                "enum": [
+                  "temporary"
+                ]
+              },
+              "removalRequires": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9-]*(-[a-z0-9]+)*$"
+              }
+            }
+          }
         }
       }
     },

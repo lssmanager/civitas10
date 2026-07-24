@@ -91,6 +91,11 @@
     "ui:p3-012:no-parallel-navigation-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs no-parallel-navigation",
     "ui:p3-012:no-frontend-authority-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs no-frontend-authority",
     "ui:p3-012:inventory-check": "cd frontend && node scripts/module-ui/p3-012-gate.mjs inventory",
-    "docker:contracts:smoke": "node scripts/modules/docker-contracts-smoke.mjs"
+    "docker:contracts:smoke": "node scripts/modules/docker-contracts-smoke.mjs",
+    "federation:p3-008:check": "npm run modules:p3-008:contract-check && npm run modules:p3-008:crypto-check && npm run modules:p3-008:threat-check && npm run modules:p3-008:no-user-token-forwarding-check && npm run modules:p3-008:redaction-check",
+    "federation:p3-009:check": "npm run federation:p3-009:contract-check && npm run federation:p3-009:architecture-check && npm run federation:p3-009:resilience-check && npm run federation:p3-009:problem-mapping-check && npm run federation:p3-009:no-loopback-check && npm run federation:p3-009:no-sdk-leakage-check && npm run federation:p3-009:no-user-token-forwarding-check && npm run federation:p3-009:redaction-check && npm run federation:p3-009:compatibility-check",
+    "federation:p3-009:no-sdk-check": "npm run federation:p3-009:no-sdk-leakage-check",
+    "modules:docker-contracts-smoke": "npm run docker:contracts:smoke",
+    "ui:p3-012:check": "npm run ui:p3-012:registry-check && npm run ui:p3-012:navigation-check && npm run ui:p3-012:route-safety-check && npm run ui:p3-012:authorization-parity-check && npm run ui:p3-012:lifecycle-check && npm run ui:p3-012:no-parallel-navigation-check && npm run ui:p3-012:no-frontend-authority-check && npm run ui:p3-012:inventory-check"
   }
 }

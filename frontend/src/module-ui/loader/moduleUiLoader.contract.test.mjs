@@ -10,7 +10,7 @@ test('host API/design mismatch and asset graph mismatch fail without white scree
 test('rollback can use previous verified contribution without changing authorization', async()=>{ const cache=new ModuleUiContributionCache(); await loadSecureModuleUiContribution(fakePlanningUiContribution,{ catalog, artifactRegistry:registry, cache, importVerifiedModule:async()=>({ default:{} }) }); const failImport=await loadSecureModuleUiContribution(fakePlanningUiContribution,{ catalog, artifactRegistry:registry, cache, importVerifiedModule:async()=>{ throw new Error('boom') } }); assert.equal(failImport.ok,true); assert.equal(failImport.cacheState,'previous_verified'); });
 
 test('malformed remote payloads return schema_invalid without throwing TypeError', async()=>{
-  for(const payload of [null, {}, { contract:{ schemaVersion:'civitas-module-ui/v1' } }, (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.compatibility; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.routes; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); x.routes=[null]; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.artifact.entrypoint; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.artifact.assetManifest.assets; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); x.contract.status='unknown'; return x; })()]){
+  for(const payload of [null, "malformed", [], {}, { contract:{ schemaVersion:'civitas-module-ui/v1' } }, (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.compatibility; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.routes; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); x.routes=[null]; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.artifact.entrypoint; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); delete x.artifact.assetManifest.assets; return x; })(), (()=>{ const x=structuredClone(fakePlanningUiContribution); x.contract.status='unknown'; return x; })()]){
     const res=await loadSecureModuleUiContribution(payload,{ catalog, artifactRegistry:registry });
     assert.equal(res.ok,false);
     assert.equal(res.code,'schema_invalid');
@@ -38,4 +38,15 @@ test('rollback returns previous verified module exports instead of null default'
   assert.equal(failImport.ok,true);
   assert.equal(failImport.cacheState,'previous_verified');
   assert.equal(failImport.moduleExports, previousExports);
+});
+
+
+test('revoked cache entries never rollback to browser execution', async()=>{
+  const cache=new ModuleUiContributionCache();
+  const loaded=await loadSecureModuleUiContribution(fakePlanningUiContribution,{ catalog, artifactRegistry:registry, cache, importVerifiedModule:async()=>({ default:{ rendered:true } }) });
+  assert.equal(loaded.ok,true);
+  cache.revoke(loaded.contribution);
+  const revoked=await loadSecureModuleUiContribution(fakePlanningUiContribution,{ catalog, artifactRegistry:registry, cache, importVerifiedModule:async()=>{ throw new Error('boom') } });
+  assert.equal(revoked.ok,false);
+  assert.equal(revoked.code,'remote_error');
 });
