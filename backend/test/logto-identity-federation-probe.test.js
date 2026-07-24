@@ -60,3 +60,73 @@ test('probe enforces response size while streaming', async () => {
   const response = { status: 200, ok: true, headers: new Map(), body: new ReadableStream({ start(controller) { controller.enqueue(encoder.encode('0123456789')); controller.enqueue(encoder.encode('overflow')); controller.close(); } }) };
   await assert.rejects(() => mod.guardedFetch('https://auth.didaxus.com/api/users', { method: 'GET', policy: policy(mod), transport: async () => response }), /during streaming/);
 });
+
+test('probe includes exact read-only jit sso connectors endpoint for an organization', async () => {
+  const mod = await loadProbe();
+  const path = mod.organizationJitSsoConnectorsPath('org_123');
+  assert.equal(path, '/api/organizations/org_123/jit-sso-connectors');
+  const p = mod.buildPolicy({ endpoint: 'https://auth.didaxus.com', allowedPaths: mod.discoveryEndpoints({ organizationId: 'org_123' }) });
+  assert.equal(mod.assertRequestAllowed({ method: 'GET', url: `https://auth.didaxus.com${path}`, policy: p }), true);
+  assert.throws(() => mod.assertRequestAllowed({ method: 'GET', url: 'https://auth.didaxus.com/api/organizations/org_123', policy: p }), /unknown path/);
+});
+
+test('evidence artifact redacts response shape and hashes stable correlation candidates', async () => {
+  const mod = await loadProbe();
+  const artifact = mod.buildEvidenceArtifact({
+    endpoint: 'https://auth.didaxus.com',
+    observations: [{
+      method: 'GET',
+      path: '/api/organizations/org_123/jit-sso-connectors',
+      status: 200,
+      body: [{ id: 'jit_abc', connectorId: 'conn_xyz', email: 'person@example.com', clientSecret: 'super-secret' }],
+    }],
+    customTokenScriptClaimSample: { user: { sso_identities: [{ profile: { groups: ['faculty'] } }] } },
+  });
+
+  const serialized = JSON.stringify(artifact);
+  assert.equal(artifact.probeVersion, mod.PROBE_VERSION);
+  assert.equal(artifact.logtoEndpointHash, mod.sha256('https://auth.didaxus.com'));
+  assert.equal(artifact.endpoints[0].method, 'GET');
+  assert.equal(artifact.endpoints[0].httpStatus, 200);
+  assert.equal(artifact.externalGroupsPresent, true);
+  assert.equal(artifact.groupCompletenessCanBeDetermined, true);
+  assert.match(serialized, /redacted/);
+  assert.doesNotMatch(serialized, /person@example\.com|super-secret|faculty|jit_abc|conn_xyz/);
+  assert.deepEqual(artifact.stableCorrelationCandidates.map((candidate) => candidate.hash), [mod.sha256('jit_abc'), mod.sha256('conn_xyz')]);
+});
+
+test('custom token script claim-shape detection identifies absent, present, and overage groups', async () => {
+  const mod = await loadProbe();
+  assert.deepEqual(mod.detectExternalGroupShape({ user: { sso_identities: [{ profile: {} }] } }), {
+    customTokenScriptClaimShape: { userSsoIdentitiesProfileGroupsAvailable: false },
+    externalGroupsPresent: false,
+    groupCompletenessCanBeDetermined: false,
+  });
+  assert.deepEqual(mod.detectExternalGroupShape({ user: { sso_identities: [{ profile: { groups: [] } }] } }), {
+    customTokenScriptClaimShape: { userSsoIdentitiesProfileGroupsAvailable: true },
+    externalGroupsPresent: false,
+    groupCompletenessCanBeDetermined: true,
+  });
+  assert.deepEqual(mod.detectExternalGroupShape({ user: { sso_identities: [{ profile: { groups: ['g1'], _claim_names: { groups: 'src1' } } }] } }), {
+    customTokenScriptClaimShape: { userSsoIdentitiesProfileGroupsAvailable: true },
+    externalGroupsPresent: true,
+    groupCompletenessCanBeDetermined: false,
+  });
+});
+
+test('evidence artifact output contains no raw pii, tokens, or secrets', async () => {
+  const mod = await loadProbe();
+  const artifact = mod.buildEvidenceArtifact({
+    endpoint: 'https://auth.didaxus.com',
+    observations: [{
+      method: 'GET',
+      path: '/api/users',
+      status: 200,
+      body: { id: 'user_123', name: 'Jane Learner', email: 'jane@example.com', accessToken: 'ey.secret.token', phone: '+15555550100' },
+    }],
+    customTokenScriptClaimSample: { user: { sso_identities: [{ profile: { groups: ['students'], hasgroups: true } }] } },
+  });
+  const output = JSON.stringify(artifact);
+  assert.doesNotMatch(output, /Jane Learner|jane@example\.com|ey\.secret\.token|\+15555550100|students/);
+  assert.equal(artifact.groupCompletenessCanBeDetermined, false);
+});

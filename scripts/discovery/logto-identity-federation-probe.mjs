@@ -2,11 +2,12 @@
 import crypto from 'node:crypto';
 import net from 'node:net';
 
-export const PROBE_VERSION = '2026-07-issue-154-phase-0-v1';
+export const PROBE_VERSION = '2026-07-issue-154-phase-0-v2';
 export const DEFAULT_MAX_RESPONSE_BYTES = 128 * 1024;
 export const DEFAULT_TIMEOUT_MS = 5000;
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 const SENSITIVE_KEY_PATTERN = /(authorization|password|secret|token|credential|cookie|client[_-]?secret|api[_-]?key|email|phone|name|subject|groups?)/i;
+const DISCOVERY_ORGANIZATION_ID_PLACEHOLDER = '{organizationId}';
 
 export class ProbePolicyError extends Error {
   constructor(message, details = {}) {
@@ -128,7 +129,7 @@ export function redactHeaders(headers) {
   return Object.fromEntries([...headers.entries()].map(([key, value]) => [key, SENSITIVE_KEY_PATTERN.test(key) ? '[redacted]' : String(value).slice(0, 120)]));
 }
 
-export const DISCOVERY_ENDPOINTS = Object.freeze([
+export const BASE_DISCOVERY_ENDPOINTS = Object.freeze([
   '/api/.well-known/sign-in-exp',
   '/api/organizations',
   '/api/organization-roles',
@@ -139,9 +140,60 @@ export const DISCOVERY_ENDPOINTS = Object.freeze([
   '/api/resources',
 ]);
 
+export function organizationJitSsoConnectorsPath(organizationId = DISCOVERY_ORGANIZATION_ID_PLACEHOLDER) {
+  if (!organizationId || /[/?#]/.test(String(organizationId))) throw new ProbePolicyError('invalid organization id for discovery path');
+  return `/api/organizations/${encodeURIComponent(String(organizationId))}/jit-sso-connectors`;
+}
+
+export function discoveryEndpoints({ organizationId = DISCOVERY_ORGANIZATION_ID_PLACEHOLDER } = {}) {
+  return Object.freeze([...BASE_DISCOVERY_ENDPOINTS, organizationJitSsoConnectorsPath(organizationId)]);
+}
+
+export const DISCOVERY_ENDPOINTS = discoveryEndpoints();
+
+export function detectExternalGroupShape(value) {
+  const groups = value?.user?.sso_identities?.[0]?.profile?.groups;
+  const hasProfileGroups = Array.isArray(groups);
+  const externalGroupsPresent = hasProfileGroups && groups.length > 0;
+  const overageMarkers = [
+    value?.user?.sso_identities?.[0]?.profile?.hasgroups,
+    value?.user?.sso_identities?.[0]?.profile?._claim_names?.groups,
+    value?.user?.sso_identities?.[0]?.profile?.groupsOverage,
+  ];
+  const groupCompletenessCanBeDetermined = hasProfileGroups && !overageMarkers.some(Boolean);
+  return { customTokenScriptClaimShape: { userSsoIdentitiesProfileGroupsAvailable: hasProfileGroups }, externalGroupsPresent, groupCompletenessCanBeDetermined };
+}
+
+function collectHashes(value, keys = ['id', 'userId', 'organizationId', 'connectorId', 'enterpriseSsoIdentityId'], out = []) {
+  if (value == null || out.length >= 12) return out;
+  if (Array.isArray(value)) for (const entry of value) collectHashes(entry, keys, out);
+  else if (typeof value === 'object') for (const [key, entry] of Object.entries(value)) keys.includes(key) && typeof entry !== 'object' ? out.push({ sourceKey: key, hash: sha256(entry) }) : collectHashes(entry, keys, out);
+  return out;
+}
+
+export function buildEvidenceArtifact({ endpoint, observations = [], customTokenScriptClaimSample = null } = {}) {
+  const claimShape = detectExternalGroupShape(customTokenScriptClaimSample);
+  return {
+    probeVersion: PROBE_VERSION,
+    logtoEndpointHash: sha256(new URL(endpoint).origin),
+    endpoints: observations.map(({ method = 'GET', path, status, body }) => ({
+      method: String(method).toUpperCase(),
+      path: normalizePath(path),
+      httpStatus: status,
+      redactedResponseShape: summarizeShape(body),
+    })),
+    customTokenScriptClaimShape: claimShape.customTokenScriptClaimShape,
+    externalGroupsPresent: claimShape.externalGroupsPresent,
+    groupCompletenessCanBeDetermined: claimShape.groupCompletenessCanBeDetermined,
+    stableCorrelationCandidates: observations.flatMap(({ body }) => collectHashes(body)).slice(0, 12),
+  };
+}
+
 export async function runStaticDiscovery({ env = process.env } = {}) {
   const credentialState = detectCredentialState(env);
-  return { probeVersion: PROBE_VERSION, remoteState: 'verification_required', remoteObservationPerformed: false, credentialState, plannedReadOnlyEndpoints: DISCOVERY_ENDPOINTS.map((path) => ({ method: 'GET', path })) };
+  const organizationId = env.LOGTO_DISCOVERY_ORGANIZATION_ID || DISCOVERY_ORGANIZATION_ID_PLACEHOLDER;
+  const endpoints = discoveryEndpoints({ organizationId });
+  return { probeVersion: PROBE_VERSION, remoteState: 'verification_required', remoteObservationPerformed: false, credentialState, plannedReadOnlyEndpoints: endpoints.map((path) => ({ method: 'GET', path })), evidenceSections: [{ name: 'custom-token-script-claim-shape', verifies: 'user.sso_identities[0].profile.groups availability' }] };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
